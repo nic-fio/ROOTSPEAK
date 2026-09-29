@@ -231,6 +231,7 @@ cmd_send() {
 		# Un messaggio informativo già scritto su un terminale è considerato mostrato.
 		if [ "$level" = info ] && [ $nterm -gt 0 ]; then
 			as_user "$u" mv "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/read/$id"
+			ams_log "utente $u: mostrato il messaggio informativo $id (scritto su $nterm terminali)"
 		fi
 		wake_agent "$u"
 		echo "$u $(date +%s) $nterm" >>"$dir/delivery"

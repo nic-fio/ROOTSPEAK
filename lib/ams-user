@@ -36,6 +36,12 @@ snooze() { touch "$D/state/$1.$2"; }
 
 mark_read() { mv -f "$D/inbox/$1" "$D/read/$1" 2>/dev/null; rm -f "$D/state/$1".*; }
 
+# Un messaggio informativo è stato mostrato: niente conferma, solo il registro.
+mark_shown() {
+	mark_read "$1"
+	ams_log "utente $U: mostrato il messaggio informativo $1 ($2)"
+}
+
 # Registra la conferma. Vale la prima: una conferma successiva da un altro
 # canale non sovrascrive quella già registrata.
 ack() {
@@ -75,7 +81,7 @@ cmd_prompt() {
 		f=$D/inbox/$id
 		if [ "$(ams_msg_get "$f" level)" != ack ]; then
 			ams_msg_term "$f"
-			mark_read "$id"
+			mark_shown "$id" "$where"
 			continue
 		fi
 		if [ -z "$login" ] && snoozed "$id" term; then
@@ -130,16 +136,19 @@ cmd_agent() {
 	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio.
 	trap : USR1
 	while graphical_session; do
+		# Prima gli avvisi informativi, così non restano in coda dietro
+		# una finestra di conferma in attesa del clic.
+		for id in $(pending); do
+			f=$D/inbox/$id
+			[ -f "$f" ] && [ "$(ams_msg_get "$f" level)" != ack ] || continue
+			notify-send -a AMS "AMS · $(ams_msg_heading "$f" | escape_markup)" \
+				"$(ams_msg_body "$f" | escape_markup)"
+			mark_shown "$id" desktop
+		done
 		for id in $(pending); do
 			f=$D/inbox/$id
 			[ -f "$f" ] || continue
-			if [ "$(ams_msg_get "$f" level)" != ack ]; then
-				notify-send -a AMS "AMS · $(ams_msg_heading "$f" | escape_markup)" \
-					"$(ams_msg_body "$f" | escape_markup)"
-				mark_read "$id"
-			elif ! snoozed "$id" gui; then
-				show_dialog "$id"
-			fi
+			if ! snoozed "$id" gui; then show_dialog "$id"; fi
 		done
 		# Attesa interrompibile: il segnale di `ams send` la termina subito.
 		sleep "$AMS_AGENT_POLL" &
