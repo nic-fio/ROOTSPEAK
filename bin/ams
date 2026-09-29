@@ -8,7 +8,9 @@ AMS_LIB=${AMS_LIB:-/usr/local/lib/ams}
 . "$AMS_LIB/ams-common.sh"
 
 usage() {
-	cat <<'EOF'
+	cat <<EOF
+AMS - Advanced Messaging System for linux $AMS_VERSION
+
 Uso: ams <comando> [opzioni]
 
   send [opzioni] [TESTO]   invia un messaggio (senza TESTO lo legge da stdin)
@@ -16,11 +18,14 @@ Uso: ams <comando> [opzioni]
                            @gruppo, all (tutti gli utenti), online (i collegati)
        --level LIVELLO     info oppure ack (predefinito: ack, chiede conferma)
        --title TITOLO      titolo del messaggio
-       --expires DURATA    scadenza: 30m, 2h, 3d oppure una data ("sabato 12:00")
+       --expires DURATA    scadenza: 30m, 2h, 3d oppure data e ora ("2026-10-04 12:00")
        --file FILE         legge il testo da FILE
   list                     messaggi inviati con il conteggio delle conferme
   status ID                stato del messaggio per ogni destinatario
   revoke ID                ritira un messaggio
+  version                  versione di AMS
+
+Manuale: /usr/local/share/doc/ams/user-manual.html
 EOF
 }
 
@@ -327,6 +332,7 @@ send) shift; cmd_send "$@" ;;
 list) shift; cmd_list ;;
 status) shift; cmd_status "$@" ;;
 revoke) shift; cmd_revoke "$@" ;;
+version | --version) echo "AMS - Advanced Messaging System for linux $AMS_VERSION" ;;
 -h | --help | help | '') usage ;;
 *) usage >&2; exit 1 ;;
 esac

@@ -56,7 +56,7 @@ ack() {
 # ---- terminale: chiamato dall'hook della shell prima di ogni prompt ----
 
 # Chiede la conferma. Esito: 0 sì, 1 no, 2 già confermato altrove (per
-# esempio dal desktop) mentre la domanda era in attesa.
+# esempio dal desktop) mentre la domanda era in attesa, 3 messaggio ritirato.
 ask() {
 	local ans='' rc
 	printf "[AMS] Confermi di aver letto il messaggio? [s/N] "
@@ -68,6 +68,10 @@ ask() {
 		if [ -e "$D/acks/$1" ]; then
 			echo
 			return 2
+		fi
+		if [ ! -e "$D/inbox/$1" ]; then
+			echo
+			return 3
 		fi
 	done
 	case $ans in [sSyY]*) return 0 ;; *) return 1 ;; esac
@@ -93,6 +97,7 @@ cmd_prompt() {
 		case $? in
 		0) ack "$id" "$where"; echo "[AMS] Confermato." ;;
 		2) mark_read "$id"; echo "[AMS] Messaggio già confermato altrove (per esempio dal desktop)." ;;
+		3) echo "[AMS] L'amministratore ha ritirato il messaggio." ;;
 		*) snooze "$id" term; echo "[AMS] La domanda verrà riproposta tra $AMS_REMIND_MINUTES minuti." ;;
 		esac
 	done
@@ -118,14 +123,15 @@ show_dialog() {
 		--text="$(ams_msg_heading "$f")"$'\n\n'"$(ams_msg_body "$f")" \
 		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null &
 	pid=$!
-	# Se l'utente conferma da un terminale, la finestra si chiude da sola.
+	# La finestra si chiude da sola se l'utente conferma da un terminale o se
+	# l'amministratore ritira il messaggio.
 	while kill -0 "$pid" 2>/dev/null; do
-		if [ -e "$D/acks/$id" ]; then kill "$pid" 2>/dev/null; fi
+		if [ -e "$D/acks/$id" ] || [ ! -e "$f" ]; then kill "$pid" 2>/dev/null; fi
 		sleep 1
 	done
 	wait "$pid"
 	rc=$?
-	[ -e "$D/acks/$id" ] && return
+	[ -e "$D/acks/$id" ] || [ ! -e "$f" ] && return
 	if [ $rc -eq 0 ]; then ack "$id" desktop; else snooze "$id" gui; fi
 }
 

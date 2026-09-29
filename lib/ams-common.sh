@@ -1,6 +1,8 @@
 # AMS - Advanced Messaging System for linux
 # Libreria condivisa da `ams` (amministratore, root) e `ams-user` (utente).
 
+AMS_VERSION=0.1.0
+
 AMS_DEFAULT_LEVEL=ack
 AMS_REMIND_MINUTES=30
 AMS_AGENT_POLL=60

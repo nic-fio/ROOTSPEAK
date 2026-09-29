@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manuale utente di AMS</title>
+<meta name="description" content="Manuale utente di AMS - Advanced Messaging System for linux: inviare messaggi agli utenti di una macchina Linux e sapere chi li ha letti.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="btn menu-btn" type="button" aria-label="Apri l'indice">&#9776; Indice</button>
+  <strong>Manuale utente di AMS</strong>
+</div>
+<div class="layout">
+<nav class="sidebar" aria-label="Indice">
+  <div class="brand">
+    <div class="brand-logo">AMS</div>
+    <div class="brand-text"><strong>Manuale utente di AMS</strong><span>Advanced Messaging System 0.1.0</span></div>
+  </div>
+  <div class="search">
+    <input type="search" placeholder="Cerca  ( / )" aria-label="Cerca">
+    <div class="search-results" role="listbox"></div>
+  </div>
+  <div class="toc"></div>
+  <div class="side-tools">
+    <button class="btn print-btn" type="button">Stampa / PDF</button>
+  </div>
+</nav>
+
+<main>
+
+<header class="titlepage">
+  <div class="kicker">Manuale utente</div>
+  <h1>AMS — Advanced Messaging System for linux</h1>
+  <p class="lead">Messaggi dagli amministratori agli utenti di una macchina Linux: sul terminale e sul desktop,
+  anche per chi non è collegato, con la conferma di lettura di ogni utente.</p>
+  <div class="meta">
+    <span><b>Versione</b> 0.1.0 (prototipo)</span>
+    <span><b>Piattaforma</b> Linux con systemd</span>
+    <span><b>Comando</b> ams</span>
+    <span><b>Destinatari</b> amministratori di sistema</span>
+  </div>
+</header>
+
+<section class="unnumbered no-toc">
+  <h2 class="unnumbered" id="contents">Indice</h2>
+  <div class="toc-print" id="contents-list"></div>
+  <p>L'<a href="#index">indice analitico</a> in fondo elenca comandi, opzioni e argomenti in ordine alfabetico.
+  Premi <kbd>/</kbd> per cercare.</p>
+</section>
+
+<!-- ===================================================================== -->
+<h2 id="introduzione">Introduzione</h2>
+
+<p class="chapter-intro">AMS permette agli amministratori di una macchina Linux di mandare messaggi di testo agli utenti
+e di sapere chi ha confermato di averli letti.</p>
+
+<h3 id="cos-e-ams">Che cos'è AMS</h3>
+<p>Un amministratore scrive un messaggio con il comando <code>ams send</code> e sceglie i destinatari: un utente, un gruppo,
+tutti gli utenti o solo quelli collegati. AMS consegna il messaggio dovunque l'utente si trovi e ne segue la conferma.</p>
+<div class="cards">
+  <div class="card"><div class="icon">&gt;_</div><h4>Sul terminale</h4>
+    <p>Console, connessioni ssh, terminali del desktop, tmux: il testo compare subito, e al prompt successivo
+    AMS chiede la conferma di lettura.</p></div>
+  <div class="card"><div class="icon">&#9634;</div><h4>Sul desktop</h4>
+    <p>Una finestra con i pulsanti <strong>Ho letto</strong> e <strong>Più tardi</strong>, su X11 e Wayland.</p></div>
+  <div class="card"><div class="icon">&#8987;</div><h4>Anche a chi non c'è</h4>
+    <p>Gli utenti non collegati trovano il messaggio al login successivo, grafico o testuale.</p></div>
+  <div class="card"><div class="icon">&#10003;</div><h4>Conferma di lettura</h4>
+    <p>Per ogni utente: chi ha confermato, quando e da dove. Basta una conferma per tutte le sessioni.</p></div>
+  <div class="card"><div class="icon">&#8635;</div><h4>Insistente, mai bloccante</h4>
+    <p>Chi rimanda viene sollecitato di nuovo, ma AMS non blocca mai il lavoro e non disconnette nessuno.</p></div>
+  <div class="card"><div class="icon">&#9881;</div><h4>Nessun demone</h4>
+    <p>AMS usa strumenti già presenti nel sistema: logind, sudo, la shell, l'avvio automatico del desktop.</p></div>
+</div>
+
+<h3 id="ams-e-wall">AMS e i comandi wall e write</h3>
+<p>Linux ha già <code>wall</code> e <code>write</code> per scrivere sui terminali degli utenti collegati. AMS fa di più:</p>
+<table>
+  <thead><tr><th></th><th><code>wall</code> / <code>write</code></th><th>AMS</th></tr></thead>
+  <tbody>
+    <tr><td>Terminali degli utenti collegati</td><td class="yes">sì</td><td class="yes">sì</td></tr>
+    <tr><td>Desktop (X11 e Wayland)</td><td class="no">no</td><td class="yes">sì</td></tr>
+    <tr><td>Utenti non collegati</td><td class="no">no</td><td class="yes">sì, al login successivo</td></tr>
+    <tr><td>Conferma di lettura</td><td class="no">no</td><td class="yes">sì, con data, ora e canale</td></tr>
+    <tr><td>Solleciti a chi non ha confermato</td><td class="no">no</td><td class="yes">sì</td></tr>
+    <tr><td>Terminali che non si registrano in utmp</td><td class="no">no</td><td class="yes">sì</td></tr>
+  </tbody>
+</table>
+
+<h3 id="cosa-non-fa">Cosa AMS non fa</h3>
+<ul>
+  <li><strong>Non blocca l'utente.</strong> Nessuna schermata bloccata, nessun login negato, nessuna disconnessione:
+      l'utente può sempre rimandare.</li>
+  <li><strong>Non è una chat.</strong> Gli utenti ricevono e confermano; non rispondono e non hanno comandi propri.</li>
+  <li><strong>Non attraversa la rete.</strong> AMS lavora su una sola macchina: raggiunge gli utenti collegati a essa,
+      anche da remoto via ssh.</li>
+  <li><strong>Non tocca le sessioni senza terminale.</strong> Script, cron, <code>scp</code>, <code>rsync</code> e
+      <code>ssh host comando</code> non vedono mai AMS.</li>
+</ul>
+<div class="callout"><span class="callout-title">Nota</span>
+<p>La conferma registra che l'utente <em>dichiara</em> di aver letto il messaggio, come le spunte di lettura di
+un'app di messaggistica. Non prova che l'abbia letto davvero.</p></div>
+
+<h3 id="convenzioni">Convenzioni di questo manuale</h3>
+<p>Negli esempi, <code>admin</code> è un amministratore e <code>mario</code>, <code>anna</code>, <code>luca</code> sono utenti
+normali della macchina <code>server</code>. Le righe che iniziano con un prompt (<code>admin@server:~$</code>) sono comandi;
+il pulsante <strong>Copia</strong> degli esempi copia solo quelle. Le righe che AMS stampa nei terminali degli utenti
+iniziano con <code>[AMS]</code>.</p>
+
+<!-- ===================================================================== -->
+<h2 id="installazione">Installazione</h2>
+
+<p class="chapter-intro">Cosa serve, come installare AMS, cosa viene messo nel sistema e come toglierlo.</p>
+
+<h3 id="requisiti">Requisiti</h3>
+<ul>
+  <li>Una distribuzione Linux con <strong>systemd</strong> (AMS usa logind per trovare le sessioni). AMS è sviluppato e
+      provato su <strong>Debian 13</strong> con GNOME 48 su Wayland.</li>
+  <li><strong>bash</strong>, <strong>sudo</strong> e un gruppo di amministratori: <code>sudo</code> su Debian e Ubuntu,
+      <code>wheel</code> su Fedora, RHEL e Arch.</li>
+  <li><strong>util-linux</strong> (<code>runuser</code>, <code>flock</code>) e <strong>procps</strong> (<code>pkill</code>),
+      presenti in ogni installazione normale.</li>
+  <li>Per il desktop: <strong>zenity</strong> (la finestra di conferma) e <strong>notify-send</strong> (gli avvisi).</li>
+</ul>
+<pre class="terminal">admin@server:~$ sudo apt install zenity libnotify-bin</pre>
+
+<h3 id="installare" data-index="install.sh">Installare</h3>
+<p>Dalla cartella del progetto:</p>
+<pre class="terminal">admin@server:~/AMS$ ./install.sh
+AMS installato. Comando: /usr/local/bin/ams (utilizzabile dal gruppo sudo).
+Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda
+di conferma dalla prossima shell o dal prossimo login.</pre>
+<p>Lo script chiede la password di sudo se non viene lanciato da root. Riconosce da solo il gruppo degli amministratori
+e lo stampa alla fine.</p>
+<div class="callout tip"><span class="callout-title">Consiglio</span>
+<p>Gli utenti già collegati al momento dell'installazione ricevono subito i messaggi sul terminale e, sul desktop,
+la finestra di conferma dal primo invio. La domanda di conferma nel terminale arriva invece dalla prossima shell
+aperta: la shell già aperta non ha ancora caricato AMS.</p></div>
+
+<h3 id="file-installati">Cosa viene installato</h3>
+<table>
+  <thead><tr><th>Percorso</th><th>Che cos'è</th></tr></thead>
+  <tbody>
+    <tr><td data-index="/usr/local/bin/ams"><code>/usr/local/bin/ams</code></td><td>Il comando degli amministratori.
+        Proprietario <code>root:sudo</code> (o <code>wheel</code>), permessi <code>750</code>.</td></tr>
+    <tr><td><code>/usr/local/lib/ams/</code></td><td>La libreria comune e <code>ams-user</code>, l'aiutante interno che
+        mostra i messaggi agli utenti. Non è un comando da usare a mano.</td></tr>
+    <tr><td data-index="ams.conf"><code>/etc/ams/ams.conf</code></td><td>La <a href="#configurazione">configurazione</a>.
+        Un aggiornamento non la sovrascrive.</td></tr>
+    <tr><td><code>/etc/profile.d/ams.sh</code></td><td>L'aggancio alla shell bash: mostra i messaggi e chiede la conferma
+        prima del prompt.</td></tr>
+    <tr><td><code>/etc/bash.bashrc</code></td><td>Una riga aggiunta in fondo (<code># AMS hook</code>), perché su Debian e
+        Ubuntu i terminali del desktop non leggono <code>/etc/profile.d</code>.</td></tr>
+    <tr><td><code>/etc/xdg/autostart/ams-agent.desktop</code></td><td>L'avvio automatico dell'agente del desktop a ogni
+        login grafico.</td></tr>
+    <tr><td data-index="/var/lib/ams"><code>/var/lib/ams/</code></td><td>I messaggi: <code>sent/</code> (copie di riferimento,
+        solo root) e <code>users/<em>utente</em>/</code> (la casella di ogni utente, leggibile solo da lui e da root).</td></tr>
+    <tr><td><code>/usr/local/share/doc/ams/</code></td><td>Questo manuale.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="aggiornare">Aggiornare</h3>
+<p>Per installare una versione nuova basta rilanciare <code>./install.sh</code>. I messaggi e la configurazione restano;
+gli agenti del desktop della versione precedente vengono chiusi e ripartono aggiornati al primo invio o al login
+successivo.</p>
+
+<h3 id="disinstallare" data-index="--uninstall;--purge">Disinstallare</h3>
+<pre class="terminal">admin@server:~/AMS$ ./install.sh --uninstall
+AMS rimosso. Messaggi (/var/lib/ams) e configurazione (/etc/ams) conservati.</pre>
+<p><code>./install.sh --purge</code> toglie anche i messaggi e la configurazione. In entrambi i casi la riga aggiunta a
+<code>/etc/bash.bashrc</code> viene rimossa.</p>
+
+<!-- ===================================================================== -->
+<h2 id="primi-passi">Primi passi</h2>
+
+<p class="chapter-intro">Un primo messaggio dall'invio alla conferma, e come AMS lo fa arrivare.</p>
+
+<h3 id="primo-messaggio">Il primo messaggio</h3>
+<ol class="steps">
+  <li><strong>Invia.</strong> Da un terminale, come amministratore:
+<pre class="terminal">admin@server:~$ ams send --to mario --title "Manutenzione" "Sabato dalle 8 alle 12 il server sarà spento."
+[sudo] password di admin:
+Messaggio 1 inviato a 1 utente.</pre>
+      <code>ams</code> si rilancia da solo con sudo: la password è quella di ogni operazione amministrativa.</li>
+  <li><strong>Mario lo riceve.</strong> Se è sul desktop gli compare subito una finestra; se è in un terminale, il testo
+      compare lì e al prompt successivo AMS gli chiede se l'ha letto. Se non è collegato, lo troverà al login.</li>
+  <li><strong>Controlla.</strong> Quando vuoi, guarda chi ha confermato:
+<pre class="terminal">admin@server:~$ ams status 1
+Messaggio 1 · ack · Manutenzione · 03/10 18:30 · da admin
+  │ Sabato dalle 8 alle 12 il server sarà spento.
+
+UTENTE           STATO
+mario            confermato il 03/10 18:31 (desktop)</pre></li>
+</ol>
+
+<h3 id="percorso">Come viaggia un messaggio</h3>
+<p><code>ams send</code> salva il messaggio nella casella di ogni destinatario e lo consegna subito alle sessioni aperte.
+Dalla casella lo prendono anche le sessioni che si apriranno dopo.</p>
+<figure class="flow">
+<svg viewBox="0 0 860 340" role="img" aria-label="Schema: ams send salva il messaggio nella casella dell'utente, che lo consegna a terminali e desktop o lo tiene fino al login; la conferma, da qualunque canale, viene letta da ams status.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a6076"/>
+    </marker>
+  </defs>
+  <rect class="box-a" x="10" y="138" width="150" height="64" rx="10"/>
+  <text class="t-b" x="85" y="165" text-anchor="middle">ams send</text>
+  <text class="t-s" x="85" y="185" text-anchor="middle">amministratore (sudo)</text>
+
+  <rect class="box-g" x="205" y="138" width="170" height="64" rx="10"/>
+  <text class="t-b" x="290" y="165" text-anchor="middle">Casella dell'utente</text>
+  <text class="t-s" x="290" y="185" text-anchor="middle">/var/lib/ams/users/…</text>
+
+  <rect class="box-a" x="430" y="28" width="200" height="64" rx="10"/>
+  <text class="t-b" x="530" y="55" text-anchor="middle">Terminali</text>
+  <text class="t-s" x="530" y="75" text-anchor="middle">testo subito, domanda al prompt</text>
+
+  <rect class="box-a" x="430" y="138" width="200" height="64" rx="10"/>
+  <text class="t-b" x="530" y="165" text-anchor="middle">Desktop</text>
+  <text class="t-s" x="530" y="185" text-anchor="middle">finestra «Ho letto» o avviso</text>
+
+  <rect class="box-g" x="430" y="248" width="200" height="64" rx="10"/>
+  <text class="t-b" x="530" y="275" text-anchor="middle">Utente non collegato</text>
+  <text class="t-s" x="530" y="295" text-anchor="middle">il messaggio aspetta il login</text>
+
+  <rect class="box-m" x="680" y="138" width="170" height="64" rx="10"/>
+  <text class="t-b" x="765" y="165" text-anchor="middle">Conferma</text>
+  <text class="t-s" x="765" y="185" text-anchor="middle">letta da ams status</text>
+
+  <path class="line" d="M160,170 L203,170"/>
+  <path class="line" d="M375,160 C405,150 400,60 428,60"/>
+  <path class="line" d="M375,170 L428,170"/>
+  <path class="line" d="M375,180 C400,190 405,280 428,280"/>
+  <path class="line" d="M630,60 C660,60 652,158 678,158" stroke-dasharray="5 4"/>
+  <path class="line" d="M630,170 L678,170" stroke-dasharray="5 4"/>
+  <path class="line" d="M630,280 C660,280 652,182 678,182" stroke-dasharray="5 4"/>
+</svg>
+<figcaption>Il messaggio va nella casella dell'utente e da lì alle sue sessioni (frecce piene); chi non è collegato lo
+riceve al login. La conferma, da qualunque canale arrivi, vale per tutti (frecce tratteggiate).</figcaption>
+</figure>
+
+<!-- ===================================================================== -->
+<h2 id="inviare">Inviare messaggi</h2>
+
+<p class="chapter-intro">Destinatari, livelli, titolo, scadenza: tutte le scelte di <code>ams send</code>.</p>
+
+<h3 id="destinatari" data-index="destinatari;--to">Destinatari</h3>
+<p>L'opzione <code>--to</code> dice a chi mandare il messaggio. Più destinatari si separano con una virgola, senza spazi,
+e si possono mescolare: <code>--to mario,anna,@sviluppo</code>.</p>
+<dl class="defs">
+  <dt id="to-utente" data-index="utente (destinatario)">utente</dt>
+  <dd>Un utente per nome: <code>--to mario</code>. Un nome inesistente è un errore.</dd>
+  <dt id="to-gruppo" data-index="@gruppo">@gruppo</dt>
+  <dd>I membri di un gruppo Unix, compresi gli utenti che lo hanno come gruppo principale: <code>--to @sviluppo</code>.</dd>
+  <dt id="to-all" data-index="all">all</dt>
+  <dd>Tutti gli utenti umani: quelli con un UID nell'intervallo di <code>/etc/login.defs</code> (di solito da 1000) e una
+      shell di login valida. Restano esclusi root e gli account di sistema.</dd>
+  <dt id="to-online" data-index="online">online</dt>
+  <dd>Solo gli utenti che in questo momento hanno almeno una sessione aperta, locale o remota.</dd>
+</dl>
+<div class="callout"><span class="callout-title">Nota</span>
+<p>Le opzioni vanno scritte <strong>prima</strong> del testo: tutto quello che segue il primo argomento che non è un'opzione
+diventa il messaggio.</p></div>
+
+<h3 id="livelli" data-index="livelli;info;ack;--level">Livelli: info e ack</h3>
+<table>
+  <thead><tr><th>Livello</th><th>Cosa succede</th><th>Quando usarlo</th></tr></thead>
+  <tbody>
+    <tr><td><code>ack</code> (predefinito)</td><td>L'utente deve confermare di aver letto. Finché non lo fa, AMS glielo
+        ripropone.</td><td>Informazioni che ognuno deve aver visto: manutenzioni, nuove regole, scadenze.</td></tr>
+    <tr><td><code>info</code></td><td>Il messaggio viene mostrato una volta, senza domande: una notifica sul desktop, il testo
+        nel terminale.</td><td>Avvisi brevi e di passaggio: «il servizio web riparte tra 5 minuti».</td></tr>
+  </tbody>
+</table>
+<pre class="terminal">admin@server:~$ ams send --to online --level info "Riavvio del servizio web tra 5 minuti."
+Messaggio 2 inviato a 3 utenti.</pre>
+<p>Il livello predefinito si cambia in <a href="#configurazione">ams.conf</a>.</p>
+
+<h3 id="testo" data-index="--title;--file;stdin">Testo, titolo e file</h3>
+<p>Il testo si può dare in tre modi:</p>
+<ul>
+  <li>come argomento: <code>ams send --to mario "Testo del messaggio"</code>;</li>
+  <li>da un file, con <code>--file</code>: <code>ams send --to @sviluppo --file policy.txt</code>;</li>
+  <li>da stdin, se non c'è né testo né <code>--file</code>: <code>echo "…" | ams send --to mario</code>, oppure scrivendolo
+      e chiudendo con <kbd>Ctrl</kbd>+<kbd>D</kbd>.</li>
+</ul>
+<p>Il testo può occupare più righe. <code>--title</code> aggiunge un titolo, mostrato nell'intestazione del messaggio e nella
+finestra del desktop.</p>
+<pre class="terminal">admin@server:~$ ams send --to all --title "Nuova policy password" --file policy.txt
+Messaggio 3 inviato a 24 utenti.</pre>
+<div class="callout tip"><span class="callout-title">Consiglio</span>
+<p>AMS toglie dal testo i caratteri di controllo e le sequenze di escape: si può incollare testo da qualunque fonte
+senza rischiare di disturbare i terminali degli utenti. Vedi <a href="#pulizia-testo">Pulizia del testo</a>.</p></div>
+
+<h3 id="scadenza" data-index="scadenza;--expires">Scadenza</h3>
+<p>Con <code>--expires</code> un messaggio smette di essere mostrato dopo un certo tempo: chi non l'ha ancora visto non lo
+vedrà più, e nello stato risulterà «non confermato».</p>
+<table>
+  <thead><tr><th>Forma</th><th>Esempio</th><th>Significato</th></tr></thead>
+  <tbody>
+    <tr><td>minuti</td><td><code>--expires 30m</code></td><td>fra 30 minuti</td></tr>
+    <tr><td>ore</td><td><code>--expires 2h</code></td><td>fra 2 ore</td></tr>
+    <tr><td>giorni</td><td><code>--expires 3d</code></td><td>fra 3 giorni</td></tr>
+    <tr><td>data e ora</td><td><code>--expires "2026-10-04 12:00"</code></td><td>in quel momento</td></tr>
+  </tbody>
+</table>
+<div class="callout warning"><span class="callout-title">Attenzione</span>
+<p>Le date scritte a parole vanno in inglese (<code>"saturday 12:00"</code>, <code>"tomorrow 18:00"</code>): la forma
+<code>"sabato 12:00"</code> non è riconosciuta. Il formato <code>AAAA-MM-GG HH:MM</code> funziona sempre. Una scadenza
+già passata è un errore.</p></div>
+
+<h3 id="esempi-invio">Esempi</h3>
+<pre class="terminal">admin@server:~$ ams send --to anna "Il tuo account scade venerdì: passa in ufficio IT."
+admin@server:~$ ams send --to @studenti --expires 2d "Consegna dei progetti entro giovedì alle 18."
+admin@server:~$ ams send --to online --level info --expires 15m "Backup in corso: il disco sarà lento."
+admin@server:~$ ams send --to all --title "Manutenzione" --expires "2026-10-04 12:00" --file manutenzione.txt</pre>
+
+<!-- ===================================================================== -->
+<h2 id="controllo">Seguire le conferme</h2>
+
+<p class="chapter-intro">Chi ha letto, chi no, e come ritirare un messaggio.</p>
+
+<h3 id="elenco" data-index="ams list">L'elenco dei messaggi</h3>
+<p><code>ams list</code> mostra tutti i messaggi inviati, con il conteggio di chi ha confermato (per <code>ack</code>) o di chi
+ha visto il messaggio (per <code>info</code>) sul totale dei destinatari.</p>
+<pre class="terminal">admin@server:~$ ams list
+ID    DATA         LIV.  CONFERME  TESTO
+1     03/10 18:30  ack   1/1       Sabato dalle 8 alle 12 il server sarà spento.
+2     03/10 18:42  info  3/3       Riavvio del servizio web tra 5 minuti.
+3     03/10 19:05  ack   17/24     Dal 15 ottobre le password scadono ogni 90 giorni.
+4     04/10 09:10  ack   0/5       [ritirato] Riunione spostata alle 11.
+5     04/10 09:30  ack   3/8       [scaduto] Consegna dei progetti entro giovedì alle 18.</pre>
+<p><code>[ritirato]</code> e <code>[scaduto]</code> segnalano i messaggi che non vengono più mostrati.</p>
+
+<h3 id="stato" data-index="ams status">Lo stato di un messaggio</h3>
+<p><code>ams status ID</code> mostra il testo del messaggio e, per ogni destinatario, a che punto è.</p>
+<pre class="terminal">admin@server:~$ ams status 3
+Messaggio 3 · ack · Nuova policy password · 03/10 19:05 · da admin
+  │ Dal 15 ottobre le password scadono ogni 90 giorni.
+  │ Chi ha una password più vecchia dovrà cambiarla al primo accesso.
+
+UTENTE           STATO
+anna             confermato il 03/10 19:06 (desktop)
+luca             confermato il 03/10 19:20 (terminale pts/2)
+mario            da confermare (scritto su 1 terminale)
+paolo            da confermare</pre>
+<table>
+  <thead><tr><th>Stato</th><th>Significato</th></tr></thead>
+  <tbody>
+    <tr><td><code>confermato il … (canale)</code></td><td>L'utente ha confermato. Il canale dice da dove: <code>desktop</code> o
+        <code>terminale pts/N</code> (<code>terminale tty3</code> per una console).</td></tr>
+    <tr><td><code>da confermare (scritto su N terminali)</code></td><td>L'utente era collegato all'invio e il testo è
+        comparso nei suoi terminali, ma non ha ancora confermato.</td></tr>
+    <tr><td><code>da confermare</code></td><td>Non ancora confermato; se l'utente non era collegato, lo vedrà al login.</td></tr>
+    <tr><td><code>mostrato</code></td><td>Solo per <code>info</code>: l'avviso è stato mostrato.</td></tr>
+    <tr><td><code>non ancora mostrato</code></td><td>Solo per <code>info</code>: l'utente non l'ha ancora visto.</td></tr>
+    <tr><td><code>non confermato</code></td><td>Il messaggio è scaduto o è stato ritirato prima che l'utente confermasse.</td></tr>
+  </tbody>
+</table>
+
+<h3 id="ritirare" data-index="ams revoke;ritirare">Ritirare un messaggio</h3>
+<p><code>ams revoke ID</code> ritira un messaggio mandato per errore o non più valido.</p>
+<pre class="terminal">admin@server:~$ ams revoke 4
+Messaggio 4 ritirato.</pre>
+<ul>
+  <li>Chi non l'ha ancora visto non lo vedrà più.</li>
+  <li>Una finestra di conferma aperta si chiude da sola; una domanda in attesa nel terminale si interrompe con
+      «L'amministratore ha ritirato il messaggio».</li>
+  <li>Le conferme già date restano: <code>ams status</code> continua a mostrarle, con l'indicazione
+      <code>RITIRATO</code>.</li>
+</ul>
+<div class="callout warning"><span class="callout-title">Attenzione</span>
+<p>Il testo già comparso nei terminali al momento dell'invio non si può cancellare: è già sullo schermo dell'utente.</p></div>
+
+<h3 id="registro" data-index="journal;registro;journalctl">Il registro di sistema</h3>
+<p>AMS annota ogni invio, conferma, avviso mostrato e ritiro nel journal di systemd, con l'etichetta <code>ams</code>:</p>
+<pre class="terminal">admin@server:~$ sudo journalctl -t ams --since today
+ott 03 19:05:12 server ams[21044]: messaggio 3 (ack) inviato da admin a: anna luca mario paolo
+ott 03 19:06:40 server ams[21310]: utente anna: confermata la lettura del messaggio 3 (desktop)
+ott 03 19:20:02 server ams[22187]: utente luca: confermata la lettura del messaggio 3 (terminale pts/2)</pre>
+<p>Il registro serve anche come traccia per un audit: chi ha mandato cosa, a chi, e quando ogni utente ha confermato.</p>
+
+<!-- ===================================================================== -->
+<h2 id="utente">Cosa vede l'utente</h2>
+
+<p class="chapter-intro">Gli utenti non devono imparare nulla: i messaggi arrivano da soli e la conferma è un clic o una
+lettera. Questo capitolo mostra cosa vedono, per poterlo spiegare.</p>
+
+<h3 id="sul-desktop" data-index="finestra di conferma;Ho letto;Più tardi">Sul desktop</h3>
+<p>Per un messaggio <code>ack</code> compare una finestra con il titolo, la data e il testo:</p>
+<figure>
+<div class="dialog-demo" role="img" aria-label="Finestra di conferma di AMS">
+  <div class="d-title">AMS · Messaggio dall'amministratore</div>
+  <div class="d-body">
+    <div class="d-icon"><span>?</span></div>
+    <div class="d-text"><p>Manutenzione · 03/10 18:30</p><p>Sabato dalle 8 alle 12 il server sarà spento.</p></div>
+  </div>
+  <div class="d-buttons"><span>Più tardi</span><span>Ho letto</span></div>
+</div>
+<figcaption>La finestra di conferma (GNOME). L'aspetto segue il tema del desktop.</figcaption>
+</figure>
+<ul>
+  <li><strong>Ho letto</strong> conferma il messaggio: non ricompare più, in nessuna sessione.</li>
+  <li><strong>Più tardi</strong>, o la chiusura della finestra, rimanda: la finestra ricompare dopo il tempo impostato in
+      <a href="#configurazione">ams.conf</a> (30 minuti se non cambiato).</li>
+</ul>
+<p>Per un messaggio <code>info</code> compare invece una normale notifica del desktop, senza pulsanti, che sparisce da sola:</p>
+<figure>
+<div class="notify-demo" role="img" aria-label="Notifica di AMS">
+  <div class="n-app">AMS</div>
+  <strong>AMS · 03/10 18:42</strong>
+  Riavvio del servizio web tra 5 minuti.
+</div>
+<figcaption>Un avviso <code>info</code>.</figcaption>
+</figure>
+<p>Se ci sono avvisi e messaggi da confermare insieme, gli avvisi compaiono per primi.</p>
+
+<h3 id="nel-terminale" data-index="terminale;prompt">Nel terminale</h3>
+<p>Nel momento dell'invio il testo compare in tutti i terminali dell'utente, anche se sta lavorando:</p>
+<pre class="terminal">mario@server:~$
+── AMS · Messaggio dall'amministratore · Manutenzione · 03/10 18:30 ──
+Sabato dalle 8 alle 12 il server sarà spento.
+────────────────────────────────────────</pre>
+<p>Al prompt successivo (se Mario è già al prompt, basta premere <kbd>Invio</kbd>) AMS mostra di nuovo il messaggio e
+chiede la conferma:</p>
+<pre class="terminal">── AMS · Messaggio dall'amministratore · Manutenzione · 03/10 18:30 ──
+Sabato dalle 8 alle 12 il server sarà spento.
+────────────────────────────────────────
+[AMS] Confermi di aver letto il messaggio? [s/N] s
+[AMS] Confermato.
+mario@server:~$</pre>
+<p>Con qualunque altra risposta, o solo <kbd>Invio</kbd>, il messaggio è rimandato. Fino alla domanda successiva, a ogni
+prompt compare solo un promemoria:</p>
+<pre class="terminal">[AMS] La domanda verrà riproposta tra 30 minuti.
+mario@server:~$ ls
+documenti  progetti
+[AMS] Hai 1 messaggio dell'amministratore da confermare.
+mario@server:~$</pre>
+<div class="callout"><span class="callout-title">Nota</span>
+<p>Se l'utente ha a schermo un programma a tutto schermo (un editor, <code>htop</code>), il testo dell'invio si sovrappone
+alla schermata, come succede con <code>wall</code>. Non si perde nulla: la schermata torna a posto al primo aggiornamento o
+con <kbd>Ctrl</kbd>+<kbd>L</kbd>.</p></div>
+
+<h3 id="non-collegato" data-index="coda;login">Utente non collegato</h3>
+<p>Il messaggio aspetta nella casella dell'utente. Al login successivo:</p>
+<ul>
+  <li><strong>dal desktop</strong>, la finestra compare appena si apre la sessione;</li>
+  <li><strong>da terminale</strong> (console, ssh), il messaggio e la domanda compaiono subito dopo il login, prima del
+      primo prompt. Al login la domanda viene fatta anche se l'utente aveva rimandato.</li>
+</ul>
+
+<h3 id="una-conferma" data-index="più sessioni">Più sessioni, una sola conferma</h3>
+<p>Un utente con il desktop e due connessioni ssh aperte riceve il messaggio in tutte e tre. Basta confermare in una: la
+finestra si chiude da sola, le domande in attesa negli altri terminali si interrompono con «Messaggio già confermato
+altrove», e <code>ams status</code> registra la prima conferma arrivata.</p>
+
+<!-- ===================================================================== -->
+<h2 id="configurazione">Configurazione</h2>
+
+<p class="chapter-intro">Le poche impostazioni di AMS stanno in un solo file.</p>
+
+<h3 id="ams-conf">Il file ams.conf</h3>
+<p><code>/etc/ams/ams.conf</code> è un file di shell con righe <code>NOME=valore</code>. Le modifiche valgono subito per
+<code>ams send</code> e per i terminali; l'agente del desktop legge il file quando parte, quindi per lui valgono dal login
+successivo dell'utente.</p>
+<pre class="code" data-lang="conf"># Livello predefinito dei messaggi: info oppure ack
+AMS_DEFAULT_LEVEL=ack
+
+# Dopo quanti minuti riproporre un messaggio rimandato dall'utente
+AMS_REMIND_MINUTES=30
+
+# Ogni quanti secondi l'agente del desktop ricontrolla i messaggi
+# (i nuovi messaggi lo svegliano comunque subito)
+AMS_AGENT_POLL=60</pre>
+<dl class="defs">
+  <dt id="set-level" data-kind="setting" data-index="AMS_DEFAULT_LEVEL">AMS_DEFAULT_LEVEL</dt>
+  <dd>Il livello usato quando <code>ams send</code> non ha <code>--level</code>: <code>ack</code> (predefinito) o
+      <code>info</code>.</dd>
+  <dt id="set-remind" data-kind="setting" data-index="AMS_REMIND_MINUTES">AMS_REMIND_MINUTES</dt>
+  <dd>Dopo quanti minuti un messaggio rimandato viene riproposto, sia nel terminale sia sul desktop. Predefinito: 30.</dd>
+  <dt id="set-poll" data-kind="setting" data-index="AMS_AGENT_POLL">AMS_AGENT_POLL</dt>
+  <dd>Ogni quanti secondi l'agente del desktop ricontrolla la casella. È solo una rete di sicurezza: <code>ams send</code>
+      sveglia l'agente appena consegna un messaggio, e la finestra compare subito. Predefinito: 60; valori più bassi
+      consumano un po' più di batteria.</dd>
+</dl>
+<div class="callout warning"><span class="callout-title">Attenzione</span>
+<p>Il file viene letto come script di shell, anche dagli utenti: deve restare di proprietà di root e non scrivibile da
+altri (<code>644</code>, come lo installa <code>install.sh</code>).</p></div>
+
+<!-- ===================================================================== -->
+<h2 id="sicurezza">Sicurezza e permessi</h2>
+
+<p class="chapter-intro">Chi può fare cosa, e come AMS protegge gli utenti e il sistema.</p>
+
+<h3 id="chi-invia" data-index="gruppo sudo;wheel;permessi">Chi può usare ams</h3>
+<p>Solo gli amministratori: il comando è installato con proprietario <code>root:sudo</code> (o <code>wheel</code>) e permessi
+<code>750</code>, quindi gli altri utenti non possono eseguirlo. Quando un amministratore lancia <code>ams</code>, il comando
+si rilancia da solo con sudo. AMS non ha gruppi né permessi propri: chi entra o esce dal gruppo degli amministratori
+ottiene o perde subito l'accesso.</p>
+<pre class="terminal">mario@server:~$ ams list
+bash: /usr/local/bin/ams: Permesso negato</pre>
+
+<h3 id="separazione">Ogni utente vede solo i suoi messaggi</h3>
+<p>La casella di ogni utente (<code>/var/lib/ams/users/<em>utente</em></code>) è leggibile solo da lui e da root. Le copie di
+riferimento dei messaggi e l'elenco dei destinatari (<code>/var/lib/ams/sent</code>) sono solo di root. Quando
+<code>ams</code> lavora nella casella di un utente lo fa con l'identità di quell'utente (<code>runuser</code>): così root non
+può essere ingannato da collegamenti simbolici messi lì dall'utente.</p>
+
+<h3 id="pulizia-testo" data-index="sequenze di escape;caratteri di controllo">Pulizia del testo</h3>
+<p>Un messaggio scritto nei terminali potrebbe contenere sequenze di escape capaci di cambiare colori, titolo della
+finestra o peggio. Prima di salvarlo, AMS toglie dal testo e dal titolo le sequenze ANSI, i caratteri di controllo e i
+caratteri C1, lasciando solo testo, tabulazioni e a capo.</p>
+
+<h3 id="valore-conferma">Cosa vale una conferma</h3>
+<p>La conferma è scritta dall'utente nella propria casella, con data, ora e canale; <code>ams status</code> la legge senza
+fidarsi del contenuto (solo un numero e il nome del canale). Un utente potrebbe, in teoria, fabbricarsi una conferma
+senza aver visto il messaggio: sarebbe comunque una sua dichiarazione, esattamente come premere «Ho letto».</p>
+
+<!-- ===================================================================== -->
+<h2 id="problemi">Limiti noti e soluzione dei problemi</h2>
+
+<p class="chapter-intro">I casi in cui AMS si comporta in modo diverso da quanto ci si aspetta, e cosa fare.</p>
+
+<h3 id="limiti">Limiti noti</h3>
+<ul>
+  <li data-index="bash;zsh;fish"><strong>La domanda al prompt esiste solo in bash.</strong> Con zsh o fish il testo compare lo
+      stesso nel terminale all'invio, ma la conferma va data dal desktop.</li>
+  <li data-index="su"><strong>Con <code>su</code> il terminale resta di chi l'ha aperto.</strong> Se <code>admin</code> apre un
+      terminale e diventa <code>mario</code> con <code>su - mario</code>, AMS non scrive in quel terminale all'invio, perché
+      per il sistema appartiene ancora ad <code>admin</code>. Mario vede comunque il messaggio e la domanda al prompt
+      successivo. Con <code>ssh mario@server</code> il terminale è di Mario e tutto funziona normalmente.</li>
+  <li><strong>Le date della scadenza a parole vanno in inglese</strong>: vedi <a href="#scadenza">Scadenza</a>.</li>
+  <li><strong>Una sola macchina</strong>: AMS non manda messaggi ad altri server.</li>
+</ul>
+
+<h3 id="soluzione-problemi">Soluzione dei problemi</h3>
+<table>
+  <thead><tr><th>Problema</th><th>Causa probabile</th><th>Cosa fare</th></tr></thead>
+  <tbody>
+    <tr><td><code>ams: comando non trovato</code></td><td>AMS non è installato, o una versione vecchia lo ha messo in
+        <code>/usr/local/sbin</code>.</td><td>Rilanciare <code>./install.sh</code>.</td></tr>
+    <tr><td><code>Permesso negato</code> lanciando <code>ams</code></td><td>L'utente non è nel gruppo degli
+        amministratori.</td><td>È voluto. Per aggiungere un amministratore: <code>sudo usermod -aG sudo nome</code>, poi
+        un nuovo login.</td></tr>
+    <tr><td>Nel terminale il testo arriva, la domanda no</td><td>La shell era già aperta quando AMS è stato installato, o
+        non è bash.</td><td>Aprire una nuova shell; con zsh o fish, confermare dal desktop.</td></tr>
+    <tr><td>Sul desktop non compare nessuna finestra</td><td>Manca <code>zenity</code>, o l'agente non è partito.</td>
+        <td>Installare <code>zenity</code> e <code>libnotify-bin</code>; il prossimo <code>ams send</code> avvia l'agente se
+        manca, e comunque parte a ogni login grafico.</td></tr>
+    <tr><td>Due finestre uguali</td><td>Il messaggio è stato mandato due volte (due ID diversi in
+        <code>ams list</code>).</td><td>Ritirare il doppione con <code>ams revoke</code>.</td></tr>
+    <tr><td><code>ams: scadenza non valida</code></td><td>Data scritta in italiano.</td><td>Usare
+        <code>AAAA-MM-GG HH:MM</code> o una durata (<code>2h</code>).</td></tr>
+    <tr><td>Un utente dice di non aver visto nulla</td><td>—</td><td>Controllare <code>ams status ID</code> e
+        <code>sudo journalctl -t ams</code>: dicono se era collegato e se il messaggio è stato scritto nei suoi
+        terminali.</td></tr>
+  </tbody>
+</table>
+
+<!-- ===================================================================== -->
+<h2 id="reference">Riferimento dei comandi</h2>
+
+<p class="chapter-intro">Tutti i comandi di <code>ams</code>. Il testo di ogni riquadro è quello stampato da
+<code>ams --help</code>.</p>
+
+<article class="cmd" id="cmd-send" data-index="ams send">
+<h4><code>ams send</code></h4>
+<p class="cmd-summary">Invia un messaggio</p>
+<pre class="usage">ams send --to DEST [--level info|ack] [--title TITOLO] [--expires DURATA] [--file FILE] [TESTO]</pre>
+<pre class="cmd-help">  send [opzioni] [TESTO]   invia un messaggio (senza TESTO lo legge da stdin)
+       --to DEST           destinatari: utente, lista separata da virgole,
+                           @gruppo, all (tutti gli utenti), online (i collegati)
+       --level LIVELLO     info oppure ack (predefinito: ack, chiede conferma)
+       --title TITOLO      titolo del messaggio
+       --expires DURATA    scadenza: 30m, 2h, 3d oppure data e ora ("2026-10-04 12:00")
+       --file FILE         legge il testo da FILE</pre>
+<p>Stampa <code>Messaggio N inviato a M utenti.</code> Vedi <a href="#inviare">Inviare messaggi</a>.</p>
+</article>
+
+<article class="cmd" id="cmd-list" data-index="ams list">
+<h4><code>ams list</code></h4>
+<p class="cmd-summary">Elenca i messaggi inviati</p>
+<pre class="usage">ams list</pre>
+<pre class="cmd-help">  list                     messaggi inviati con il conteggio delle conferme</pre>
+<p>Vedi <a href="#elenco">L'elenco dei messaggi</a>.</p>
+</article>
+
+<article class="cmd" id="cmd-status" data-index="ams status">
+<h4><code>ams status</code></h4>
+<p class="cmd-summary">Stato di un messaggio per ogni destinatario</p>
+<pre class="usage">ams status ID</pre>
+<pre class="cmd-help">  status ID                stato del messaggio per ogni destinatario</pre>
+<p>Vedi <a href="#stato">Lo stato di un messaggio</a>.</p>
+</article>
+
+<article class="cmd" id="cmd-revoke" data-index="ams revoke">
+<h4><code>ams revoke</code></h4>
+<p class="cmd-summary">Ritira un messaggio</p>
+<pre class="usage">ams revoke ID</pre>
+<pre class="cmd-help">  revoke ID                ritira un messaggio</pre>
+<p>Vedi <a href="#ritirare">Ritirare un messaggio</a>.</p>
+</article>
+
+<article class="cmd" id="cmd-version" data-index="ams version">
+<h4><code>ams version</code></h4>
+<p class="cmd-summary">Versione di AMS</p>
+<pre class="usage">ams version</pre>
+<pre class="cmd-help">  version                  versione di AMS</pre>
+<p>Anche <code>ams --version</code>. <code>ams</code> da solo, <code>ams help</code> e <code>ams --help</code> stampano l'aiuto
+completo.</p>
+</article>
+
+<h3 id="messaggi-errore" data-index="errori">Messaggi di errore</h3>
+<table>
+  <thead><tr><th>Messaggio</th><th>Significato</th></tr></thead>
+  <tbody>
+    <tr><td><code>ams: manca --to</code></td><td>Nessun destinatario indicato.</td></tr>
+    <tr><td><code>ams: utente inesistente: NOME</code></td><td>Il nome non corrisponde a un utente della macchina.</td></tr>
+    <tr><td><code>ams: gruppo inesistente: NOME</code></td><td>Il gruppo dopo <code>@</code> non esiste.</td></tr>
+    <tr><td><code>ams: nessun destinatario</code></td><td>Il destinatario indicato non contiene utenti (per esempio un
+        gruppo vuoto, o <code>online</code> senza nessuno collegato).</td></tr>
+    <tr><td><code>ams: livello non valido: X (info o ack)</code></td><td><code>--level</code> accetta solo <code>info</code> e
+        <code>ack</code>.</td></tr>
+    <tr><td><code>ams: messaggio vuoto</code></td><td>Il testo è vuoto o fatto solo di spazi.</td></tr>
+    <tr><td><code>ams: scadenza non valida: X</code></td><td>Vedi <a href="#scadenza">Scadenza</a>.</td></tr>
+    <tr><td><code>ams: la scadenza è già passata</code></td><td>La data indicata è nel passato.</td></tr>
+    <tr><td><code>ams: messaggio inesistente: ID</code></td><td>Nessun messaggio con quel numero (vedi
+        <code>ams list</code>).</td></tr>
+    <tr><td><code>ams: opzione sconosciuta: X</code></td><td>Un'opzione scritta male.</td></tr>
+  </tbody>
+</table>
+
+<!-- ===================================================================== -->
+<h2 id="index" class="unnumbered">Indice analitico</h2>
+<p>Comandi, opzioni, impostazioni e argomenti in ordine alfabetico. Il numero dopo ogni voce è la sezione.</p>
+<div id="index-list"></div>
+
+<footer class="doc-footer">
+  Manuale utente di AMS — Advanced Messaging System for linux, per la versione 0.1.0.
+  Stile e struttura dai manuali di <a href="https://github.com/nic-fio/NESH">NESH</a>.
+  <br>Copyright (c) 2026 nic-fio.
+</footer>
+
+</main>
+</div>
+<script src="assets/docs.js"></script>
+</body>
+</html>

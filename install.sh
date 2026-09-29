@@ -9,6 +9,7 @@ PREFIX=${PREFIX:-/usr/local}
 LIBDIR=$PREFIX/lib/ams
 BINDIR=$PREFIX/bin
 VARDIR=/var/lib/ams
+DOCDIR=$PREFIX/share/doc/ams
 BASHRC=/etc/bash.bashrc
 MARK='# AMS hook'
 SRC=$(dirname "$(readlink -f "$0")")
@@ -43,6 +44,9 @@ do_install() {
 	chown "root:$group" "$BINDIR/ams"
 	chmod 750 "$BINDIR/ams"
 	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
+	install -d -m 755 "$DOCDIR/assets"
+	install -m 644 "$SRC/docs/user-manual.html" "$DOCDIR/user-manual.html"
+	install -m 644 "$SRC/docs/assets/docs.css" "$SRC/docs/assets/docs.js" "$DOCDIR/assets/"
 	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
 	subst "$SRC/etc/xdg/autostart/ams-agent.desktop" >/etc/xdg/autostart/ams-agent.desktop
 	chmod 644 /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
@@ -61,13 +65,14 @@ do_install() {
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 
 	echo "AMS installato. Comando: $BINDIR/ams (utilizzabile dal gruppo $group)."
+	echo "Manuale: $DOCDIR/user-manual.html"
 	echo "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda"
 	echo "di conferma dalla prossima shell o dal prossimo login."
 }
 
 do_uninstall() {
 	rm -f "$BINDIR/ams" "$PREFIX/sbin/ams" /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
-	rm -rf "$LIBDIR"
+	rm -rf "$LIBDIR" "$DOCDIR"
 	if [ -f "$BASHRC" ]; then sed -i "\|$MARK|d" "$BASHRC"; fi
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 	if [ "${1:-}" = purge ]; then

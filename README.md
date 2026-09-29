@@ -88,7 +88,9 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 
 ### Configurazione e distribuzione
 - [1] `/etc/ams/ams.conf`: livello predefinito, intervallo dei solleciti
-- [1] Script di installazione e man page
+- [1] Script di installazione
+- [1] Manuale utente in HTML (`docs/user-manual.html`), con lo stile dei manuali di NESH
+- [2] Man page breve di `ams`, con rimando al manuale
 - [2] Pacchetti deb e rpm
 - [2] Interfaccia in italiano e inglese
 
@@ -137,6 +139,11 @@ compilato si valuterà solo se emergono limiti concreti.
 | `/etc/profile.d/ams.sh` | Hook della shell (richiamato anche da `/etc/bash.bashrc`) |
 | `/etc/xdg/autostart/ams-agent.desktop` | Avvio automatico dell'agente del desktop |
 | `/var/lib/ams/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
+| `/usr/local/share/doc/ams/` | Manuale utente |
+
+Il manuale completo è in [`docs/user-manual.html`](docs/user-manual.html): va aperto in un browser
+(GitHub mostra i file HTML come codice sorgente). Dopo l'installazione è anche in
+`/usr/local/share/doc/ams/user-manual.html`.
 
 Esempi:
 
