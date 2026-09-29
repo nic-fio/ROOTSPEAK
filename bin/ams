@@ -1,0 +1,331 @@
+#!/bin/bash
+# AMS - Advanced Messaging System for linux
+# ams: invio e gestione dei messaggi. Riservato agli amministratori (gruppo admin).
+set -euo pipefail
+
+AMS_LIB=${AMS_LIB:-/usr/local/lib/ams}
+[ -r "$AMS_LIB/ams-common.sh" ] || AMS_LIB=$(dirname "$(readlink -f "$0")")/../lib
+. "$AMS_LIB/ams-common.sh"
+
+usage() {
+	cat <<'EOF'
+Uso: ams <comando> [opzioni]
+
+  send [opzioni] [TESTO]   invia un messaggio (senza TESTO lo legge da stdin)
+       --to DEST           destinatari: utente, lista separata da virgole,
+                           @gruppo, all (tutti gli utenti), online (i collegati)
+       --level LIVELLO     info oppure ack (predefinito: ack, chiede conferma)
+       --title TITOLO      titolo del messaggio
+       --expires DURATA    scadenza: 30m, 2h, 3d oppure una data ("sabato 12:00")
+       --file FILE         legge il testo da FILE
+  list                     messaggi inviati con il conteggio delle conferme
+  status ID                stato del messaggio per ogni destinatario
+  revoke ID                ritira un messaggio
+EOF
+}
+
+# Da amministratore non root, ams si rilancia con sudo.
+# AMS_TEST=1 permette di provarlo senza root su una cartella di prova.
+if [ "$(id -u)" -ne 0 ] && [ -z "${AMS_TEST:-}" ]; then
+	exec sudo -- "$(readlink -f "$0")" "$@"
+fi
+
+is_root() { [ "$(id -u)" -eq 0 ]; }
+
+# Ogni accesso alle cartelle degli utenti avviene con l'identità dell'utente:
+# così root non segue link simbolici preparati dall'utente.
+as_user() {
+	local u=$1
+	shift
+	if is_root; then runuser -u "$u" -- "$@"; else "$@"; fi
+}
+
+# ---- destinatari ----
+
+human_users() {
+	local min max
+	min=$(awk '$1 == "UID_MIN" { print $2 }' /etc/login.defs 2>/dev/null)
+	max=$(awk '$1 == "UID_MAX" { print $2 }' /etc/login.defs 2>/dev/null)
+	getent passwd | awk -F: -v min="${min:-1000}" -v max="${max:-60000}" \
+		'$3 >= min && $3 <= max && $7 !~ /(nologin|false)$/ { print $1 }'
+}
+
+online_users() {
+	loginctl list-sessions --no-legend | awk '$6 == "user" { print $3 }'
+}
+
+group_members() {
+	local line gid
+	line=$(getent group "$1") || ams_die "gruppo inesistente: $1"
+	gid=$(cut -d: -f3 <<<"$line")
+	cut -d: -f4 <<<"$line" | tr ',' '\n'
+	getent passwd | awk -F: -v gid="$gid" '$4 == gid { print $1 }'
+}
+
+resolve_recipients() {
+	local item
+	local -a items
+	IFS=, read -ra items <<<"$1"
+	for item in "${items[@]}"; do
+		case $item in
+		all) human_users ;;
+		online) online_users ;;
+		@*) group_members "${item#@}" ;;
+		'') ;;
+		*) getent passwd "$item" >/dev/null || ams_die "utente inesistente: $item"
+		   echo "$item" ;;
+		esac
+	done | sed '/^$/d' | sort -u
+}
+
+# ---- sessioni ----
+
+# Sessioni utente di logind: "id tipo tty"
+user_sessions() {
+	local s
+	for s in $(loginctl list-sessions --no-legend | awk -v u="$1" '$3 == u && $6 == "user" { print $1 }'); do
+		echo "$s $(loginctl show-session "$s" -p Type --value) $(loginctl show-session "$s" -p TTY --value)"
+	done
+}
+
+# Terminali dell'utente: tutte le pts di sua proprietà (ssh, emulatori di
+# terminale, tmux) più le console delle sessioni testuali. Le sessioni senza
+# terminale (scp, cron, ssh senza pty) non ne hanno e restano escluse.
+user_terminals() {
+	local s type tty
+	if [ -n "${AMS_TEST:-}" ]; then echo "${AMS_TEST_TTY:-}"; return; fi
+	find /dev/pts -maxdepth 1 -user "$1" -name '[0-9]*' 2>/dev/null
+	while read -r s type tty; do
+		if [ "$type" = tty ] && [[ $tty == tty[0-9]* ]]; then echo "/dev/$tty"; fi
+	done < <(user_sessions "$1")
+}
+
+has_graphical_session() {
+	user_sessions "$1" | awk '$2 == "x11" || $2 == "wayland" { found = 1 } END { exit !found }'
+}
+
+# Riga di comando esatta dell'agente, per non confondere altri processi.
+AGENT_RE="^/bin/bash $AMS_LIB/ams-user agent\$"
+
+# Sveglia l'agente del desktop, così la finestra compare subito; se l'utente ha
+# una sessione grafica ma nessun agente (per esempio perché era già collegato
+# quando AMS è stato installato), lo avvia.
+wake_agent() {
+	local u=$1
+	[ -z "${AMS_TEST:-}" ] || return 0
+	has_graphical_session "$u" || return 0
+	# Il segnale parte con l'identità dell'utente: raggiunge solo i suoi processi.
+	as_user "$u" pkill -USR1 -u "$u" -f "$AGENT_RE" && return 0
+	if is_root; then
+		systemd-run --user --machine="$u@.host" --collect --quiet "$AMS_LIB/ams-user" agent || true
+	else
+		systemd-run --user --collect --quiet "$AMS_LIB/ams-user" agent || true
+	fi
+}
+
+# ---- archivio ----
+
+init_var() {
+	install -d -m 755 "$AMS_VAR" "$AMS_VAR/users"
+	install -d -m 700 "$AMS_VAR/sent"
+}
+
+user_dir() {
+	local d=$AMS_VAR/users/$1
+	if [ ! -d "$d" ]; then
+		install -d -m 700 "$d"
+		if is_root; then chown "$1:" "$d"; fi
+	fi
+	as_user "$1" mkdir -p "$d/inbox" "$d/read" "$d/acks" "$d/state"
+}
+
+next_id() {
+	local seq=$AMS_VAR/sent/.seq n
+	exec 8>"$seq.lock"
+	flock 8
+	n=$(($(cat "$seq" 2>/dev/null || echo 0) + 1))
+	echo "$n" >"$seq"
+	exec 8>&-
+	echo "$n"
+}
+
+sent_msg() {
+	local f=$AMS_VAR/sent/$1/msg
+	[[ $1 =~ ^[0-9]+$ ]] && [ -f "$f" ] || ams_die "messaggio inesistente: $1"
+	echo "$f"
+}
+
+parse_expires() {
+	local n=${1%[mhd]}
+	case $1 in
+	*[0-9]m) echo $(($(date +%s) + n * 60)) ;;
+	*[0-9]h) echo $(($(date +%s) + n * 3600)) ;;
+	*[0-9]d) echo $(($(date +%s) + n * 86400)) ;;
+	*) date -d "$1" +%s 2>/dev/null || ams_die "scadenza non valida: $1" ;;
+	esac
+}
+
+check_expires() {
+	[ "$1" -gt "$(date +%s)" ] || ams_die "la scadenza è già passata"
+	echo "$1"
+}
+
+# ---- comandi ----
+
+cmd_send() {
+	local to='' level=$AMS_DEFAULT_LEVEL title='' expires='' file='' text id dir msg u t
+	local nterm users n
+	while [ $# -gt 0 ]; do
+		case $1 in
+		--to) to=${2:?}; shift 2 ;;
+		--level) level=${2:?}; shift 2 ;;
+		--title) title=${2:?}; shift 2 ;;
+		--expires) expires=$(parse_expires "${2:?}"); expires=$(check_expires "$expires"); shift 2 ;;
+		--file) file=${2:?}; shift 2 ;;
+		--) shift; break ;;
+		-*) ams_die "opzione sconosciuta: $1" ;;
+		*) break ;;
+		esac
+	done
+	[ -n "$to" ] || ams_die "manca --to"
+	case $level in info | ack) ;; *) ams_die "livello non valido: $level (info o ack)" ;; esac
+
+	if [ $# -gt 0 ]; then text="$*"
+	elif [ -n "$file" ]; then text=$(cat -- "$file")
+	else text=$(cat)
+	fi
+	text=$(ams_sanitize <<<"$text")
+	title=$(printf '%s' "$title" | ams_sanitize | tr '\n\t' '  ')
+	[ -n "${text//[[:space:]]/}" ] || ams_die "messaggio vuoto"
+
+	users=$(resolve_recipients "$to")
+	[ -n "$users" ] || ams_die "nessun destinatario"
+
+	init_var
+	id=$(next_id)
+	dir=$AMS_VAR/sent/$id
+	mkdir -m 700 "$dir"
+	msg=$dir/msg
+	{
+		echo "id: $id"
+		echo "from: ${SUDO_USER:-$(id -un)}"
+		echo "date: $(date +%s)"
+		echo "level: $level"
+		echo "title: $title"
+		echo "expires: $expires"
+		echo
+		printf '%s\n' "$text"
+	} >"$msg"
+	echo "$users" >"$dir/recipients"
+
+	for u in $users; do
+		user_dir "$u"
+		as_user "$u" sh -c 'cat >"$1.tmp" && mv "$1.tmp" "$1"' _ "$AMS_VAR/users/$u/inbox/$id" <"$msg"
+
+		nterm=0
+		for t in $(user_terminals "$u"); do
+			if ams_msg_term "$msg" | sed 's/$/\r/' | timeout 3 tee "$t" >/dev/null 2>&1; then
+				nterm=$((nterm + 1))
+			fi
+		done
+		# Un messaggio informativo già scritto su un terminale è considerato mostrato.
+		if [ "$level" = info ] && [ $nterm -gt 0 ]; then
+			as_user "$u" mv "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/read/$id"
+		fi
+		wake_agent "$u"
+		echo "$u $(date +%s) $nterm" >>"$dir/delivery"
+	done
+
+	ams_log "messaggio $id ($level) inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
+	n=$(wc -w <<<"$users")
+	if [ "$n" -eq 1 ]; then echo "Messaggio $id inviato a 1 utente."; else echo "Messaggio $id inviato a $n utenti."; fi
+}
+
+# Stato di un destinatario: "confermato EPOCH CANALE", "mostrato" (solo info), "attesa".
+recipient_state() {
+	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel level
+	level=$(ams_msg_get "$AMS_VAR/sent/$id/msg" level)
+	ack=$(as_user "$u" cat "$d/acks/$id" 2>/dev/null | head -c 200 | ams_sanitize) || true
+	if [ -n "$ack" ]; then
+		read -r epoch channel <<<"$ack"
+		[[ $epoch =~ ^[0-9]+$ ]] || epoch=0
+		echo "confermato $epoch ${channel:-?}"
+	elif [ "$level" = info ] && as_user "$u" test -e "$d/read/$id" 2>/dev/null; then
+		echo mostrato
+	else
+		echo attesa
+	fi
+}
+
+cmd_list() {
+	local dir id msg level n tot state flag u
+	[ -d "$AMS_VAR/sent" ] || { echo "Nessun messaggio inviato."; return; }
+	printf '%-5s %-12s %-5s %-9s %s\n' ID DATA LIV. CONFERME TESTO
+	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -n); do
+		msg=$AMS_VAR/sent/$dir/msg
+		id=$dir
+		level=$(ams_msg_get "$msg" level)
+		n=0 tot=0
+		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
+			tot=$((tot + 1))
+			state=$(recipient_state "$u" "$id")
+			case $state in confermato* | mostrato) n=$((n + 1)) ;; esac
+		done
+		flag=''
+		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag='[ritirato] '
+		ams_msg_expired "$msg" && flag+='[scaduto] '
+		printf '%-5s %-12s %-5s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
+			"$level" "$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
+	done
+}
+
+cmd_status() {
+	local id=${1:?manca l\'ID del messaggio} msg u state epoch channel line when nterm
+	msg=$(sent_msg "$id")
+	echo "Messaggio $id · $(ams_msg_get "$msg" level) · $(ams_msg_heading "$msg") · da $(ams_msg_get "$msg" from)"
+	[ -e "$AMS_VAR/sent/$id/revoked" ] && echo "RITIRATO il $(date -d "@$(cat "$AMS_VAR/sent/$id/revoked")" '+%d/%m %H:%M')"
+	ams_msg_expired "$msg" && echo "SCADUTO"
+	ams_msg_body "$msg" | sed 's/^/  │ /'
+	echo
+	printf '%-16s %s\n' UTENTE STATO
+	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
+		state=$(recipient_state "$u" "$id")
+		case $state in
+		confermato*)
+			read -r _ epoch channel <<<"$state"
+			line="confermato il $(date -d "@$epoch" '+%d/%m %H:%M') ($channel)" ;;
+		mostrato) line="mostrato" ;;
+		*)
+			nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
+			if [ -e "$AMS_VAR/sent/$id/revoked" ] || ams_msg_expired "$msg"; then line="non confermato"
+			elif [ "$(ams_msg_get "$msg" level)" = ack ]; then line="da confermare"
+			else line="non ancora mostrato"; fi
+			case ${nterm:-0} in
+			0) ;;
+			1) line+=" (scritto su 1 terminale)" ;;
+			*) line+=" (scritto su $nterm terminali)" ;;
+			esac ;;
+		esac
+		printf '%-16s %s\n' "$u" "$line"
+	done
+}
+
+cmd_revoke() {
+	local id=${1:?manca l\'ID del messaggio} u
+	sent_msg "$id" >/dev/null
+	date +%s >"$AMS_VAR/sent/$id/revoked"
+	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
+		as_user "$u" rm -f "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/state/$id".* 2>/dev/null || true
+	done
+	ams_log "messaggio $id ritirato da ${SUDO_USER:-$(id -un)}"
+	echo "Messaggio $id ritirato."
+}
+
+case ${1:-} in
+send) shift; cmd_send "$@" ;;
+list) shift; cmd_list ;;
+status) shift; cmd_status "$@" ;;
+revoke) shift; cmd_revoke "$@" ;;
+-h | --help | help | '') usage ;;
+*) usage >&2; exit 1 ;;
+esac

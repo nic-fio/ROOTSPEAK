@@ -1,0 +1,155 @@
+#!/bin/bash
+# AMS - Advanced Messaging System for linux
+# ams-user: helper interno, non è un comando per l'utente. Gira con l'identità
+# dell'utente, lanciato dall'hook della shell (prompt) e dall'avvio automatico
+# del desktop (agent): mostra i messaggi e registra la conferma di lettura.
+set -uo pipefail
+
+AMS_LIB=$(dirname "$(readlink -f "$0")")
+. "$AMS_LIB/ams-common.sh"
+
+U=$(id -un)
+D=$AMS_VAR/users/$U
+
+# ID dei messaggi da mostrare, in ordine. I messaggi scaduti vengono archiviati.
+pending() {
+	local f id
+	for f in "$D"/inbox/*; do
+		[ -f "$f" ] || continue
+		id=${f##*/}
+		[[ $id =~ ^[0-9]+$ ]] || continue
+		if ams_msg_expired "$f"; then
+			mv -f "$f" "$D/read/$id"
+			continue
+		fi
+		echo "$id"
+	done | sort -n
+}
+
+# Vero se l'utente ha rimandato il messaggio su quel canale da meno di N minuti.
+snoozed() {
+	local f=$D/state/$1.$2
+	[ -e "$f" ] && [ $(($(date +%s) - $(stat -c %Y "$f"))) -lt $((AMS_REMIND_MINUTES * 60)) ]
+}
+
+snooze() { touch "$D/state/$1.$2"; }
+
+mark_read() { mv -f "$D/inbox/$1" "$D/read/$1" 2>/dev/null; rm -f "$D/state/$1".*; }
+
+# Registra la conferma. Vale la prima: una conferma successiva da un altro
+# canale non sovrascrive quella già registrata.
+ack() {
+	if ! (set -C; printf '%s %s\n' "$(date +%s)" "$2" >"$D/acks/$1") 2>/dev/null; then
+		mark_read "$1"
+		return
+	fi
+	mark_read "$1"
+	ams_log "utente $U: confermata la lettura del messaggio $1 ($2)"
+}
+
+# ---- terminale: chiamato dall'hook della shell prima di ogni prompt ----
+
+# Chiede la conferma. Esito: 0 sì, 1 no, 2 già confermato altrove (per
+# esempio dal desktop) mentre la domanda era in attesa.
+ask() {
+	local ans='' rc
+	printf "[AMS] Confermi di aver letto il messaggio? [s/N] "
+	while true; do
+		read -r -t 1 ans </dev/tty && break
+		rc=$?
+		# Codice oltre 128 = tempo scaduto; altrimenti fine dell'input.
+		[ $rc -gt 128 ] || { ans=''; break; }
+		if [ -e "$D/acks/$1" ]; then
+			echo
+			return 2
+		fi
+	done
+	case $ans in [sSyY]*) return 0 ;; *) return 1 ;; esac
+}
+
+cmd_prompt() {
+	local login=${1:-} id f later=0 where
+	where=$(tty 2>/dev/null) || return 0
+	where=terminale\ ${where#/dev/}
+	for id in $(pending); do
+		f=$D/inbox/$id
+		if [ "$(ams_msg_get "$f" level)" != ack ]; then
+			ams_msg_term "$f"
+			mark_read "$id"
+			continue
+		fi
+		if [ -z "$login" ] && snoozed "$id" term; then
+			later=$((later + 1))
+			continue
+		fi
+		ams_msg_term "$f"
+		ask "$id"
+		case $? in
+		0) ack "$id" "$where"; echo "[AMS] Confermato." ;;
+		2) mark_read "$id"; echo "[AMS] Messaggio già confermato altrove (per esempio dal desktop)." ;;
+		*) snooze "$id" term; echo "[AMS] La domanda verrà riproposta tra $AMS_REMIND_MINUTES minuti." ;;
+		esac
+	done
+	if [ $later -eq 1 ]; then
+		echo "[AMS] Hai 1 messaggio dell'amministratore da confermare."
+	elif [ $later -gt 1 ]; then
+		echo "[AMS] Hai $later messaggi dell'amministratore da confermare."
+	fi
+}
+
+# ---- desktop: avviato automaticamente nella sessione grafica ----
+
+graphical_session() {
+	[ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]
+}
+
+escape_markup() { sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'; }
+
+show_dialog() {
+	local id=$1 f=$D/inbox/$1 pid rc
+	zenity --question --no-markup --width=460 \
+		--title="AMS · Messaggio dall'amministratore" \
+		--text="$(ams_msg_heading "$f")"$'\n\n'"$(ams_msg_body "$f")" \
+		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null &
+	pid=$!
+	# Se l'utente conferma da un terminale, la finestra si chiude da sola.
+	while kill -0 "$pid" 2>/dev/null; do
+		if [ -e "$D/acks/$id" ]; then kill "$pid" 2>/dev/null; fi
+		sleep 1
+	done
+	wait "$pid"
+	rc=$?
+	[ -e "$D/acks/$id" ] && return
+	if [ $rc -eq 0 ]; then ack "$id" desktop; else snooze "$id" gui; fi
+}
+
+cmd_agent() {
+	local id f
+	exec 9>"${XDG_RUNTIME_DIR:-/tmp}/ams-agent.lock"
+	flock -n 9 || exit 0
+	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio.
+	trap : USR1
+	while graphical_session; do
+		for id in $(pending); do
+			f=$D/inbox/$id
+			[ -f "$f" ] || continue
+			if [ "$(ams_msg_get "$f" level)" != ack ]; then
+				notify-send -a AMS "AMS · $(ams_msg_heading "$f" | escape_markup)" \
+					"$(ams_msg_body "$f" | escape_markup)"
+				mark_read "$id"
+			elif ! snoozed "$id" gui; then
+				show_dialog "$id"
+			fi
+		done
+		# Attesa interrompibile: il segnale di `ams send` la termina subito.
+		sleep "$AMS_AGENT_POLL" &
+		wait $!
+		kill $! 2>/dev/null
+	done
+}
+
+case ${1:-} in
+prompt) cmd_prompt "${2:-}" ;;
+agent) cmd_agent ;;
+*) echo "ams-user: helper interno di AMS, non va usato direttamente" >&2; exit 1 ;;
+esac
