@@ -58,7 +58,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
 | `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
 | `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
-| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale. |
+| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero, con i risultati in `container/risultati/`. |
 | `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali. |
 
 ## Prima di registrare una modifica
@@ -69,7 +69,10 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
    riferimento del manuale utente divergono, se un file di codice manca dalla
    mappa dei file, se la versione non coincide o se un link interno è rotto.
    **Fallisce se i manuali non sono aggiornati.**
-3. `tests/engine.sh` sempre; `tests/help-tui.py` se è cambiata la guida.
+3. `tests/engine.sh` sempre; `tests/help-tui.py` se è cambiata la guida;
+   `tests/container/esegui.sh` (prove dal vero come root in un container) se
+   sono cambiati invio, consegna, conferme o permessi. I risultati vanno
+   registrati insieme alla modifica.
 4. Prova del flusso toccato in modalità di prova; per desktop, sudo e altri
    utenti, prova dal vivo dopo `./install.sh`, fatta dall'utente.
 5. I commit usano l'identità locale del repository (nome `nic-fio`, indirizzo

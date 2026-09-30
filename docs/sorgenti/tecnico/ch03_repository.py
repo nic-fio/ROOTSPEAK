@@ -14,6 +14,9 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
     ("etc/ams/ams.conf", "La configurazione predefinita."),
     ("install.sh", "Installazione, aggiornamento, rimozione."),
     ("tests/engine.sh", "Test del motore in modalità di prova: conferme, casella, guasti."),
+    ("tests/container/Containerfile", "La macchina di prova: Debian 13 con systemd, sshd e utenti."),
+    ("tests/container/esegui.sh", "Avvia la macchina di prova, installa AMS, esegue gli scenari, salva i risultati."),
+    ("tests/container/scenari.py", "Gli scenari dal vero, eseguiti come root dentro la macchina di prova."),
     ("tests/help-tui.py", "Prova della guida integrata su un terminale virtuale."),
     ("tools/check-docs.py", "Controlli di coerenza tra codice, guida e manuali."),
     ("docs/sorgenti/build.py", "Generatore dei due manuali."),
@@ -65,7 +68,8 @@ S4 = steps([
     c("python3 docs/sorgenti/build.py") + " se sono cambiati i manuali o la guida integrata.",
     c("tools/check-docs.py") + ": manuali generati aggiornati, riferimento allineato alla guida, mappa dei file "
     "completa, link interni validi (capitolo 11.2).",
-    c("tests/engine.sh") + " sempre; " + c("tests/help-tui.py") + " se è cambiata la guida.",
+    c("tests/engine.sh") + " sempre; " + c("tests/help-tui.py") + " se è cambiata la guida; "
+    + c("tests/container/esegui.sh") + " se sono cambiati invio, consegna, conferme o permessi.",
     "Una prova del flusso toccato in modalità di prova; per desktop, sudo e altri utenti, una prova dal vivo dopo "
     + c("./install.sh") + ".",
 ])

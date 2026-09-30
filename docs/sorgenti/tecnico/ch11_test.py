@@ -13,6 +13,36 @@ S0 = p(c("tests/engine.sh") + " prova il motore in modalità di prova, senza roo
          "scaduto come «consegnato, non confermato»"],
     ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n3. stati\n\nOK: 25 controlli")
 
+SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macchina di prova isolata: un container "
+       "Debian 13 con systemd acceso (logind, sshd), senza root sul sistema che lo ospita. AMS vi è installato con "
+       + c("install.sh") + "; gli utenti sono " + c("admin") + " (gruppo sudo), " + c("mario") + " e " + c("anna")
+       + " (gruppo sviluppo), " + c("luca") + " e " + c("servizio") + " (senza shell). " + c("scenari.py")
+       + " gira come root, apre vere sessioni ssh degli utenti con terminale, risponde alle domande come farebbe una "
+       "persona, misura i tempi e registra ogni esito in " + c("tests/container/risultati/") + " ("
+       + c("risultati.json") + " e " + c("rapporto.md") + ").", lead=True) + table(["Area", "Scenari"], [
+        ["A. Accesso", "root invia; un amministratore invia passando da sudo; un utente normale non esegue " + c("ams")
+         + ", nemmeno la guida"],
+        ["B. Destinatari", "utente, lista con doppioni, gruppo, " + c("all") + " (esclusi root e nologin), " + c("online")
+         + ", utente inesistente, gruppo vuoto"],
+        ["C. Consegna", "utente scollegato poi al login; utente collegato (tempo al terminale); ssh senza terminale; due "
+         "sessioni, conferma in una che ferma l'altra"],
+        ["D. Conferma", "rinvio, promemoria al prompt, domanda di nuovo al login, conferma registrata con canale"],
+        ["E. Scadenza e ritiro", "messaggio scaduto non mostrato; ritiro con la domanda in attesa; ritiro prima del login"],
+        ["F. Guasti", "copia non scrivibile e recupero; " + c("ams send") + " ucciso con SIGKILL a metà; recupero "
+         "concorrente con un invio in corso; conferma non scrivibile"],
+        ["G. Sicurezza", "casella trasformata in collegamento a " + c("/etc") + "; sequenze di escape; conferma "
+         "fabbricata; " + c("AMS_TEST") + " da utente normale"],
+        ["H. Prestazioni", "invio a oltre 50 utenti; " + c("list") + " e " + c("status") + " con 10 messaggi"],
+        ["I. Desktop", "non provato: il container non ha una sessione grafica"],
+    ], "«TAB» — Gli scenari dal vero") + table(["Misura", "Valore (30 settembre 2026)"], [
+        ["dall'invio al testo nel terminale di un utente collegato", "circa 0,2 s"],
+        ["dal login alla domanda di conferma", "circa 0,3 s"],
+        ["invio a 54 destinatari", "circa 2,6 s (circa 50 ms per destinatario)"],
+        [c("ams list") + " con 10 messaggi × 54 destinatari", "circa 6 s"],
+        [c("ams status") + " di un messaggio con 54 destinatari", "circa 1,3 s"],
+    ], "«TAB» — Le misure della prima esecuzione") + term(
+        "nicfio@server:~/AMS$ tests/container/esegui.sh\n…\n41 riusciti, 0 falliti, 1 non provati su 42; risultati in /opt/risultati")
+
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \
     table(["Prova", "Controllo"], [
@@ -37,8 +67,8 @@ S2 = table(["Controllo", "Fallisce se"], [
     "nicfio@server:~/AMS$ tools/check-docs.py\n"
     "documentazione allineata: 2 manuali, 11 voci della guida, 13 file nella mappa, versione 0.1.0")
 
-S3 = p("La consegna reale richiede root, sessioni vere e un desktop, e non è automatizzata. Nella versione 0.1.0 è stata "
-       "provata dal vivo su Debian 13 con GNOME 48 su Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
+S3 = p("La finestra sul desktop è l'unica parte che la suite dal vero non copre. Nella versione 0.1.0 AMS è stato "
+       "provato anche dal vivo su Debian 13 con GNOME 48 su Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
     ["finestra immediata a un utente collegato", "dal vivo"],
     ["finestra al login di un utente non collegato", "dal vivo, con un secondo account"],
     ["testo e domanda nel terminale, anche via ssh", "dal vivo, con " + c("ssh user@localhost")],
@@ -49,6 +79,7 @@ S3 = p("La consegna reale richiede root, sessioni vere e un desktop, e non è au
 
 CHAPTER = ("Test e controlli", [
     ("Il motore: tests/engine.sh", S0),
+    ("Dal vero: tests/container", SC),
     ("La guida integrata: tests/help-tui.py", S1),
     ("La documentazione: tools/check-docs.py", S2),
     ("Prove dal vivo", S3),

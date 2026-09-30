@@ -118,6 +118,27 @@ out=$("$ROOT/bin/ams" list 2>&1)
 check "invio interrotto prima del salvataggio: annullato e segnalato" \
 	'[ -e "$AMS_VAR/sent/7/failed" ] && [ ! -e "$AMS_VAR/sent/7/incomplete" ] && [[ $out == *"annullato"* ]]'
 
+fresh in-progress
+R=$AMS_VAR/users/root
+"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+rm -f "$R/inbox/1"; sed -i '/^root /d' "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
+flock "$AMS_VAR/sent/1/lock" sleep 2 &
+sleep 0.3
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "invio in corso (lock occupato): il recupero non lo tocca" '[ ! -e "$R/inbox/1" ] && [ -e "$AMS_VAR/sent/1/incomplete" ]'
+wait
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "lock rilasciato: il recupero completa, senza doppioni" \
+	'[ -e "$R/inbox/1" ] && [ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 2 ]'
+
+fresh just-started
+mkdir -p "$AMS_VAR/sent/7" "$AMS_VAR/users"; : >"$AMS_VAR/sent/7/incomplete"
+flock "$AMS_VAR/sent/7/lock" sleep 1 &
+sleep 0.3
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "invio appena iniziato (ancora senza messaggio): non viene annullato" '[ ! -e "$AMS_VAR/sent/7/failed" ]'
+wait
+
 # ---- 3. stati: inviato, consegnato, confermato; ogni messaggio chiede conferma ----
 
 echo "3. stati"

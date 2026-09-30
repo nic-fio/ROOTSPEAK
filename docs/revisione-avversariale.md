@@ -19,7 +19,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
 | 1 | Se la conferma non si poteva scrivere (disco pieno, permessi), AMS la trattava come «già confermata»: il messaggio passava tra i letti senza conferma e l'utente leggeva «Confermato». Ora la conferma è pubblicata con `ln` (esclusivo), un fallimento lascia il messaggio nella casella, avvisa l'utente e va nel registro. Test: `tests/engine.sh`, gruppo 1 (fallisce con il codice precedente). | B 3.1, A 20 | fatto |
-| 2 | Un `ams send` interrotto a metà lasciava destinatari senza copia, mai recuperati. Ora ogni consegna è verificata e annotata per destinatario; `sent/ID/incomplete` resta finché manca una copia e il comando `ams` successivo completa l'invio; un guasto per un destinatario non ferma gli altri; nuovo stato «non consegnato», distinto da «da confermare»; un invio interrotto prima del salvataggio viene annullato. Test: `tests/engine.sh`, gruppo 2 (6 controlli falliscono con il codice precedente). | A 4 | fatto |
+| 2 | Un `ams send` interrotto a metà lasciava destinatari senza copia, mai recuperati. Ora ogni consegna è verificata e annotata per destinatario; `sent/ID/incomplete` resta finché manca una copia e il comando `ams` successivo completa l'invio; un guasto per un destinatario non ferma gli altri; nuovo stato «non consegnato», distinto da «da confermare»; un invio interrotto prima del salvataggio viene annullato. Test: `tests/engine.sh`, gruppo 2 (6 controlli falliscono con il codice precedente). La suite dal vero ha poi trovato che il recupero, lanciato durante un invio ancora in corso, consegnava in parallelo e annotava doppioni: ora `ams send` tiene un lock (`sent/ID/lock`) e il recupero salta gli invii in corso (scenari F3 e F5; 2 controlli di `tests/engine.sh`). | A 4 | fatto |
 | 3 | Un agente appena partito muore se riceve la sveglia prima di aver installato il gestore del segnale. | A 11 | aperto |
 | 4 | Una finestra o una domanda aperte prima della scadenza accettano la conferma dopo. | A 15 | aperto |
 
@@ -42,14 +42,14 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | 12 | L'agente rilegge la configurazione a ogni giro. | A 19 | aperto |
 | 13 | Perimetro supportato dichiarato. | A 9 | aperto |
 | 14 | Pulizia delle caselle (i messaggi letti si accumulano). | B 2 | aperto |
-| 15 | `list` e `status` lenti: misurare, poi copiare lato root le conferme lette. | A 8 | aperto |
+| 15 | `list` e `status` lenti: misurare, poi copiare lato root le conferme lette. Misurato: `list` circa 6 s per 10 messaggi a 54 destinatari, `status` circa 1,3 s (scenari H). | A 8 | aperto |
 
 ## D. Test
 
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
 | 16 | Test automatici del motore: concorrenza, gare, file corrotti, Unicode, testi grandi, strumenti che falliscono. Avviata con `tests/engine.sh`; ogni correzione aggiunge i suoi casi. | A 20 | in corso |
-| 17 | Ambiente riproducibile (macchina virtuale) per le prove dal vivo. | A 21 | aperto |
+| 17 | Ambiente riproducibile per le prove dal vivo. Fatto con un container Debian 13 con systemd (`tests/container/esegui.sh`): 42 scenari come root, con utenti e sessioni ssh vere, esiti e misure registrati in `tests/container/risultati/`. Resta fuori la finestra sul desktop. | A 21 | fatto |
 
 ## E. Critiche non accolte
 

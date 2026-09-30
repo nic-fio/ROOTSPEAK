@@ -172,15 +172,27 @@ recover() {
 		[ -e "$f" ] || continue
 		dir=${f%/incomplete}
 		id=${dir##*/}
+		# Un invio ancora in corso tiene il lock: non è interrotto, si salta.
+		exec 6>"$dir/lock"
+		if ! flock -n 6; then
+			exec 6>&-
+			continue
+		fi
+		if [ ! -e "$f" ]; then
+			exec 6>&-
+			continue
+		fi
 		if [ ! -s "$dir/msg" ] || [ ! -s "$dir/recipients" ]; then
 			date +%s >"$dir/failed"
 			rm -f "$f"
 			ams_log "messaggio $id: invio interrotto prima del salvataggio, annullato"
 			echo "ams: il messaggio $id era stato interrotto prima di essere salvato ed è stato annullato" >&2
+			exec 6>&-
 			continue
 		fi
 		if [ -e "$dir/revoked" ] || ams_msg_expired "$dir/msg"; then
 			rm -f "$f"
+			exec 6>&-
 			continue
 		fi
 		miss=0 n=0
@@ -202,6 +214,7 @@ recover() {
 		if [ $miss -gt 0 ]; then
 			echo "ams: messaggio $id ancora non consegnato a $miss destinatari (vedi ams status $id)" >&2
 		fi
+		exec 6>&-
 	done
 }
 
@@ -259,6 +272,10 @@ cmd_send() {
 	id=$(next_id)
 	dir=$AMS_VAR/sent/$id
 	mkdir -m 700 "$dir"
+	# Il lock dice «invio in corso» a recover per tutta la consegna; se ams
+	# send muore, anche con SIGKILL, il kernel lo rilascia.
+	exec 7>"$dir/lock"
+	flock 7
 	# Il segno resta finché tutte le copie non sono consegnate: se l'invio si
 	# interrompe, il comando ams successivo lo completa (recover).
 	: >"$dir/incomplete"

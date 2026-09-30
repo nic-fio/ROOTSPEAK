@@ -71,8 +71,12 @@ SD = p("L'invio è una sequenza di passi; se si interrompe a metà, il comando "
      + " prosegue, poi termina con errore e lascia " + c("incomplete")],
     ["il recupero è idempotente", c("recover") + " gira all'avvio di " + c("send") + ", " + c("list") + ", " + c("status")
      + ", " + c("revoke") + " e consegna solo le copie mancanti; non riscrive la copia a chi l'ha già letta o confermata"],
-    ["un invio non salvato si annulla", "senza " + c("msg") + " o " + c("recipients") + " il messaggio diventa "
-     + c("failed") + " e viene segnalato"],
+    ["un invio in corso non è un invio interrotto", c("ams send") + " tiene " + c("flock") + " su " + c("sent/ID/lock")
+     + " per tutta la consegna; " + c("recover") + " salta i messaggi con il lock occupato. Se " + c("ams send")
+     + " muore, anche con SIGKILL, il kernel rilascia il lock. Senza questa regola il recupero, lanciato durante un "
+     "invio lungo, consegnava in parallelo e annotava doppioni (trovato dalla suite dal vero, scenario F3)"],
+    ["un invio non salvato si annulla", "senza " + c("msg") + " o " + c("recipients") + ", e con il lock libero, il "
+     "messaggio diventa " + c("failed") + " e viene segnalato"],
     ["ritirati e scaduti non si completano", c("recover") + " toglie il segno senza consegnare"],
 ], "«TAB» — Le regole della consegna")
 

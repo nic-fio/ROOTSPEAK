@@ -1,0 +1,25 @@
+# AMS - Advanced Messaging System for linux
+# Macchina di prova: Debian 13 con systemd acceso (logind, sshd), per provare AMS
+# dal vero come root, con utenti e sessioni reali. Non tocca il sistema su cui gira.
+#   podman build -t ams-prova -f tests/container/Containerfile tests/container
+FROM docker.io/library/debian:trixie
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      systemd systemd-sysv dbus libpam-systemd openssh-server openssh-client sudo \
+      python3 procps util-linux bsdutils coreutils less \
+ && rm -rf /var/lib/apt/lists/* \
+ && systemctl enable ssh \
+ && groupadd sviluppo \
+ && useradd -m -s /bin/bash -G sudo admin \
+ && useradd -m -s /bin/bash -G sviluppo mario \
+ && useradd -m -s /bin/bash -G sviluppo anna \
+ && useradd -m -s /bin/bash luca \
+ && useradd -m -s /usr/sbin/nologin servizio \
+ && mkdir -p /root/.ssh && ssh-keygen -q -t ed25519 -N '' -f /root/.ssh/id_ed25519 \
+ && for u in admin mario anna luca; do \
+      install -d -m 700 -o $u -g $u /home/$u/.ssh; \
+      install -m 600 -o $u -g $u /root/.ssh/id_ed25519.pub /home/$u/.ssh/authorized_keys; \
+    done \
+ && printf 'Host localhost\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n  LogLevel ERROR\n' > /root/.ssh/config \
+ && echo 'admin ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/admin
+CMD ["/sbin/init"]

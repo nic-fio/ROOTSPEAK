@@ -10,6 +10,7 @@ S1 = p("L'archivio è fatto di file e cartelle. Una parte appartiene a root, una
     "│       ├── recipients          # un destinatario per riga",
     "│       ├── delivery            # «utente data terminali-scritti» per ogni copia consegnata",
     "│       ├── incomplete          # solo durante l'invio, o se non è stato completato",
+    "│       ├── lock                # tenuto da ams send finché consegna (flock)",
     "│       ├── failed              # invio interrotto prima del salvataggio: annullato",
     "│       └── revoked             # data del ritiro, se ritirato",
     "└── users/                      # root 755",
