@@ -6,7 +6,7 @@ S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debia
     table(["Serve", "A cosa", "Pacchetto su Debian e Ubuntu"], [
         ["systemd", "trovare chi è collegato e dove", "già presente"],
         ["sudo e un gruppo di amministratori", "decidere chi può usare AMS", c("sudo") + " (gruppo " + c("sudo") + "; " + c("wheel") + " su Fedora)"],
-        ["bash", "la domanda di conferma nei terminali", "già presente"],
+        ["una shell: bash, zsh o fish", "la domanda di conferma nei terminali a ogni prompt (con sh, dash, ksh: solo al login)", "bash è già presente"],
         ["zenity", "la finestra «Ho letto» sul desktop", c("zenity")],
     ], "«TAB» — Cosa serve") + \
     term("admin@server:~$ sudo apt install zenity")
@@ -31,9 +31,9 @@ S3 = table(["Dove", "Che cos'è"], [
     [c("/var/lib/ams/"), "I messaggi e le conferme."],
     [c("/usr/local/share/doc/ams/"), "Questo manuale e il manuale tecnico."],
     [c("/usr/local/lib/ams/"), "Le parti interne di AMS."],
-    [c("/etc/profile.d/ams.sh") + ", " + c("/etc/xdg/autostart/ams-agent.desktop"),
+    [c("/etc/profile.d/ams.sh") + ", " + c("/etc/fish/conf.d/ams.fish") + ", " + c("/etc/xdg/autostart/ams-agent.desktop"),
      "Ciò che collega AMS ai terminali e al desktop degli utenti."],
-    [c("/etc/bash.bashrc"), "Una riga in fondo, marcata " + c("# AMS hook") + "."],
+    [c("/etc/bash.bashrc") + " e, se c'è zsh, " + c("/etc/zsh/zshrc"), "Una riga in fondo, marcata " + c("# AMS hook") + "."],
 ], "«TAB» — Cosa viene installato")
 
 S4 = table(["Per", "Comando", "Cosa succede"], [

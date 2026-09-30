@@ -11,6 +11,8 @@ BINDIR=$PREFIX/bin
 VARDIR=/var/lib/ams
 DOCDIR=$PREFIX/share/doc/ams
 BASHRC=/etc/bash.bashrc
+ZSHRC=$( [ -d /etc/zsh ] && echo /etc/zsh/zshrc || echo /etc/zshrc )
+FISHCONF=/etc/fish/conf.d/ams.fish
 MARK='# AMS hook'
 SRC=$(dirname "$(readlink -f "$0")")
 AGENT_RE="^/bin/bash $LIBDIR/ams-user agent\$"
@@ -50,6 +52,18 @@ do_install() {
 	rm -rf "$DOCDIR/assets" "$DOCDIR/user-manual.html" "$DOCDIR/manuale-utente.html" "$DOCDIR/manuale-tecnico.html"
 	install -m 644 "$SRC/docs/AMS_Manuale_Utente.html" "$SRC/docs/AMS_Manuale_Tecnico.html" "$DOCDIR/"
 	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
+	subst "$SRC/etc/ams.bash" >"$LIBDIR/ams.bash"
+	subst "$SRC/etc/ams.zsh" >"$LIBDIR/ams.zsh"
+	chmod 644 "$LIBDIR/ams.bash" "$LIBDIR/ams.zsh"
+	# zsh: un richiamo nello zshrc di sistema, se zsh è installata (se lo sarà
+	# dopo, basta rilanciare install.sh); fish: un file in conf.d, che fish
+	# legge anche se viene installata dopo
+	if [ -f "$ZSHRC" ] && ! grep -qF "$MARK" "$ZSHRC"; then
+		echo "[ -r $LIBDIR/ams.zsh ] && . $LIBDIR/ams.zsh  $MARK" >>"$ZSHRC"
+	fi
+	install -d -m 755 "$(dirname "$FISHCONF")"
+	subst "$SRC/etc/ams.fish" >"$FISHCONF"
+	chmod 644 "$FISHCONF"
 	subst "$SRC/etc/xdg/autostart/ams-agent.desktop" >/etc/xdg/autostart/ams-agent.desktop
 	chmod 644 /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
 
@@ -76,6 +90,8 @@ do_uninstall() {
 	rm -f "$BINDIR/ams" "$PREFIX/sbin/ams" /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
 	rm -rf "$LIBDIR" "$DOCDIR"
 	if [ -f "$BASHRC" ]; then sed -i "\|$MARK|d" "$BASHRC"; fi
+	if [ -f "$ZSHRC" ]; then sed -i "\|$MARK|d" "$ZSHRC"; fi
+	rm -f "$FISHCONF"
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 	if [ "${1:-}" = purge ]; then
 		rm -rf "$VARDIR" /etc/ams

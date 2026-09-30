@@ -95,7 +95,7 @@ Versione: `AMS_VERSION` in `lib/ams-common.sh`, e la stessa nei due manuali
 
 ## A che punto è
 
-Prototipo 0.1.0. Suite: `tests/engine.sh` 46 controlli, container 43 scenari
+Prototipo 0.1.0. Suite: `tests/engine.sh` 46 controlli, container 62 scenari (shell comprese)
 (più il desktop, non provabile lì), VM con desktop 54 scenari, tutti riusciti
 (30 settembre 2026). Provato anche dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
@@ -106,6 +106,6 @@ provati in modalità di prova. La revisione avversariale del 30 settembre 2026
 le due decisioni rimaste sono state prese il 30 settembre: domanda di
 conferma in tutte le shell (bash, zsh, fish a ogni prompt; al login per le
 shell che leggono `/etc/profile`), nessuna risposta degli utenti, interfaccia
-nella lingua di ciascun utente. Le prime due e la lingua sono da realizzare. Le voci [2] del README erano congelate fino
+nella lingua di ciascun utente. Le shell sono fatte (scenari K); la lingua è da realizzare. Le voci [2] del README erano congelate fino
 alla chiusura della revisione; ripartire da lì solo su indicazione
 dell'utente.

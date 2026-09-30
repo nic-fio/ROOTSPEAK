@@ -1,7 +1,8 @@
 from build import c, dl
 
 S1 = dl([
-    ("aggancio", c("/etc/profile.d/ams.sh") + ": collega AMS al prompt di bash."),
+    ("aggancio", "il file che collega AMS alla shell: " + c("ams.bash") + ", " + c("ams.zsh") + ", " + c("ams.fish")
+     + " e, per le altre shell, " + c("/etc/profile.d/ams.sh") + "."),
     ("agente", c("ams-user agent") + ": mostra le finestre di conferma nella sessione grafica."),
     ("consegnato", "stato di un destinatario la cui copia è nella casella (riga in " + c("sent/ID/delivery") + ")."),
     ("inviato", "stato di un destinatario senza ancora la copia nella casella."),

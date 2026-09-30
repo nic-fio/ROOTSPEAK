@@ -1,12 +1,12 @@
 {
  "meta": {
-  "data": "2026-09-30 09:58:13 UTC",
+  "data": "2026-09-30 10:31:17 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
   "sistema": "Debian GNU/Linux 13 (trixie), container con systemd",
-  "ok": 43,
+  "ok": 62,
   "no": 0,
   "non_provati": 1,
-  "totale": 44
+  "totale": 63
  },
  "risultati": [
   {
@@ -26,7 +26,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.077
+    "secondi": 0.119
    }
   },
   {
@@ -78,9 +78,9 @@
    "codice": "B4",
    "area": "Destinatari",
    "descrizione": "all: utenti umani, esclusi root e chi ha nologin",
-   "atteso": "admin, anna, luca, mario",
+   "atteso": "admin, anna, dario, fabio, kora, luca, mario, zeno",
    "esito": "OK",
-   "dettagli": "['admin', 'anna', 'luca', 'mario']",
+   "dettagli": "['admin', 'anna', 'dario', 'fabio', 'kora', 'luca', 'mario', 'zeno']",
    "misure": {}
   },
   {
@@ -127,7 +127,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.338
+    "secondi_dal_login": 0.329
    }
   },
   {
@@ -136,7 +136,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 09:57 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 10:29 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +147,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.112,
-    "secondi_al_terminale": 0.163
+    "secondi_invio": 0.155,
+    "secondi_al_terminale": 0.206
    }
   },
   {
@@ -168,7 +168,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.069
+    "secondi": 0.066
    }
   },
   {
@@ -197,7 +197,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.955
+    "secondi": 0.906
    }
   },
   {
@@ -206,7 +206,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:57",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 10:30",
    "misure": {}
   },
   {
@@ -215,7 +215,7 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@4e4c16e19aed:~$ ",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@4802ddbd2435:~$ ",
    "misure": {}
   },
   {
@@ -233,7 +233,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790762238 terminale pts/7",
+   "dettagli": "1790764201 terminale pts/7",
    "misure": {}
   },
   {
@@ -262,7 +262,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.003
+    "secondi": 1.002
    }
   },
   {
@@ -307,12 +307,21 @@
    "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 14/64, dopo 64/64; ams: completata la consegna del messaggio 2 a 50 destinatari",
+   "dettagli": "consegnati prima 12/68, dopo 68/68; ams: completata la consegna del messaggio 2 a 56 destinatari",
    "misure": {
-    "consegnati_al_kill": 14,
-    "destinatari": 64,
-    "secondi_recupero": 2.737
+    "consegnati_al_kill": 12,
+    "destinatari": 68,
+    "secondi_recupero": 3.681
    }
+  },
+  {
+   "codice": "F6",
+   "area": "Guasti",
+   "descrizione": "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
+   "atteso": "consegnato",
+   "esito": "OK",
+   "dettagli": "consegnato; ",
+   "misure": {}
   },
   {
    "codice": "F5",
@@ -320,9 +329,9 @@
    "descrizione": "ams list ripetuto mentre ams send consegna: il recupero non interferisce",
    "atteso": "una consegna per destinatario, nessun doppione, invio completo",
    "esito": "OK",
-   "dettagli": "64 consegne annotate per 64 destinatari, 64 distinte",
+   "dettagli": "68 consegne annotate per 68 destinatari, 68 distinte",
    "misure": {
-    "ams_list_durante_invio": 25
+    "ams_list_durante_invio": 26
    }
   },
   {
@@ -389,37 +398,203 @@
    "misure": {}
   },
   {
+   "codice": "K1-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: al login il messaggio e la domanda",
+   "atteso": "testo e domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K2-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: conferma al login",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/14)",
+   "misure": {}
+  },
+  {
+   "codice": "K3-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: utente collegato, il testo compare nel terminale",
+   "atteso": "testo nel terminale",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K4-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: premendo Invio compare la domanda",
+   "atteso": "domanda al prompt successivo",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 0.084
+   }
+  },
+  {
+   "codice": "K5-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: conferma al prompt",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/14)",
+   "misure": {}
+  },
+  {
+   "codice": "K1-fish",
+   "area": "Shell",
+   "descrizione": "fish: al login il messaggio e la domanda",
+   "atteso": "testo e domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K2-fish",
+   "area": "Shell",
+   "descrizione": "fish: conferma al login",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/15)",
+   "misure": {}
+  },
+  {
+   "codice": "K3-fish",
+   "area": "Shell",
+   "descrizione": "fish: utente collegato, il testo compare nel terminale",
+   "atteso": "testo nel terminale",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K4-fish",
+   "area": "Shell",
+   "descrizione": "fish: premendo Invio compare la domanda",
+   "atteso": "domanda al prompt successivo",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 0.085
+   }
+  },
+  {
+   "codice": "K5-fish",
+   "area": "Shell",
+   "descrizione": "fish: conferma al prompt",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/15)",
+   "misure": {}
+  },
+  {
+   "codice": "K1-ksh",
+   "area": "Shell",
+   "descrizione": "ksh: al login il messaggio e la domanda",
+   "atteso": "testo e domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K2-ksh",
+   "area": "Shell",
+   "descrizione": "ksh: conferma al login",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/16)",
+   "misure": {}
+  },
+  {
+   "codice": "K3-ksh",
+   "area": "Shell",
+   "descrizione": "ksh: utente collegato, il testo compare nel terminale",
+   "atteso": "testo nel terminale",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K4-ksh",
+   "area": "Shell",
+   "descrizione": "ksh: al prompt nessuna domanda (arriva al login successivo)",
+   "atteso": "nessuna domanda, consegnato",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 1 terminale",
+   "misure": {}
+  },
+  {
+   "codice": "K1-dash",
+   "area": "Shell",
+   "descrizione": "dash: al login il messaggio e la domanda",
+   "atteso": "testo e domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K2-dash",
+   "area": "Shell",
+   "descrizione": "dash: conferma al login",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:30 (terminale pts/17)",
+   "misure": {}
+  },
+  {
+   "codice": "K3-dash",
+   "area": "Shell",
+   "descrizione": "dash: utente collegato, il testo compare nel terminale",
+   "atteso": "testo nel terminale",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "K4-dash",
+   "area": "Shell",
+   "descrizione": "dash: al prompt nessuna domanda (arriva al login successivo)",
+   "atteso": "nessuna domanda, consegnato",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 1 terminale",
+   "misure": {}
+  },
+  {
    "codice": "H1",
    "area": "Prestazioni",
-   "descrizione": "invio a tutti (54 destinatari)",
+   "descrizione": "invio a tutti (58 destinatari)",
    "atteso": "misura",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 2.99,
-    "ms_per_destinatario": 55.3
+    "secondi": 3.34,
+    "ms_per_destinatario": 57.5
    }
   },
   {
    "codice": "H2",
    "area": "Prestazioni",
-   "descrizione": "ams list con 10 messaggi × 54 destinatari",
+   "descrizione": "ams list con 10 messaggi × 58 destinatari",
    "atteso": "misura (punto 15 della revisione)",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.59
+    "secondi": 0.6
    }
   },
   {
    "codice": "H3",
    "area": "Prestazioni",
-   "descrizione": "ams status di un messaggio con 54 destinatari",
+   "descrizione": "ams status di un messaggio con 58 destinatari",
    "atteso": "misura",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.69
+    "secondi": 0.68
    }
   },
   {

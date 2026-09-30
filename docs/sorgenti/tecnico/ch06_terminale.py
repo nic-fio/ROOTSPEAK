@@ -1,15 +1,32 @@
 from build import arrow, box, c, diamond, fig, flow, p, path, seq, table, text, ul
 
-S1 = flow([("bash interattiva", "$- contiene i", "dark"), ("/etc/profile.d/ams.sh", "una volta per shell", "blue"),
+S1 = p("Ogni shell ha il suo aggancio, installato dove quella shell lo legge. Tutti fanno la stessa cosa: se la "
+       "casella contiene messaggi, lanciano " + c("ams-user prompt") + ", subito al login e poi prima di ogni prompt.",
+       lead=True) + table(["Shell", "File", "Letto da", "Quando chiede"], [
+    ["bash", c("lib/ams/ams.bash"), c("/etc/profile.d/ams.sh") + " e " + c("/etc/bash.bashrc"), "al login e a ogni prompt (" + c("PROMPT_COMMAND") + ")"],
+    ["zsh", c("lib/ams/ams.zsh"), "una riga in " + c("/etc/zsh/zshrc") + " (o " + c("/etc/zshrc") + ")", "al login e a ogni prompt (" + c("precmd") + ")"],
+    ["fish", c("/etc/fish/conf.d/ams.fish"), "fish stessa, all'avvio", "al login e a ogni prompt (evento " + c("fish_prompt") + ")"],
+    ["sh, dash, ksh…", c("/etc/profile.d/ams.sh"), c("/etc/profile") + ", nelle shell di login", "solo al login"],
+], "«TAB» — Gli agganci delle shell") + \
+    p("Il testo del messaggio arriva nel terminale all'invio con qualunque shell: lo scrive root, non la shell. "
+      "dash e le shell simili non hanno un punto in cui agganciarsi prima del prompt: la domanda arriva al login "
+      "successivo, o dalla finestra del desktop. " + c("profile.d/ams.sh") + " è scritto in sh semplice perché lo "
+      "leggono tutte; il codice proprio di bash sta in " + c("ams.bash") + ". Se zsh viene installata dopo AMS, "
+      "basta rilanciare " + c("install.sh") + " per aggiungere la riga allo zshrc; fish legge " + c("conf.d")
+      + " anche se arriva dopo.") + \
+    flow([("bash interattiva", "$- contiene i", "dark"), ("profile.d/ams.sh", "→ ams.bash, una volta", "blue"),
            ("PROMPT_COMMAND", "+ __ams_prompt", "blue"), ("casella vuota?", "compgen -G, nessun processo", "navy"),
-           ("ams-user prompt", "solo se serve", "light")], "«FIG» — Dall'aggancio alla domanda") + ul([
-    "L'aggancio agisce solo in bash interattiva, e una volta per shell (variabile " + c("__AMS_HOOK") + ").",
+           ("ams-user prompt", "solo se serve", "light")], "«FIG» — Dall'aggancio alla domanda, in bash") + ul([
+    "L'aggancio agisce solo in shell interattiva, e una volta per shell (variabile " + c("__AMS_HOOK") + ", in fish "
+    + c("__ams_hook") + ").",
     "Aggiunge " + c("__ams_prompt") + " a " + c("PROMPT_COMMAND") + ": come elemento se è un array (bash 5.1 e "
     "successive), in testa se è una stringa.",
     c("__ams_prompt") + " conserva " + c("$?") + " e controlla la casella con " + c("compgen -G") + ", senza lanciare "
     "processi: con la casella vuota il prompt non costa nulla.",
     "In una shell di login chiama subito " + c("ams-user prompt --login") + ", così il messaggio compare prima del primo "
     "prompt.",
+    "zsh e fish controllano la casella allo stesso modo senza lanciare processi: zsh con il glob " + c("(N)")
+    + ", fish con " + c("string match") + " sui nomi (i glob di fish non hanno " + c("[0-9]") + ").",
     "Su Debian le shell non di login non leggono " + c("/etc/profile.d") + ": l'aggancio è richiamato anche da "
     + c("/etc/bash.bashrc") + ".",
 ])

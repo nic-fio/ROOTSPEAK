@@ -14,7 +14,7 @@ gruppi A–D non sono chiusi (revisione A, punto 23).
 
 Stato: **aperto**, **fatto**, **non accolto**.
 
-**Al 30 settembre 2026 tutti i punti accolti sono fatti, tranne l'aggancio per zsh e la risposta dell'utente all'amministratore, che restano decisioni dell'utente.** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
+**Al 30 settembre 2026 tutti i punti accolti sono fatti, compreso l'aggancio per tutte le shell deciso il 30 settembre (la lingua dell'utente è in corso); la risposta dell'utente all'amministratore non è prevista (decisione dell'utente).** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
 
 ## A. Difetti reali, verificati nel codice
 
@@ -60,6 +60,6 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | L'aggancio della shell si aggira; la conferma non prova la lettura. | B 4.2 | Conseguenza voluta della decisione «mai bloccare»: la conferma è dichiaratamente una dichiarazione dell'utente. |
 | Se il terminale è bloccato il messaggio non arriva. | B 4.1 | Inesatto: la casella fa da coda, il messaggio arriva al prompt successivo o al login. |
 | Lock rimasti bloccati. | B 4.3 | **Respinta per errore, poi accolta.** Il kernel rilascia il lock alla morte del processo, ma la VM di prova ha mostrato che il lock dell'agente passava ai suoi figli (`sleep`, `zenity`): un figlio orfano lo teneva fino a 60 s e il nuovo agente usciva subito. Corretto (`9>&-`). |
-| Solo bash. | A 10; B 4.2 | Decisione dell'utente del 30 settembre: la domanda di conferma va portata in tutte le shell (bash, zsh, fish a ogni prompt; al login per le shell che leggono `/etc/profile`). Da realizzare. |
+| Solo bash. | A 10; B 4.2 | Decisione dell'utente del 30 settembre: la domanda di conferma va portata in tutte le shell (bash, zsh, fish a ogni prompt; al login per le shell che leggono `/etc/profile`). Fatto: agganci per bash, zsh, fish e sh; scenari K nella macchina di prova. |
 | Riscrivere subito in un linguaggio compilato. | B 3 | Si segue la revisione A: prima la specifica, poi un'eventuale riscrittura. |
 | `ams` sempre root. | B 5.1 | Decisione esplicita dell'utente. |

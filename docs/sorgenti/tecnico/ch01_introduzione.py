@@ -9,7 +9,7 @@ OVERVIEW = fig(
     + box(340, 78, 196, 58, "sent/", "copie di riferimento · root", "dark")
     + box(340, 172, 196, 58, "users/U/", "casella di ogni utente · U", "blue")
     + zone(606, 44, 274, 250, "Utente · U")
-    + box(628, 78, 230, 58, "ams-user prompt", "aggancio della shell bash", "light")
+    + box(628, 78, 230, 58, "ams-user prompt", "aggancio della shell", "light")
     + box(628, 172, 230, 58, "ams-user agent", "avvio automatico del desktop", "light")
     + text(743, 262, "terminali /dev/pts/N · finestra zenity", 11, "#475569")
     + arrow(248, 104, 338, 104)
@@ -24,7 +24,7 @@ S1 = p("AMS è uno strumento con cui gli amministratori di una macchina Linux ma
        "ne seguono la conferma di lettura. La versione 0.1.0 è un prototipo in bash: niente demone, niente database, "
        "solo file e strumenti già presenti nel sistema.", lead=True) + OVERVIEW + \
     p("Il comando " + c("ams") + " gira sempre come root e scrive nell'archivio. Dalla parte dell'utente, due ingressi "
-      "dello stesso aiutante, " + c("ams-user") + ", leggono la casella e registrano la conferma: uno nel prompt di bash, "
+      "dello stesso aiutante, " + c("ams-user") + ", leggono la casella e registrano la conferma: uno nel prompt della shell, "
       "l'altro nella sessione grafica.")
 
 S2 = table(["Principio", "Cosa comporta nel codice"], [
@@ -46,7 +46,7 @@ S2 = table(["Principio", "Cosa comporta nel codice"], [
 
 S3 = table(["Componente", "Chi lo esegue", "Quando"], [
     [c("ams"), "root, rilanciato con sudo", "quando un amministratore lo invoca"],
-    [c("ams-user prompt"), "l'utente, nella sua shell bash", "prima di ogni prompt, se la casella non è vuota; subito al login"],
+    [c("ams-user prompt"), "l'utente, nella sua shell (bash, zsh, fish; le altre al login)", "prima di ogni prompt, se la casella non è vuota; subito al login"],
     [c("ams-user agent"), "l'utente, nella sessione grafica", "dal login grafico alla fine della sessione; " + c("ams send")
      + " lo avvia se manca"],
     [c("/etc/profile.d/ams.sh"), "la shell dell'utente", "a ogni shell interattiva (anche da " + c("/etc/bash.bashrc") + ")"],

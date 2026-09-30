@@ -28,6 +28,8 @@ AMS = "/usr/local/bin/ams"
 DESK = os.environ.get("AMS_PROVA_DESKTOP")   # utente con sessione grafica (solo nella VM)
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\r")
 risultati = []
+# utenti con una shell diversa da bash, e il loro prompt
+SHELL_PROVA = {"zeno": ("zsh", r"% $"), "fabio": ("fish", r"> $"), "kora": ("ksh", r"\$ $"), "dario": ("dash", r"\$ $")}
 
 
 # ---- strumenti ----
@@ -49,7 +51,7 @@ def azzera():
     """Chiude le sessioni degli utenti, le finestre di AMS rimaste sul desktop e svuota l'archivio.
     Le finestre vanno chiuse prima: l'archivio ricomincia dal messaggio 1, e una finestra vecchia
     ritroverebbe un messaggio nuovo con il suo stesso numero."""
-    for u in ("mario", "anna", "luca", "admin"):
+    for u in ("mario", "anna", "luca", "admin", *SHELL_PROVA):
         sh(f"loginctl terminate-user {u}")
     if DESK:
         # l'agente si ferma con le sue finestre, e riparte dopo, ad archivio vuoto
@@ -74,13 +76,13 @@ def stato(mid, utente):
 class Sessione:
     """Una connessione ssh con terminale di un utente, come la aprirebbe una persona."""
 
-    def __init__(self, utente):
+    def __init__(self, utente, prompt=r"\$ $"):
         self.utente = utente
         self.buf = ""
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
             os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
-        self.leggi_fino(r"\$ $", 15)
+        self.leggi_fino(prompt, 15)
 
     def leggi(self, tempo=0.3):
         fine = time.time() + tempo
@@ -178,7 +180,7 @@ def b_destinatari():
     ams('send --to @sviluppo "gruppo"')
     registra("B3", "Destinatari", "gruppo @sviluppo", "anna, mario", dest(3) == ["anna", "mario"], str(dest(3)))
     ams('send --to all "tutti"')
-    tutti = sorted(["admin", "anna", "luca", "mario"] + ([DESK] if DESK else []))
+    tutti = sorted(["admin", "anna", "luca", "mario", *SHELL_PROVA] + ([DESK] if DESK else []))
     registra("B4", "Destinatari", "all: utenti umani, esclusi root e chi ha nologin",
              ", ".join(tutti), dest(4) == tutti, str(dest(4)))
     s = Sessione("luca")
@@ -368,6 +370,14 @@ def f_guasti():
              n_tot > 0 and n_dopo == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
              f"consegnati prima {n_prima}/{n_tot}, dopo {n_dopo}/{n_tot}; {r.stderr.strip()[:120]}",
              consegnati_al_kill=n_prima, destinatari=n_tot, secondi_recupero=round(dt, 3))
+
+    # invio ucciso fra la creazione della cartella dell'utente e il suo chown
+    sh(f"rm -rf {VAR}/users/luca && install -d -m 700 {VAR}/users/luca")
+    r = ams('send --to luca "Dopo la cartella a metà"')
+    mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
+    st = stato(mid, "luca")
+    registra("F6", "Guasti", "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
+             "consegnato", r.returncode == 0 and st == "consegnato", f"{st}; {r.stderr.strip()[:120]}")
     # invio in corso e, nello stesso momento, altri comandi ams che fanno il recupero
     azzera()
     p = subprocess.Popen([AMS, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -427,6 +437,57 @@ def g_sicurezza():
     r = sh("runuser -u mario -- env AMS_TEST=1 /usr/local/bin/ams list")
     registra("G4", "Sicurezza", "un utente normale con AMS_TEST=1 non ottiene nulla", "permesso negato",
              r.returncode != 0 and "Permission denied" in r.stderr, r.stderr.strip())
+
+
+# ---- K. shell diverse da bash ----
+
+def k_shell():
+    """zsh e fish: domanda al login e a ogni prompt; ksh e dash (che leggono /etc/profile):
+    domanda al login; per tutte, il testo nel terminale all'invio."""
+    mid = 0
+    for utente, (shell, prompt) in SHELL_PROVA.items():
+        if sh(f"getent passwd {utente}").returncode:
+            registra(f"K-{shell}", "Shell", f"{shell}: utente di prova {utente}", "presente", None, "utente assente")
+            continue
+        mid += 1
+        ams(f'send --to {utente} "Al login con {shell}"')
+        s = Sessione.__new__(Sessione)
+        s.utente, s.buf = utente, ""
+        s.pid, s.fd = pty.fork()
+        if s.pid == 0:
+            os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
+        dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 15)
+        registra(f"K1-{shell}", "Shell", f"{shell}: al login il messaggio e la domanda", "testo e domanda al login",
+                 dt is not None and f"Al login con {shell}" in s.testo(), s.testo()[-80:] if dt is None else "")
+        s.scrivi("s\n")
+        s.leggi_fino(prompt, 8)
+        st = stato(mid, utente) or ""
+        registra(f"K2-{shell}", "Shell", f"{shell}: conferma al login", "confermato (terminale)",
+                 st.startswith("confermato"), st)
+        mid += 1
+        s.pulisci()
+        ams(f'send --to {utente} "Durante la sessione {shell}"')
+        dt = s.leggi_fino(f"Durante la sessione {shell}", 5)
+        registra(f"K3-{shell}", "Shell", f"{shell}: utente collegato, il testo compare nel terminale",
+                 "testo nel terminale", dt is not None, s.testo()[-80:] if dt is None else "")
+        s.pulisci()
+        s.scrivi("\n")
+        if shell in ("zsh", "fish"):
+            dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 5)
+            registra(f"K4-{shell}", "Shell", f"{shell}: premendo Invio compare la domanda",
+                     "domanda al prompt successivo", dt is not None, s.testo()[-80:] if dt is None else "",
+                     secondi=round(dt, 3) if dt else None)
+            s.scrivi("s\n")
+            s.leggi_fino(r"Confermato\.", 5)
+            st = stato(mid, utente) or ""
+            registra(f"K5-{shell}", "Shell", f"{shell}: conferma al prompt", "confermato (terminale)",
+                     st.startswith("confermato"), st)
+        else:
+            s.leggi_fino(prompt, 3)
+            st = stato(mid, utente) or ""
+            registra(f"K4-{shell}", "Shell", f"{shell}: al prompt nessuna domanda (arriva al login successivo)",
+                     "nessuna domanda, consegnato", "Confermi" not in s.testo() and st.startswith("consegnato"), st)
+        s.chiudi()
 
 
 # ---- J. registro degli eventi ----
@@ -694,7 +755,7 @@ def rapporto():
 
 if __name__ == "__main__":
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
-               j_registro, h_prestazioni, i_desktop):
+               j_registro, k_shell, h_prestazioni, i_desktop):
         print(fn.__name__)
         scenario(fn)
     sys.exit(0 if rapporto() else 1)

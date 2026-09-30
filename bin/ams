@@ -138,10 +138,10 @@ init_var() {
 
 user_dir() {
 	local d=$AMS_VAR/users/$1
-	if [ ! -d "$d" ]; then
-		install -d -m 700 "$d"
-		if is_root; then chown "$1:" "$d"; fi
-	fi
+	[ -d "$d" ] || install -d -m 700 "$d"
+	# Ancora di root: un invio interrotto fra la creazione e il chown. In
+	# users/ scrive solo root, quindi la cartella è sua e si può sistemare.
+	if is_root && [ ! -L "$d" ] && [ -O "$d" ]; then chown "$1:" "$d"; fi
 	as_user "$1" mkdir -p "$d/inbox" "$d/read" "$d/acks" "$d/state"
 }
 

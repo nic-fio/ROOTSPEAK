@@ -9,7 +9,10 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
     ("lib/ams-user", "L'aiutante che gira come utente: " + c("prompt") + " (aggancio della shell) e " + c("agent")
                      + " (desktop), registrazione delle conferme."),
     ("lib/ams-help.sh", "La guida integrata: testi, guida a schede, pagina in stile manuale."),
-    ("etc/profile.d/ams.sh", "L'aggancio a bash."),
+    ("etc/profile.d/ams.sh", "L'aggancio delle shell che leggono " + c("/etc/profile") + ", in sh semplice: rimanda bash ad " + c("ams.bash") + ", alle altre chiede al login."),
+    ("etc/ams.bash", "L'aggancio a bash: la domanda al login e a ogni prompt."),
+    ("etc/ams.zsh", "L'aggancio a zsh, richiamato dallo zshrc di sistema."),
+    ("etc/ams.fish", "L'aggancio a fish, installato in " + c("/etc/fish/conf.d") + "."),
     ("etc/xdg/autostart/ams-agent.desktop", "Avvio automatico dell'agente del desktop."),
     ("etc/ams/ams.conf", "La configurazione predefinita."),
     ("install.sh", "Installazione, aggiornamento, rimozione."),
@@ -34,22 +37,24 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
       "decisioni e gli accordi di lavoro.")
 
 S2 = flow([("Gruppo admin", "sudo, wheel, admin", "dark"), ("File", "lib, bin, etc, manuali", "blue"),
-           ("bash.bashrc", "riga # AMS hook", "blue"), ("/var/lib/ams", "users 755 · sent 700", "blue"),
+           ("bashrc, zshrc", "riga # AMS hook", "blue"), ("/var/lib/ams", "users 755 · sent 700", "blue"),
            ("Agenti", "chiusi e riavviati", "navy")], "«FIG» — Le tappe di install.sh") + steps([
     "Si rilancia con sudo se serve, e sceglie il gruppo degli amministratori: il primo esistente fra " + c("sudo") + ", "
     + c("wheel") + ", " + c("admin") + " (altrimenti " + c("root") + ").",
     "Copia la libreria in " + c("$PREFIX/lib/ams") + "; installa " + c("$PREFIX/bin/ams") + " sostituendo la riga "
     + c("AMS_LIB=") + ", con proprietario " + c("root:gruppo") + " e permessi " + c("750") + ". " + c("PREFIX")
     + " vale " + c("/usr/local") + ".",
-    "Installa i manuali, la configurazione (solo se manca), l'aggancio della shell e l'avvio automatico, sostituendo "
+    "Installa i manuali, la configurazione (solo se manca), gli agganci delle shell (bash, zsh, fish, sh) e "
+    "l'avvio automatico, sostituendo "
     + c("@LIBDIR@") + " e " + c("@VARDIR@") + ".",
     "Aggiunge a " + c("/etc/bash.bashrc") + " la riga marcata " + c("# AMS hook") + ": su Debian le shell interattive "
-    "non di login non leggono " + c("/etc/profile.d") + ".",
+    "non di login non leggono " + c("/etc/profile.d") + ". Se zsh è installata, aggiunge la stessa riga allo "
+    "zshrc di sistema.",
     "Crea " + c("/var/lib/ams") + " e " + c("users/") + " (" + c("755") + ") e " + c("sent/") + " (" + c("700") + ").",
     "Chiude gli agenti della versione precedente: ripartono aggiornati al primo invio o al login.",
 ]) + table(["Opzione", "Effetto"], [
     ["nessuna", "installa o aggiorna"],
-    [c("--uninstall"), "toglie file e riga di " + c("bash.bashrc") + ", ferma gli agenti; conserva messaggi e configurazione"],
+    [c("--uninstall"), "toglie file e righe di " + c("bash.bashrc") + " e zshrc, ferma gli agenti; conserva messaggi e configurazione"],
     [c("--purge"), "come " + c("--uninstall") + ", e toglie anche " + c("/var/lib/ams") + " e " + c("/etc/ams")],
 ], "«TAB» — Le modalità di install.sh")
 

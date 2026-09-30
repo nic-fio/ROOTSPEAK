@@ -1,7 +1,9 @@
 from build import c, table
 
 S1 = table(["Limite", "Conseguenza"], [
-    ["la domanda al prompt esiste solo in bash", "zsh e fish ricevono il testo all'invio, non la domanda"],
+    ["sh, dash, ksh e simili non hanno un aggancio prima del prompt", "la domanda arriva al login (e dal desktop); "
+     "durante la sessione arriva solo il testo, all'invio"],
+    ["zsh installata dopo AMS", "serve rilanciare " + c("install.sh") + " per la riga nello zshrc"],
     ["date di " + c("--expires") + " a parole in inglese", "le interpreta " + c("date -d") + "; il formato ISO funziona sempre"],
     [c("su") + " non cambia il proprietario del terminale", c("ams send") + " non scrive in quel terminale all'invio"],
     ["se l'agente del desktop muore, la sua finestra resta aperta", "l'agente che lo sostituisce apre una seconda "
@@ -16,7 +18,7 @@ S2 = table(["Punto", "Stato"], [
     ["interfaccia a schede per l'amministratore", "previsto, seconda versione"],
     ["pacchetti deb e rpm", "previsto, seconda versione"],
     ["interfaccia in inglese", "previsto, seconda versione"],
-    ["risposta dell'utente all'amministratore", "da decidere"],
+    ["risposta dell'utente all'amministratore", "non prevista (decisione del 30 settembre)"],
     ["riscrittura in un linguaggio compilato", "solo se il prototipo mostrerà limiti concreti"],
 ], "«TAB» — Punti aperti")
 

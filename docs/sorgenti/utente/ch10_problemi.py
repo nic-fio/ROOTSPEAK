@@ -21,8 +21,9 @@ S1 = p("Quando un comando non va a buon fine, " + c("ams") + " stampa una riga c
 S2 = table(["Problema", "Causa probabile", "Rimedio"], [
     [c("ams: comando non trovato"), "AMS non è installato", "lanciare " + c("./install.sh")],
     [c("Permesso negato"), "l'utente non è un amministratore", "è voluto (capitolo 9.1)"],
-    ["nel terminale arriva il testo ma non la domanda", "la finestra di terminale era aperta prima dell'installazione, oppure non usa bash",
-     "aprire una nuova finestra; con zsh o fish, confermare dal desktop"],
+    ["nel terminale arriva il testo ma non la domanda", "la finestra di terminale era aperta prima dell'installazione; "
+     "oppure l'utente usa sh, dash o ksh, che ricevono la domanda solo al login; oppure zsh è stata installata dopo AMS",
+     "aprire una nuova finestra o rientrare; per zsh installata dopo, rilanciare " + c("./install.sh")],
     ["sul desktop non compare nessuna finestra", "manca " + c("zenity"), "installare " + c("zenity") + " (capitolo 2.1)"],
     ["due finestre uguali", "lo stesso messaggio è stato mandato due volte (due numeri diversi in " + c("ams list") + ")",
      "ritirare il doppione con " + c("ams revoke")],

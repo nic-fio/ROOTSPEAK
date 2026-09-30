@@ -60,7 +60,7 @@ Legenda: **[1]** prima versione · **[2]** seconda versione · **[?]** da decide
 
 ### Consegna
 - [1] Terminale: scrittura su tutte le tty e pts attive, individuate tramite logind (non utmp)
-- [1] Hook della shell (`/etc/profile.d`): messaggi in sospeso al login e domanda di conferma automatica al prompt
+- [1] Hook della shell (bash, zsh, fish; sh, dash, ksh al login): messaggi in sospeso al login e domanda di conferma automatica al prompt
 - [1] Desktop: finestra con il pulsante "Ho letto" (X11 e Wayland)
 - [1] Coda per gli utenti non collegati, con consegna al login successivo
 - [1] Finestra ripetuta ogni N minuti sul desktop finché l'utente non conferma
@@ -141,7 +141,9 @@ compilato si valuterà solo se emergono limiti concreti.
 | `/usr/local/bin/ams` | Comando per gli amministratori (`root:sudo`, permessi 750) |
 | `/usr/local/lib/ams/` | Libreria comune e helper interno `ams-user` |
 | `/etc/ams/ams.conf` | Configurazione |
-| `/etc/profile.d/ams.sh` | Hook della shell (richiamato anche da `/etc/bash.bashrc`) |
+| `/etc/profile.d/ams.sh` | Hook delle shell che leggono `/etc/profile` (richiamato anche da `/etc/bash.bashrc`); rimanda bash a `lib/ams/ams.bash` |
+| `/usr/local/lib/ams/ams.zsh` | Hook di zsh (richiamato dallo zshrc di sistema) |
+| `/etc/fish/conf.d/ams.fish` | Hook di fish |
 | `/etc/xdg/autostart/ams-agent.desktop` | Avvio automatico dell'agente del desktop |
 | `/var/lib/ams/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
 | `/usr/local/share/doc/ams/` | Manuale utente e manuale tecnico |
