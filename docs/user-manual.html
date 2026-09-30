@@ -498,7 +498,8 @@ altri (<code>644</code>, come lo installa <code>install.sh</code>).</p></div>
 <p>Solo gli amministratori: il comando è installato con proprietario <code>root:sudo</code> (o <code>wheel</code>) e permessi
 <code>750</code>, quindi gli altri utenti non possono eseguirlo. Quando un amministratore lancia <code>ams</code>, il comando
 si rilancia da solo con sudo. AMS non ha gruppi né permessi propri: chi entra o esce dal gruppo degli amministratori
-ottiene o perde subito l'accesso.</p>
+ottiene o perde subito l'accesso. La regola non ha eccezioni: anche la guida (<code>ams --help</code>) e
+<code>ams version</code> girano solo come root.</p>
 <pre class="terminal">mario@server:~$ ams list
 bash: /usr/local/bin/ams: Permesso negato</pre>
 
@@ -562,55 +563,73 @@ senza aver visto il messaggio: sarebbe comunque una sua dichiarazione, esattamen
 <!-- ===================================================================== -->
 <h2 id="reference">Riferimento dei comandi</h2>
 
-<p class="chapter-intro">Tutti i comandi di <code>ams</code>. Il testo di ogni riquadro è quello stampato da
-<code>ams --help</code>.</p>
+<p class="chapter-intro">Tutti i comandi e le opzioni di <code>ams</code>, con lo stesso testo della guida integrata.</p>
 
-<article class="cmd" id="cmd-send" data-index="ams send">
-<h4><code>ams send</code></h4>
-<p class="cmd-summary">Invia un messaggio</p>
-<pre class="usage">ams send --to DEST [--level info|ack] [--title TITOLO] [--expires DURATA] [--file FILE] [TESTO]</pre>
-<pre class="cmd-help">  send [opzioni] [TESTO]   invia un messaggio (senza TESTO lo legge da stdin)
-       --to DEST           destinatari: utente, lista separata da virgole,
-                           @gruppo, all (tutti gli utenti), online (i collegati)
-       --level LIVELLO     info oppure ack (predefinito: ack, chiede conferma)
-       --title TITOLO      titolo del messaggio
-       --expires DURATA    scadenza: 30m, 2h, 3d oppure data e ora ("2026-10-04 12:00")
-       --file FILE         legge il testo da FILE</pre>
-<p>Stampa <code>Messaggio N inviato a M utenti.</code> Vedi <a href="#inviare">Inviare messaggi</a>.</p>
-</article>
+<h3 id="guida-integrata" data-index="guida integrata;ams --help">La guida integrata</h3>
+<p><code>ams --help</code> (o <code>ams</code> da solo, o <code>ams help</code>) apre una guida interattiva a tutto schermo, a
+schede: <strong>Info</strong>, <strong>Comandi</strong>, <strong>Opzioni</strong>, <strong>Esempi</strong>, <strong>File</strong>.
+Come ogni comando di <code>ams</code>, anche la guida gira solo come root: un amministratore che la apre inserisce la
+password di sudo.</p>
+<pre class="terminal">┌─ ams — guida ──────────────────────────────────────────────────────┐
+│  Info  Comandi  Opzioni  Esempi  File                              │
+├────────────────────────────────────────────────────────────────────┤
+│ Opzioni di send                                                    │
+│                                                                    │
+│  --to DEST                                                         │
+│     Destinatari, separati da virgole senza spazi: un utente        │
+│     (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti     │
+│     umani) oppure online (solo quelli collegati adesso).           │
+│                                                                    │
+│  --level info|ack                                                  │
+│     ack (predefinito) chiede la conferma di lettura e la ripropone │
+│     finché l'utente non la dà; info mostra il messaggio una volta, │
+├────────────────────────────────────────────────────────────────────┤
+│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci   righe 1-10/23 │
+└────────────────────────────────────────────────────────────────────┘</pre>
+<table>
+  <thead><tr><th>Tasti</th><th>Azione</th></tr></thead>
+  <tbody>
+    <tr><td><kbd>←</kbd> <kbd>→</kbd>, <kbd>Tab</kbd>, <kbd>h</kbd> <kbd>l</kbd>, <kbd>Invio</kbd></td><td>Scheda precedente / successiva.</td></tr>
+    <tr><td><kbd>1</kbd>…<kbd>5</kbd></td><td>Vai direttamente a una scheda.</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd>, <kbd>k</kbd> <kbd>j</kbd></td><td>Scorri di una riga.</td></tr>
+    <tr><td><kbd>PgUp</kbd> <kbd>PgDn</kbd>, <kbd>b</kbd> <kbd>spazio</kbd></td><td>Scorri di una pagina.</td></tr>
+    <tr><td><kbd>g</kbd> <kbd>G</kbd>, <kbd>Home</kbd> <kbd>End</kbd></td><td>Inizio / fine della scheda.</td></tr>
+    <tr><td><kbd>q</kbd>, <kbd>Esc</kbd>, <kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Esci.</td></tr>
+  </tbody>
+</table>
+<p>La guida si ridisegna quando la finestra cambia dimensione. Se il terminale è più piccolo di 44×10, la stessa guida
+diventa una pagina in stile manuale impaginata con <code>less</code>; se l'uscita non è un terminale
+(<code>ams --help | grep expires</code>), è testo semplice largo 80 colonne.</p>
 
-<article class="cmd" id="cmd-list" data-index="ams list">
-<h4><code>ams list</code></h4>
-<p class="cmd-summary">Elenca i messaggi inviati</p>
-<pre class="usage">ams list</pre>
-<pre class="cmd-help">  list                     messaggi inviati con il conteggio delle conferme</pre>
-<p>Vedi <a href="#elenco">L'elenco dei messaggi</a>.</p>
-</article>
+<h3 id="rif-comandi">Comandi</h3>
+<dl class="defs">
+  <dt id="cmd-send" data-kind="command" data-index="ams send" data-help="send [opzioni] [TESTO]">send [opzioni] [TESTO]</dt>
+  <dd>Invia un messaggio ai destinatari indicati con --to. Senza TESTO né --file, il testo viene letto da stdin.</dd>
+  <dt id="cmd-list" data-kind="command" data-index="ams list" data-help="list">list</dt>
+  <dd>Elenca i messaggi inviati, con quanti destinatari hanno confermato (ack) o visto (info) ciascun messaggio.</dd>
+  <dt id="cmd-status" data-kind="command" data-index="ams status" data-help="status ID">status ID</dt>
+  <dd>Mostra il testo del messaggio e, per ogni destinatario, se ha confermato, quando e da dove.</dd>
+  <dt id="cmd-revoke" data-kind="command" data-index="ams revoke" data-help="revoke ID">revoke ID</dt>
+  <dd>Ritira un messaggio: chi non l'ha ancora visto non lo vedrà più, e finestre e domande ancora aperte si chiudono da sole.</dd>
+  <dt id="cmd-version" data-kind="command" data-index="ams version" data-help="version">version</dt>
+  <dd>Mostra la versione di AMS.</dd>
+  <dt id="cmd-help" data-kind="command" data-index="ams help;--help;-h" data-help="help, --help, -h">help, --help, -h</dt>
+  <dd>Mostra questa guida. La apre anche «ams» senza argomenti.</dd>
+</dl>
 
-<article class="cmd" id="cmd-status" data-index="ams status">
-<h4><code>ams status</code></h4>
-<p class="cmd-summary">Stato di un messaggio per ogni destinatario</p>
-<pre class="usage">ams status ID</pre>
-<pre class="cmd-help">  status ID                stato del messaggio per ogni destinatario</pre>
-<p>Vedi <a href="#stato">Lo stato di un messaggio</a>.</p>
-</article>
-
-<article class="cmd" id="cmd-revoke" data-index="ams revoke">
-<h4><code>ams revoke</code></h4>
-<p class="cmd-summary">Ritira un messaggio</p>
-<pre class="usage">ams revoke ID</pre>
-<pre class="cmd-help">  revoke ID                ritira un messaggio</pre>
-<p>Vedi <a href="#ritirare">Ritirare un messaggio</a>.</p>
-</article>
-
-<article class="cmd" id="cmd-version" data-index="ams version">
-<h4><code>ams version</code></h4>
-<p class="cmd-summary">Versione di AMS</p>
-<pre class="usage">ams version</pre>
-<pre class="cmd-help">  version                  versione di AMS</pre>
-<p>Anche <code>ams --version</code>. <code>ams</code> da solo, <code>ams help</code> e <code>ams --help</code> stampano l'aiuto
-completo.</p>
-</article>
+<h3 id="rif-opzioni">Opzioni di send</h3>
+<dl class="defs">
+  <dt id="opt-to" data-kind="option" data-index="--to" data-help="--to DEST">--to DEST</dt>
+  <dd>Destinatari, separati da virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti umani) oppure online (solo quelli collegati adesso).</dd>
+  <dt id="opt-level" data-kind="option" data-index="--level" data-help="--level info|ack">--level info|ack</dt>
+  <dd>ack (predefinito) chiede la conferma di lettura e la ripropone finché l'utente non la dà; info mostra il messaggio una volta, senza domande.</dd>
+  <dt id="opt-title" data-kind="option" data-index="--title" data-help="--title TITOLO">--title TITOLO</dt>
+  <dd>Titolo mostrato nell'intestazione del messaggio e nella finestra del desktop.</dd>
+  <dt id="opt-expires" data-kind="option" data-index="--expires" data-help="--expires DURATA">--expires DURATA</dt>
+  <dd>Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, 3d oppure data e ora ("2026-10-04 12:00"; le date a parole vanno in inglese).</dd>
+  <dt id="opt-file" data-kind="option" data-index="--file" data-help="--file FILE">--file FILE</dt>
+  <dd>Legge il testo del messaggio da FILE.</dd>
+</dl>
 
 <h3 id="messaggi-errore" data-index="errori">Messaggi di errore</h3>
 <table>

@@ -37,6 +37,7 @@ do_install() {
 
 	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/ams /etc/profile.d /etc/xdg/autostart
 	install -m 644 "$SRC/lib/ams-common.sh" "$LIBDIR/ams-common.sh"
+	install -m 644 "$SRC/lib/ams-help.sh" "$LIBDIR/ams-help.sh"
 	install -m 755 "$SRC/lib/ams-user" "$LIBDIR/ams-user"
 	# Le versioni precedenti installavano in sbin, che su Debian non è nel PATH degli utenti.
 	rm -f "$PREFIX/sbin/ams"

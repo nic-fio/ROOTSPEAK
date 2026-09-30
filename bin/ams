@@ -7,28 +7,6 @@ AMS_LIB=${AMS_LIB:-/usr/local/lib/ams}
 [ -r "$AMS_LIB/ams-common.sh" ] || AMS_LIB=$(dirname "$(readlink -f "$0")")/../lib
 . "$AMS_LIB/ams-common.sh"
 
-usage() {
-	cat <<EOF
-AMS - Advanced Messaging System for linux $AMS_VERSION
-
-Uso: ams <comando> [opzioni]
-
-  send [opzioni] [TESTO]   invia un messaggio (senza TESTO lo legge da stdin)
-       --to DEST           destinatari: utente, lista separata da virgole,
-                           @gruppo, all (tutti gli utenti), online (i collegati)
-       --level LIVELLO     info oppure ack (predefinito: ack, chiede conferma)
-       --title TITOLO      titolo del messaggio
-       --expires DURATA    scadenza: 30m, 2h, 3d oppure data e ora ("2026-10-04 12:00")
-       --file FILE         legge il testo da FILE
-  list                     messaggi inviati con il conteggio delle conferme
-  status ID                stato del messaggio per ogni destinatario
-  revoke ID                ritira un messaggio
-  version                  versione di AMS
-
-Manuale: /usr/local/share/doc/ams/user-manual.html
-EOF
-}
-
 # Da amministratore non root, ams si rilancia con sudo.
 # AMS_TEST=1 permette di provarlo senza root su una cartella di prova.
 if [ "$(id -u)" -ne 0 ] && [ -z "${AMS_TEST:-}" ]; then
@@ -36,6 +14,19 @@ if [ "$(id -u)" -ne 0 ] && [ -z "${AMS_TEST:-}" ]; then
 fi
 
 is_root() { [ "$(id -u)" -eq 0 ]; }
+
+# Anche la guida e la versione girano solo come root, come ogni comando.
+case ${1:-} in
+'' | help | -h | --help)
+	. "$AMS_LIB/ams-help.sh"
+	ams_help
+	exit 0
+	;;
+version | --version)
+	echo "AMS - Advanced Messaging System for linux $AMS_VERSION"
+	exit 0
+	;;
+esac
 
 # Ogni accesso alle cartelle degli utenti avviene con l'identità dell'utente:
 # così root non segue link simbolici preparati dall'utente.
@@ -332,7 +323,5 @@ send) shift; cmd_send "$@" ;;
 list) shift; cmd_list ;;
 status) shift; cmd_status "$@" ;;
 revoke) shift; cmd_revoke "$@" ;;
-version | --version) echo "AMS - Advanced Messaging System for linux $AMS_VERSION" ;;
--h | --help | help | '') usage ;;
-*) usage >&2; exit 1 ;;
+*) ams_die "comando sconosciuto: $1 (ams --help per la guida)" ;;
 esac
