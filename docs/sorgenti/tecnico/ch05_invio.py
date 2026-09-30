@@ -123,11 +123,12 @@ S6 = table(["Tolto", "Esempio", "Perché"], [
       + " legge dalle caselle.")
 
 S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e chiamano " + c("recipient_state")
-       + " per ogni destinatario. " + c("ams revoke") + " scrive " + c("sent/ID/revoked") + " e toglie " + c("inbox/ID")
+       + " per ogni destinatario. Le caselle si leggono <b>una volta per utente</b>: un solo " + c("runuser")
+       + " restituisce tutte le conferme e le date dei rinvii (" + c("load_user") + "), ripulite con " + c("ams_sanitize")
+       + " e controllate lato root; le consegne si leggono una volta per messaggio (" + c("load_delivery") + "). Con 10 "
+       "messaggi a 54 destinatari " + c("ams list") + " è passato da circa 6 s a circa 0,7 s. " + c("ams revoke") + " scrive " + c("sent/ID/revoked") + " e toglie " + c("inbox/ID")
        + " e i rinvii da ogni casella, come l'utente: finestre e domande aperte se ne accorgono entro un secondo "
-       "(capitoli 6.3 e 7.2).", lead=True) + \
-    note(c("ams list") + " chiama " + c("runuser") + " per ogni destinatario di ogni messaggio: con molti utenti e molti "
-         "messaggi diventa lento (capitolo 13).")
+       "(capitoli 6.3 e 7.2).", lead=True)
 
 CHAPTER = ("L'invio: ams", [
     ("Avvio e rilancio con sudo", S1),

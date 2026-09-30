@@ -332,36 +332,75 @@ cmd_send() {
 	if [ "$n" -eq 1 ]; then echo "Messaggio $id inviato a 1 utente."; else echo "Messaggio $id inviato a $n utenti."; fi
 }
 
-# Stato di un destinatario, uno dei tre: "inviato" (la copia non è ancora nella
-# casella), "consegnato" (è nella casella), "confermato EPOCH CANALE".
-recipient_state() {
-	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel exp
-	if ! delivered "$u" "$id"; then
-		echo inviato
-		return
-	fi
-	ack=$(as_user "$u" cat "$d/acks/$id" 2>/dev/null | head -c 200 | ams_sanitize) || true
-	if [ -n "$ack" ]; then
-		read -r epoch channel <<<"$ack"
-		[[ $epoch =~ ^[0-9]+$ ]] || epoch=0
-		# La scadenza che conta è quella della copia di riferimento (sent/), che
-		# l'utente non può toccare: una conferma arrivata dopo non vale.
-		exp=$(ams_msg_get "$AMS_VAR/sent/$id/msg" expires)
-		if [ -n "$exp" ] && [ "$epoch" -gt "$exp" ]; then
-			echo "consegnato tardiva"
-			return
-		fi
-		echo "confermato $epoch ${channel:-?}"
-	else
-		echo consegnato
-	fi
+# Per list e status le caselle si leggono una volta per utente: un solo
+# runuser restituisce tutte le conferme (prima riga, al massimo 200 byte) e le
+# date dei rinvii, poi ripulite e controllate qui. Le consegne di un messaggio
+# si leggono una volta. Tutto resta in memoria per il resto del comando.
+declare -A _ACK=() _SNZ=() _UTENTE_LETTO=() _DEL=() _DEL_LETTO=()
+
+load_user() {
+	local u=$1 riga tipo id resto
+	[ -n "${_UTENTE_LETTO[$u]:-}" ] && return
+	_UTENTE_LETTO[$u]=1
+	while IFS= read -r riga; do
+		tipo=${riga%% *}
+		resto=${riga#* }
+		id=${resto%% *}
+		resto=${resto#"$id"}
+		resto=${resto# }
+		[[ $id =~ ^[0-9]+$ ]] || continue
+		case $tipo in
+		A) _ACK[$u:$id]=$resto ;;
+		S) if [[ $resto =~ ^[0-9]+$ ]] && [ "$resto" -gt "${_SNZ[$u:$id]:-0}" ]; then _SNZ[$u:$id]=$resto; fi ;;
+		esac
+	done < <(as_user "$u" sh -c '
+		cd "$1" 2>/dev/null || exit 0
+		for f in acks/[0-9]*; do
+			[ -f "$f" ] && printf "A %s %s\n" "${f#acks/}" "$(head -c 200 "$f" | head -n 1)"
+		done
+		for f in state/[0-9]*.term state/[0-9]*.gui; do
+			[ -f "$f" ] && { n=${f#state/}; printf "S %s %s\n" "${n%%.*}" "$(stat -c %Y "$f")"; }
+		done
+		exit 0' _ "$AMS_VAR/users/$u" 2>/dev/null | ams_sanitize)
 }
 
-# Ora dell'ultimo rinvio del messaggio da parte di U (vuoto se non l'ha rimandato).
-snoozed_at() {
-	local d=$AMS_VAR/users/$1/state t
-	t=$(as_user "$1" sh -c 'stat -c %Y "$1".term "$1".gui 2>/dev/null' _ "$d/$2" | sort -n | tail -1) || true
-	if [[ $t =~ ^[0-9]+$ ]]; then date -d "@$t" '+%d/%m %H:%M'; fi
+load_delivery() {
+	local id=$1 u _resto
+	[ -n "${_DEL_LETTO[$id]:-}" ] && return
+	_DEL_LETTO[$id]=1
+	[ -f "$AMS_VAR/sent/$id/delivery" ] || return 0
+	while read -r u _resto; do
+		_DEL[$id:$u]=1
+	done <"$AMS_VAR/sent/$id/delivery"
+}
+
+# Stato di un destinatario, in RSTATE (senza sottoprocessi, per non perdere
+# quanto già letto): "inviato" (la copia non è ancora nella casella),
+# "consegnato" (è nella casella), "consegnato tardiva" (conferma arrivata dopo
+# la scadenza, quindi non valida), "confermato EPOCH CANALE".
+recipient_state() {
+	local u=$1 id=$2 ack epoch channel exp
+	load_delivery "$id"
+	if [ -z "${_DEL[$id:$u]:-}" ]; then
+		RSTATE=inviato
+		return
+	fi
+	load_user "$u"
+	ack=${_ACK[$u:$id]:-}
+	if [ -z "$ack" ]; then
+		RSTATE=consegnato
+		return
+	fi
+	read -r epoch channel <<<"$ack"
+	[[ $epoch =~ ^[0-9]+$ ]] || epoch=0
+	# La scadenza che conta è quella della copia di riferimento (sent/), che
+	# l'utente non può toccare: una conferma arrivata dopo non vale.
+	exp=$(ams_msg_get "$AMS_VAR/sent/$id/msg" expires)
+	if [ -n "$exp" ] && [ "$epoch" -gt "$exp" ]; then
+		RSTATE="consegnato tardiva"
+		return
+	fi
+	RSTATE="confermato $epoch ${channel:-?}"
 }
 
 cmd_list() {
@@ -378,7 +417,8 @@ cmd_list() {
 		fi
 		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 			tot=$((tot + 1))
-			state=$(recipient_state "$u" "$id")
+			recipient_state "$u" "$id"
+			state=$RSTATE
 			case $state in
 			confermato*) n=$((n + 1)) ;;
 			inviato) nd=$((nd + 1)) ;;
@@ -404,7 +444,8 @@ cmd_status() {
 	echo
 	printf '%-16s %s\n' UTENTE STATO
 	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
-		state=$(recipient_state "$u" "$id")
+		recipient_state "$u" "$id"
+		state=$RSTATE
 		case $state in
 		confermato*)
 			read -r _ epoch channel <<<"$state"
@@ -422,7 +463,9 @@ cmd_status() {
 			elif ams_msg_expired "$msg"; then line+=", non confermato (scaduto)"
 			else
 				nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
-				when=$(snoozed_at "$u" "$id")
+				load_user "$u"
+				when=''
+				if [ -n "${_SNZ[$u:$id]:-}" ]; then when=$(date -d "@${_SNZ[$u:$id]}" '+%d/%m %H:%M'); fi
 				case ${nterm:-0} in
 				0) ;;
 				1) line+=", scritto su 1 terminale" ;;

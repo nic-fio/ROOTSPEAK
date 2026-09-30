@@ -44,8 +44,8 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
         ["dall'invio al testo nel terminale di un utente collegato", "circa 0,2 s"],
         ["dal login alla domanda di conferma", "circa 0,3 s"],
         ["invio a 54 destinatari", "circa 2,6 s (circa 50 ms per destinatario)"],
-        [c("ams list") + " con 10 messaggi × 54 destinatari", "circa 6 s"],
-        [c("ams status") + " di un messaggio con 54 destinatari", "circa 1,3 s"],
+        [c("ams list") + " con 10 messaggi × 54 destinatari", "circa 0,7 s (circa 6 s prima della lettura per utente)"],
+        [c("ams status") + " di un messaggio con 54 destinatari", "circa 0,7 s (circa 1,3 s prima)"],
     ], "«TAB» — Le misure della prima esecuzione") + term(
         "nicfio@server:~/AMS$ tests/container/esegui.sh\n…\n41 riusciti, 0 falliti, 1 non provati su 42; risultati in /opt/risultati")
 

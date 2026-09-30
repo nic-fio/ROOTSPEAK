@@ -1,6 +1,6 @@
 {
  "meta": {
-  "data": "2026-09-30 09:13:14 UTC",
+  "data": "2026-09-30 09:44:19 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
   "sistema": "Debian GNU/Linux 13 (trixie), container con systemd",
   "ok": 41,
@@ -26,7 +26,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.124
+    "secondi": 0.101
    }
   },
   {
@@ -127,7 +127,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.347
+    "secondi_dal_login": 0.367
    }
   },
   {
@@ -136,7 +136,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 09:12 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 09:43 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +147,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.146,
-    "secondi_al_terminale": 0.197
+    "secondi_invio": 0.09,
+    "secondi_al_terminale": 0.14
    }
   },
   {
@@ -206,7 +206,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:12",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:43",
    "misure": {}
   },
   {
@@ -215,7 +215,7 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@40c13cd8572e:~$ ",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@e26a25679be4:~$ ",
    "misure": {}
   },
   {
@@ -233,7 +233,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790759537 terminale pts/7",
+   "dettagli": "1790761408 terminale pts/7",
    "misure": {}
   },
   {
@@ -311,7 +311,7 @@
    "misure": {
     "consegnati_al_kill": 15,
     "destinatari": 64,
-    "secondi_recupero": 2.591
+    "secondi_recupero": 2.538
    }
   },
   {
@@ -322,7 +322,7 @@
    "esito": "OK",
    "dettagli": "64 consegne annotate per 64 destinatari, 64 distinte",
    "misure": {
-    "ams_list_durante_invio": 14
+    "ams_list_durante_invio": 25
    }
   },
   {
@@ -378,8 +378,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 2.47,
-    "ms_per_destinatario": 45.8
+    "secondi": 2.76,
+    "ms_per_destinatario": 51.1
    }
   },
   {
@@ -390,7 +390,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 5.48
+    "secondi": 0.69
    }
   },
   {
@@ -401,7 +401,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.24
+    "secondi": 0.73
    }
   },
   {
