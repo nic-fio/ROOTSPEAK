@@ -49,7 +49,7 @@ affidabile è **logind**, non utmp.
 | Decisione | Perché |
 |---|---|
 | **Una sola macchina, inviano solo gli amministratori** | Lo strumento deve restare «semplice»: niente rete, niente messaggi tra utenti. |
-| **Due livelli: `info` e `ack`** | `ack` chiede la conferma e insiste; `info` avvisa e basta. |
+| **Ogni messaggio chiede la conferma; tre stati** | All'inizio c'erano due livelli, `ack` (con conferma) e `info` (solo avviso). Il 30 settembre, lavorando sulla revisione avversariale, l'utente ha deciso: «TUTTI i messaggi hanno 3 stati: inviato, consegnato, confermato. L'utente destinatario deve SEMPRE confermare la lettura», scegliendo di semplificare l'architettura. Sparisce lo stato «mostrato», che confondeva consegna e lettura (revisione, punto 6). Per gli avvisi brevi si usa `--expires`: dopo la scadenza il messaggio non viene più mostrato né sollecitato. |
 | **Nessun blocco** | Proposto e scartato un livello `block` (sessione chiusa se l'utente non conferma entro un tempo di grazia): «butta fuori gli utenti dal sistema, troppo estremo». Scartato anche il blocco a schermo intero: invasivo e non realizzabile su GNOME Wayland. Il blocco peggiorerebbe proprio il messaggio più comune («riavvio tra 10 minuti, salvate il lavoro») e romperebbe gli script. |
 | **Ricezione automatica** | L'utente non deve conoscere né digitare comandi: finestra sul desktop, testo e domanda nel terminale, tutto da solo. |
 | **Gli utenti non hanno il comando `ams`** | Ricevono e confermano soltanto. Il codice che gira come utente è l'aiutante interno `ams-user`, fuori dal PATH. Conseguenza accettata: dopo la conferma un messaggio non si può rileggere. |
@@ -58,7 +58,7 @@ affidabile è **logind**, non utmp.
 | **Nessun demone** | Senza il livello `block` non serve: `ams send` consegna subito, l'aggancio della shell e l'agente del desktop fanno il resto. |
 | **La prima conferma vale per tutti i canali** | Emerso da una prova: l'utente doveva confermare due volte (finestra e terminale). Ora la domanda nel terminale si accorge della conferma dal desktop, e la conferma è scritta in modo esclusivo (`set -C`). |
 | **Agente del desktop svegliato da un segnale** | Emerso da una prova: la finestra arrivava dopo 3-4 secondi (controllo ogni 10 s). `ams send` manda `SIGUSR1` all'agente: la finestra compare subito, e il controllo periodico passa a 60 s per risparmiare batteria. |
-| **Avvisi `info` prima delle finestre di conferma** | Emerso da una prova: al login un avviso restava in coda dietro una finestra e sembrava una seconda richiesta. |
+| **Avvisi `info` prima delle finestre di conferma** | Emerso da una prova: al login un avviso restava in coda dietro una finestra e sembrava una seconda richiesta. Superata dalla decisione di chiedere sempre la conferma. |
 | **zenity per la finestra** | Pacchetto standard e piccolo; una finestra che resta aperta finché l'utente non sceglie. Le notifiche di GNOME possono essere ignorate o sparire da sole: inaffidabili per la conferma. |
 | **Prototipo in bash** | Per validare il flusso con gli strumenti del sistema. Una riscrittura in un linguaggio compilato si farà solo se emergeranno limiti concreti. |
 | **Guida integrata come quella di MTERM, niente man page** | «Non voglio un sistema man, ma un sistema molto più evoluto»: guida a schede in un terminale, pagina in stile manuale con un pager se il terminale è piccolo, testo semplice in una pipe. Un controllo (`tools/check-docs.py`) tiene allineati guida e manuale. |

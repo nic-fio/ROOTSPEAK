@@ -42,6 +42,17 @@ def read_all(fd, wait=0.6, limit=5.0):
     return out.decode("utf-8", "replace")
 
 
+def read_frame(fd, limit=8.0):
+    """Legge finché l'ultimo fotogramma disegnato non è completo (contiene
+    l'angolo inferiore destro della cornice), poi raccoglie ciò che segue."""
+    out, start = "", time.time()
+    while time.time() - start < limit:
+        out += read_all(fd, 0.2, 1.0)
+        if "\x1b[H" in out and "┘" in out.split("\x1b[H")[-1]:
+            return out + read_all(fd, 0.2, 0.5)
+    return out
+
+
 def screen(raw):
     """L'ultimo fotogramma disegnato, senza colori."""
     frame = raw.split("\x1b[H")[-1]
@@ -57,24 +68,24 @@ def check(name, cond, shot):
 
 
 pid, fd = spawn(30, 100)
-raw = read_all(fd, 1.0)
+raw = read_frame(fd)
 s = screen(raw)
 check("apertura: cornice e scheda Info", "\x1b[?1049h" in raw and s[0].startswith("┌─ ams — guida")
       and any("SINTASSI" in l for l in s) and len(s) == 30 and all(len(l) == 100 for l in s), s)
 os.write(fd, b"\x1b[C")                      # freccia destra
-s = screen(read_all(fd))
+s = screen(read_frame(fd))
 check("→: scheda Comandi", any("send [opzioni] [TESTO]" in l for l in s), s)
 os.write(fd, b"3")                           # scheda 3
-s = screen(read_all(fd))
+s = screen(read_frame(fd))
 check("3: scheda Opzioni", any("--expires DURATA" in l for l in s), s)
 os.write(fd, b"4G")                          # Esempi, fino in fondo
-s = screen(read_all(fd))
+s = screen(read_frame(fd))
 check("4 G: Esempi, fine", any("ams revoke 12" in l for l in s) and any(re.search(r"righe \d+-(\d+)/\1", l) for l in s), s)
 os.write(fd, b"\x1b[5~g")                    # PgUp, g
-s = screen(read_all(fd))
+s = screen(read_frame(fd))
 check("PgUp g: inizio scheda", any("righe 1-" in l for l in s), s)
 fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 20, 70, 0, 0))
-s = screen(read_all(fd, 1.0))
+s = screen(read_frame(fd))
 check("ridimensionamento a 70x20", len(s) == 20 and all(len(l) == 70 for l in s), s)
 os.write(fd, b"q")
 raw = read_all(fd)

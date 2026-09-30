@@ -9,8 +9,8 @@
 # Voci "etichetta¦descrizione".
 AMS_HELP_COMMANDS=(
 	"send [opzioni] [TESTO]¦Invia un messaggio ai destinatari indicati con --to. Senza TESTO né --file, il testo viene letto da stdin."
-	"list¦Elenca i messaggi inviati, con quanti destinatari hanno confermato (ack) o visto (info) ciascun messaggio."
-	"status ID¦Mostra il testo del messaggio e, per ogni destinatario, se ha confermato, quando e da dove."
+	"list¦Elenca i messaggi inviati, con quanti destinatari hanno confermato ciascun messaggio."
+	"status ID¦Mostra il testo del messaggio e lo stato di ogni destinatario: inviato, consegnato (nella sua casella) o confermato, con data, ora e canale."
 	"revoke ID¦Ritira un messaggio: chi non l'ha ancora visto non lo vedrà più, e finestre e domande ancora aperte si chiudono da sole."
 	"version¦Mostra la versione di AMS."
 	"help, --help, -h¦Mostra questa guida. La apre anche «ams» senza argomenti."
@@ -18,7 +18,6 @@ AMS_HELP_COMMANDS=(
 
 AMS_HELP_OPTIONS=(
 	"--to DEST¦Destinatari, separati da virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti umani) oppure online (solo quelli collegati adesso)."
-	"--level info|ack¦ack (predefinito) chiede la conferma di lettura e la ripropone finché l'utente non la dà; info mostra il messaggio una volta, senza domande."
 	"--title TITOLO¦Titolo mostrato nell'intestazione del messaggio e nella finestra del desktop."
 	"--expires DURATA¦Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole vanno in inglese)."
 	"--file FILE¦Legge il testo del messaggio da FILE."
@@ -27,7 +26,7 @@ AMS_HELP_OPTIONS=(
 AMS_HELP_EXAMPLES=(
 	"ams send --to mario \"Il tuo account scade venerdì.\"¦Messaggio con conferma di lettura a un solo utente."
 	"ams send --to @sviluppo --title Manutenzione --file avviso.txt¦Testo preso da un file, con titolo, a tutti i membri del gruppo sviluppo."
-	"ams send --to online --level info \"Riavvio tra 5 minuti.\"¦Avviso senza conferma, solo a chi è collegato adesso."
+	"ams send --to online --expires 15m \"Riavvio alle 13:00.\"¦Avviso urgente a chi è collegato adesso; dopo 15 minuti non viene più mostrato né sollecitato."
 	"ams send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli utenti; dopo tre giorni smette di essere mostrato."
 	"ams list¦Quali messaggi sono stati inviati e quante conferme hanno."
 	"ams status 12¦Chi ha confermato il messaggio 12, quando e da dove."
@@ -35,16 +34,16 @@ AMS_HELP_EXAMPLES=(
 )
 
 AMS_HELP_FILES=(
-	"/etc/ams/ams.conf¦Configurazione: livello predefinito, minuti prima di riproporre un messaggio rimandato, intervallo di controllo dell'agente del desktop."
+	"/etc/ams/ams.conf¦Configurazione: minuti prima di riproporre un messaggio rimandato, intervallo di controllo dell'agente del desktop."
 	"/var/lib/ams/¦I messaggi: sent/ (copie di riferimento, solo root) e users/UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
-	"sudo journalctl -t ams¦Il registro di sistema: invii, conferme, avvisi mostrati e ritiri."
+	"sudo journalctl -t ams¦Il registro di sistema: invii, consegne, conferme e ritiri."
 	"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦Il manuale utente completo, da aprire in un browser."
 )
 
 AMS_HELP_DESCRIPTION="AMS permette agli amministratori di mandare messaggi di testo agli utenti della \
 macchina e di sapere chi li ha letti. I messaggi compaiono nei terminali (console, ssh, terminali del \
 desktop, tmux) e sul desktop, in una finestra con i pulsanti «Ho letto» e «Più tardi»; chi non è \
-collegato li trova al login successivo. Con il livello ack, AMS chiede la conferma di lettura e la \
+collegato li trova al login successivo. Ogni messaggio chiede la conferma di lettura e AMS la \
 ripropone finché l'utente non la dà, senza mai bloccare il lavoro. Il comando è riservato agli \
 amministratori (gruppo sudo o wheel) e si rilancia da solo con sudo."
 

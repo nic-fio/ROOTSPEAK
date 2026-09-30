@@ -30,7 +30,7 @@ S2 = table(["", c("wall") + " / " + c("write"), "AMS"], [
     ["Scrive nei terminali degli utenti collegati", "sì", "sì"],
     ["Compare sul desktop (X11 e Wayland)", "no", "sì, in una finestra"],
     ["Raggiunge chi non è collegato", "no", "sì, al prossimo accesso"],
-    ["Chiede la conferma di lettura", "no", "sì, se il messaggio lo richiede"],
+    ["Chiede la conferma di lettura", "no", "sì, sempre"],
     ["Sollecita chi non ha confermato", "no", "sì, ogni 30 minuti"],
     ["Dice all'amministratore chi ha letto", "no", "sì, con data, ora e canale"],
 ], "«TAB» — AMS e i comandi classici di Linux") + \
@@ -45,7 +45,7 @@ S2 = table(["", c("wall") + " / " + c("write"), "AMS"], [
 
 S3 = p("Il manuale segue l'ordine in cui di solito servono le cose:") + table(["Capitoli", "Per"], [
     ["2 e 3", "installare AMS e mandare il primo messaggio"],
-    ["4 e 5", "scegliere destinatari e livello, poi controllare chi ha letto"],
+    ["4 e 5", "scegliere destinatari e scadenza, poi controllare chi ha letto"],
     ["6", "sapere cosa vedono gli utenti, per poterlo spiegare"],
     ["7 e 8", "usare la guida integrata e cambiare le impostazioni"],
     ["9 e 10", "sicurezza, e cosa fare quando qualcosa non va"],
@@ -54,8 +54,8 @@ S3 = p("Il manuale segue l'ordine in cui di solito servono le cose:") + table(["
     p("Negli esempi " + c("admin") + " è un amministratore; " + c("mario") + ", " + c("anna") + " e " + c("luca")
       + " sono utenti della macchina " + c("server") + ". Nei riquadri scuri le righe che iniziano con il prompt sono "
       "comandi da scrivere; le righe arancioni sono quelle che AMS mostra agli utenti. Gli stati di un messaggio "
-      "hanno sempre lo stesso colore: " + pill("da confermare", "wait") + " " + pill("rimandato", "snooze") + " "
-      + pill("confermato", "ok") + " " + pill("scaduto o ritirato", "off") + ".")
+      "hanno sempre lo stesso colore: " + pill("inviato", "info") + " " + pill("consegnato", "wait") + " "
+      + pill("rimandato", "snooze") + " " + pill("confermato", "ok") + " " + pill("scaduto o ritirato", "off") + ".")
 
 CHAPTER = ("Benvenuto", [
     ("Che cos'è AMS", S1),

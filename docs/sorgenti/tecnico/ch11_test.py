@@ -8,7 +8,10 @@ S0 = p(c("tests/engine.sh") + " prova il motore in modalità di prova, senza roo
         ["consegna", "invio normale a due destinatari; copia non scrivibile per uno (errore, l'altro la riceve, "
          "«non consegnato», segno di invio incompleto); guasto risolto e recupero; interruzione simulata a metà; "
          "recupero che non ripropone un messaggio confermato; invio interrotto prima del salvataggio (annullato)"],
-    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n\nOK: 17 controlli")
+        ["stati", c("--level") + " rifiutato; consegnato dopo l'invio; nessun livello nel messaggio; rinvio mostrato come "
+         "dettaglio e non richiesto subito; confermato al login successivo; " + c("ams list") + " senza colonna del livello; "
+         "scaduto come «consegnato, non confermato»"],
+    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n3. stati\n\nOK: 25 controlli")
 
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \
@@ -40,7 +43,7 @@ S3 = p("La consegna reale richiede root, sessioni vere e un desktop, e non è au
     ["finestra al login di un utente non collegato", "dal vivo, con un secondo account"],
     ["testo e domanda nel terminale, anche via ssh", "dal vivo, con " + c("ssh user@localhost")],
     ["conferma unica fra finestra e terminale", "dal vivo"],
-    ["avvisi " + c("info") + ", " + c("list") + ", " + c("status"), "dal vivo"],
+    [c("list") + ", " + c("status"), "dal vivo"],
     [c("revoke") + " con domanda in attesa, scadenze, errori, pulizia del testo", "in modalità di prova"],
 ], "«TAB» — Cosa è stato provato")
 

@@ -16,20 +16,16 @@ S1 = flow([("bash interattiva", "$- contiene i", "dark"), ("/etc/profile.d/ams.s
 
 PROMPT = fig(
     box(20, 40, 170, 54, "pending", "inbox in ordine", "dark")
-    + diamond(330, 67, 200, 70, "livello info?", "navy")
-    + box(520, 40, 170, 54, "mostra", "mark_shown → read/", "light")
-    + diamond(330, 180, 220, 76, "rimandato da poco?", "amber")
-    + box(520, 153, 170, 54, "conta", "promemoria di una riga", "soft")
-    + box(245, 262, 170, 54, "mostra e chiede", "ask: [s/N]", "blue")
-    + box(520, 262, 170, 54, "esito", "ack · snooze · fermo", "green")
-    + arrow(192, 67, 228, 67) + arrow(432, 67, 518, 67, "#0050C0", False, "sì", 472, 58)
-    + arrow(330, 104, 330, 140, "#475569", False, "no", 346, 124)
-    + arrow(442, 180, 518, 180, "#d97706", False, "sì (non al login)", 480, 170)
-    + arrow(330, 220, 330, 260, "#475569", False, "no", 346, 244)
-    + arrow(417, 289, 518, 289)
-    + text(780, 60, "l'ultimo passo: se ci sono", 11, "#475569", "400") + text(780, 76, "messaggi rimandati, una riga", 11, "#475569")
-    + text(780, 92, "«Hai N messaggi da confermare»", 11, "#92400e", "600"),
-    900, 336, "«FIG» — ams-user prompt, per ogni messaggio della casella", "Il giro di ams-user prompt")
+    + diamond(360, 67, 220, 76, "rimandato da poco?", "amber")
+    + box(560, 40, 170, 54, "conta", "promemoria di una riga", "soft")
+    + box(275, 170, 170, 54, "mostra e chiede", "ask: [s/N]", "blue")
+    + box(560, 170, 170, 54, "esito", "ack · snooze · fermo", "green")
+    + arrow(192, 67, 248, 67) + arrow(472, 67, 558, 67, "#d97706", False, "sì (non al login)", 515, 57)
+    + arrow(360, 107, 360, 168, "#475569", False, "no", 376, 140)
+    + arrow(447, 197, 558, 197)
+    + text(820, 60, "alla fine, se ci sono", 11, "#475569") + text(820, 76, "messaggi rimandati:", 11, "#475569")
+    + text(820, 92, "«Hai N messaggi", 11, "#92400e", "600") + text(820, 108, "da confermare»", 11, "#92400e", "600"),
+    900, 246, "«FIG» — ams-user prompt, per ogni messaggio della casella", "Il giro di ams-user prompt")
 
 S2 = p(c("ams-user prompt") + " prende i messaggi della casella in ordine di numero. Quelli scaduti passano subito in "
        + c("read/") + ".", lead=True) + PROMPT + table(["Esito di ask", "Cosa fa", "Stampa"], [

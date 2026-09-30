@@ -21,9 +21,13 @@ fresh() {
 
 send() { "$ROOT/bin/ams" send --to "$U" "$@" >/dev/null; }
 
-# Risponde «$1» alla domanda del prompt, su uno pseudo-terminale.
+# Risponde «$1» alla domanda del prompt, su uno pseudo-terminale
+# (prompt_login: come in una shell di login, dove il rinvio non vale).
 prompt() {
 	printf '%s\n' "$1" | script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1
+}
+prompt_login() {
+	printf '%s\n' "$1" | script -qec "$ROOT/lib/ams-user prompt --login" /dev/null 2>&1
 }
 
 check() { # descrizione, condizione (stringa valutata)
@@ -60,7 +64,7 @@ check "dopo il guasto la domanda torna e la conferma riesce" '[ -s "$D/acks/1" ]
 fresh ack-first
 send "prova"
 echo "1000 desktop" >"$D/acks/1"
-(. "$ROOT/lib/ams-common.sh"; D=$D U=$U; source <(sed -n '/^mark_read()/,/^}/p;/^ack()/,/^}/p' "$ROOT/lib/ams-user"); ack 1 "terminale pts/9")
+(source <(sed -e "s|^AMS_LIB=.*|AMS_LIB=$ROOT/lib|" -e '/^case \${1:-} in/,$d' "$ROOT/lib/ams-user"); ack 1 "terminale pts/9")
 check "conferma già presente: resta la prima" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
 
 # ---- 2. consegna: tracciata per destinatario, completata dopo un'interruzione ----
@@ -76,7 +80,7 @@ fresh send-ok
 R=$AMS_VAR/users/root
 check "invio normale: due consegne registrate, nessun segno di invio incompleto" \
 	'[ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 2 ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ]'
-check "invio normale: stato «da confermare»" '[ "$(state_of 1 root)" = "da confermare" ]'
+check "invio normale: stato «consegnato»" '[ "$(state_of 1 root)" = "consegnato" ]'
 
 fresh send-fail
 R=$AMS_VAR/users/root
@@ -87,11 +91,11 @@ rc=$?
 check "copia non scrivibile: ams send termina con errore" '[ $rc -ne 0 ] && [[ $out == *"non consegnato a: root"* ]]'
 check "copia non scrivibile: l'altro destinatario la riceve" '[ -e "$D/inbox/1" ] && delivered_u=$(awk "{print \$1}" "$AMS_VAR/sent/1/delivery") && [ "$delivered_u" = "$U" ]'
 check "copia non scrivibile: resta il segno di invio incompleto" '[ -e "$AMS_VAR/sent/1/incomplete" ]'
-check "copia non scrivibile: stato «non consegnato», non «da confermare»" '[[ $(state_of 1 root) == "non consegnato"* ]]'
+check "copia non scrivibile: stato «inviato, non consegnato»" '[[ $(state_of 1 root) == "inviato, non consegnato"* ]]'
 chmod 755 "$R/inbox"
 "$ROOT/bin/ams" list >/dev/null 2>&1
 check "guasto risolto: il comando successivo completa la consegna" \
-	'[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "da confermare" ]'
+	'[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "consegnato" ]'
 
 fresh crash
 R=$AMS_VAR/users/root
@@ -113,6 +117,29 @@ mkdir -p "$AMS_VAR/sent/7" "$AMS_VAR/users"; : >"$AMS_VAR/sent/7/incomplete"
 out=$("$ROOT/bin/ams" list 2>&1)
 check "invio interrotto prima del salvataggio: annullato e segnalato" \
 	'[ -e "$AMS_VAR/sent/7/failed" ] && [ ! -e "$AMS_VAR/sent/7/incomplete" ] && [[ $out == *"annullato"* ]]'
+
+# ---- 3. stati: inviato, consegnato, confermato; ogni messaggio chiede conferma ----
+
+echo "3. stati"
+fresh states
+out=$("$ROOT/bin/ams" send --to "$U" --level info "prova" 2>&1)
+check "--level non esiste più" '[[ $out == *"opzione sconosciuta: --level"* ]] && [ ! -d "$AMS_VAR/sent/1" ]'
+send "prova"
+check "dopo l'invio: consegnato" '[ "$(state_of 1 "$U")" = "consegnato" ]'
+check "il messaggio non ha più un livello" '! grep -q "^level:" "$AMS_VAR/sent/1/msg"'
+prompt n >/dev/null
+check "rimandato: resta consegnato, con l'ora del rinvio" '[[ $(state_of 1 "$U") == "consegnato, rimandato il "* ]]'
+prompt s >/dev/null
+check "rimandato: al prompt successivo non viene richiesto subito" '[[ $(state_of 1 "$U") == "consegnato, rimandato il "* ]]'
+prompt_login s >/dev/null
+check "confermato (nuovo login)" '[[ $(state_of 1 "$U") == "confermato il "* ]]'
+list=$("$ROOT/bin/ams" list)
+check "ams list: colonne senza livello, conferme 1/1" '[[ $list == *"ID    DATA         CONFERME  TESTO"* ]] && [[ $list == *" 1/1 "* ]]'
+
+fresh expired
+send --expires 1m "prova"
+sed -i "s/^expires: .*/expires: $(( $(date +%s) - 5 ))/" "$AMS_VAR/sent/1/msg"
+check "scaduto: consegnato, non confermato" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
 
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi

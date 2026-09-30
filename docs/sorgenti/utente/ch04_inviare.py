@@ -28,24 +28,19 @@ S1 = p("L'opzione " + c("--to") + " dice chi riceve il messaggio. Si possono ind
     note("le opzioni vanno scritte <b>prima</b> del testo: tutto quello che viene dopo il testo è considerato parte "
          "del messaggio.")
 
-LEVEL = fig(
-    diamond(250, 150, 250, 104, "Devi sapere chi ha letto?", "navy")
-    + box(560, 48, 320, 72, "ack — con conferma", "chiede «Ho letto» e insiste finché non arriva", "blue")
-    + box(560, 180, 320, 72, "info — solo avviso", "compare una volta, senza domande", "dark")
-    + arrow(375, 140, 556, 90, "#0050C0", False, "sì", 470, 104)
-    + arrow(375, 160, 556, 212, "#475569", False, "no", 470, 204)
-    + text(250, 238, "È il livello predefinito: ack", 11.5, "#334155", "600"),
-    900, 272, "«FIG» — Come scegliere il livello del messaggio", "Quale livello")
+URGENT = fig(
+    diamond(250, 150, 270, 104, "Perde senso dopo un po'?", "navy")
+    + box(566, 48, 314, 72, "--expires 15m", "dopo 15 minuti non si mostra né si sollecita più", "blue")
+    + box(566, 180, 314, 72, "senza scadenza", "resta finché ogni utente non conferma", "dark")
+    + arrow(385, 140, 562, 90, "#0050C0", False, "sì", 474, 104)
+    + arrow(385, 160, 562, 212, "#475569", False, "no", 474, 204)
+    + text(250, 238, "in entrambi i casi si chiede la conferma", 11.5, "#334155", "600"),
+    900, 272, "«FIG» — La scadenza per i messaggi che valgono solo per poco", "Messaggi urgenti")
 
-S2 = p("Ogni messaggio ha un <b>livello</b>, scelto con " + c("--level") + ". Senza indicarlo si usa " + c("ack") + ".",
-       lead=True) + LEVEL + table(["", c("ack") + " (predefinito)", c("info")], [
-        ["Sul desktop", "finestra con «Ho letto» e «Più tardi»", "notifica che sparisce da sola"],
-        ["Nel terminale", "il testo, poi la domanda «Confermi?»", "solo il testo"],
-        ["Se l'utente rimanda", "glielo si ripropone dopo 30 minuti", "—"],
-        ["In " + c("ams status"), "chi ha confermato, quando e da dove", "a chi è stato mostrato"],
-        ["Adatto per", "manutenzioni, nuove regole, scadenze", "avvisi brevi: «il servizio riparte tra 5 minuti»"],
-    ], "«TAB» — I due livelli a confronto") + term(
-        'admin@server:~$ ams send --to online --level info "Il servizio web riparte tra 5 minuti."\n'
+S2 = p("<b>Ogni messaggio chiede la conferma di lettura</b>: così " + c("ams status") + " dice sempre chi ha letto e chi "
+       "no. Per gli avvisi che valgono solo per poco, come «il servizio riparte tra 5 minuti», si aggiunge una scadenza: "
+       "passato quel tempo il messaggio non viene più mostrato né sollecitato.", lead=True) + URGENT + term(
+        'admin@server:~$ ams send --to online --expires 15m "Il servizio web riparte alle 13:00."\n'
         "Messaggio 2 inviato a 3 utenti.")
 
 S3 = p("Il testo si può scrivere in tre modi. Per messaggi lunghi conviene prepararlo in un file.", lead=True) + \
@@ -79,7 +74,7 @@ S4 = p("Con " + c("--expires") + " un messaggio smette di essere mostrato dopo u
 S5 = table(["Voglio…", "Comando"], [
     ["avvisare un utente e sapere se ha letto", c('ams send --to anna "Il tuo account scade venerdì."')],
     ["avvisare chi è collegato che sto per riavviare",
-     c('ams send --to online --level info --expires 15m "Riavvio alle 13:00: salvate il lavoro."')],
+     c('ams send --to online --expires 15m "Riavvio alle 13:00: salvate il lavoro."')],
     ["informare tutti di una nuova regola", c('ams send --to all --title "Password" --file regola.txt')],
     ["scrivere a un gruppo di lavoro", c('ams send --to @sviluppo --expires 2d "Consegna entro giovedì alle 18."')],
     ["scrivere a due persone e a un gruppo", c('ams send --to mario,anna,@stagisti "Riunione alle 11."')],
@@ -87,7 +82,7 @@ S5 = table(["Voglio…", "Comando"], [
 
 CHAPTER = ("Mandare messaggi", [
     ("Scegliere i destinatari", S1),
-    ("Scegliere il livello", S2),
+    ("Messaggi urgenti", S2),
     ("Titolo, testi lunghi e file", S3),
     ("Scadenza", S4),
     ("Comandi pronti", S5),

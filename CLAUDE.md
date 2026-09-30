@@ -35,13 +35,14 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | Decisione | |
 |---|---|
 | **Una sola macchina, inviano solo gli amministratori** | Niente rete, niente messaggi tra utenti. |
-| **Livelli `info` e `ack`, nessun blocco** | Niente livello `block`, niente disconnessioni, niente blocco a schermo intero: l'utente può sempre rimandare. |
+| **Ogni messaggio chiede la conferma; tre stati** | Per ogni destinatario: inviato, consegnato (copia nella casella), confermato. Niente livelli (`info` è stato tolto il 30 settembre: scelta di semplificare l'architettura); per gli avvisi brevi si usa `--expires`. Scadenza e ritiro sono proprietà del messaggio. |
+| **Nessun blocco** | Niente livello `block`, niente disconnessioni, niente blocco a schermo intero: l'utente può sempre rimandare. |
 | **Ricezione automatica, nessun comando per gli utenti** | Gli utenti non hanno `ams`; il codice che gira come utente è `ams-user`, fuori dal PATH. |
 | **`ams` sempre come root, senza eccezioni** | Si rilancia con sudo prima di tutto, anche per `--help` e `version`. |
 | **Nessun gruppo di AMS** | Si usa il gruppo admin esistente (`sudo`/`wheel`): `ams` è `root:<gruppo>` `750`. |
 | **Nessun demone** | logind, sudo, aggancio della shell, avvio automatico del desktop. |
 | **Root non tocca le caselle come root** | Ogni accesso a `/var/lib/ams/users/U` passa da `as_user` (`runuser`). |
-| **zenity e notify-send** per il desktop | Finestra «Ho letto» / «Più tardi»; notifiche per `info`. |
+| **zenity** per il desktop | Finestra «Ho letto» / «Più tardi»; `notify-send`, se c'è, solo per segnalare una conferma non registrata. |
 | **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi solo in `lib/ams-help.sh`. |
 | **Manuali sul modello di IR_Service** | Generati da `docs/sorgenti/` (un file per capitolo) in due file HTML autosufficienti, con lo stile del Manuale Tecnico di IR_Service: copertina, indice laterale, figure SVG e tabelle numerate. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
 | **Prototipo in bash** | Riscrittura in un linguaggio compilato solo per limiti concreti. |
@@ -82,7 +83,7 @@ Versione: `AMS_VERSION` in `lib/ams-common.sh`, e la stessa nei due manuali
 
 Prototipo 0.1.0 installato e provato dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
-avvisi `info`, testo e domanda nel terminale anche via ssh, conferma unica fra
+testo e domanda nel terminale anche via ssh, conferma unica fra
 i canali, `list` e `status`. `revoke`, scadenze, errori e pulizia del testo
 provati in modalità di prova. Aperti: i punti della revisione avversariale del 30 settembre 2026
 ([docs/revisione-avversariale.md](docs/revisione-avversariale.md)), da chiudere

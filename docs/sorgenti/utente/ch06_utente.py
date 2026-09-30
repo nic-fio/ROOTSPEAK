@@ -9,9 +9,7 @@ S1 = p("Sul desktop un messaggio con conferma compare da solo, sopra le altre fi
         [ui("Ho letto"), "Il messaggio è confermato e non ricompare più, in nessuna sessione."],
         [ui("Più tardi") + ", o chiude la finestra", "La finestra ricompare dopo 30 minuti, finché l'utente non conferma."],
     ], "«TAB» — I due pulsanti") + \
-    p("Un avviso senza conferma (" + c("info") + ") è invece una normale notifica del desktop, che sparisce da sola:") + \
-    notification("AMS · 03/10 18:42", "Il servizio web riparte tra 5 minuti.", "«FIG» — Un avviso informativo") + \
-    note("se arrivano insieme avvisi e messaggi da confermare, gli avvisi compaiono per primi.")
+    note("se ci sono più messaggi, le finestre compaiono una dopo l'altra, dal più vecchio al più recente.")
 
 S2 = p("In una finestra di terminale, locale o collegata con ssh, il testo compare nel momento dell'invio, anche "
        "mentre l'utente sta lavorando:", lead=True) + term(

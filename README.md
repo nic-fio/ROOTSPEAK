@@ -21,12 +21,13 @@ A differenza di `wall` e `write`, AMS:
 - Gli utenti non hanno alcun comando: ricevono e confermano soltanto, in modo automatico.
 - Le sessioni non interattive (cron, scp, rsync, ssh senza terminale, servizi) non vengono mai toccate.
 
-## Livelli di urgenza
+## Conferma e stati
 
-| Livello | Comportamento |
-|---|---|
-| `info` | Il messaggio viene mostrato, senza richiesta di conferma. |
-| `ack` (predefinito) | Il messaggio chiede conferma e insiste finché l'utente non conferma: domanda al login (si può saltare), promemoria a ogni prompt della shell, finestra ripetuta sul desktop. Non blocca mai. |
+Ogni messaggio chiede la conferma di lettura e insiste finché l'utente non conferma: finestra sul
+desktop, domanda nel terminale e al login, solleciti ogni 30 minuti. Non blocca mai. Per ogni
+destinatario un messaggio è **inviato** (la copia non è ancora nella sua casella), **consegnato**
+(la copia è nella casella) o **confermato**. Scadenza e ritiro sono proprietà del messaggio: per gli
+avvisi che valgono solo per poco si usa `--expires`.
 
 ## Interfacce
 
@@ -42,7 +43,7 @@ Legenda: **[1]** prima versione · **[2]** seconda versione · **[?]** da decide
 
 ### Invio (amministratore)
 - [1] Destinatari: utente, lista di utenti, gruppo Unix (`@gruppo`), `all` (tutti gli utenti umani), `online` (solo i collegati)
-- [1] Livello `info` o `ack`
+- [1] Conferma sempre richiesta; tre stati per destinatario: inviato, consegnato, confermato
 - [1] Testo da argomento, file o stdin; titolo opzionale
 - [1] Scadenza (`--expires 2h`)
 - [2] Invio programmato (`--at "sabato 08:00"`)
@@ -87,7 +88,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 - Ogni operazione viene registrata nel journal di sistema.
 
 ### Configurazione e distribuzione
-- [1] `/etc/ams/ams.conf`: livello predefinito, intervallo dei solleciti
+- [1] `/etc/ams/ams.conf`: intervallo dei solleciti, controllo dell'agente del desktop
 - [1] Script di installazione
 - [1] Manuale utente e manuale tecnico in HTML (un file ciascuno), generati da `docs/sorgenti/` con lo stile dei manuali di IR_Service
 - [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
@@ -168,7 +169,7 @@ Esempi:
 ```
 ams send --to mario "Sabato dalle 8 alle 12 il server sarà spento."
 ams send --to @sviluppo --title "Policy" --expires 3d --file policy.txt
-ams send --to online --level info "Riavvio del servizio web tra 5 minuti."
+ams send --to online --expires 15m "Riavvio del servizio web alle 13:00."
 ams list
 ams status 12
 ams revoke 12

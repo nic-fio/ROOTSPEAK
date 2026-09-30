@@ -31,7 +31,7 @@ subst() { sed -e "s|@LIBDIR@|$LIBDIR|g" -e "s|@VARDIR@|$VARDIR|g" "$1"; }
 do_install() {
 	local group
 	group=$(admin_group)
-	for c in zenity notify-send loginctl systemd-run runuser flock; do
+	for c in zenity loginctl systemd-run runuser flock; do
 		command -v "$c" >/dev/null || echo "Attenzione: manca $c" >&2
 	done
 

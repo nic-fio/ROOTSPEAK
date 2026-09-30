@@ -1,13 +1,13 @@
 from build import c, dl
 
 S1 = dl([
-    ("ack", "Livello di un messaggio che chiede la conferma di lettura. È il predefinito."),
-    ("agente del desktop", "La parte di AMS che, nella sessione grafica dell'utente, mostra finestre e avvisi."),
-    ("avviso", "Messaggio di livello " + c("info") + ": viene mostrato una volta, senza conferma."),
+    ("agente del desktop", "La parte di AMS che, nella sessione grafica dell'utente, mostra le finestre di conferma."),
     ("casella", "Lo spazio in cui AMS tiene i messaggi di un utente finché non li ha confermati."),
+    ("confermato", "Terzo e ultimo stato di un destinatario: ha dichiarato di aver letto il messaggio."),
+    ("consegnato", "Secondo stato: la copia del messaggio è nella casella dell'utente."),
     ("conferma", "La dichiarazione dell'utente di aver letto un messaggio: un clic su «Ho letto» o la risposta «s»."),
     ("destinatari", "Gli utenti che ricevono un messaggio: nomi, gruppi, " + c("online") + ", " + c("all") + "."),
-    ("info", "Livello di un messaggio senza conferma: vedi avviso."),
+    ("inviato", "Primo stato: il messaggio è partito, ma la copia non è ancora nella casella dell'utente."),
     ("rimandare", "Premere «Più tardi» o rispondere «no»: il messaggio viene riproposto dopo 30 minuti."),
     ("ritirare", "Togliere un messaggio con " + c("ams revoke") + ": chi non l'ha visto non lo vedrà più."),
     ("scadenza", "Il momento dopo il quale un messaggio non viene più mostrato (" + c("--expires") + ")."),

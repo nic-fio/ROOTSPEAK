@@ -79,8 +79,8 @@ SD = p("L'invio è una sequenza di passi; se si interrompe a metà, il comando "
 S4 = p("Per ogni terminale di " + c("user_terminals") + ", " + c("ams_msg_term") + " formatta il messaggio, " + c("sed")
        + " aggiunge un ritorno a capo " + c("\\r") + " a fine riga (il terminale può essere in modo grezzo, per esempio "
        "dentro un editor) e " + c("timeout 3 tee") + " lo scrive: un terminale bloccato non ferma l'invio. Il numero di "
-       "terminali scritti finisce in " + c("sent/ID/delivery") + ". Un " + c("info") + " scritto su almeno un terminale "
-       "passa subito in " + c("read/") + " e viene annotato nel registro.", lead=True)
+       "terminali scritti finisce in " + c("sent/ID/delivery") + ". Scrivere su un terminale non vale come conferma: il "
+       "messaggio resta nella casella, e la domanda arriva al prompt successivo.", lead=True)
 
 WAKE = seq([("ams send", "root", "navy"), ("pkill (come U)", "", "dark"), ("Agente di U", "sleep & wait", "blue"),
             ("systemd --user", "di U", "soft")], [

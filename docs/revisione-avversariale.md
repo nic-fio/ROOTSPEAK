@@ -28,7 +28,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
 | 5 | Macchina a stati formale, invarianti, comportamento dopo un crash, formato dell'archivio. | A 2, 4, 13, 22; B 3.4 | aperto |
-| 6 | Distinguere consegnato, mostrato e confermato. | A 3; B 4.1 | aperto |
+| 6 | Distinguere consegnato, mostrato e confermato. Risolto semplificando, per decisione dell'utente: ogni messaggio chiede la conferma e ogni destinatario ha tre stati, inviato, consegnato (copia nella casella), confermato; lo stato «mostrato» e il livello `info` spariscono. Test: `tests/engine.sh`, gruppo 3. | A 3; B 4.1 | fatto |
 | 7 | Registro degli eventi per messaggio (il journal registra già l'UID di chi scrive, non falsificabile). | A 5 | aperto |
 | 8 | Dichiarare che la casella dell'utente non è la fonte autorevole. | A 7 | aperto |
 | 9 | Semantica rigorosa di ritiro, scadenza e orologio. | A 14, 15, 16 | aperto |

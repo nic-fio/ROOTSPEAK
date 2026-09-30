@@ -7,9 +7,8 @@ S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debia
         ["sudo e un gruppo di amministratori", "decidere chi può usare AMS", c("sudo") + " (gruppo " + c("sudo") + "; " + c("wheel") + " su Fedora)"],
         ["bash", "la domanda di conferma nei terminali", "già presente"],
         ["zenity", "la finestra «Ho letto» sul desktop", c("zenity")],
-        ["notify-send", "gli avvisi senza conferma sul desktop", c("libnotify-bin")],
     ], "«TAB» — Cosa serve") + \
-    term("admin@server:~$ sudo apt install zenity libnotify-bin")
+    term("admin@server:~$ sudo apt install zenity")
 
 S2 = steps([
     "Aprire un terminale nella cartella di AMS.",

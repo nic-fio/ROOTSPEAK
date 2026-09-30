@@ -32,14 +32,16 @@ S2 = table(["Principio", "Cosa comporta nel codice"], [
      "della shell e l'agente del desktop, che partono con le sessioni dell'utente."],
     ["<b>" + c("ams") + " sempre come root</b>", "Il comando si rilancia con " + c("sudo") + " prima di qualunque cosa, "
      "compresi " + c("--help") + " e " + c("version") + "."],
-    ["<b>Mai bloccare</b>", "Nessun livello bloccante: " + c("ack") + " insiste con i solleciti, ma l'utente può sempre "
-     "rimandare. Le sessioni senza terminale non vengono toccate."],
+    ["<b>Sempre la conferma, mai bloccare</b>", "Ogni messaggio chiede la conferma e insiste con i solleciti, ma l'utente "
+     "può sempre rimandare. Le sessioni senza terminale non vengono toccate."],
+    ["<b>Tre stati</b>", "Per ogni destinatario: inviato, consegnato (copia nella casella), confermato. Scadenza e ritiro "
+     "sono proprietà del messaggio."],
     ["<b>Gli utenti non hanno comandi</b>", c("ams-user") + " è un aiutante interno fuori dal PATH; la ricezione è "
      "automatica."],
     ["<b>Root non si fida delle caselle</b>", "Ogni accesso di root a " + c("users/U") + " passa da " + c("runuser -u U")
      + " (capitolo 5.3)."],
     ["<b>Strumenti del sistema</b>", c("loginctl") + ", " + c("runuser") + ", " + c("flock") + ", " + c("zenity") + ", "
-     + c("notify-send") + ", " + c("systemd-run") + ", " + c("logger") + "."],
+     + c("systemd-run") + ", " + c("logger") + "; " + c("notify-send") + " se c'è, solo per segnalare una conferma non registrata."],
 ], "«TAB» — I principi del progetto")
 
 S3 = table(["Componente", "Chi lo esegue", "Quando"], [

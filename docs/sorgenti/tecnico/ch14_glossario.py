@@ -2,7 +2,9 @@ from build import c, dl
 
 S1 = dl([
     ("aggancio", c("/etc/profile.d/ams.sh") + ": collega AMS al prompt di bash."),
-    ("agente", c("ams-user agent") + ": mostra finestre e avvisi nella sessione grafica."),
+    ("agente", c("ams-user agent") + ": mostra le finestre di conferma nella sessione grafica."),
+    ("consegnato", "stato di un destinatario la cui copia è nella casella (riga in " + c("sent/ID/delivery") + ")."),
+    ("inviato", "stato di un destinatario senza ancora la copia nella casella."),
     ("as_user", "funzione di " + c("bin/ams") + " che esegue un comando con l'identità di un utente (" + c("runuser") + ")."),
     ("canale", "da dove arriva una conferma: " + c("desktop") + " o " + c("terminale pts/N") + "."),
     ("casella", "la cartella " + c("/var/lib/ams/users/U") + " di un utente."),

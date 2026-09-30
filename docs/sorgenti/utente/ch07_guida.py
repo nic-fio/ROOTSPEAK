@@ -10,11 +10,11 @@ SCREEN = """┌─ ams — guida ───────────────�
 │     (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti     │
 │     umani) oppure online (solo quelli collegati adesso).           │
 │                                                                    │
-│  --level info|ack                                                  │
-│     ack (predefinito) chiede la conferma di lettura e la ripropone │
-│     finché l'utente non la dà; info mostra il messaggio una volta, │
+│  --title TITOLO                                                    │
+│     Titolo mostrato nell'intestazione del messaggio e nella        │
+│     finestra del desktop.                                          │
 ├────────────────────────────────────────────────────────────────────┤
-│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci   righe 1-10/23 │
+│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci   righe 1-10/18 │
 └────────────────────────────────────────────────────────────────────┘"""
 
 S1 = p("Tutto quello che serve per usare " + c("ams") + " è anche dentro il comando stesso. " + c("ams --help")
@@ -23,7 +23,7 @@ S1 = p("Tutto quello che serve per usare " + c("ams") + " è anche dentro il com
     table(["Scheda", "Contiene"], [
         ["Info", "a cosa serve AMS e la forma dei comandi"],
         ["Comandi", c("send") + ", " + c("list") + ", " + c("status") + ", " + c("revoke") + ", " + c("version")],
-        ["Opzioni", "le opzioni di " + c("send") + ": destinatari, livello, titolo, scadenza, file"],
+        ["Opzioni", "le opzioni di " + c("send") + ": destinatari, titolo, scadenza, file"],
         ["Esempi", "comandi pronti da copiare"],
         ["File", "dove stanno impostazioni, messaggi, registro e manuali"],
     ], "«TAB» — Le schede della guida") + \

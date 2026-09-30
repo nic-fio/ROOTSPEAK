@@ -1,27 +1,21 @@
 from build import arrow, box, c, fig, p, path, seq, table, text, ul
 
 LOOP = fig(
-    box(20, 120, 160, 58, "flock -n", "un agente per utente", "dark")
-    + box(230, 120, 176, 58, "sessione grafica?", "loginctl show-user", "navy")
-    + box(456, 40, 190, 58, "1° giro: info", "notify-send, mark_shown", "light")
-    + box(456, 200, 190, 58, "2° giro: ack", "show_dialog se non rimandato", "blue")
-    + box(700, 120, 180, 58, "attesa", "sleep POLL & wait", "soft")
-    + arrow(182, 149, 228, 149)
-    + path([(408, 140), (430, 140), (430, 69), (454, 69)])
-    + arrow(551, 100, 551, 198)
-    + path([(648, 229), (676, 229), (676, 160), (698, 160)])
-    + path([(790, 120), (790, 20), (318, 20), (318, 118)], "#475569", True, "fine attesa: POLL secondi o SIGUSR1", 560, 14)
-    + text(318, 204, "no: l'agente termina", 11, "#b91c1c", "600")
-    + path([(318, 180), (318, 190)], "#b91c1c"),
-    900, 276, "«FIG» — Il ciclo dell'agente del desktop", "")
+    box(20, 110, 160, 58, "flock -n", "un agente per utente", "dark")
+    + box(230, 110, 176, 58, "sessione grafica?", "loginctl show-user", "navy")
+    + box(456, 110, 190, 58, "per ogni messaggio", "show_dialog se non rimandato", "blue")
+    + box(700, 110, 180, 58, "attesa", "sleep POLL & wait", "soft")
+    + arrow(182, 139, 228, 139) + arrow(408, 139, 454, 139) + arrow(648, 139, 698, 139)
+    + path([(790, 110), (790, 30), (318, 30), (318, 108)], "#475569", True, "fine attesa: POLL secondi o SIGUSR1", 560, 24)
+    + path([(318, 170), (318, 200)], "#b91c1c") + text(318, 216, "no: l'agente termina", 11, "#b91c1c", "600"),
+    900, 240, "«FIG» — Il ciclo dell'agente del desktop", "")
 
 S1 = p("L'agente, " + c("ams-user agent") + ", parte con l'avvio automatico del desktop e vive quanto la sessione "
        "grafica.", lead=True) + LOOP + ul([
     "<b>Un solo agente per utente</b>: " + c("flock -n") + " su " + c("$XDG_RUNTIME_DIR/ams-agent.lock") + ".",
     "<b>Vive quanto la sessione</b>: il ciclo continua finché " + c("loginctl show-user U -p Display")
     + " indica una sessione grafica.",
-    "<b>Prima gli avvisi</b>: un primo giro mostra gli " + c("info") + " con " + c("notify-send") + "; un secondo apre le "
-    "finestre degli " + c("ack") + " non rimandati. Un avviso non resta in coda dietro una finestra in attesa di clic.",
+    "<b>Una finestra alla volta</b>: i messaggi non rimandati, dal più vecchio.",
     "<b>Attesa interrompibile</b>: " + c("sleep AMS_AGENT_POLL & wait $!") + " con " + c("trap : USR1") + ". Il segnale "
     "di " + c("ams send") + " interrompe " + c("wait") + ": la finestra compare in circa un decimo di secondo. Il "
     "controllo periodico, ogni 60 secondi, resta come rete di sicurezza.",
@@ -46,13 +40,11 @@ S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in b
     ["processo chiuso da show_dialog", "nulla: la conferma o il ritiro sono già avvenuti"],
 ], "«TAB» — Come finisce una finestra")
 
-S3 = p("Gli avvisi " + c("info") + " usano " + c("notify-send -a AMS") + ". I server di notifica interpretano il markup, "
-       "quindi " + c("escape_markup") + " protegge " + c("&") + ", " + c("<") + " e " + c(">") + " nel titolo e nel "
-       "testo. Una notifica non ha pulsanti e non chiede conferma: l'avviso passa subito in " + c("read/") + ".",
-       lead=True)
+S3 = p("L'agente usa " + c("notify-send") + ", se è installato, per un solo caso: dire all'utente che la sua conferma non "
+       "è stata registrata. Il testo è fisso: nessun contenuto dei messaggi passa per le notifiche.", lead=True)
 
 CHAPTER = ("La ricezione sul desktop", [
     ("Il ciclo dell'agente", S1),
     ("La finestra di conferma", S2),
-    ("Le notifiche", S3),
+    ("La notifica d'errore", S3),
 ])

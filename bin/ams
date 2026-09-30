@@ -229,12 +229,11 @@ check_expires() {
 # ---- comandi ----
 
 cmd_send() {
-	local to='' level=$AMS_DEFAULT_LEVEL title='' expires='' file='' text id dir msg u t
+	local to='' title='' expires='' file='' text id dir msg u t
 	local nterm users n failed
 	while [ $# -gt 0 ]; do
 		case $1 in
 		--to) to=${2:?}; shift 2 ;;
-		--level) level=${2:?}; shift 2 ;;
 		--title) title=${2:?}; shift 2 ;;
 		--expires) expires=$(parse_expires "${2:?}"); expires=$(check_expires "$expires"); shift 2 ;;
 		--file) file=${2:?}; shift 2 ;;
@@ -244,7 +243,6 @@ cmd_send() {
 		esac
 	done
 	[ -n "$to" ] || ams_die "manca --to"
-	case $level in info | ack) ;; *) ams_die "livello non valido: $level (info o ack)" ;; esac
 
 	if [ $# -gt 0 ]; then text="$*"
 	elif [ -n "$file" ]; then text=$(cat -- "$file")
@@ -269,7 +267,6 @@ cmd_send() {
 		echo "id: $id"
 		echo "from: ${SUDO_USER:-$(id -un)}"
 		echo "date: $(date +%s)"
-		echo "level: $level"
 		echo "title: $title"
 		echo "expires: $expires"
 		echo
@@ -293,16 +290,11 @@ cmd_send() {
 				nterm=$((nterm + 1))
 			fi
 		done
-		# Un messaggio informativo già scritto su un terminale è considerato mostrato.
-		if [ "$level" = info ] && [ $nterm -gt 0 ]; then
-			as_user "$u" mv "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/read/$id"
-			ams_log "utente $u: mostrato il messaggio informativo $id (scritto su $nterm terminali)"
-		fi
 		wake_agent "$u"
 		echo "$u $(date +%s) $nterm" >>"$dir/delivery"
 	done
 
-	ams_log "messaggio $id ($level) inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
+	ams_log "messaggio $id inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
 	n=$(wc -w <<<"$users")
 	if [ -n "$failed" ]; then
 		echo "Messaggio $id consegnato a $((n - $(wc -w <<<"$failed"))) destinatari su $n."
@@ -312,54 +304,57 @@ cmd_send() {
 	if [ "$n" -eq 1 ]; then echo "Messaggio $id inviato a 1 utente."; else echo "Messaggio $id inviato a $n utenti."; fi
 }
 
-# Stato di un destinatario: "nonconsegnato", "confermato EPOCH CANALE",
-# "mostrato" (solo info), "attesa".
+# Stato di un destinatario, uno dei tre: "inviato" (la copia non è ancora nella
+# casella), "consegnato" (è nella casella), "confermato EPOCH CANALE".
 recipient_state() {
-	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel level
+	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel
 	if ! delivered "$u" "$id"; then
-		echo nonconsegnato
+		echo inviato
 		return
 	fi
-	level=$(ams_msg_get "$AMS_VAR/sent/$id/msg" level)
 	ack=$(as_user "$u" cat "$d/acks/$id" 2>/dev/null | head -c 200 | ams_sanitize) || true
 	if [ -n "$ack" ]; then
 		read -r epoch channel <<<"$ack"
 		[[ $epoch =~ ^[0-9]+$ ]] || epoch=0
 		echo "confermato $epoch ${channel:-?}"
-	elif [ "$level" = info ] && as_user "$u" test -e "$d/read/$id" 2>/dev/null; then
-		echo mostrato
 	else
-		echo attesa
+		echo consegnato
 	fi
 }
 
+# Ora dell'ultimo rinvio del messaggio da parte di U (vuoto se non l'ha rimandato).
+snoozed_at() {
+	local d=$AMS_VAR/users/$1/state t
+	t=$(as_user "$1" sh -c 'stat -c %Y "$1".term "$1".gui 2>/dev/null' _ "$d/$2" | sort -n | tail -1) || true
+	if [[ $t =~ ^[0-9]+$ ]]; then date -d "@$t" '+%d/%m %H:%M'; fi
+}
+
 cmd_list() {
-	local dir id msg level n tot state flag u nd
+	local dir id msg n tot state flag u nd
 	[ -d "$AMS_VAR/sent" ] || { echo "Nessun messaggio inviato."; return; }
-	printf '%-5s %-12s %-5s %-9s %s\n' ID DATA LIV. CONFERME TESTO
+	printf '%-5s %-12s %-9s %s\n' ID DATA CONFERME TESTO
 	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -n); do
 		msg=$AMS_VAR/sent/$dir/msg
 		id=$dir
-		level=$(ams_msg_get "$msg" level)
 		n=0 tot=0 nd=0
 		if [ -e "$AMS_VAR/sent/$id/failed" ]; then
-			printf '%-5s %-12s %-5s %-9s %s\n' "$id" "-" "-" "-" "[invio annullato: interrotto prima del salvataggio]"
+			printf '%-5s %-12s %-9s %s\n' "$id" "-" "-" "[invio annullato: interrotto prima del salvataggio]"
 			continue
 		fi
 		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 			tot=$((tot + 1))
 			state=$(recipient_state "$u" "$id")
 			case $state in
-			confermato* | mostrato) n=$((n + 1)) ;;
-			nonconsegnato) nd=$((nd + 1)) ;;
+			confermato*) n=$((n + 1)) ;;
+			inviato) nd=$((nd + 1)) ;;
 			esac
 		done
 		flag=''
 		[ $nd -gt 0 ] && flag="[$nd non consegnati] "
 		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag+='[ritirato] '
 		ams_msg_expired "$msg" && flag+='[scaduto] '
-		printf '%-5s %-12s %-5s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
-			"$level" "$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
+		printf '%-5s %-12s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
+			"$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
 	done
 }
 
@@ -367,7 +362,7 @@ cmd_status() {
 	local id=${1:?manca l\'ID del messaggio} msg u state epoch channel line when nterm
 	msg=$(sent_msg "$id")
 	[ -e "$AMS_VAR/sent/$id/failed" ] && ams_die "il messaggio $id è stato annullato: l'invio si era interrotto prima del salvataggio"
-	echo "Messaggio $id · $(ams_msg_get "$msg" level) · $(ams_msg_heading "$msg") · da $(ams_msg_get "$msg" from)"
+	echo "Messaggio $id · $(ams_msg_heading "$msg") · da $(ams_msg_get "$msg" from)"
 	[ -e "$AMS_VAR/sent/$id/revoked" ] && echo "RITIRATO il $(date -d "@$(cat "$AMS_VAR/sent/$id/revoked")" '+%d/%m %H:%M')"
 	ams_msg_expired "$msg" && echo "SCADUTO"
 	ams_msg_body "$msg" | sed 's/^/  │ /'
@@ -379,23 +374,26 @@ cmd_status() {
 		confermato*)
 			read -r _ epoch channel <<<"$state"
 			line="confermato il $(date -d "@$epoch" '+%d/%m %H:%M') ($channel)" ;;
-		mostrato) line="mostrato" ;;
-		nonconsegnato)
+		inviato)
 			if [ -e "$AMS_VAR/sent/$id/incomplete" ]; then
-				line="non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)"
+				line="inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)"
 			else
-				line="non consegnato"
+				line="inviato, non consegnato"
 			fi ;;
 		*)
-			nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
-			if [ -e "$AMS_VAR/sent/$id/revoked" ] || ams_msg_expired "$msg"; then line="non confermato"
-			elif [ "$(ams_msg_get "$msg" level)" = ack ]; then line="da confermare"
-			else line="non ancora mostrato"; fi
-			case ${nterm:-0} in
-			0) ;;
-			1) line+=" (scritto su 1 terminale)" ;;
-			*) line+=" (scritto su $nterm terminali)" ;;
-			esac ;;
+			line="consegnato"
+			if [ -e "$AMS_VAR/sent/$id/revoked" ]; then line+=", non confermato (ritirato)"
+			elif ams_msg_expired "$msg"; then line+=", non confermato (scaduto)"
+			else
+				nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
+				when=$(snoozed_at "$u" "$id")
+				case ${nterm:-0} in
+				0) ;;
+				1) line+=", scritto su 1 terminale" ;;
+				*) line+=", scritto su $nterm terminali" ;;
+				esac
+				if [ -n "$when" ]; then line+=", rimandato il $when"; fi
+			fi ;;
 		esac
 		printf '%-16s %s\n' "$u" "$line"
 	done

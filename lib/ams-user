@@ -36,12 +36,6 @@ snooze() { touch "$D/state/$1.$2"; }
 
 mark_read() { mv -f "$D/inbox/$1" "$D/read/$1" 2>/dev/null; rm -f "$D/state/$1".*; }
 
-# Un messaggio informativo è stato mostrato: niente conferma, solo il registro.
-mark_shown() {
-	mark_read "$1"
-	ams_log "utente $U: mostrato il messaggio informativo $1 ($2)"
-}
-
 # Registra la conferma. Vale la prima: una conferma successiva da un altro
 # canale non sovrascrive quella già registrata. La conferma è scritta in un
 # file temporaneo e pubblicata con ln, che fallisce se acks/ID esiste già: così
@@ -99,11 +93,6 @@ cmd_prompt() {
 	where=terminale\ ${where#/dev/}
 	for id in $(pending); do
 		f=$D/inbox/$id
-		if [ "$(ams_msg_get "$f" level)" != ack ]; then
-			ams_msg_term "$f"
-			mark_shown "$id" "$where"
-			continue
-		fi
 		if [ -z "$login" ] && snoozed "$id" term; then
 			later=$((later + 1))
 			continue
@@ -136,7 +125,6 @@ graphical_session() {
 	[ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]
 }
 
-escape_markup() { sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'; }
 
 show_dialog() {
 	local id=$1 f=$D/inbox/$1 pid rc
@@ -158,7 +146,7 @@ show_dialog() {
 		snooze "$id" gui
 	elif ! ack "$id" desktop; then
 		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
-		notify-send -a AMS "AMS · Conferma non registrata" \
+		command -v notify-send >/dev/null && notify-send -a AMS "AMS · Conferma non registrata" \
 			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null
 	fi
 }
@@ -170,15 +158,6 @@ cmd_agent() {
 	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio.
 	trap : USR1
 	while graphical_session; do
-		# Prima gli avvisi informativi, così non restano in coda dietro
-		# una finestra di conferma in attesa del clic.
-		for id in $(pending); do
-			f=$D/inbox/$id
-			[ -f "$f" ] && [ "$(ams_msg_get "$f" level)" != ack ] || continue
-			notify-send -a AMS "AMS · $(ams_msg_heading "$f" | escape_markup)" \
-				"$(ams_msg_body "$f" | escape_markup)"
-			mark_shown "$id" desktop
-		done
 		for id in $(pending); do
 			f=$D/inbox/$id
 			[ -f "$f" ] || continue
