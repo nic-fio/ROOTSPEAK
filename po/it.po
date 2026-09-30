@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AMS 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-30 20:57+0200\n"
+"POT-Creation-Date: 2026-09-30 21:52+0200\n"
 "PO-Revision-Date: 2026-09-30 12:00+0200\n"
 "Last-Translator: nic-fio\n"
 "Language-Team: italiano\n"
@@ -427,7 +427,8 @@ msgstr "messaggio %lld: invio interrotto prima del salvataggio, annullato"
 #: src/evento.c:43
 #, c-format
 msgid "message %lld: delivery completed for 1 recipient after an interruption"
-msgstr "messaggio %lld: consegna completata per 1 destinatario dopo un'interruzione"
+msgstr ""
+"messaggio %lld: consegna completata per 1 destinatario dopo un'interruzione"
 
 #: src/evento.c:45
 #, c-format
@@ -704,11 +705,11 @@ msgstr ""
 #: src/guida.c:66
 msgctxt "guida-file"
 msgid ""
-"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦The complete user manual "
-"(in Italian), to open in a browser."
+"/usr/local/share/doc/ams/User Manual.html¦The complete user manual, to open "
+"in a browser."
 msgstr ""
-"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦Il manuale utente completo, "
-"da aprire in un browser."
+"/usr/local/share/doc/ams/User Manual.html¦Il manuale utente completo (in "
+"inglese), da aprire in un browser."
 
 #: src/guida.c:70
 msgctxt "guida-sintassi"
@@ -852,11 +853,11 @@ msgstr "VEDERE ANCHE"
 
 #: src/guida.c:251
 msgid ""
-"wall(1), write(1), and the user manual (in Italian) in /usr/local/share/doc/"
-"ams/AMS_Manuale_Utente.html"
+"wall(1), write(1), and the user manual in /usr/local/share/doc/ams/User "
+"Manual.html"
 msgstr ""
-"wall(1), write(1), e il manuale utente in /usr/local/share/doc/ams/"
-"AMS_Manuale_Utente.html"
+"wall(1), write(1), e il manuale utente (in inglese) in /usr/local/share/doc/"
+"ams/User Manual.html"
 
 #: src/guida.c:337
 msgid "ams — messages to users with read confirmation"
@@ -864,11 +865,10 @@ msgstr "ams — messaggi agli utenti con conferma di lettura"
 
 #: src/guida.c:355
 #, c-format
-msgid ""
-"AMS %s · complete manual (in Italian): /usr/local/share/doc/ams/"
-"AMS_Manuale_Utente.html"
+msgid "AMS %s · complete manual: /usr/local/share/doc/ams/User Manual.html"
 msgstr ""
-"AMS %s · manuale completo: /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+"AMS %s · manuale completo (in inglese): /usr/local/share/doc/ams/User Manual."
+"html"
 
 #: src/guida.c:365 src/guida.c:394
 msgid "Commands"

@@ -2,145 +2,145 @@ from build import arrow, box, c, fig, note, p, path, seq, table, text, ul, zone
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 PRINCIPI = fig(
-    box(20, 50, 205, 64, "Nessun demone", "consegna al momento dell'invio", "navy")
-    + box(245, 50, 205, 64, "Sempre come root", "sudo prima di tutto", "navy")
-    + box(470, 50, 205, 64, "Mai bloccare", "si può sempre rimandare", "navy")
-    + box(695, 50, 185, 64, "Tre stati", "per ogni destinatario", "navy")
-    + box(20, 140, 205, 64, "Root non si fida", "caselle come l'utente", "blue")
-    + box(245, 140, 205, 64, "Dati, non codice", "ams.conf, messaggi, .mo", "blue")
-    + box(470, 140, 205, 64, "Nessuno stato scritto", "si deduce dai file", "blue")
-    + box(695, 140, 185, 64, "Una sola fonte", "per stati e testi", "blue"),
-    900, 228, "«FIG» — Gli otto principi che guidano il codice", "Principi")
+    box(20, 50, 205, 64, "No daemon", "delivery at send time", "navy")
+    + box(245, 50, 205, 64, "Always as root", "sudo before anything", "navy")
+    + box(470, 50, 205, 64, "Never block", "one can always postpone", "navy")
+    + box(695, 50, 185, 64, "Three states", "for each recipient", "navy")
+    + box(20, 140, 205, 64, "Root does not trust", "mailboxes as the user", "blue")
+    + box(245, 140, 205, 64, "Data, not code", "ams.conf, messages, .mo", "blue")
+    + box(470, 140, 205, 64, "No written state", "deduced from the files", "blue")
+    + box(695, 140, 185, 64, "A single source", "for states and texts", "blue"),
+    900, 228, "«FIG» — The eight principles that guide the code", "Principles")
 
-S1 = p("AMS è piccolo di proposito: due programmi, file in un'unica cartella, le librerie di systemd già "
-       "presenti nel sistema. Il disegno privilegia la <b>verificabilità</b>: ogni stato si può ricostruire "
-       "guardando i file, e ogni passo che può interrompersi lascia un segno che il comando successivo sa "
-       "riparare.", lead=True) + PRINCIPI + table(["Principio", "Cosa comporta nel codice"], [
-    ["<b>Nessun demone</b>", "La consegna la fa " + c("ams send") + " nel momento dell'invio; il resto lo fanno "
-     "l'aggancio della shell e l'agente del desktop, che partono con le sessioni dell'utente. Il recupero degli "
-     "invii interrotti gira all'inizio dei comandi successivi."],
-    ["<b>" + c("ams") + " sempre come root</b>", "Il comando si rilancia con " + c("sudo") + " prima di guardare gli "
-     "argomenti, compresi " + c("--help") + " e " + c("version") + " (" + cap(4, 1) + ")."],
-    ["<b>Mai bloccare</b>", "Ogni messaggio chiede la conferma e insiste con i solleciti, ma l'utente può sempre "
-     "rimandare. Le sessioni senza terminale non vengono toccate."],
-    ["<b>Tre stati</b>", "Per ogni destinatario: inviato, consegnato, confermato. Scadenza e ritiro sono proprietà "
-     "del messaggio; l'enumerazione " + c("stato_e") + " di " + c("src/ams.h") + " ha solo tre valori."],
-    ["<b>Root non si fida delle caselle</b>", "Ogni accesso di root a " + c("users/U") + " avviene in un processo "
-     "figlio con l'identità di U, con un tempo massimo (" + cap(7) + ")."],
-    ["<b>Dati, non codice</b>", "Configurazione, messaggi, conferme e cataloghi sono file di dati letti con limiti "
-     "di misura; nulla di ciò che viene da fuori viene eseguito."],
-    ["<b>Nessuno stato scritto</b>", "Lo stato di un destinatario non è scritto da nessuna parte: si deduce da "
-     + c("sent/ID/delivery") + " e dalla casella (" + cap(10, 1) + ")."],
-    ["<b>Una sola fonte</b>", "La TUI usa le stesse funzioni di " + c("ams list") + " e " + c("ams status")
-     + "; guida integrata e riferimento del manuale utente vengono dagli stessi testi."],
-], "«TAB» — I principi e le loro conseguenze")
+S1 = p("AMS is small on purpose: two programs, files in a single folder, the systemd libraries already present "
+       "on the system. The design favours <b>verifiability</b>: every state can be reconstructed by looking at the "
+       "files, and every step that can be interrupted leaves a mark that the next command knows how to "
+       "repair.", lead=True) + PRINCIPI + table(["Principle", "What it means in the code"], [
+    ["<b>No daemon</b>", "Delivery is done by " + c("ams send") + " at the moment of sending; the rest is done by "
+     "the shell hook and the desktop agent, which start with the user's sessions. Recovery of interrupted sends "
+     "runs at the start of the following commands."],
+    ["<b>" + c("ams") + " always as root</b>", "The command relaunches itself with " + c("sudo") + " before looking "
+     "at its arguments, including " + c("--help") + " and " + c("version") + " (" + cap(4, 1) + ")."],
+    ["<b>Never block</b>", "Every message asks for confirmation and insists with reminders, but the user can always "
+     "postpone. Sessions without a terminal are not touched."],
+    ["<b>Three states</b>", "For each recipient: sent, delivered, confirmed. Expiry and revocation are properties "
+     "of the message; the " + c("stato_e") + " enumeration in " + c("src/ams.h") + " has only three values."],
+    ["<b>Root does not trust the mailboxes</b>", "Every access by root to " + c("users/U") + " happens in a child "
+     "process with U's identity, with a time limit (" + cap(7) + ")."],
+    ["<b>Data, not code</b>", "Configuration, messages, confirmations and catalogs are data files read with size "
+     "limits; nothing that comes from outside is executed."],
+    ["<b>No written state</b>", "The state of a recipient is not written anywhere: it is deduced from "
+     + c("sent/ID/delivery") + " and from the mailbox (" + cap(10, 1) + ")."],
+    ["<b>A single source</b>", "The TUI uses the same functions as " + c("ams list") + " and " + c("ams status")
+     + "; the built-in help and the user manual's reference come from the same texts."],
+], "«TAB» — The principles and their consequences")
 
 AMBITI = fig(
-    zone(20, 44, 270, 250, "Fidato · root")
-    + box(42, 80, 226, 56, "ams", "root:gruppo admin · 750", "navy")
-    + box(42, 150, 226, 56, "sent/ · ams.conf", "scritti solo da root", "dark")
-    + box(42, 220, 226, 56, "journal", "_UID messo dal sistema", "soft")
-    + zone(315, 44, 270, 250, "Confine")
-    + box(337, 80, 226, 56, "come_utente", "figlio con l'identità di U", "green")
-    + box(337, 150, 226, 56, "pulisci", "testi e conferme ripuliti", "green")
-    + box(337, 220, 226, 56, "limiti di misura e tempo", "200 byte, 20 secondi", "green", 12)
-    + zone(610, 44, 270, 250, "Non fidato · utente U")
-    + box(632, 80, 226, 56, "users/U/", "U può tutto nella sua casella", "amber")
-    + box(632, 150, 226, 56, "ams-user", "gira come U", "amber")
-    + box(632, 220, 226, 56, "terminali di U", "/dev/pts/N di U", "amber")
+    zone(20, 44, 270, 250, "Trusted · root")
+    + box(42, 80, 226, 56, "ams", "root:admin group · 750", "navy")
+    + box(42, 150, 226, 56, "sent/ · ams.conf", "written only by root", "dark")
+    + box(42, 220, 226, 56, "journal", "_UID set by the system", "soft")
+    + zone(315, 44, 270, 250, "Boundary")
+    + box(337, 80, 226, 56, "come_utente", "child with U's identity", "green")
+    + box(337, 150, 226, 56, "pulisci", "texts and confirmations cleaned", "green")
+    + box(337, 220, 226, 56, "size and time limits", "200 bytes, 20 seconds", "green", 12)
+    + zone(610, 44, 270, 250, "Untrusted · user U")
+    + box(632, 80, 226, 56, "users/U/", "U can do anything in the mailbox", "amber")
+    + box(632, 150, 226, 56, "ams-user", "runs as U", "amber")
+    + box(632, 220, 226, 56, "U's terminals", "U's /dev/pts/N", "amber")
     + arrow(270, 108, 335, 108) + arrow(565, 108, 630, 108)
     + arrow(630, 178, 565, 178, "#d97706") + arrow(335, 178, 270, 178, "#d97706"),
-    900, 312, "«FIG» — I tre ambiti di privilegio e il confine fra root e gli utenti", "Chi è fidato")
+    900, 312, "«FIG» — The three privilege domains and the boundary between root and the users", "Who is trusted")
 
-S2 = p("Un messaggio attraversa tre ambiti con privilegi diversi. La regola è semplice: <b>tutto ciò che passa fra "
-       "root e un utente attraversa un confine controllato</b>, in entrambe le direzioni.", lead=True) + AMBITI + \
-    table(["Ambito", "Chi", "Scrive", "Legge"], [
-        ["amministratore", c("ams") + ", come root", c("sent/") + ", le caselle (solo come l'utente), i terminali "
-         "degli utenti, il journal", "tutto l'archivio; le caselle solo come l'utente"],
-        ["utente", c("ams-user") + ", come U", "la propria casella, il journal (con il proprio " + c("_UID") + ")",
-         "la propria casella; mai " + c("sent/")],
-    ], "«TAB» — Chi scrive e chi legge") + \
-    note("la TUI non è un ambito a parte: è " + c("ams") + " stesso, e le sue azioni sono i comandi eseguiti in un "
-         "processo figlio (" + cap(14, 1) + ").")
+S2 = p("A message crosses three domains with different privileges. The rule is simple: <b>everything that passes "
+       "between root and a user crosses a controlled boundary</b>, in both directions.", lead=True) + AMBITI + \
+    table(["Domain", "Who", "Writes", "Reads"], [
+        ["administrator", c("ams") + ", as root", c("sent/") + ", the mailboxes (only as the user), the users' "
+         "terminals, the journal", "the whole message store; the mailboxes only as the user"],
+        ["user", c("ams-user") + ", as U", "their own mailbox, the journal (with their own " + c("_UID") + ")",
+         "their own mailbox; never " + c("sent/")],
+    ], "«TAB» — Who writes and who reads") + \
+    note("the TUI is not a separate domain: it is " + c("ams") + " itself, and its actions are the commands run in "
+         "a child process (" + cap(14, 1) + ").")
 
 PROGRAMMI = fig(
-    box(20, 60, 190, 60, "src/*.c", "11 moduli, 9 intestazioni", "dark")
-    + box(290, 30, 250, 56, "build/ams", "ams, tui, guida, archivio + comuni", "navy")
-    + box(290, 110, 250, 56, "build/ams-user", "ams-user + comuni", "blue")
+    box(20, 60, 190, 60, "src/*.c", "11 modules, 9 headers", "dark")
+    + box(290, 30, 250, 56, "build/ams", "ams, tui, guida, archivio + common", "navy")
+    + box(290, 110, 250, 56, "build/ams-user", "ams-user + common", "blue")
     + box(620, 30, 260, 56, "$PREFIX/bin/ams", "root:sudo · 750", "navy")
-    + box(620, 110, 260, 56, "$PREFIX/lib/ams/ams-user", "fuori dal PATH · 755", "blue", 12)
-    + box(290, 190, 250, 56, "build/locale/*/ams.mo", "msgfmt --check da po/", "soft")
-    + box(620, 190, 260, 56, "$PREFIX/share/locale/", "un .mo per lingua", "soft")
+    + box(620, 110, 260, 56, "$PREFIX/lib/ams/ams-user", "outside the PATH · 755", "blue", 12)
+    + box(290, 190, 250, 56, "build/locale/*/ams.mo", "msgfmt --check from po/", "soft")
+    + box(620, 190, 260, 56, "$PREFIX/share/locale/", "one .mo per language", "soft")
     + arrow(212, 72, 288, 58) + arrow(212, 90, 288, 138) + arrow(212, 108, 288, 218)
     + arrow(542, 58, 618, 58) + arrow(542, 138, 618, 138) + arrow(542, 218, 618, 218)
     + text(115, 144, "make", 11, "#475569", "600") + text(580, 100, "install.sh", 11, "#475569", "600"),
-    900, 272, "«FIG» — Dai sorgenti ai programmi installati", "Due programmi")
+    900, 272, "«FIG» — From the sources to the installed programs", "Two programs")
 
-S3 = p("Il Makefile produce due eseguibili e un catalogo per lingua. Le parti comuni ("
-       + c("comune testo lingua evento utente sessioni") + ") entrano in entrambi; " + c("ams") + " aggiunge "
-       + c("ams.o") + ", " + c("guida.o") + ", " + c("archivio.o") + " e " + c("tui.o") + ".", lead=True) + \
-    PROGRAMMI + table(["Programma", "Dove", "Permessi", "Chi lo lancia"], [
-        [c("ams"), c("/usr/local/bin/ams"), c("750") + ", " + c("root:") + " gruppo degli amministratori",
-         "un amministratore; si rilancia con sudo"],
-        [c("ams-user"), c("/usr/local/lib/ams/ams-user"), c("755"), "l'aggancio della shell ("
-         + c("prompt") + ") e l'avvio automatico del desktop (" + c("agent") + "); mai l'utente a mano"],
-    ], "«TAB» — I due programmi") + \
-    p("Entrambi dipendono solo da glibc e da libsystemd (" + c("sd-login") + " per le sessioni, "
-      + c("sd-journal") + " per il registro). All'esecuzione servono anche " + c("sudo") + ", " + c("zenity")
-      + ", " + c("systemd-run") + " e " + c("date") + "; " + c("notify-send") + " se c'è.")
+S3 = p("The Makefile produces two executables and one catalog per language. The common parts ("
+       + c("comune testo lingua evento utente sessioni") + ") go into both; " + c("ams") + " adds "
+       + c("ams.o") + ", " + c("guida.o") + ", " + c("archivio.o") + " and " + c("tui.o") + ".", lead=True) + \
+    PROGRAMMI + table(["Program", "Where", "Permissions", "Who runs it"], [
+        [c("ams"), c("/usr/local/bin/ams"), c("750") + ", " + c("root:") + " administrators' group",
+         "an administrator; it relaunches itself with sudo"],
+        [c("ams-user"), c("/usr/local/lib/ams/ams-user"), c("755"), "the shell hook ("
+         + c("prompt") + ") and desktop autostart (" + c("agent") + "); never the user by hand"],
+    ], "«TAB» — The two programs") + \
+    p("Both depend only on glibc and libsystemd (" + c("sd-login") + " for sessions, "
+      + c("sd-journal") + " for the log). At run time they also need " + c("sudo") + ", " + c("zenity")
+      + ", " + c("systemd-run") + " and " + c("date") + "; " + c("notify-send") + " if available.")
 
-PERCORSO = seq([("ams send", "root", "navy"), ("sent/ID", "archivio", "dark"), ("Casella U", "users/U", "blue"),
-                ("Terminali", "/dev/pts/N", "blue"), ("Agente di U", "desktop", "light")], [
+PERCORSO = seq([("ams send", "root", "navy"), ("sent/ID", "message store", "dark"), ("U's mailbox", "users/U", "blue"),
+                ("Terminals", "/dev/pts/N", "blue"), ("U's agent", "desktop", "light")], [
     (0, 1, "incomplete, msg, recipients"),
-    (0, 2, "copia come U, verifica"),
-    (0, 1, "riga in delivery"),
-    (0, 3, "testo, al più 3 s"),
-    (0, 4, "SIGUSR1 (come U)"),
-    ("sep", "l'utente risponde"),
-    (4, 2, "legge inbox/ID"),
+    (0, 2, "copy as U, check"),
+    (0, 1, "line in delivery"),
+    (0, 3, "text, at most 3 s"),
+    (0, 4, "SIGUSR1 (as U)"),
+    ("sep", "the user replies".ljust(17)),
+    (4, 2, "reads inbox/ID"),
     (4, 2, "«Ho letto»: acks/ID"),
     ("nota", 2, "inbox/ID → read/ID"),
-], "«FIG» — Il percorso di un messaggio, dall'invio alla conferma", "Il percorso di un messaggio", width=920)
+], "«FIG» — The path of a message, from sending to confirmation", "The path of a message", width=920)
 
-S4 = p("Il percorso completo tocca tutti i sottosistemi. Qui in breve; ogni passo ha il suo capitolo.",
-       lead=True) + PERCORSO + table(["Passo", "Chi", "Effetto", "Dove"], [
-    ["1", c("ams send"), "risolve i destinatari, pulisce testo e titolo, prende un ID, scrive " + c("sent/ID/")
-     + " con il segno " + c("incomplete"), cap(8, 2)],
-    ["2", c("ams send") + " come U", "scrive " + c("users/U/inbox/ID") + " (prima " + c(".tmp") + ", poi rinomina), "
-     "controlla che ci sia, poi annota la consegna in " + c("sent/ID/delivery"), cap(8, 3)],
-    ["3", c("ams send"), "scrive il testo su ogni terminale di U, nella lingua di quel terminale", cap(8, 4)],
-    ["4", c("ams send") + " come U", "sveglia l'agente del desktop con " + c("SIGUSR1") + ", o lo avvia con "
+S4 = p("The complete path touches every subsystem. Here it is in brief; each step has its own chapter.",
+       lead=True) + PERCORSO + table(["Step", "Who", "Effect", "Where"], [
+    ["1", c("ams send"), "resolves the recipients, cleans text and title, takes an ID, writes " + c("sent/ID/")
+     + " with the " + c("incomplete") + " marker", cap(8, 2)],
+    ["2", c("ams send") + " as U", "writes " + c("users/U/inbox/ID") + " (first " + c(".tmp") + ", then renames), "
+     "checks that it is there, then records the delivery in " + c("sent/ID/delivery"), cap(8, 3)],
+    ["3", c("ams send"), "writes the text to each of U's terminals, in the language of that terminal", cap(8, 4)],
+    ["4", c("ams send") + " as U", "wakes the desktop agent with " + c("SIGUSR1") + ", or starts it with "
      + c("systemd-run --user"), cap(8, 5)],
-    ["5", "aggancio o agente", "mostrano il messaggio e chiedono la conferma", cap(11) + ", " + cap(12)],
-    ["6", c("ams-user"), "crea " + c("acks/ID") + " (vale la prima) e sposta il messaggio in " + c("read/"), cap(13)],
-    ["7", c("ams status") + ", TUI", "deducono lo stato confrontando " + c("sent/ID") + " con le caselle", cap(10)],
-], "«TAB» — I passi di un messaggio")
+    ["5", "hook or agent", "show the message and ask for confirmation", cap(11) + ", " + cap(12)],
+    ["6", c("ams-user"), "creates " + c("acks/ID") + " (the first one counts) and moves the message to " + c("read/"), cap(13)],
+    ["7", c("ams status") + ", TUI", "deduce the state by comparing " + c("sent/ID") + " with the mailboxes", cap(10)],
+], "«TAB» — The steps of a message")
 
-S5 = p("AMS non usa utmp, che non registra molti terminali moderni, ma <b>logind</b> e i dispositivi dei "
-       "terminali. La domanda utile non è «come è collegato l'utente» ma «su quali canali posso raggiungerlo "
-       "adesso».", lead=True) + table(["Sessione dell'utente", "Come la trova AMS", "Canale"], [
-    ["console di testo (" + c("tty3") + ")", "sessione logind di tipo " + c("tty") + " con terminale " + c("tty3"),
-     "terminale"],
-    ["ssh con terminale", "pseudo-terminale " + c("/dev/pts/N") + " di proprietà dell'utente", "terminale"],
-    ["terminale del desktop, tmux", "pseudo-terminale di proprietà dell'utente", "terminale"],
-    ["desktop X11 o Wayland", "sessione logind di tipo " + c("x11") + " o " + c("wayland"), "agente del desktop"],
-    ["ssh senza terminale, scp, cron", "nessun terminale", "nessuno: non vengono toccate"],
-    ["utente non collegato", "—", "la casella, letta al prossimo accesso"],
-], "«TAB» — Le sessioni e i canali di consegna") + ul([
-    "La casella fa da coda: un messaggio che non raggiunge nessun canale all'invio compare al login successivo "
-    "(domanda nel terminale) o al primo giro dell'agente (finestra).",
-    "Scrivere il testo in un terminale non vale come conferma: la domanda arriva al prompt successivo.",
-]) + note("un terminale in cui l'utente è entrato con " + c("su") + " resta di proprietà di chi l'ha aperto: "
-          + c("ams send") + " non ci scrive. L'aggancio della shell lo raggiunge comunque al prompt successivo.")
+S5 = p("AMS does not use utmp, which does not record many modern terminals, but <b>logind</b> and the terminal "
+       "devices. The useful question is not “how is the user logged in” but “on which channels can I reach them "
+       "right now”.", lead=True) + table(["User session", "How AMS finds it", "Channel"], [
+    ["text console (" + c("tty3") + ")", "logind session of type " + c("tty") + " with terminal " + c("tty3"),
+     "terminal"],
+    ["ssh with a terminal", "pseudo-terminal " + c("/dev/pts/N") + " owned by the user", "terminal"],
+    ["desktop terminal, tmux", "pseudo-terminal owned by the user", "terminal"],
+    ["X11 or Wayland desktop", "logind session of type " + c("x11") + " or " + c("wayland"), "desktop agent"],
+    ["ssh without a terminal, scp, cron", "no terminal", "none: they are not touched"],
+    ["user not logged in", "—", "the mailbox, read at the next login"],
+], "«TAB» — Sessions and delivery channels") + ul([
+    "The mailbox acts as a queue: a message that reaches no channel when it is sent appears at the next login "
+    "(question in the terminal) or at the agent's first round (dialog).",
+    "Writing the text to a terminal does not count as a confirmation: the question arrives at the next prompt.",
+]) + note("a terminal in which the user switched identity with " + c("su") + " still belongs to whoever opened it: "
+          + c("ams send") + " does not write to it. The shell hook reaches the user anyway at the next prompt.")
 
-CHAPTER = ("Architettura generale", [
-    ("Principi architetturali", S1),
-    ("I tre ambiti di privilegio", S2),
-    ("I due programmi", S3),
-    ("Il percorso di un messaggio", S4),
-    ("Sessioni e canali", S5),
+CHAPTER = ("General architecture", [
+    ("Architectural principles", S1),
+    ("The three privilege domains", S2),
+    ("The two programs", S3),
+    ("The path of a message", S4),
+    ("Sessions and channels", S5),
 ])

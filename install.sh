@@ -62,10 +62,11 @@ do_install() {
 	rm -f "$PREFIX/sbin/ams"
 	install -m 750 -o root -g "$group" "$SRC/build/ams" "$BINDIR/ams"
 	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
-	# manuali in un solo file ciascuno; via i nomi e gli asset delle versioni di sviluppo
+	# manuali in un solo file ciascuno; via i nomi e gli asset delle versioni precedenti
 	install -d -m 755 "$DOCDIR"
-	rm -rf "$DOCDIR/assets" "$DOCDIR/user-manual.html" "$DOCDIR/manuale-utente.html" "$DOCDIR/manuale-tecnico.html"
-	install -m 644 "$SRC/docs/AMS_Manuale_Utente.html" "$SRC/docs/AMS_Manuale_Tecnico.html" "$DOCDIR/"
+	rm -rf "$DOCDIR/assets" "$DOCDIR/user-manual.html" "$DOCDIR/manuale-utente.html" "$DOCDIR/manuale-tecnico.html" \
+		"$DOCDIR/AMS_Manuale_Utente.html" "$DOCDIR/AMS_Manuale_Tecnico.html"
+	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$DOCDIR/"
 	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
 	subst "$SRC/etc/ams.bash" >"$LIBDIR/ams.bash"
 	subst "$SRC/etc/ams.zsh" >"$LIBDIR/ams.zsh"
@@ -96,7 +97,7 @@ do_install() {
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 
 	echo "AMS installato. Comando: $BINDIR/ams (utilizzabile dal gruppo $group)."
-	echo "Manuali: $DOCDIR/AMS_Manuale_Utente.html e AMS_Manuale_Tecnico.html"
+	echo "Manuali: $DOCDIR/User Manual.html e Technical Manual.html"
 	echo "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda"
 	echo "di conferma dalla prossima shell o dal prossimo login."
 }

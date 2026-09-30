@@ -6,41 +6,41 @@ from build import arrow, box, c, fig, key, note, p, path, schermata, table, text
 from _aiuti import CONFERMATO, CONSEGNATO, INVIATO, RITIRATO, SCADUTO, barra, mono, numero, rif, riquadro, schermata_u  # noqa: E402
 
 DUE_MODI = fig(
-    zone(20, 44, 400, 250, "Nella TUI: ams, da solo")
-    + zone(480, 44, 400, 250, "Con i comandi: ams COMANDO")
-    + box(44, 80, 170, 42, "n", "scrivi e invia", "blue")
-    + box(226, 80, 170, 42, "Invio", "destinatari e storia", "blue")
-    + box(44, 134, 170, 42, "r", "ritira", "blue")
-    + box(226, 134, 170, 42, "s", "sollecita", "blue")
-    + box(44, 188, 170, 42, "p", "pulizia", "blue")
-    + box(226, 188, 170, 42, "/", "cerca", "blue")
-    + box(504, 80, 170, 42, "send", "invia", "dark")
-    + box(686, 80, 170, 42, "list · status · log", "elenco, stato, storia", "dark")
-    + box(504, 134, 170, 42, "revoke", "ritira", "dark")
-    + box(686, 134, 170, 42, "remind", "sollecita", "dark")
-    + box(504, 188, 170, 42, "purge", "pulizia", "dark")
-    + box(686, 188, 170, 42, "version · --help", "versione, guida", "dark")
-    + text(220, 262, "si vede tutto, si aggiorna da solo", 11.5, "#003a90", "600")
-    + text(680, 262, "comodi negli script e con ssh", 11.5, "#003a90", "600")
-    + box(290, 318, 320, 50, "Le stesse azioni di AMS", "stesso risultato, stessa traccia nel registro", "navy")
+    zone(20, 44, 400, 250, "In the TUI: ams, on its own")
+    + zone(480, 44, 400, 250, "With commands: ams COMMAND")
+    + box(44, 80, 170, 42, "n", "write and send", "blue")
+    + box(226, 80, 170, 42, "Enter", "recipients and history", "blue")
+    + box(44, 134, 170, 42, "r", "revoke", "blue")
+    + box(226, 134, 170, 42, "s", "remind", "blue")
+    + box(44, 188, 170, 42, "p", "purge", "blue")
+    + box(226, 188, 170, 42, "/", "search", "blue")
+    + box(504, 80, 170, 42, "send", "send", "dark")
+    + box(686, 80, 170, 42, "list · status · log", "list, state, history", "dark")
+    + box(504, 134, 170, 42, "revoke", "revoke", "dark")
+    + box(686, 134, 170, 42, "remind", "remind", "dark")
+    + box(504, 188, 170, 42, "purge", "purge", "dark")
+    + box(686, 188, 170, 42, "version · --help", "version, help", "dark")
+    + text(220, 262, "you see everything, it updates itself", 11.5, "#003a90", "600")
+    + text(680, 262, "handy in scripts and over ssh", 11.5, "#003a90", "600")
+    + box(290, 318, 320, 50, "The same AMS actions", "same result, same trace in the log", "navy")
     + path([(220, 294), (220, 343), (286, 343)], "#0050C0")
     + path([(680, 294), (680, 343), (614, 343)], "#0050C0"),
-    900, 390, "«FIG» — Due modi di usare AMS; ogni tasto della TUI esegue il comando corrispondente",
-    "La TUI e i comandi")
+    900, 390, "«FIG» — Two ways of using AMS; every TUI key runs the corresponding command",
+    "The TUI and the commands")
 
-S1 = p("AMS si usa in due modi, che fanno esattamente le stesse cose. Scritto da solo in un terminale, " + c("ams")
-       + " apre la <b>TUI</b>, un'interfaccia a tutto schermo dentro il terminale: la lista dei messaggi, lo stato "
-       "di ogni destinatario, i tasti per agire. Seguito da un comando (" + c("ams send") + ", " + c("ams status")
-       + "…) fa una sola cosa e torna al prompt.", lead=True) + DUE_MODI + \
-    table(["Situazione", "Conviene"], [
-        ["seguire un messaggio mentre arrivano le conferme", "la TUI: si aggiorna da sola ogni 3 secondi"],
-        ["scrivere un messaggio lungo con calma", "la TUI, con il proprio editor (" + key("Ctrl", "E") + ")"],
-        ["mandare un avviso da uno script o da cron", c("ams send")],
-        ["copiare lo stato in una segnalazione o in un'email", c("ams status") + " o " + c("ams log")],
-        ["un terminale piccolo (meno di 80 colonne o 20 righe)", "i comandi: " + c("ams") + " da solo mostra la guida"],
-    ], "«TAB» — Quando usare la TUI e quando i comandi") + \
-    note("ogni azione della TUI esegue il comando corrispondente e ne mostra la risposta: ciò che si impara in un "
-         "modo vale anche nell'altro.", "Stessi comandi.")
+S1 = p("AMS can be used in two ways, which do exactly the same things. Typed on its own in a terminal, " + c("ams")
+       + " opens the <b>TUI</b>, a full-screen interface inside the terminal: the list of messages, the state of "
+       "every recipient, the keys to act. Followed by a command (" + c("ams send") + ", " + c("ams status")
+       + "…) it does one single thing and returns to the prompt.", lead=True) + DUE_MODI + \
+    table(["Situation", "Better to use"], [
+        ["following a message while the confirmations come in", "the TUI: it updates itself every 3 seconds"],
+        ["writing a long message calmly", "the TUI, with your own editor (" + key("Ctrl", "E") + ")"],
+        ["sending a notice from a script or from cron", c("ams send")],
+        ["copying the state into a report or an email", c("ams status") + " or " + c("ams log")],
+        ["a small terminal (fewer than 80 columns or 20 lines)", "the commands: " + c("ams") + " on its own shows the help"],
+    ], "«TAB» — When to use the TUI and when the commands") + \
+    note("every TUI action runs the corresponding command and shows its answer: what you learn in one way "
+         "also applies to the other.", "Same commands.")
 
 ANATOMIA = fig(
     riquadro(40, 40, 820, 300, "#111827", "#334155", 8)
@@ -60,102 +60,104 @@ ANATOMIA = fig(
     + mono(62, 322, "Invio apri  n nuovo  r ritira  s sollecita  p pulizia  / cerca  ? guida  q esci", 12, "#e5e7eb")
     + numero(30, 60, 1) + numero(870, 60, 2) + numero(30, 96, 3) + numero(30, 146, 4) + numero(870, 146, 5)
     + numero(30, 258, 6) + numero(30, 318, 7),
-    900, 360, "«FIG» — Le parti della schermata principale (le stesse della schermata vera qui sotto)",
+    900, 360, "«FIG» — The parts of the main screen (the same as in the real screenshot below)",
     "")
 
-S2 = p("La schermata principale della TUI è la lista dei messaggi inviati. Tutte le schermate di AMS hanno la stessa "
-       "cornice: il titolo in alto a sinistra, l'ora dell'ultimo aggiornamento in alto a destra, il contenuto al "
-       "centro e, in fondo, la riga dei tasti che si possono premere in quel momento.", lead=True) + ANATOMIA + \
-    table(["", "Parte", "Cosa mostra"], [
-        ["1", "Titolo", "Dove si è: " + c("AMS · messaggi inviati") + ", " + c("Messaggio 2 · Manutenzione") + ", "
+S2 = p("The main screen of the TUI is the list of sent messages. All AMS screens have the same frame: the title "
+       "at the top left, the time of the last update at the top right, the content in the middle and, at the "
+       "bottom, the line of keys that can be pressed at that moment.", lead=True) + ANATOMIA + \
+    table(["", "Part", "What it shows"], [
+        ["1", "Title", "Where you are: " + c("AMS · messaggi inviati") + ", " + c("Messaggio 2 · Manutenzione") + ", "
          + c("Nuovo messaggio") + "."],
-        ["2", "Aggiornamento", "L'ora in cui AMS ha riletto l'archivio. Cambia ogni 3 secondi: se si ferma, la "
-         "TUI non sta più ricevendo aggiornamenti."],
-        ["3", "Intestazione", "Le colonne: numero del messaggio, data e ora dell'invio, titolo e prima riga del testo, "
-         "destinatari."],
-        ["4", "Riga scelta", "In negativo e con " + c(">") + " davanti: il messaggio su cui agiscono "
-         + key("Invio") + ", " + key("r") + " e " + key("s") + ". Si sposta con " + key("↑") + " " + key("↓") + "."],
-        ["5", "Destinatari", "La barra a tre colori e la frase con i destinatari nei tre stati (" + rif(3, 3) + ")."],
-        ["6", "Legenda", "I colori della barra; durante una ricerca, anche il testo cercato."],
-        ["7", "Tasti", "Cosa si può fare adesso. Cambia con la schermata e con le finestre di conferma."],
-    ], "«TAB» — Le parti della schermata") + \
-    schermata("lista", "«FIG» — La lista dei messaggi: schermata vera della TUI, in un terminale di 116 colonne") + \
+        ["2", "Update", "The time at which AMS last reread the message store. It changes every 3 seconds: if it "
+         "stops, the TUI is no longer receiving updates."],
+        ["3", "Header", "The columns: message number, date and time of sending, title and first line of the text, "
+         "recipients."],
+        ["4", "Selected line", "In reverse video and preceded by " + c(">") + ": the message that "
+         + key("Enter") + ", " + key("r") + " and " + key("s") + " act on. Move it with " + key("↑") + " " + key("↓") + "."],
+        ["5", "Recipients", "The three-colour bar and the phrase with the recipients in the three states (" + rif(3, 3) + ")."],
+        ["6", "Legend", "The colours of the bar; during a search, also the text searched for."],
+        ["7", "Keys", "What can be done now. It changes with the screen and with the confirmation windows."],
+    ], "«TAB» — The parts of the screen") + \
+    schermata("lista", "«FIG» — The list of messages: real TUI screenshot, in a 116-column terminal") + \
     ul([
-        "I messaggi sono in ordine dal più recente. " + c("[ritirato]") + " e " + c("[scaduto]") + " davanti al testo "
-        "segnalano quelli che non vengono più mostrati agli utenti.",
-        "In un terminale di meno di 110 colonne la frase lascia il posto al solo conteggio delle conferme sul totale, "
-        "per esempio " + c("4/8") + "; la barra resta.",
-        "Se il terminale diventa più piccolo di 80 colonne o di 20 righe mentre la TUI è aperta, la TUI si chiude "
-        "e il terminale torna com'era.",
-        "Con la variabile " + c("NO_COLOR") + " la TUI è senza colori (" + rif(10, 3) + ").",
+        "The messages are sorted newest first. " + c("[ritirato]") + " and " + c("[scaduto]") + " before the text "
+        "(“[revoked]” and “[expired]” in English) mark those that are no longer shown to the users.",
+        "In a terminal narrower than 110 columns the phrase gives way to just the count of confirmations out of "
+        "the total, for example " + c("4/8") + "; the bar stays.",
+        "If the terminal becomes smaller than 80 columns or 20 lines while the TUI is open, the TUI closes "
+        "and the terminal returns to how it was.",
+        "With the " + c("NO_COLOR") + " variable the TUI has no colours (" + rif(10, 3) + ").",
     ])
 
 STATI = fig(
-    box(30, 100, 190, 70, "inviato", "il messaggio è partito", "grey")
-    + box(355, 100, 190, 70, "consegnato", "copia nella sua casella", "amber")
-    + box(680, 100, 190, 70, "confermato ✓", "«Ho letto» o «s»", "green")
-    + arrow(222, 135, 353, 135, "#0050C0", False, "copia scritta", 288, 124)
-    + arrow(547, 135, 678, 135, "#16a34a", False, "l'utente conferma", 612, 124)
+    box(30, 100, 190, 70, "sent", "the message has left", "grey")
+    + box(355, 100, 190, 70, "delivered", "copy in their mailbox", "amber")
+    + box(680, 100, 190, 70, "confirmed ✓", "«Ho letto» or «s»", "green")
+    + arrow(222, 135, 353, 135, "#0050C0", False, "copy written", 288, 124)
+    + arrow(547, 135, 678, 135, "#16a34a", False, "the user confirms", 612, 124)
     + '<path d="M410 172 C 410 232, 490 232, 490 172" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>'
-    + text(450, 250, "rimanda («Più tardi», «n»): resta consegnato", 11.5, "#92400e", "600")
-    + zone(30, 276, 840, 64, "Proprietà del messaggio, non stati dei destinatari")
-    + text(250, 322, "ritirato: ams revoke, tasto r", 12, "#475569", "600")
-    + text(650, 322, "scaduto: passata la scadenza --expires", 12, "#475569", "600")
-    + text(450, 70, "per ogni destinatario, uno solo dei tre stati", 12, "#003a90", "700"),
-    900, 360, "«FIG» — I tre stati di un destinatario; ritiro e scadenza fermano il messaggio senza cambiare gli stati",
-    "Inviato, consegnato, confermato")
+    + text(450, 250, "postpones («Più tardi», «n»): stays delivered", 11.5, "#92400e", "600")
+    + zone(30, 276, 840, 64, "Properties of the message, not states of the recipients")
+    + text(250, 322, "revoked: ams revoke, key r", 12, "#475569", "600")
+    + text(650, 322, "expired: the --expires time has passed", 12, "#475569", "600")
+    + text(450, 70, "for each recipient, exactly one of the three states", 12, "#003a90", "700"),
+    900, 360, "«FIG» — The three states of a recipient; revocation and expiry stop the message without changing the states",
+    "Sent, delivered, confirmed")
 
 BARRA = fig(
     barra(60, 60, 6, 5, 1, seg=36, h=34)
-    + text(164, 120, "6 segni: confermato", 12, "#166534", "700")
-    + text(366, 120, "5: consegnato", 12, "#92400e", "700")
-    + text(474, 120, "1: inviato", 12, "#991b1b", "700")
+    + text(164, 120, "6 marks: confirmed", 12, "#166534", "700")
+    + text(366, 120, "5: delivered", 12, "#92400e", "700")
+    + text(474, 120, "1: sent", 12, "#991b1b", "700")
     + mono(520, 84, "4 confermato · 3 consegnato · 1 inviato", 13, "#0f172a", "700")
-    + text(450, 160, "8 destinatari, 12 segni: ogni stato occupa la sua parte; chi è ancora «inviato» ha sempre almeno un segno",
+    + text(450, 160, "8 recipients, 12 marks: each state takes its share; whoever is still “sent” always gets at least one mark",
            11.5, "#334155"),
-    900, 180, "«FIG» — Come si legge la barra di un messaggio con 8 destinatari", "La barra e la frase")
+    900, 180, "«FIG» — How to read the bar of a message with 8 recipients", "The bar and the phrase")
 
-S3 = p("Il concetto da conoscere per usare AMS è uno solo: ogni destinatario di ogni messaggio è in uno di "
-       "<b>tre stati</b>. Non ce ne sono altri.", lead=True) + STATI + \
-    table(["Stato", "Cosa vuol dire", "Cosa fa AMS"], [
-        [INVIATO, "Il messaggio è partito, ma la copia non è ancora nella casella dell'utente: di solito perché "
-         "non si è potuta scrivere, per esempio con il disco pieno.", "Riprova da solo quando si usa di nuovo " + c("ams") + ": un comando come " + c("list") + " o " + c("status")
-         + ", o l'apertura della TUI."],
-        [CONSEGNATO, "La copia è nella casella dell'utente: la vede subito se è collegato, altrimenti al prossimo "
-         "accesso. Non ha ancora confermato.", "Gli ripropone il messaggio finché non conferma; se rimanda, "
-         "aspetta 30 minuti."],
-        [CONFERMATO, "L'utente ha dichiarato di averlo letto, con un clic o rispondendo «s».", "Non glielo mostra "
-         "più, in nessuna sessione. Registra data, ora e canale."],
-    ], "«TAB» — I tre stati di un destinatario") + \
-    p(RITIRATO + " e " + SCADUTO + " sono invece <b>proprietà del messaggio</b>: da quel momento il messaggio non "
-      "viene più mostrato né riproposto a nessuno, e chi non aveva confermato resta " + CONSEGNATO + ", con "
-      "l'indicazione «non confermato (ritirato)» o «(scaduto)».") + BARRA + \
-    p("La lista riassume ogni messaggio con i suoi destinatari nei tre stati, in due forme: la <b>barra</b> di 12 "
-      "segni colorati e la <b>frase</b>, per esempio «4 confermato · 3 consegnato · 1 inviato». Quando hanno "
-      "confermato tutti, la frase diventa «tutti confermato (8)» e la barra è tutta verde.") + \
-    tip("chi ha rimandato non è in uno stato a parte: resta consegnato. Il dettaglio del messaggio dice quando "
-        "ha rimandato l'ultima volta (" + rif(6, 2) + ").", "E chi rimanda?")
+S3 = p("There is only one concept you need to know to use AMS: every recipient of every message is in one of "
+       "<b>three states</b>. There are no others.", lead=True) + STATI + \
+    table(["State", "What it means", "What AMS does"], [
+        [INVIATO, "The message has left, but the copy is not yet in the user's mailbox: usually because it "
+         "could not be written, for example with a full disk.", "Retries by itself the next time " + c("ams") + " is used: a command such as " + c("list") + " or " + c("status")
+         + ", or opening the TUI."],
+        [CONSEGNATO, "The copy is in the user's mailbox: they see it at once if logged in, otherwise at the next "
+         "login. They have not confirmed yet.", "Shows the message to them again until they confirm; if they "
+         "postpone, it waits 30 minutes."],
+        [CONFERMATO, "The user has stated that they have read it, with a click or by answering «s» (“y” in English).", "No longer "
+         "shows it to them, in any session. Records date, time and channel."],
+    ], "«TAB» — The three states of a recipient") + \
+    p(RITIRATO + " and " + SCADUTO + ", on the other hand, are <b>properties of the message</b>: from that moment on "
+      "the message is no longer shown or shown again to anyone, and whoever had not confirmed stays " + CONSEGNATO
+      + ", with the indication «non confermato (ritirato)» or «(scaduto)» (“not confirmed (revoked)”, “(expired)”).") + BARRA + \
+    p("The list summarises each message with its recipients in the three states, in two forms: the <b>bar</b> of "
+      "12 coloured marks and the <b>phrase</b>, for example «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · "
+      "3 delivered · 1 sent”). When everyone has confirmed, the phrase becomes «tutti confermato (8)» (“all "
+      "confirmed (8)”) and the bar is entirely green.") + \
+    tip("whoever has postponed is not in a separate state: they stay delivered. The message details say when "
+        "they last postponed (" + rif(6, 2) + ").", "What about those who postpone?")
 
-S4 = table(["Voglio…", "Nella TUI", "Con un comando", "Dove"], [
-    ["mandare un messaggio", key("n") + ", poi " + key("Ctrl", "S"), c("ams send --to … \"testo\""), rif(5)],
-    ["vedere tutti i messaggi", "la schermata principale", c("ams list"), rif(6, 1)],
-    ["vedere chi ha confermato", key("Invio") + " sul messaggio", c("ams status ID"), rif(6, 2)],
-    ["vedere la storia di un messaggio", key("Invio") + ", poi " + key("Tab"), c("ams log ID"), rif(6, 4)],
-    ["trovare un messaggio", key("/"), "—", rif(6, 6)],
-    ["ritirare un messaggio", key("r"), c("ams revoke ID"), rif(7, 1)],
-    ["sollecitare chi non ha confermato", key("s"), c("ams remind ID"), rif(7, 2)],
-    ["cancellare i messaggi vecchi", key("p"), c("ams purge 90d"), rif(7, 3)],
-    ["l'elenco dei tasti", key("?"), "—", rif(3, 4)],
-    ["la guida completa", "—", c("ams --help"), rif(9)],
-    ["uscire", key("q"), "—", ""],
-], "«TAB» — Tutto AMS in una tabella") + \
-    p("Nella TUI il tasto " + key("?") + " apre l'elenco dei tasti sopra la lista; un tasto qualsiasi lo chiude. "
-      "Nella riga dei tasti la voce si chiama «tasti»; l'elenco completo dei comandi è in " + c("ams --help") + ".") + \
-    schermata_u("aiuto", "«FIG» — L'elenco dei tasti della TUI (tasto ?)")
+S4 = table(["I want to…", "In the TUI", "With a command", "Where"], [
+    ["send a message", key("n") + ", then " + key("Ctrl", "S"), c("ams send --to … \"testo\""), rif(5)],
+    ["see all messages", "the main screen", c("ams list"), rif(6, 1)],
+    ["see who has confirmed", key("Enter") + " on the message", c("ams status ID"), rif(6, 2)],
+    ["see the history of a message", key("Enter") + ", then " + key("Tab"), c("ams log ID"), rif(6, 4)],
+    ["find a message", key("/"), "—", rif(6, 6)],
+    ["revoke a message", key("r"), c("ams revoke ID"), rif(7, 1)],
+    ["remind whoever has not confirmed", key("s"), c("ams remind ID"), rif(7, 2)],
+    ["delete old messages", key("p"), c("ams purge 90d"), rif(7, 3)],
+    ["the list of keys", key("?"), "—", rif(3, 4)],
+    ["the complete help", "—", c("ams --help"), rif(9)],
+    ["quit", key("q"), "—", ""],
+], "«TAB» — All of AMS in one table") + \
+    p("In the TUI the " + key("?") + " key opens the list of keys over the message list; any key closes it. "
+      "In the key line the entry is called «tasti» (“keys” in English); the complete list of commands is in "
+      + c("ams --help") + ".") + \
+    schermata_u("aiuto", "«FIG» — The list of TUI keys (key ?)")
 
-CHAPTER = ("AMS in breve", [
-    ("Due modi di lavorare", S1),
-    ("Com'è fatta la TUI", S2),
-    ("I tre stati di un destinatario", S3),
-    ("Mappa dei comandi e dei tasti", S4),
+CHAPTER = ("AMS at a glance", [
+    ("Two ways of working", S1),
+    ("How the TUI is laid out", S2),
+    ("The three states of a recipient", S3),
+    ("Map of commands and keys", S4),
 ])

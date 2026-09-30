@@ -2,34 +2,34 @@ from build import arrow, box, c, code, diamond, fig, note, p, path, seq, table, 
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 FLUSSO = fig(
-    diamond(110, 70, 180, 60, "acks/ID c'è?", "navy")
-    + box(30, 140, 160, 50, "esito 0", "vale la prima", "green", 12)
-    + diamond(320, 70, 190, 60, "inbox/ID c'è?", "navy")
-    + box(240, 140, 160, 50, "esito 3", "ritirato", "grey", 12)
-    + diamond(530, 70, 170, 60, "scaduto?", "navy")
-    + box(450, 140, 160, 50, "esito 2", "in read/, niente conferma", "grey", 12)
-    + box(650, 40, 230, 60, "acks/.ID.PID", "data canale · fsync", "blue", 12)
-    + box(650, 130, 230, 60, "link(tmp, acks/ID)", "fallisce se esiste già", "navy", 12)
-    + box(650, 220, 230, 60, "fsync(acks/), read/", "evento CONFERMATO", "green", 12)
-    + box(380, 230, 200, 50, "esito 1 o 0", "fallita, o nel frattempo c'è", "amber", 12)
-    + arrow(110, 100, 110, 138, "#16a34a", False, "sì", 124, 122)
+    diamond(110, 70, 180, 60, "acks/ID there?", "navy")
+    + box(30, 140, 160, 50, "result 0", "the first one counts", "green", 12)
+    + diamond(320, 70, 190, 60, "inbox/ID there?", "navy")
+    + box(240, 140, 160, 50, "result 3", "revoked", "grey", 12)
+    + diamond(530, 70, 170, 60, "expired?", "navy")
+    + box(450, 140, 160, 50, "result 2", "to read/, no confirmation", "grey", 12)
+    + box(650, 40, 230, 60, "acks/.ID.PID", "date channel · fsync", "blue", 12)
+    + box(650, 130, 230, 60, "link(tmp, acks/ID)", "fails if it already exists", "navy", 12)
+    + box(650, 220, 230, 60, "fsync(acks/), read/", "event CONFERMATO", "green", 12)
+    + box(380, 230, 200, 50, "result 1 or 0", "failed, or it appeared meanwhile", "amber", 12)
+    + arrow(110, 100, 110, 138, "#16a34a", False, "yes", 124, 122)
     + arrow(200, 70, 223, 70, "#0050C0", False, "no", 212, 60)
     + arrow(320, 100, 320, 138, "#475569", False, "no", 334, 122)
-    + arrow(415, 70, 443, 70, "#0050C0", False, "sì", 429, 60)
-    + arrow(530, 100, 530, 138, "#475569", False, "sì", 544, 122)
+    + arrow(415, 70, 443, 70, "#0050C0", False, "yes", 429, 60)
+    + arrow(530, 100, 530, 138, "#475569", False, "yes", 544, 122)
     + arrow(615, 70, 648, 70, "#0050C0", False, "no", 630, 60)
-    + arrow(765, 102, 765, 128) + arrow(765, 192, 765, 218, "#16a34a", False, "riesce", 800, 208)
-    + path([(648, 160), (620, 160), (620, 255), (582, 255)], "#b45309", True, "errore", 588, 212),
-    900, 300, "«FIG» — conferma(ID, CANALE): i controlli e la pubblicazione esclusiva", "Come nasce una conferma")
+    + arrow(765, 102, 765, 128) + arrow(765, 192, 765, 218, "#16a34a", False, "succeeds", 800, 208)
+    + path([(648, 160), (620, 160), (620, 255), (582, 255)], "#b45309", True, "error", 588, 212),
+    900, 300, "«FIG» — conferma(ID, CANALE): the checks and the exclusive publication", "How a confirmation is born")
 
-S1 = p(c("conferma(ID, CANALE)") + " di " + c("src/ams-user.c") + " è l'unico punto in cui nasce una conferma. "
-       "La scrive in un file temporaneo, la porta su disco e la pubblica con " + c("link") + ", che fallisce se "
-       + c("acks/ID") + " esiste già: la conferma nasce <b>intera o non nasce</b>, e «già confermato» resta distinto "
-       "da «scrittura fallita».", lead=True) + FLUSSO + code("""static int conferma(long long id, const char *canale)
+S1 = p(c("conferma(ID, CANALE)") + " in " + c("src/ams-user.c") + " is the only place where a confirmation is born. "
+       "It writes it to a temporary file, flushes it to disk and publishes it with " + c("link") + ", which fails if "
+       + c("acks/ID") + " already exists: the confirmation is born <b>whole or not at all</b>, and “already confirmed” "
+       "stays distinct from “write failed”.", lead=True) + FLUSSO + code("""static int conferma(long long id, const char *canale)
 {
 	if (esiste(ack)) { segna_letto(id); return 0; }        /* vale la prima */
 	if (!c_e("inbox", id, "")) return 3;                  /* ritirato: niente conferma */
@@ -47,65 +47,67 @@ S1 = p(c("conferma(ID, CANALE)") + " di " + c("src/ams-user.c") + " è l'unico p
 	segna_letto(id);
 	evento("CONFERMATO", id, U, canale, "", "");
 	return 0;
-}""", "c", "src/ams-user.c (in breve)") + table(["Caso", "Esito", "Che cosa succede"], [
-    ["conferma scritta", "0", "il messaggio passa in " + c("read/") + ", i rinvii si tolgono; evento nel registro"],
-    [c("acks/ID") + " già presente", "0", "passa in " + c("read/") + "; resta la prima conferma"],
-    ["scrittura fallita (disco pieno, permessi)", "1", "<b>resta in " + c("inbox/") + "</b>; l'utente è avvisato, "
-     "l'errore va nel registro, la domanda o la finestra tornano (" + c("tests/engine.sh") + ", gruppo 1; scenario "
+}""", "c", "src/ams-user.c (in short)") + table(["Case", "Result", "What happens"], [
+    ["confirmation written", "0", "the message moves to " + c("read/") + ", the postponements are removed; event in the log"],
+    [c("acks/ID") + " already present", "0", "moves to " + c("read/") + "; the first confirmation stays"],
+    ["write failed (disk full, permissions)", "1", "<b>stays in " + c("inbox/") + "</b>; the user is told, "
+     "the error goes to the log, the question or the dialog comes back (" + c("tests/engine.sh") + ", group 1; scenario "
      "F4)"],
-    ["messaggio scaduto", "2", "passa in " + c("read/") + " senza conferma: una conferma dopo la scadenza non vale"],
-    ["copia sparita (ritirato)", "3", "nessuna conferma"],
-], "«TAB» — Gli esiti di conferma") + ul([
-    "La riga è " + c("data canale") + ": secondi dall'epoca Unix, uno spazio, il canale senza lingua ("
+    ["message expired", "2", "moves to " + c("read/") + " without a confirmation: a confirmation after the expiry does not count"],
+    ["copy gone (revoked)", "3", "no confirmation"],
+], "«TAB» — The results of conferma") + ul([
+    "The line is " + c("data canale") + ": seconds since the Unix epoch, a space, the channel with no translation ("
     + c("desktop") + ", " + c("terminale pts/3") + ", " + c("terminale tty3") + ").",
-    "Il file temporaneo " + c("acks/.ID.PID") + " comincia con un punto: non è mai scambiato per una conferma. Se "
-    "un'interruzione lo lascia, resta ignorato.",
-    "Se il ritiro arriva fra il controllo di " + c("inbox/ID") + " e " + c("link") + ", la conferma nasce, ma "
-    + c("ams status") + " non la conta: la sua data è successiva a " + c("sent/ID/revoked") + " (" + cap(10, 1) + ").",
-    c("segna_letto") + " rinomina " + c("inbox/ID") + " in " + c("read/ID") + " e toglie i rinvii. Se si "
-    "interrompe fra la conferma e lo spostamento, chi legge la casella dopo completa lo spostamento senza chiedere "
-    "di nuovo (" + c("tests/engine.sh") + ", gruppo 1).",
+    "The temporary file " + c("acks/.ID.PID") + " starts with a dot: it is never mistaken for a confirmation. If "
+    "an interruption leaves it behind, it is ignored.",
+    "If the revocation arrives between the check of " + c("inbox/ID") + " and " + c("link") + ", the confirmation is "
+    "born, but " + c("ams status") + " does not count it: its date is later than " + c("sent/ID/revoked") + " ("
+    + cap(10, 1) + ").",
+    c("segna_letto") + " renames " + c("inbox/ID") + " to " + c("read/ID") + " and removes the postponements. If it "
+    "is interrupted between the confirmation and the move, whoever reads the mailbox next completes the move without "
+    "asking again (" + c("tests/engine.sh") + ", group 1).",
 ])
 
-RACE = seq([("Finestra", "conferma … desktop", "blue"), ("acks/ID", "link: esclusivo", "green"),
-            ("Terminale", "conferma … pts/3", "blue")], [
-    (0, 1, "link: riesce"),
-    (2, 1, "link: fallisce, esiste già", True),
-    ("nota", 2, "esiste(ack): segna_letto, esito 0"),
+RACE = seq([("Dialog", "conferma … desktop", "blue"), ("acks/ID", "link: exclusive", "green"),
+            ("Terminal", "conferma … pts/3", "blue")], [
+    (0, 1, "link: succeeds"),
+    (2, 1, "link: fails, already exists", True),
+    ("nota", 2, "esiste(ack): segna_letto, code 0".ljust(33)),
     ("nota", 0, "CONFERMATO (desktop)"),
-    ("sep", "un secondo dopo, l'altra domanda aperta"),
-    (2, 1, "acks/ID comparso?"),
-    ("nota", 2, "«già confermato altrove»"),
-], "«FIG» — Due conferme quasi contemporanee: vale la prima", "La prima conferma vince")
+    ("sep", "a second later, the other open question"),
+    (2, 1, "acks/ID appeared?"),
+    ("nota", 2, "“confirmed elsewhere”".ljust(24)),
+], "«FIG» — Two almost simultaneous confirmations: the first one counts", "The first confirmation wins")
 
-S2 = p("Un utente può avere la finestra aperta sul desktop e la domanda in due terminali. La conferma dev'essere "
-       "<b>una</b>: la prima che arriva.", lead=True) + RACE + ul([
-    "Due conferme quasi contemporanee producono una sola registrazione: " + c("link") + " riesce una volta sola; "
-    "l'altra trova " + c("acks/ID") + " e si limita a spostare il messaggio.",
-    "Le domande e le finestre ancora aperte se ne accorgono al loro controllo successivo (entro un secondo) e si "
-    "chiudono: «Messaggio già confermato altrove (per esempio dal desktop).» nel terminale, la finestra si chiude "
-    "da sola (scenari C4b e I5).",
-    "Questa regola è nata da una prova dal vivo del prototipo: l'utente doveva confermare due volte, dalla "
-    "finestra e dal terminale.",
+S2 = p("A user may have the dialog open on the desktop and the question in two terminals. The confirmation must be "
+       "<b>one</b>: the first to arrive.", lead=True) + RACE + ul([
+    "Two almost simultaneous confirmations produce a single record: " + c("link") + " succeeds only once; "
+    "the other finds " + c("acks/ID") + " and only moves the message.",
+    "The questions and dialogs still open notice it at their next check (within a second) and "
+    "close: “Message already confirmed elsewhere (for example on the desktop).” in the terminal, while the dialog "
+    "closes by itself (scenarios C4b and I5).",
+    "This rule came from a live test of the prototype: the user had to confirm twice, from the "
+    "dialog and from the terminal.",
 ])
 
-S3 = p(c("ams status") + " legge le conferme dalla casella, che l'utente controlla. Per questo le tratta come "
-       "<b>dati non fidati</b>, e il loro significato è volutamente limitato.", lead=True) + table(
-    ["Rischio", "Regola"], [
-        ["un collegamento simbolico " + c("acks/ID") + " verso un file riservato", "la lettura avviene come l'utente "
-         "(" + cap(7) + "): un file che l'utente non può leggere non si legge"],
-        ["una pipe o un dispositivo al posto della conferma", "si legge solo un file normale, aperto senza bloccarsi"],
-        ["una conferma enorme", "si leggono al più 200 byte, e della prima riga"],
-        ["sequenze di escape nel canale", "l'uscita passa da " + c("pulisci") + " (scenario G3)"],
-        ["una data fasulla", "è un numero qualunque: vale solo se non supera scadenza e ritiro di " + c("sent/")],
-    ], "«TAB» — Le conferme lette da root") + \
-    note("<b>«Confermato» vuol dire</b>: nella casella c'è una dichiarazione di lettura valida dell'utente. Non è "
-         "un'azione osservata da AMS né una prova di lettura: l'utente controlla la propria casella e potrebbe "
-         "scriverla da sé, come potrebbe premere «Ho letto» senza leggere. Chi usa " + c("ams status")
-         + " per un audit deve leggerlo così (" + cap(20, 1) + ").")
+S3 = p(c("ams status") + " reads the confirmations from the mailbox, which the user controls. That is why it treats "
+       "them as <b>untrusted data</b>, and their meaning is deliberately limited.", lead=True) + table(
+    ["Risk", "Rule"], [
+        ["a symbolic link " + c("acks/ID") + " pointing to a restricted file", "the read happens as the user "
+         "(" + cap(7) + "): a file the user cannot read is not read"],
+        ["a pipe or a device in place of the confirmation", "only a regular file is read, opened without blocking"],
+        ["a huge confirmation", "at most 200 bytes are read, and only the first line"],
+        ["escape sequences in the channel", "the output goes through " + c("pulisci") + " (scenario G3)"],
+        ["a bogus date", "it is just a number: it counts only if it is not later than the expiry and revocation in "
+         + c("sent/")],
+    ], "«TAB» — The confirmations read by root") + \
+    note("<b>“Confirmed” means</b>: the mailbox holds a valid declaration of reading by the user. It is not "
+         "an action observed by AMS nor a proof of reading: the user controls their own mailbox and could "
+         "write it themselves, just as they could press «Ho letto» without reading. Whoever uses " + c("ams status")
+         + " for an audit must read it this way (" + cap(20, 1) + ").")
 
-CHAPTER = ("Le conferme", [
-    ("Vale la prima", S1),
-    ("Due conferme contemporanee", S2),
-    ("Le conferme lette da root", S3),
+CHAPTER = ("Confirmations", [
+    ("The first one counts", S1),
+    ("Two simultaneous confirmations", S2),
+    ("The confirmations read by root", S3),
 ])

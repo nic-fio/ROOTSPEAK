@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AMS 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-30 21:05+0200\n"
+"POT-Creation-Date: 2026-09-30 21:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -647,8 +647,8 @@ msgstr ""
 #: src/guida.c:66
 msgctxt "guida-file"
 msgid ""
-"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦The complete user manual "
-"(in Italian), to open in a browser."
+"/usr/local/share/doc/ams/User Manual.html¦The complete user manual, to open "
+"in a browser."
 msgstr ""
 
 #: src/guida.c:70
@@ -780,8 +780,8 @@ msgstr ""
 
 #: src/guida.c:251
 msgid ""
-"wall(1), write(1), and the user manual (in Italian) in /usr/local/share/doc/"
-"ams/AMS_Manuale_Utente.html"
+"wall(1), write(1), and the user manual in /usr/local/share/doc/ams/User "
+"Manual.html"
 msgstr ""
 
 #: src/guida.c:337
@@ -790,9 +790,7 @@ msgstr ""
 
 #: src/guida.c:355
 #, c-format
-msgid ""
-"AMS %s · complete manual (in Italian): /usr/local/share/doc/ams/"
-"AMS_Manuale_Utente.html"
+msgid "AMS %s · complete manual: /usr/local/share/doc/ams/User Manual.html"
 msgstr ""
 
 #: src/guida.c:365 src/guida.c:394

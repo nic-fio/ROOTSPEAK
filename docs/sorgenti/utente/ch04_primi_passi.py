@@ -5,78 +5,80 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import c, dialog, flow, key, note, p, steps, table, term, tip, ui  # noqa: E402
 from _aiuti import CONFERMATO, CONSEGNATO, rif  # noqa: E402
 
-S1 = p("Questo percorso porta da un AMS appena installato alla prima conferma, in quattro tappe. Il destinatario del "
-       "primo messaggio può essere l'amministratore stesso: così si vede con i propri occhi cosa ricevono gli "
-       "utenti. Ogni tappa rimanda al capitolo che la spiega nel dettaglio.", lead=True) + \
-    flow([("1. Installa", "make, ./install.sh", "dark"), ("2. Scrivi e invia", "ams, tasto n", "blue"),
-          ("3. L'utente conferma", "finestra o terminale", "blue"), ("4. Controlla", "Invio sul messaggio", "green")],
-         "«FIG» — Le quattro tappe dei primi passi", "Dal nulla alla prima conferma") + \
-    table(["Tappa", "Cosa si fa", "Capitolo"], [
-        ["1", "Installare AMS e controllare che risponda", rif(2)],
-        ["2", "Scrivere il messaggio nella TUI (o con " + c("ams send") + ") e inviarlo", rif(5)],
-        ["3", "Il destinatario vede la finestra o la domanda e conferma", rif(8)],
-        ["4", "Aprire il messaggio e vedere chi ha confermato", rif(6)],
-    ], "«TAB» — Il percorso")
+S1 = p("This path leads from a freshly installed AMS to the first confirmation, in four stages. The recipient of "
+       "the first message can be the administrator themselves: that way you see with your own eyes what the users "
+       "receive. Each stage refers to the chapter that explains it in detail.", lead=True) + \
+    flow([("1. Install", "make, ./install.sh", "dark"), ("2. Write and send", "ams, key n", "blue"),
+          ("3. The user confirms", "dialog or terminal", "blue"), ("4. Check", "Enter on the message", "green")],
+         "«FIG» — The four stages of the first steps", "From nothing to the first confirmation") + \
+    table(["Stage", "What you do", "Chapter"], [
+        ["1", "Install AMS and check that it answers", rif(2)],
+        ["2", "Write the message in the TUI (or with " + c("ams send") + ") and send it", rif(5)],
+        ["3", "The recipient sees the dialog or the question and confirms", rif(8)],
+        ["4", "Open the message and see who has confirmed", rif(6)],
+    ], "«TAB» — The path")
 
-S2 = p("Il modo più semplice è la TUI. Qui il messaggio va a Mario; per una prova su di sé basta scrivere il proprio "
-       "nome.", lead=True) + steps([
-        "Aprire un terminale e scrivere " + c("ams") + ". Alla richiesta, inserire la propria password: " + c("ams")
-        + " la chiede sempre, perché lavora come amministratore." + term(
+S2 = p("The simplest way is the TUI. Here the message goes to Mario; to try it on yourself, just type your own "
+       "name.", lead=True) + steps([
+        "Open a terminal and type " + c("ams") + ". When prompted, enter your password: " + c("ams")
+        + " always asks for it, because it works as administrator." + term(
             "admin@server:~$ ams\n[sudo] password di admin:"),
-        "Nella lista dei messaggi premere " + key("n") + ": si apre la schermata " + ui("Nuovo messaggio") + ".",
-        "Nel campo " + ui("A") + " scrivere " + c("mario") + " e premere " + key("Tab") + ": a destra compare "
-        + ui("1 destinatario") + ".",
-        "Nel campo " + ui("Titolo") + " scrivere " + c("Manutenzione") + "; lasciare vuota la " + ui("Scadenza")
-        + " e passare al " + ui("Testo") + " con " + key("Tab") + ".",
-        "Scrivere il testo: " + c("Sabato dalle 8 alle 12 il server sarà spento.") + " Si va a capo con "
-        + key("Invio") + ".",
-        "Premere " + key("Ctrl", "S") + ". Compare il riassunto " + ui("Inviare il messaggio?") + ": premere "
-        + key("s") + " per confermare.",
-        "La finestra " + ui("Messaggio inviato") + " riporta la risposta di AMS, per esempio «Messaggio 1 inviato a 1 "
-        "utente.». Un tasto qualsiasi riporta alla lista, dove il messaggio è in cima.",
-    ]) + p("Lo stesso messaggio, con un comando solo:") + term(
+        "In the list of messages press " + key("n") + ": the " + ui("Nuovo messaggio") + " (“New message”) screen opens.",
+        "In the " + ui("A") + " (“To”) field type " + c("mario") + " and press " + key("Tab") + ": on the right "
+        + ui("1 destinatario") + " (“1 recipient”) appears.",
+        "In the " + ui("Titolo") + " (“Title”) field type " + c("Manutenzione") + "; leave " + ui("Scadenza")
+        + " (“Expires”) empty and move to " + ui("Testo") + " (“Text”) with " + key("Tab") + ".",
+        "Type the text: " + c("Sabato dalle 8 alle 12 il server sarà spento.") + " Start a new line with "
+        + key("Enter") + ".",
+        "Press " + key("Ctrl", "S") + ". The summary " + ui("Inviare il messaggio?") + " (“Send the message?”) "
+        "appears: press " + key("s") + " to confirm.",
+        "The " + ui("Messaggio inviato") + " (“Message sent”) window reports the answer of AMS, for example «Messaggio "
+        "1 inviato a 1 utente.» (“Message 1 sent to 1 user.”). Any key takes you back to the list, where the message "
+        "is at the top.",
+    ]) + p("The same message, with a single command:") + term(
         'admin@server:~$ ams send --to mario --title Manutenzione "Sabato dalle 8 alle 12 il server sarà spento."\n'
         "Messaggio 1 inviato a 1 utente.") + \
-    tip("il numero del messaggio (qui " + c("1") + ") serve per i comandi " + c("status") + ", " + c("log") + ", "
-        + c("revoke") + " e " + c("remind") + ". Nella TUI non serve: si sceglie il messaggio dalla lista.",
-        "Il numero.")
+    tip("the message number (here " + c("1") + ") is needed for the commands " + c("status") + ", " + c("log") + ", "
+        + c("revoke") + " and " + c("remind") + ". In the TUI it is not needed: you pick the message from the list.",
+        "The number.")
 
-S3 = p("Se Mario è collegato, il messaggio gli arriva subito, in tutte le sue sessioni. Sul desktop compare questa "
-       "finestra, sopra le altre:", lead=True) + \
+S3 = p("If Mario is logged in, the message reaches him at once, in all his sessions. On the desktop this "
+       "dialog appears, above the other windows:", lead=True) + \
     dialog("AMS · Messaggio dall'amministratore", "Manutenzione · 30/09 16:55",
            "Sabato dalle 8 alle 12 il server sarà spento.",
-           "«FIG» — La finestra di conferma sul desktop di Mario") + \
-    p("Nelle finestre di terminale il testo compare subito; al prompt successivo AMS chiede la conferma:") + term(
+           "«FIG» — The confirmation dialog on Mario's desktop") + \
+    p("In terminal windows the text appears at once; at the next prompt AMS asks for the confirmation:") + term(
         "── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
         "Sabato dalle 8 alle 12 il server sarà spento.\n"
         "────────────────────────────────────────\n"
         "[AMS] Confermi di aver letto il messaggio? [s/N] s\n"
         "[AMS] Confermato.\n"
-        "mario@server:~$", "Nel terminale di Mario") + \
-    note("basta confermare una volta, in un posto qualsiasi: la finestra si chiude da sola se Mario risponde nel "
-         "terminale, e viceversa. Se Mario non è collegato, troverà il messaggio al prossimo accesso. Il " + rif(8)
-         + " descrive tutto quello che vedono gli utenti.", "Una conferma basta.")
+        "mario@server:~$", "In Mario's terminal") + \
+    note("confirming once, anywhere, is enough: the dialog closes by itself if Mario answers in the "
+         "terminal, and vice versa. If Mario is not logged in, he will find the message at his next login. "
+         + rif(8) + " describes everything the users see.", "One confirmation is enough.")
 
-S4 = p("Nella lista il messaggio mostra i destinatari nei tre stati: prima dell'accesso di Mario "
-       "«1 consegnato», dopo la sua conferma «tutti confermato (1)». Con " + key("Invio") + " si apre il messaggio "
-       "e si vede lo stato di ogni destinatario, con data, ora e canale della conferma.", lead=True) + term(
+S4 = p("In the list the message shows its recipients in the three states: before Mario logs in "
+       "«1 consegnato» (“1 delivered”), after his confirmation «tutti confermato (1)» (“all confirmed (1)”). With "
+       + key("Enter") + " you open the message and see the state of every recipient, with date, time and channel "
+       "of the confirmation.", lead=True) + term(
     "admin@server:~$ ams status 1\n"
     "Messaggio 1 · Manutenzione · 30/09 16:55 · da admin\n"
     "  │ Sabato dalle 8 alle 12 il server sarà spento.\n"
     "\n"
     "UTENTE           STATO\n"
-    "mario            confermato il 30/09 16:56 (desktop)", "Lo stesso, con un comando") + \
-    table(["Se lo stato è…", "Vuol dire", "Cosa fare"], [
-        [CONSEGNATO, "Mario ha la copia ma non ha ancora confermato", "aspettare, oppure sollecitarlo (" + rif(7, 2) + ")"],
-        [CONFERMATO + " (desktop)", "ha premuto " + ui("Ho letto") + " nella finestra", "nulla: è fatto"],
-        [CONFERMATO + " (terminale pts/1)", "ha risposto " + c("s") + " in una finestra di terminale", "nulla: è fatto"],
-    ], "«TAB» — Leggere il risultato") + \
-    tip("la TUI si aggiorna da sola ogni 3 secondi: tenendola aperta sul messaggio si vedono arrivare le conferme "
-        "una dopo l'altra.", "E poi?")
+    "mario            confermato il 30/09 16:56 (desktop)", "The same, with a command") + \
+    table(["If the state is…", "It means", "What to do"], [
+        [CONSEGNATO, "Mario has the copy but has not confirmed yet", "wait, or remind him (" + rif(7, 2) + ")"],
+        [CONFERMATO + " (desktop)", "he pressed " + ui("Ho letto") + " (“I have read it”) in the dialog", "nothing: it is done"],
+        [CONFERMATO + " (terminal pts/1)", "he answered " + c("s") + " in a terminal window", "nothing: it is done"],
+    ], "«TAB» — Reading the result") + \
+    tip("the TUI updates itself every 3 seconds: keeping it open on the message, you see the confirmations "
+        "arrive one after another.", "And then?")
 
-CHAPTER = ("Primi passi", [
-    ("Il percorso", S1),
-    ("Mandare il primo messaggio", S2),
-    ("Cosa vede l'utente", S3),
-    ("Vedere chi ha letto", S4),
+CHAPTER = ("First steps", [
+    ("The path", S1),
+    ("Sending the first message", S2),
+    ("What the user sees", S3),
+    ("Seeing who has read it", S4),
 ])

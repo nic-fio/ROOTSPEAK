@@ -4,10 +4,11 @@
 Fallisce se:
   - i manuali in docs/ non coincidono con quelli rigenerati dai sorgenti
     (docs/sorgenti/build.py): i file HTML non si modificano a mano;
-  - un comando o un'opzione della guida integrata (AMS_HELP_COMMANDS e
-    AMS_HELP_OPTIONS in lib/lingue/aiuto-it.sh) manca dal riferimento del manuale
-    utente (attributo data-help), vi ha una descrizione diversa, o il manuale
-    documenta una voce che non esiste;
+  - un comando o un'opzione della guida integrata (contesti guida-comandi e
+    guida-opzioni in src/guida.c) manca dal riferimento del manuale utente
+    (attributo data-help), vi ha una descrizione diversa dal testo di partenza
+    inglese estratto ora dal codice con xgettext (i manuali sono in inglese, come
+    i testi di partenza), o il manuale documenta una voce che non esiste;
   - un file di codice manca dalla mappa dei file del manuale tecnico, o la
     mappa cita un file che non esiste;
   - la versione di src/comune.h non compare nei due manuali;
@@ -26,8 +27,8 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
-USER = DOCS / "AMS_Manuale_Utente.html"
-TECH = DOCS / "AMS_Manuale_Tecnico.html"
+USER = DOCS / "User Manual.html"
+TECH = DOCS / "Technical Manual.html"
 
 errors = []
 
@@ -51,9 +52,28 @@ with tempfile.TemporaryDirectory() as tmp:
 user = USER.read_text()
 tech = TECH.read_text()
 
+# ---- testi di partenza, estratti ora dal codice ----
+import subprocess
+with tempfile.TemporaryDirectory() as tmp:
+    pot = pathlib.Path(tmp) / "ams.pot"
+    subprocess.run(["xgettext", "--from-code=UTF-8", "-k", "-kT", "-kN_", "-kTC:1c,2", "-kNC_:1c,2", "-ktl:2",
+                    "-ktlc:2c,3", "-o", str(pot)] + sorted(str(p) for p in (ROOT / "src").glob("*.c")),
+                   check=True, capture_output=True)
+    estratte = build.po_voci(pot)
+sorgenti = {(c, m) for c, m, _ in estratte if m}
+
 # ---- riferimento ----
-wanted = {f: re.sub(r"\s+", " ", d).strip()
-          for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS") for f, d in build.help_items(name)}
+# Il manuale utente è in inglese: le sue voci si confrontano con i testi di partenza
+# inglesi della guida così come sono ora in src/guida.c, non con po/ams.pot da cui il
+# generatore le legge (un ams.pot vecchio fa quindi fallire il controllo: make pot).
+wanted = {}
+for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS"):
+    for c, m, _ in estratte:
+        if c == build.GUIDA_CONTESTI[name]:
+            f, d = m.split("¦", 1)
+            wanted[f] = re.sub(r"\s+", " ", d).strip()
+if not wanted:
+    errors.append("guida: nessuna voce di comandi e opzioni estratta da src/guida.c")
 documented = {html.unescape(f): plain(d)
               for f, d in re.findall(r'<dt[^>]*\bdata-help="([^"]+)"[^>]*>.*?</dt><dd>(.*?)</dd>', user, re.S)}
 for f in sorted(set(wanted) - set(documented)):
@@ -62,7 +82,8 @@ for f in sorted(set(documented) - set(wanted)):
     errors.append(f"manuale utente: «{f}» non esiste nella guida integrata")
 for f in sorted(set(wanted) & set(documented)):
     if wanted[f] != documented[f]:
-        errors.append(f"manuale utente: la descrizione di «{f}» è diversa da quella della guida")
+        errors.append(f"manuale utente: la descrizione di «{f}» è diversa da quella della guida in src/guida.c "
+                      f"(make pot, poi rigenerare i manuali)")
 
 # ---- mappa dei file ----
 fmap = tech[tech.index('id="file-map"'):]
@@ -88,13 +109,6 @@ for where, text in (("manuale utente", user), ("manuale tecnico", tech)):
             errors.append(f"{where}: il link #{anchor} non porta da nessuna parte")
 
 # ---- lingue ----
-import subprocess
-with tempfile.TemporaryDirectory() as tmp:
-    pot = pathlib.Path(tmp) / "ams.pot"
-    subprocess.run(["xgettext", "--from-code=UTF-8", "-k", "-kT", "-kN_", "-kTC:1c,2", "-kNC_:1c,2", "-ktl:2",
-                    "-ktlc:2c,3", "-o", str(pot)] + sorted(str(p) for p in (ROOT / "src").glob("*.c")),
-                   check=True, capture_output=True)
-    sorgenti = {(c, m) for c, m, _ in build.po_voci(pot) if m}
 langs = ["en"]
 for po in sorted((ROOT / "po").glob("*.po")):
     langs.append(po.stem)

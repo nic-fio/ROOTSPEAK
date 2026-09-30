@@ -1,8 +1,8 @@
 # AMS — decisioni e storia
 
 > Perché AMS è fatto così: il contesto, le decisioni e la storia del progetto.
-> Il funzionamento in dettaglio è nel [manuale tecnico](AMS_Manuale_Tecnico.html),
-> l'uso nel [manuale utente](AMS_Manuale_Utente.html) (file HTML: vanno aperti in un browser).
+> Il funzionamento in dettaglio è nel [manuale tecnico](Technical%20Manual.html),
+> l'uso nel [manuale utente](User%20Manual.html) (file HTML in inglese: vanno aperti in un browser).
 > Stato: **prototipo 0.1.0 funzionante**, provato dal vivo su Debian 13 con GNOME 48 su Wayland (settembre 2026).
 
 ---
@@ -66,6 +66,7 @@ affidabile è **logind**, non utmp.
 | **Lingue con gettext** | Decisione dell'utente (30 settembre): formato e strumenti standard. La lettura dei `.mo` è di AMS e non della libintl, perché con la libintl una lingua non installata nel sistema resta non tradotta anche forzando `LANGUAGE` (provato), mentre root deve poter scrivere a ogni terminale nella lingua del suo utente. |
 | **Guida integrata come quella di MTERM, niente man page** | «Non voglio un sistema man, ma un sistema molto più evoluto»: guida a schede in un terminale, pagina in stile manuale con un pager se il terminale è piccolo, testo semplice in una pipe. Un controllo (`tools/check-docs.py`) tiene allineati guida e manuale. |
 | **Manuali sul modello di IR_Service** | Una prima versione copiata dai manuali di NESH è stata bocciata dall'utente su tutto (grafici, aspetto, testi, apertura): «Ancora una volta i manuali html fanno schifo». Il riferimento indicato è il Manuale Tecnico di IR_Service: i manuali sono generati da sorgenti Python (un file per capitolo) in due file HTML autosufficienti, con copertina, indice laterale, schemi SVG e tabelle numerate, senza script. Il riferimento dei comandi è generato dai testi della guida integrata. |
+| **Manuali in inglese** | Decisione dell'utente (30 settembre): i due manuali e i loro sorgenti sono tradotti in inglese e si chiamano `User Manual.html` e `Technical Manual.html`; struttura, colori e stile restano quelli di prima. Tutto il resto (codice, commenti, messaggi, questo documento) resta com'è. Il riferimento dei comandi del manuale utente viene quindi dai testi di partenza inglesi della guida, e `tools/check-docs.py` lo confronta con quelli. |
 | **Domanda di conferma in tutte le shell** | Decisione dell'utente (30 settembre): «sì, per tutte le shell». Proposta accolta in pratica: domanda a ogni prompt per bash, zsh e fish; al login per ogni shell che legge `/etc/profile`; testo all'invio per qualunque shell (alcune shell, come `dash` e `tcsh`, non hanno un aggancio prima del prompt). Fatto il 30 settembre: `ams.bash`, `ams.zsh`, `ams.fish` e il ramo sh di `profile.d/ams.sh`, provati nella macchina di prova (scenari K). |
 | **Gli utenti non rispondono** | Decisione dell'utente (30 settembre): «non è previsto al momento» che gli utenti rispondano ai messaggi. |
 | **Lingua dell'utente** | Decisione dell'utente (30 settembre): domanda, finestra, pulsanti e avvisi nella lingua di ciascun destinatario (`LANG`); i comandi dell'amministratore nella sua lingua; il testo del messaggio resta com'è. Fatto il 30 settembre: italiano e inglese in `lib/lingue/`, inglese come lingua di ripiego; il registro di sistema nella lingua della macchina, riscritto da `ams log` in quella di chi legge. |

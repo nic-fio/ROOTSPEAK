@@ -6,12 +6,12 @@ from build import VERSION, arrow, box, c, fig, key, note, p, path, table, text, 
 from _aiuti import CONFERMATO, CONSEGNATO, INVIATO, RITIRATO, SCADUTO, rif  # noqa: E402
 
 PANORAMA = fig(
-    box(20, 128, 170, 64, "Amministratore", "sudo ams · TUI o comandi", "dark")
-    + box(240, 128, 170, 64, "AMS", "una casella per utente", "navy")
-    + box(462, 38, 220, 64, "Nel terminale", "testo subito, domanda al prompt", "blue")
-    + box(462, 128, 220, 64, "Sul desktop", "finestra «Ho letto» / «Più tardi»", "blue")
-    + box(462, 218, 220, 64, "Al prossimo accesso", "per chi non è collegato", "light")
-    + box(730, 128, 150, 64, "Conferma ✓", "chi, quando, da dove", "green")
+    box(20, 128, 170, 64, "Administrator", "sudo ams · TUI or commands", "dark")
+    + box(240, 128, 170, 64, "AMS", "one mailbox per user", "navy")
+    + box(462, 38, 220, 64, "In the terminal", "text at once, question at the prompt", "blue")
+    + box(462, 128, 220, 64, "On the desktop", "«Ho letto» / «Più tardi» dialog", "blue")
+    + box(462, 218, 220, 64, "At the next login", "for whoever is not logged in", "light")
+    + box(730, 128, 150, 64, "Confirmation ✓", "who, when, from where", "green")
     + arrow(192, 160, 238, 160)
     + path([(412, 150), (436, 150), (436, 70), (460, 70)])
     + arrow(412, 160, 460, 160)
@@ -20,85 +20,87 @@ PANORAMA = fig(
     + arrow(684, 160, 728, 160, "#16a34a", True)
     + path([(684, 250), (706, 250), (706, 170), (728, 170)], "#16a34a", True)
     + path([(805, 194), (805, 318), (105, 318), (105, 194)], "#475569", True)
-    + text(455, 309, "la lista dei messaggi e ams status: chi ha confermato e chi no", 11.5, "#334155", "600"),
-    900, 340, "«FIG» — Un messaggio raggiunge ogni sessione dell'utente; la prima conferma torna all'amministratore",
-    "Il percorso di un messaggio")
+    + text(455, 309, "the message list and ams status: who has confirmed and who has not", 11.5, "#334155", "600"),
+    900, 340, "«FIG» — A message reaches every session of the user; the first confirmation goes back to the administrator",
+    "The path of a message")
 
-S1 = p("<b>AMS - Advanced Messaging System</b> permette a chi amministra una macchina Linux di mandare un "
-       "messaggio agli utenti e di sapere, per ciascuno, se ha confermato di averlo letto. È pensato per gli avvisi "
-       "che contano: una manutenzione, un riavvio, una nuova regola, un account in scadenza.", lead=True) + \
-    p("L'amministratore scrive il messaggio nell'interfaccia a tutto schermo di " + c("ams") + " oppure con un comando. "
-      "AMS lo fa arrivare dovunque l'utente si trovi: nelle finestre di terminale (anche collegate con ssh), sul "
-      "desktop, oppure al prossimo accesso se in quel momento non è collegato. L'utente conferma con un clic o con "
-      "una lettera, e l'amministratore vede chi ha confermato, quando e da dove.") + PANORAMA + \
-    p("Per chi amministra, AMS offre un solo posto in cui:") + ul([
-        "scrivere un messaggio e mandarlo a un utente, a un gruppo, a tutti o solo a chi è collegato;",
-        "vedere per ogni destinatario a che punto è: " + INVIATO + ", " + CONSEGNATO + " o " + CONFERMATO + ";",
-        "sollecitare chi non ha ancora confermato, ritirare un messaggio sbagliato, dargli una scadenza;",
-        "ritrovare la storia di ogni messaggio nel registro di sistema;",
-        "cancellare i messaggi vecchi quando non servono più.",
-    ]) + note("la conferma è una <b>dichiarazione</b> dell'utente («ho letto»), registrata con data, ora e canale. "
-              "AMS non può sapere se il messaggio è stato letto davvero, come nessun altro sistema di messaggi.",
-              "Cosa dice una conferma.")
+S1 = p("<b>AMS - Advanced Messaging System</b> lets whoever administers a Linux machine send a message to the "
+       "users and know, for each of them, whether they have confirmed reading it. It is meant for the notices that "
+       "matter: maintenance, a reboot, a new rule, an account about to expire.", lead=True) + \
+    p("The administrator writes the message in the full-screen interface of " + c("ams") + " or with a command. "
+      "AMS delivers it wherever the user is: in terminal windows (including ssh connections), on the desktop, or at "
+      "the next login if the user is not logged in at that moment. The user confirms with a click or a single "
+      "letter, and the administrator sees who has confirmed, when and from where.") + PANORAMA + \
+    p("For administrators, AMS offers a single place in which to:") + ul([
+        "write a message and send it to one user, to a group, to everyone or only to whoever is logged in;",
+        "see how far each recipient has got: " + INVIATO + ", " + CONSEGNATO + " or " + CONFERMATO + ";",
+        "remind whoever has not confirmed yet, revoke a mistaken message, give it an expiry;",
+        "find the history of every message in the system log;",
+        "delete old messages when they are no longer needed.",
+    ]) + note("a confirmation is a <b>statement</b> by the user (“I have read it”), recorded with date, time and "
+              "channel. AMS cannot know whether the message was really read, and neither can any other messaging "
+              "system.",
+              "What a confirmation says.")
 
-S2 = table(["", c("wall") + " / " + c("write"), c("/etc/motd") + " e banner", "AMS"], [
-    ["Scrive nei terminali degli utenti collegati", "sì", "no", "sì"],
-    ["Compare sul desktop (X11 e Wayland)", "no", "no", "sì, in una finestra"],
-    ["Raggiunge chi non è collegato", "no", "sì, a ogni accesso testuale", "sì, al prossimo accesso"],
-    ["Chiede la conferma di lettura", "no", "no", "sì, per ogni messaggio"],
-    ["Ripropone il messaggio a chi non ha confermato", "no", "no", "sì, ogni 30 minuti"],
-    ["Dice all'amministratore chi ha letto", "no", "no", "sì, con data, ora e canale"],
-    ["Parla la lingua di ciascun utente", "no", "no", "sì (italiano, inglese)"],
-], "«TAB» — AMS e gli strumenti classici di Linux") + \
-    p("AMS invece <b>non</b> fa queste cose, per scelta:") + ul([
-        "<b>Non blocca nessuno.</b> Nessuna schermata bloccata, nessun accesso negato, nessuna disconnessione: "
-        "l'utente può sempre rimandare e continuare a lavorare. Il messaggio torna più tardi.",
-        "<b>Non è una chat.</b> Gli utenti ricevono e confermano; non rispondono, non scrivono ad altri e non hanno "
-        "comandi da imparare.",
-        "<b>Non va in rete.</b> Raggiunge gli utenti di questa macchina, anche quelli collegati da remoto con ssh, "
-        "ma non altre macchine.",
-        "<b>Non disturba i programmi automatici.</b> Backup, cron, copie con " + c("scp") + " o " + c("rsync")
-        + " non vedono mai la domanda di AMS: compare solo nelle shell interattive.",
+S2 = table(["", c("wall") + " / " + c("write"), c("/etc/motd") + " and banners", "AMS"], [
+    ["Writes to the terminals of logged-in users", "yes", "no", "yes"],
+    ["Appears on the desktop (X11 and Wayland)", "no", "no", "yes, in a dialog"],
+    ["Reaches users who are not logged in", "no", "yes, at every text login", "yes, at the next login"],
+    ["Asks for a read confirmation", "no", "no", "yes, for every message"],
+    ["Shows the message again to whoever has not confirmed", "no", "no", "yes, every 30 minutes"],
+    ["Tells the administrator who has read it", "no", "no", "yes, with date, time and channel"],
+    ["Speaks each user's language", "no", "no", "yes (Italian, English)"],
+], "«TAB» — AMS and the classic Linux tools") + \
+    p("AMS, on the other hand, does <b>not</b> do these things, by design:") + ul([
+        "<b>It never blocks anyone.</b> No locked screen, no denied login, no disconnection: the user can always "
+        "postpone and carry on working. The message comes back later.",
+        "<b>It is not a chat.</b> Users receive and confirm; they do not reply, do not write to others and have no "
+        "commands to learn.",
+        "<b>It does not use the network.</b> It reaches the users of this machine, including those connected "
+        "remotely with ssh, but not other machines.",
+        "<b>It does not disturb automated programs.</b> Backups, cron, copies with " + c("scp") + " or " + c("rsync")
+        + " never see the AMS question: it appears only in interactive shells.",
     ])
 
-S3 = table(["Chi", "Cosa fa con AMS", "Capitoli"], [
-    ["Amministratore della macchina", "Installa AMS, manda i messaggi, segue le conferme, ritira e sollecita, "
-     "cambia le impostazioni.", "2 - 7, 9 - 13"],
-    ["Chi deve spiegare AMS agli utenti", "Sa cosa vedono gli utenti nel terminale e sul desktop, e cosa rispondere "
-     "alle loro domande.", "8"],
-    ["Chi valuta la sicurezza", "Sa chi può usare AMS, chi vede cosa e quanto vale una conferma.", "11"],
-], "«TAB» — I lettori di questo manuale") + \
-    p("Chi usa AMS per la prima volta può seguire il percorso guidato del " + rif(4) + ", che porta "
-      "dall'installazione alla prima conferma in pochi passi. Gli utenti che ricevono i messaggi non hanno bisogno "
-      "di leggere nulla: finestra e domanda si spiegano da sole, e non esiste un comando per loro.") + \
-    tip("il funzionamento interno (archivio dei messaggi, consegna, sicurezza) è descritto nel Manuale Tecnico, "
-        "installato accanto a questo in " + c("/usr/local/share/doc/ams/") + ".", "Per approfondire.")
+S3 = table(["Who", "What they do with AMS", "Chapters"], [
+    ["Administrator of the machine", "Installs AMS, sends messages, follows the confirmations, revokes and reminds, "
+     "changes the settings.", "2 - 7, 9 - 13"],
+    ["Whoever has to explain AMS to the users", "Knows what users see in the terminal and on the desktop, and how to "
+     "answer their questions.", "8"],
+    ["Whoever assesses security", "Knows who can use AMS, who sees what and what a confirmation is worth.", "11"],
+], "«TAB» — The readers of this manual") + \
+    p("Anyone using AMS for the first time can follow the guided path in " + rif(4) + ", which leads from "
+      "installation to the first confirmation in a few steps. The users who receive the messages do not need to "
+      "read anything: the dialog and the question explain themselves, and there is no command for them.") + \
+    tip("the inner workings (message store, delivery, security) are described in the Technical Manual, "
+        "installed next to this one in " + c("/usr/local/share/doc/ams/") + ".", "Further reading.")
 
-S4 = table(["Convenzione", "Significato"], [
-    [ui("Ho letto"), "Testo che compare sullo schermo: pulsanti, titoli delle finestre, campi, messaggi di AMS."],
-    [c("ams send --to mario"), "Comandi, nomi di file e valori da scrivere così come sono."],
-    [key("Ctrl", "S") + " " + key("Invio"), "Tasti da premere; il segno + vuol dire «insieme»."],
-    [INVIATO + " " + CONSEGNATO + " " + CONFERMATO, "I tre stati di un destinatario, sempre con questi colori, "
-     "gli stessi della TUI."],
-    [RITIRATO + " " + SCADUTO, "Proprietà del messaggio, non stati dei destinatari: da quel momento il messaggio "
-     "non viene più mostrato."],
-    ["Riquadro blu <b>Nota</b>", "Informazione utile per capire."],
-    ["Riquadro verde <b>Consiglio</b>", "Un modo migliore o più sicuro di fare una cosa."],
-    ["Riquadro giallo <b>Attenzione</b>", "Un comportamento che può sorprendere o far perdere dati."],
-], "«TAB» — Le convenzioni del manuale") + \
-    p("Negli esempi " + c("admin") + " è un amministratore; " + c("mario") + ", " + c("anna") + " e " + c("luca")
-      + " sono utenti della macchina " + c("server") + ", " + c("@sviluppo") + " è un gruppo. Nei riquadri scuri "
-      "le righe che iniziano con il prompt (" + c("admin@server:~$") + ") sono comandi da scrivere; le righe "
-      "arancioni sono quelle che AMS mostra agli utenti; quelle rosse sono errori. Le schermate della TUI sono "
-      "vere, prese da AMS in funzione.") + \
-    note("questo manuale descrive AMS " + VERSION + ". Il comando " + c("ams version") + " mostra la versione "
-         "installata.", "Versione.") + \
-    warn(c("ams") + " lavora sempre come amministratore (root) e chiede la password di sudo, anche solo per "
-         "mostrare la guida: è una scelta, non un errore.", "Sempre con sudo.")
+S4 = table(["Convention", "Meaning"], [
+    [ui("Ho letto"), "Text that appears on the screen: buttons, window titles, fields, AMS messages. The "
+     "screenshots in this manual show AMS in Italian; on an English system the same button reads “I have read it”."],
+    [c("ams send --to mario"), "Commands, file names and values to type exactly as shown."],
+    [key("Ctrl", "S") + " " + key("Enter"), "Keys to press; the + sign means “together”."],
+    [INVIATO + " " + CONSEGNATO + " " + CONFERMATO, "The three states of a recipient, always in these colours, "
+     "the same as in the TUI."],
+    [RITIRATO + " " + SCADUTO, "Properties of the message, not states of the recipients: from that moment on the "
+     "message is no longer shown."],
+    ["Blue <b>Note</b> box", "Information that helps understanding."],
+    ["Green <b>Tip</b> box", "A better or safer way to do something."],
+    ["Yellow <b>Warning</b> box", "A behaviour that may be surprising or cause data loss."],
+], "«TAB» — The conventions of the manual") + \
+    p("In the examples " + c("admin") + " is an administrator; " + c("mario") + ", " + c("anna") + " and " + c("luca")
+      + " are users of the machine " + c("server") + ", and " + c("@sviluppo") + " is a group. In the dark boxes, "
+      "lines starting with the prompt (" + c("admin@server:~$") + ") are commands to type; orange lines are what "
+      "AMS shows to the users; red lines are errors. The TUI screenshots are real, taken from AMS while "
+      "running.") + \
+    note("this manual describes AMS " + VERSION + ". The command " + c("ams version") + " shows the installed "
+         "version.", "Version.") + \
+    warn(c("ams") + " always works as administrator (root) and asks for the sudo password, even just to show "
+         "the help: this is a deliberate choice, not a bug.", "Always with sudo.")
 
-CHAPTER = ("Benvenuto", [
-    ("Che cos'è AMS", S1),
-    ("Cosa fa, e cosa no", S2),
-    ("A chi è rivolto questo manuale", S3),
-    ("Convenzioni", S4),
+CHAPTER = ("Welcome", [
+    ("What AMS is", S1),
+    ("What it does, and what it does not", S2),
+    ("Who this manual is for", S3),
+    ("Conventions", S4),
 ])

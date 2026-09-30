@@ -2,104 +2,104 @@ from build import arrow, box, c, fig, note, p, path, table, text, ul, zone
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 RISOLVI = fig(
     box(20, 110, 180, 56, "--to DEST", "mario,@sviluppo,online", "dark")
-    + box(250, 110, 130, 56, "strtok_r", "divide sulle virgole", "navy")
+    + box(250, 110, 130, 56, "strtok_r", "splits on commas", "navy")
     + box(440, 20, 200, 44, "all", "utenti_umani", "blue", 12)
     + box(440, 74, 200, 44, "online", "utenti_online", "blue", 12)
-    + box(440, 128, 200, 44, "@gruppo", "membri_gruppo", "blue", 12)
-    + box(440, 182, 200, 44, "nome", "getpwnam: deve esistere", "blue", 12)
-    + box(700, 110, 180, 56, "elenco", "senza doppioni, in ordine", "green")
+    + box(440, 128, 200, 44, "@group", "membri_gruppo", "blue", 12)
+    + box(440, 182, 200, 44, "name", "getpwnam: must exist", "blue", 12)
+    + box(700, 110, 180, 56, "list", "no duplicates, sorted", "green")
     + arrow(202, 138, 248, 138)
     + arrow(382, 130, 438, 42) + arrow(382, 134, 438, 96) + arrow(382, 142, 438, 150) + arrow(382, 146, 438, 204)
     + arrow(642, 42, 698, 128) + arrow(642, 96, 698, 134) + arrow(642, 150, 698, 142) + arrow(642, 204, 698, 150)
-    + text(540, 250, "gruppo o utente inesistente: die, nessun messaggio creato", 11, "#b91c1c", "600"),
-    900, 266, "«FIG» — Da --to all'elenco dei destinatari (risolvi_destinatari)", "Risolvere i destinatari")
+    + text(540, 250, "unknown group or user: die, no message created", 11, "#b91c1c", "600"),
+    900, 266, "«FIG» — From --to to the list of recipients (risolvi_destinatari)", "Resolving the recipients")
 
-S1 = p(c("risolvi_destinatari") + " di " + c("src/ams.c") + " trasforma il valore di " + c("--to") + " nell'elenco "
-       "dei destinatari. Lo fa <b>prima</b> di prendere un numero e di scrivere qualunque cosa: un errore qui non lascia "
-       "tracce nell'archivio.", lead=True) + RISOLVI + ul([
-    "Il valore si divide sulle virgole; ogni parte è una delle quattro forme della figura. Le parti vuote (due "
-    "virgole di fila) si saltano; uno spazio invece fa parte del nome, che quindi non esiste: per questo la guida "
-    "chiede di separare con virgole senza spazi.",
-    "Un utente o un gruppo inesistente termina con " + c("die") + " («utente inesistente: pippo», «gruppo "
-    "inesistente: x»); per l'utente è lo scenario B6 della macchina di prova.",
-    "I doppioni si tolgono man mano (scenario B2) e l'elenco finale è in ordine alfabetico: è l'ordine delle "
-    "consegne e di " + c("sent/ID/recipients") + ".",
-    "Un elenco vuoto (per esempio un gruppo senza membri) termina con «nessun destinatario» (scenario B7).",
-    "Un nome esplicito può essere anche un account di sistema o root: il filtro degli utenti umani vale solo per "
-    + c("all") + " e " + c("online") + ".",
+S1 = p(c("risolvi_destinatari") + " in " + c("src/ams.c") + " turns the value of " + c("--to") + " into the list "
+       "of recipients. It does so <b>before</b> taking a number and before writing anything: an error here leaves "
+       "no trace in the message store.", lead=True) + RISOLVI + ul([
+    "The value is split on commas; each part is one of the four forms in the figure. Empty parts (two commas in a "
+    "row) are skipped; a space, on the other hand, becomes part of the name, which therefore does not exist: this is "
+    "why the help asks for names separated by commas without spaces.",
+    "An unknown user or group ends with " + c("die") + " («utente inesistente: pippo», «gruppo "
+    "inesistente: x»); for the user this is scenario B6 on the test machine.",
+    "Duplicates are removed along the way (scenario B2) and the final list is in alphabetical order: this is the "
+    "order of the deliveries and of " + c("sent/ID/recipients") + ".",
+    "An empty list (for example a group with no members) ends with «nessun destinatario» (scenario B7).",
+    "An explicit name may also be a system account or root: the filter on human users applies only to "
+    + c("all") + " and " + c("online") + ".",
 ])
 
-S2 = table(["Funzione (src/sessioni.c)", "Cosa restituisce", "Fonte"], [
-    [c("utenti_umani"), "gli utenti con UID fra " + c("UID_MIN") + " e " + c("UID_MAX") + " e una shell che non "
-     "finisce con " + c("nologin") + " o " + c("false"), c("/etc/login.defs") + " (predefiniti 1000 e 60000), "
+S2 = table(["Function (src/sessioni.c)", "What it returns", "Source"], [
+    [c("utenti_umani"), "the users with a UID between " + c("UID_MIN") + " and " + c("UID_MAX") + " and a shell "
+     "that does not end in " + c("nologin") + " or " + c("false"), c("/etc/login.defs") + " (defaults 1000 and 60000), "
      + c("getpwent")],
-    [c("utenti_online"), "gli utenti umani con almeno una sessione logind di classe " + c("user"),
+    [c("utenti_online"), "the human users with at least one logind session of class " + c("user"),
      c("sd_get_sessions") + ", " + c("sd_session_get_class") + ", " + c("sd_session_get_uid")],
-    [c("membri_gruppo G"), "i membri elencati nel gruppo più gli utenti che hanno G come gruppo principale; falso "
-     "se il gruppo non esiste", c("getgrnam") + ", " + c("getpwent")],
-    [c("terminali_utente U"), "gli pseudo-terminali di U e le console delle sue sessioni testuali", "vedi " + cap(6, 3)],
-    [c("sessione_grafica U"), "vero se U ha una sessione di tipo " + c("x11") + " o " + c("wayland"),
+    [c("membri_gruppo G"), "the members listed in the group plus the users whose primary group is G; false "
+     "if the group does not exist", c("getgrnam") + ", " + c("getpwent")],
+    [c("terminali_utente U"), "U's pseudo-terminals and the consoles of U's text sessions", "see " + cap(6, 3)],
+    [c("sessione_grafica U"), "true if U has a session of type " + c("x11") + " or " + c("wayland"),
      c("sd_session_get_type")],
-], "«TAB» — Destinatari e sessioni") + \
-    p("Tutto passa dalle interfacce del sistema (" + c("getpwent") + ", " + c("getgrnam") + ", la libreria "
-      + c("sd-login") + " di libsystemd): utenti LDAP o di altri servizi di nomi funzionano se il sistema li espone "
-      "così. " + c("all") + " esclude root e gli account di sistema perché hanno UID sotto " + c("UID_MIN")
-      + " o una shell di non accesso (scenario B4).") + \
-    note("<b>online</b> conta le sessioni di classe " + c("user") + " e poi filtra con gli utenti umani: la VM di "
-         "prova ha mostrato che root e gli account di sistema collegati (per esempio il gestore del login grafico) "
-         "finivano fra i destinatari (scenario B5). Ora restano esclusi anche se collegati.")
+], "«TAB» — Recipients and sessions") + \
+    p("Everything goes through the system interfaces (" + c("getpwent") + ", " + c("getgrnam") + ", libsystemd's "
+      + c("sd-login") + " library): LDAP users or users from other name services work if the system exposes them "
+      "this way. " + c("all") + " excludes root and system accounts because they have a UID below " + c("UID_MIN")
+      + " or a non-login shell (scenario B4).") + \
+    note("<b>online</b> counts the sessions of class " + c("user") + " and then filters them against the human "
+         "users: the test VM showed that root and logged-in system accounts (for example the graphical login "
+         "manager) ended up among the recipients (scenario B5). They are now excluded even when logged in.")
 
 TERM = fig(
-    zone(20, 44, 400, 200, "Pseudo-terminali · /dev/pts")
-    + box(44, 84, 170, 56, "/dev/pts/N", "proprietario = U?", "blue")
-    + box(230, 84, 170, 56, "ssh, emulatori", "tmux, terminali grafici", "soft", 12)
-    + text(220, 180, "lstat: dispositivo a caratteri di U", 11, "#475569")
-    + text(220, 198, "nomi fatti di sole cifre", 11, "#475569")
-    + zone(480, 44, 400, 200, "Console · logind")
-    + box(504, 84, 170, 56, "sessione di U", "tipo tty", "navy")
+    zone(20, 44, 400, 200, "Pseudo-terminals · /dev/pts")
+    + box(44, 84, 170, 56, "/dev/pts/N", "owner = U?", "blue")
+    + box(230, 84, 170, 56, "ssh, emulators", "tmux, desktop terminals", "soft", 12)
+    + text(220, 180, "lstat: character device owned by U", 11, "#475569")
+    + text(220, 198, "names made only of digits", 11, "#475569")
+    + zone(480, 44, 400, 200, "Consoles · logind")
+    + box(504, 84, 170, 56, "U's session", "type tty", "navy")
     + box(690, 84, 170, 56, "/dev/ttyN", "sd_session_get_tty", "blue")
-    + text(680, 180, "solo nomi «tty» + cifre", 11, "#475569")
+    + text(680, 180, "only names «tty» + digits", 11, "#475569")
     + arrow(676, 112, 688, 112)
-    + box(300, 262, 300, 48, "terminali_utente(U)", "senza doppioni, in ordine", "green", 12)
+    + box(300, 262, 300, 48, "terminali_utente(U)", "no duplicates, sorted", "green", 12)
     + arrow(220, 216, 380, 260, "#16a34a") + arrow(680, 216, 520, 260, "#16a34a"),
-    900, 326, "«FIG» — Le due fonti dei terminali di un utente", "Dove sono i terminali")
+    900, 326, "«FIG» — The two sources of a user's terminals", "Where the terminals are")
 
-S3 = p(c("terminali_utente") + " raccoglie i terminali su cui " + c("ams send") + " scrive il testo all'invio. Le "
-       "fonti sono due, perché nessuna delle due basta da sola.", lead=True) + TERM + table(["Fonte", "Che cosa trova",
-                                                                                         "Che cosa non trova"], [
-    [c("/dev/pts/N") + " di proprietà di U", "ssh con terminale, emulatori di terminale del desktop, tmux e screen",
-     "le console di testo; i terminali aperti con " + c("su") + " (restano di chi li ha aperti)"],
-    ["sessioni logind di U di tipo " + c("tty"), "le console di testo (" + c("tty1") + "…" + c("tty6") + ")",
-     "gli pseudo-terminali che non sono una sessione (tmux, emulatori)"],
-], "«TAB» — Le fonti dei terminali") + ul([
-    "Il proprietario di " + c("/dev/pts/N") + " qui serve solo a <b>trovare</b> i candidati: al momento di scrivere, "
-    + c("scrivi_terminale") + " riapre il terminale e controlla il proprietario del terminale aperto (" + cap(8, 4)
-    + "). Il nome " + c("/dev/pts/N") + " non identifica una sessione: fra la ricerca e la scrittura potrebbe passare "
-    "a un altro utente.",
-    "In modalità di prova c'è un solo «terminale»: il file " + c("AMS_TEST_TTY") + ", se impostato.",
-    "Una sessione ssh senza terminale (" + c("scp") + ", comandi remoti) e i servizi non hanno terminali: non vengono "
-    "toccati (scenario C3).",
+S3 = p(c("terminali_utente") + " collects the terminals to which " + c("ams send") + " writes the text when "
+       "sending. There are two sources, because neither is enough on its own.", lead=True) + TERM + table(["Source", "What it finds",
+                                                                                         "What it does not find"], [
+    [c("/dev/pts/N") + " owned by U", "ssh with a terminal, desktop terminal emulators, tmux and screen",
+     "text consoles; terminals opened with " + c("su") + " (they stay owned by whoever opened them)"],
+    ["U's logind sessions of type " + c("tty"), "text consoles (" + c("tty1") + "…" + c("tty6") + ")",
+     "pseudo-terminals that are not a session (tmux, emulators)"],
+], "«TAB» — The sources of terminals") + ul([
+    "Here the owner of " + c("/dev/pts/N") + " serves only to <b>find</b> the candidates: at the moment of writing, "
+    + c("scrivi_terminale") + " reopens the terminal and checks the owner of the opened terminal (" + cap(8, 4)
+    + "). The name " + c("/dev/pts/N") + " does not identify a session: between the search and the write it might "
+    "pass to another user.",
+    "In test mode there is a single «terminal»: the file " + c("AMS_TEST_TTY") + ", if set.",
+    "An ssh session without a terminal (" + c("scp") + ", remote commands) and services have no terminals: they are "
+    "not touched (scenario C3).",
 ])
 
-S4 = p(c("sessione_grafica") + " dice se un utente ha una sessione X11 o Wayland aperta. Serve in due punti, con "
-       "lo stesso codice.", lead=True) + table(["Chi la chiama", "Perché"], [
-    [c("ams send") + ", tramite " + c("sveglia_agente"), "solo chi ha un desktop aperto riceve la sveglia o un agente "
-     "nuovo (" + cap(8, 5) + ")"],
-    [c("ams-user agent"), "l'agente resta vivo finché l'utente ha una sessione grafica, poi esce (" + cap(12, 1) + ")"],
-], "«TAB» — Chi usa sessione_grafica") + \
-    p("Un utente con più sessioni grafiche (per esempio un desktop locale e uno remoto che crea una sessione nuova) "
-      "ha comunque un solo agente: il lock " + c("ams-agent.lock") + " sta in " + c("$XDG_RUNTIME_DIR") + ", che è "
-      "unico per utente (" + cap(12, 1) + "). Il comportamento con più desktop contemporanei dello stesso utente non "
-      "è stato provato.")
+S4 = p(c("sessione_grafica") + " tells whether a user has an X11 or Wayland session open. It is needed in two "
+       "places, with the same code.", lead=True) + table(["Who calls it", "Why"], [
+    [c("ams send") + ", through " + c("sveglia_agente"), "only users with an open desktop receive the wake-up or a "
+     "new agent (" + cap(8, 5) + ")"],
+    [c("ams-user agent"), "the agent stays alive as long as the user has a graphical session, then exits (" + cap(12, 1) + ")"],
+], "«TAB» — Who uses sessione_grafica") + \
+    p("A user with several graphical sessions (for example a local desktop and a remote one that creates a new "
+      "session) still has a single agent: the lock " + c("ams-agent.lock") + " lives in " + c("$XDG_RUNTIME_DIR")
+      + ", which is unique per user (" + cap(12, 1) + "). The behaviour with several simultaneous desktops of the "
+      "same user has not been tested.")
 
-CHAPTER = ("Destinatari e sessioni", [
-    ("Da --to all'elenco", S1),
-    ("Utenti umani, collegati, gruppi", S2),
-    ("I terminali di un utente", S3),
-    ("La sessione grafica", S4),
+CHAPTER = ("Recipients and sessions", [
+    ("From --to to the list", S1),
+    ("Human users, logged-in users, groups", S2),
+    ("A user's terminals", S3),
+    ("The graphical session", S4),
 ])

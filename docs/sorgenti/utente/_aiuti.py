@@ -9,10 +9,10 @@ from build import COL, esc, pill, schermata, text
 
 
 def rif(cap, sez=None):
-    """Rimando interno: «capitolo 5» o «capitolo 5.3», con il link."""
+    """Rimando interno: «chapter 5» o «chapter 5.3», con il link."""
     if sez is None:
-        return f'<a href="#ch{cap}">capitolo {cap}</a>'
-    return f'<a href="#ch{cap}s{sez}">capitolo {cap}.{sez}</a>'
+        return f'<a href="#ch{cap}">chapter {cap}</a>'
+    return f'<a href="#ch{cap}s{sez}">chapter {cap}.{sez}</a>'
 
 
 def schermata_u(nome, cap):
@@ -22,11 +22,11 @@ def schermata_u(nome, cap):
 
 
 # Le pastiglie dei tre stati di un destinatario e delle due proprietà del messaggio.
-INVIATO = '<span class="pill" style="background:#fee2e2;color:#991b1b">inviato</span>'
-CONSEGNATO = pill("consegnato", "snooze")
-CONFERMATO = pill("confermato", "ok")
-RITIRATO = pill("ritirato", "off")
-SCADUTO = pill("scaduto", "off")
+INVIATO = '<span class="pill" style="background:#fee2e2;color:#991b1b">sent</span>'
+CONSEGNATO = pill("delivered", "snooze")
+CONFERMATO = pill("confirmed", "ok")
+RITIRATO = pill("revoked", "off")
+SCADUTO = pill("expired", "off")
 
 
 def numero(x, y, n, color="#d97706"):

@@ -5,69 +5,71 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import arrow, box, c, diamond, fig, key, note, p, table, term, text, tip  # noqa: E402
 from _aiuti import rif, schermata_u  # noqa: E402
 
-S1 = p("Tutto quello che serve per usare " + c("ams") + " è anche dentro il comando stesso: " + c("ams --help")
-       + " (oppure " + c("ams help") + " o " + c("ams -h") + ") apre una guida a tutto schermo, divisa in cinque "
-       "schede, nella lingua dell'amministratore.", lead=True) + \
-    schermata_u("guida-info", "«FIG» — La guida integrata, scheda Info (schermata vera, terminale di 78 colonne)") + \
-    table(["Scheda", "Contiene"], [
-        ["Info", "nome, sintassi di tutti i comandi, descrizione di AMS, versione e percorso di questo manuale"],
-        ["Comandi", c("ams") + " da solo, " + c("send") + ", " + c("list") + ", " + c("status") + ", " + c("revoke")
-         + ", " + c("remind") + ", " + c("log") + ", " + c("purge") + ", " + c("version") + ", " + c("help")],
-        ["Opzioni", "le opzioni di " + c("send") + ": destinatari, titolo, scadenza, file"],
-        ["Esempi", "comandi pronti da copiare"],
-        ["File", "dove stanno impostazioni, messaggi, registro e manuale"],
-    ], "«TAB» — Le schede della guida") + \
-    schermata_u("guida-opzioni", "«FIG» — La scheda Opzioni") + \
-    note("come ogni comando di " + c("ams") + ", anche la guida chiede la password di sudo. I testi delle schede "
-         "Comandi e Opzioni sono gli stessi del " + rif(13) + " di questo manuale.", "Sempre con sudo.")
+S1 = p("Everything needed to use " + c("ams") + " is also inside the command itself: " + c("ams --help")
+       + " (or " + c("ams help") + " or " + c("ams -h") + ") opens a full-screen guide, divided into five "
+       "tabs, in the administrator's language.", lead=True) + \
+    schermata_u("guida-info", "«FIG» — The built-in help, Info tab (real screenshot, 78-column terminal)") + \
+    table(["Tab", "Contains"], [
+        ["Info", "name, syntax of all the commands, description of AMS, version and path of this manual"],
+        ["Comandi (Commands)", c("ams") + " on its own, " + c("send") + ", " + c("list") + ", " + c("status") + ", "
+         + c("revoke") + ", " + c("remind") + ", " + c("log") + ", " + c("purge") + ", " + c("version") + ", "
+         + c("help")],
+        ["Opzioni (Options)", "the options of " + c("send") + ": recipients, title, expiry, file"],
+        ["Esempi (Examples)", "ready-to-copy commands"],
+        ["File (Files)", "where settings, messages, log and manual are"],
+    ], "«TAB» — The tabs of the built-in help") + \
+    schermata_u("guida-opzioni", "«FIG» — The Opzioni (Options) tab") + \
+    note("like every " + c("ams") + " command, the built-in help also asks for the sudo password. The texts of the "
+         "Commands and Options tabs are the same as in the " + rif(13) + " of this manual.", "Always with sudo.")
 
-S2 = table(["Tasti", "Azione"], [
-    [key("←") + " " + key("→") + ", " + key("Tab") + " " + key("Maiusc", "Tab") + ", " + key("h") + " " + key("l"),
-     "scheda precedente o successiva"],
-    [key("Invio"), "scheda successiva"],
-    [key("1") + " … " + key("5"), "vai direttamente a una scheda"],
-    [key("↑") + " " + key("↓") + ", " + key("k") + " " + key("j"), "scorri di una riga"],
-    [key("PgUp") + " " + key("PgDn") + ", " + key("b") + " " + key("spazio"), "scorri di una pagina"],
-    [key("g") + " " + key("G") + ", " + key("Home") + " " + key("Fine"), "inizio o fine della scheda"],
-    [key("q") + ", " + key("Esc"), "esci dalla guida"],
-], "«TAB» — I tasti della guida") + \
-    p("In basso a destra la guida dice quali righe della scheda si stanno guardando, per esempio «righe 1-16/18». "
-      "Ogni scheda ricorda il punto a cui si era arrivati. La guida si adatta quando si ridimensiona la finestra; "
-      "all'uscita il terminale torna esattamente com'era.") + \
-    tip("i tasti " + key("h") + " " + key("j") + " " + key("k") + " " + key("l") + " sono gli stessi di vi e di "
-        "less: chi li conosce li può usare anche qui.", "Per chi usa vi.")
+S2 = table(["Keys", "Action"], [
+    [key("←") + " " + key("→") + ", " + key("Tab") + " " + key("Shift", "Tab") + ", " + key("h") + " " + key("l"),
+     "previous or next tab"],
+    [key("Enter"), "next tab"],
+    [key("1") + " … " + key("5"), "go straight to a tab"],
+    [key("↑") + " " + key("↓") + ", " + key("k") + " " + key("j"), "scroll by one line"],
+    [key("PgUp") + " " + key("PgDn") + ", " + key("b") + " " + key("Space"), "scroll by one page"],
+    [key("g") + " " + key("G") + ", " + key("Home") + " " + key("End"), "start or end of the tab"],
+    [key("q") + ", " + key("Esc"), "leave the built-in help"],
+], "«TAB» — The keys of the built-in help") + \
+    p("At the bottom right the help shows which lines of the tab are being viewed, for example «righe 1-16/18» "
+      "(“lines 1-16/18” in English). Each tab remembers where you had got to. The help adapts when the window is "
+      "resized; on exit the terminal goes back exactly as it was.") + \
+    tip("the keys " + key("h") + " " + key("j") + " " + key("k") + " " + key("l") + " are the same as in vi and "
+        "less: if you know them, you can use them here too.", "For vi users.")
 
 FORME = fig(
-    diamond(180, 130, 250, 96, "L'uscita è un terminale?", "navy")
-    + diamond(520, 130, 250, 96, "Almeno 44 × 10?", "navy")
-    + box(700, 44, 180, 60, "Guida a schede", "come nelle figure qui sopra", "green")
-    + box(700, 156, 180, 60, "Pagina unica", "con less (o PAGER)", "blue")
-    + box(90, 236, 180, 60, "Testo semplice", "80 colonne, senza colori", "dark")
-    + arrow(305, 130, 393, 130, "#0050C0", False, "sì", 349, 120)
-    + arrow(180, 178, 180, 234, "#475569", False, "no, una pipe", 232, 212)
-    + arrow(630, 110, 698, 76, "#16a34a", False, "sì", 664, 84)
+    diamond(180, 130, 250, 96, "Is the output a terminal?", "navy")
+    + diamond(520, 130, 250, 96, "At least 44 × 10?", "navy")
+    + box(700, 44, 180, 60, "Tabbed guide", "as in the figures above", "green")
+    + box(700, 156, 180, 60, "Single page", "with less (or PAGER)", "blue")
+    + box(90, 236, 180, 60, "Plain text", "80 columns, no colours", "dark")
+    + arrow(305, 130, 393, 130, "#0050C0", False, "yes", 349, 120)
+    + arrow(180, 178, 180, 234, "#475569", False, "no, a pipe", 232, 212)
+    + arrow(630, 110, 698, 76, "#16a34a", False, "yes", 664, 84)
     + arrow(630, 150, 698, 184, "#475569", False, "no", 664, 180),
-    900, 316, "«FIG» — La guida sceglie da sola la forma adatta a dove viene mostrata", "Tre forme della stessa guida")
+    900, 316, "«FIG» — The help picks by itself the form that suits where it is shown", "Three forms of the same guide")
 
-S3 = p("La stessa guida ha tre forme, e " + c("ams") + " sceglie quella giusta da solo.", lead=True) + FORME + \
-    table(["Situazione", "Cosa mostra " + c("ams --help")], [
-        ["un terminale normale", "la guida a schede"],
-        ["un terminale molto piccolo (meno di 44 colonne o di 10 righe)", "la stessa guida come pagina unica, da "
-         "scorrere con il pager: " + c("less") + ", o il programma indicato in " + c("PAGER") + "; " + key("q")
-         + " per uscire"],
-        ["l'uscita va in un file o in un altro comando", "testo semplice a 80 colonne, senza colori; in più delle "
-         "schede ha le variabili d'ambiente e l'esito dei comandi (" + rif(13, 5) + ")"],
-    ], "«TAB» — La guida nelle diverse situazioni") + \
+S3 = p("The same guide has three forms, and " + c("ams") + " picks the right one by itself.", lead=True) + FORME + \
+    table(["Situation", "What " + c("ams --help") + " shows"], [
+        ["a normal terminal", "the tabbed guide"],
+        ["a very small terminal (fewer than 44 columns or 10 lines)", "the same guide as a single page, to "
+         "scroll through with the pager: " + c("less") + ", or the program set in " + c("PAGER") + "; " + key("q")
+         + " to quit"],
+        ["the output goes to a file or to another command", "plain text at 80 columns, without colours; compared "
+         "with the tabs it also has the environment variables and the exit status of the commands ("
+         + rif(13, 5) + ")"],
+    ], "«TAB» — The built-in help in the different situations") + \
     term("admin@server:~$ ams --help | grep -A2 -- '--expires DURATA'\n"
          "       --expires DURATA\n"
          "              Scadenza, dopo la quale il messaggio non viene più mostrato: 30m,\n"
          "              2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole",
-         "Cercare nella guida con grep") + \
-    note("anche " + c("ams") + " da solo, in una pipe o in un terminale più piccolo di 80 colonne o di 20 righe, "
-         "mostra la guida invece della TUI.", "E ams da solo?")
+         "Searching the built-in help with grep") + \
+    note("" + c("ams") + " on its own, too, in a pipe or in a terminal smaller than 80 columns or 20 lines, "
+         "shows the built-in help instead of the TUI.", "And ams on its own?")
 
-CHAPTER = ("La guida integrata", [
-    ("Aprire la guida", S1),
-    ("Muoversi nella guida", S2),
-    ("Terminali piccoli e testo semplice", S3),
+CHAPTER = ("The built-in help", [
+    ("Opening the built-in help", S1),
+    ("Moving around the built-in help", S2),
+    ("Small terminals and plain text", S3),
 ])

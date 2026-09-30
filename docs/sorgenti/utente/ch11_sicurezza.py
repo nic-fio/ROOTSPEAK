@@ -5,110 +5,113 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import box, c, fig, note, p, table, term, text, tip, tree, ul, warn, zone  # noqa: E402
 from _aiuti import CONFERMATO, rif  # noqa: E402
 
-S1 = p("Solo gli amministratori della macchina possono usare " + c("ams") + ": i membri del gruppo " + c("sudo")
-       + " (su Fedora e simili " + c("wheel") + "). AMS non ha un elenco suo: chi entra o esce dal gruppo ottiene o "
-       "perde l'accesso dal suo prossimo accesso alla macchina (" + rif(2, 4) + ").", lead=True) + term(
+S1 = p("Only the machine's administrators can use " + c("ams") + ": the members of the " + c("sudo")
+       + " group (" + c("wheel") + " on Fedora and similar systems). AMS keeps no list of its own: whoever joins or "
+       "leaves the group gains or loses access from their next login to the machine (" + rif(2, 4) + ").",
+       lead=True) + term(
     "mario@server:~$ ams list\n"
-    "bash: /usr/local/bin/ams: Permesso negato", "Un utente normale non può nemmeno avviare il comando") + \
+    "bash: /usr/local/bin/ams: Permesso negato", "An ordinary user cannot even start the command") + \
     ul([
-        c("ams") + " lavora sempre come amministratore, anche per mostrare la guida o la versione: se non è già "
-        "root, si rilancia da solo con sudo, che chiede la password.",
-        "Nei messaggi e nel registro l'autore è l'amministratore che ha usato sudo, non un generico «root»: «messaggio "
-        "3 inviato da admin a: …». Chi lancia " + c("ams") + " direttamente da root (per esempio da cron) compare "
-        "come " + c("root") + ".",
-        "Gli utenti non hanno alcun comando di AMS: non possono mandare messaggi né vedere chi ha confermato.",
+        c("ams") + " always works as administrator, even to show the help or the version: if it is not already "
+        "root, it restarts itself with sudo, which asks for the password.",
+        "In messages and in the log the author is the administrator who used sudo, not a generic “root”: “message "
+        "3 sent by admin to: …”. Whoever runs " + c("ams") + " directly as root (for example from cron) appears "
+        "as " + c("root") + ".",
+        "Users have no AMS command at all: they can neither send messages nor see who has confirmed.",
     ])
 
 CASELLE = fig(
-    zone(20, 44, 860, 110, "/var/lib/ams/sent/: le copie di riferimento")
-    + box(44, 84, 250, 52, "solo root", "gli amministratori, con ams", "dark")
-    + text(600, 104, "messaggio, destinatari, consegne, ritiro:", 12, "#334155")
-    + text(600, 122, "è da qui che ams status legge chi è stato raggiunto", 12, "#334155")
-    + zone(20, 170, 860, 150, "/var/lib/ams/users/: una casella per utente")
-    + box(44, 210, 190, 52, "users/mario/", "solo Mario (e root)", "blue")
-    + box(254, 210, 190, 52, "users/anna/", "solo Anna (e root)", "blue")
-    + box(464, 210, 190, 52, "users/luca/", "solo Luca (e root)", "blue")
-    + text(770, 232, "da leggere", 12, "#334155") + text(770, 250, "conferme, rinvii", 12, "#334155")
-    + text(450, 296, "Anna non può aprire la casella di Mario, e nessun utente può aprire sent/", 12, "#991b1b", "600"),
-    900, 340, "«FIG» — Chi può leggere cosa nell'archivio di AMS", "L'archivio dei messaggi")
+    zone(20, 44, 860, 110, "/var/lib/ams/sent/: the reference copies")
+    + box(44, 84, 250, 52, "root only", "the administrators, with ams", "dark")
+    + text(600, 104, "message, recipients, deliveries, revocation:", 12, "#334155")
+    + text(600, 122, "this is where ams status reads who has been reached", 12, "#334155")
+    + zone(20, 170, 860, 150, "/var/lib/ams/users/: one mailbox per user")
+    + box(44, 210, 190, 52, "users/mario/", "Mario only (and root)", "blue")
+    + box(254, 210, 190, 52, "users/anna/", "Anna only (and root)", "blue")
+    + box(464, 210, 190, 52, "users/luca/", "Luca only (and root)", "blue")
+    + text(770, 232, "to be read", 12, "#334155") + text(770, 250, "confirmations, postponements", 12, "#334155")
+    + text(450, 296, "Anna cannot open Mario's mailbox, and no user can open sent/", 12, "#991b1b", "600"),
+    900, 340, "«FIG» — Who can read what in the AMS message store", "The message store")
 
-S2 = p("Ogni utente vede solo i messaggi mandati a lui. L'archivio in " + c("/var/lib/ams/") + " è diviso in due "
-       "parti con permessi diversi.", lead=True) + CASELLE + \
+S2 = p("Each user sees only the messages sent to them. The message store in " + c("/var/lib/ams/") + " is split into "
+       "two parts with different permissions.", lead=True) + CASELLE + \
     tree([
-        "/var/lib/ams/  # root, leggibile da tutti (solo l'elenco)",
-        "├── sent/  # root, 700: solo root",
-        "│   └── 3/  # il messaggio 3: testo, destinatari, consegne, ritiro",
+        "/var/lib/ams/  # root, readable by everyone (listing only)",
+        "├── sent/  # root, 700: root only",
+        "│   └── 3/  # message 3: text, recipients, deliveries, revocation",
         "└── users/",
-        "    └── mario/  # di Mario, 700: solo Mario e root",
-        "        ├── inbox/  # messaggi da confermare",
-        "        ├── read/  # messaggi confermati o scaduti",
-        "        ├── acks/  # le conferme, con data e canale",
-        "        └── state/  # i rinvii",
-    ], "«FIG» — L'archivio visto dall'alto") + \
-    table(["Chi", "Cosa vede"], [
-        ["un amministratore", "tutti i messaggi mandati, i destinatari, le conferme, la storia"],
-        ["un utente", "solo i messaggi indirizzati a lui, uno alla volta, finché non li conferma"],
-        ["gli altri utenti", "nulla dei messaggi di un collega, nemmeno che esistano"],
-    ], "«TAB» — Chi vede cosa") + \
-    note("AMS entra nella casella di un utente sempre con l'identità di quell'utente, anche quando lo comanda "
-         "l'amministratore: così un utente non può ingannare root facendogli scrivere dove non dovrebbe.",
-         "Root non entra da root.")
+        "    └── mario/  # Mario's, 700: Mario and root only",
+        "        ├── inbox/  # messages to confirm",
+        "        ├── read/  # confirmed or expired messages",
+        "        ├── acks/  # the confirmations, with date and channel",
+        "        └── state/  # the postponements",
+    ], "«FIG» — The message store seen from above") + \
+    table(["Who", "What they see"], [
+        ["an administrator", "all the messages sent, the recipients, the confirmations, the history"],
+        ["a user", "only the messages addressed to them, one at a time, until they confirm them"],
+        ["the other users", "nothing of a colleague's messages, not even that they exist"],
+    ], "«TAB» — Who sees what") + \
+    note("AMS always enters a user's mailbox with that user's identity, even when the administrator is in "
+         "command: this way a user cannot trick root into writing where it should not.",
+         "Root does not go in as root.")
 
-S3 = p("La conferma registra che l'utente <b>dichiara</b> di aver letto il messaggio, con data, ora e canale, come le "
-       "spunte di lettura di un'app di messaggistica. Non può provare che l'abbia letto davvero.", lead=True) + \
-    table(["La conferma dice", "La conferma non dice"], [
-        ["che l'utente ha premuto «Ho letto» o risposto «s»", "che ha letto con attenzione"],
-        ["quando (giorno e ora) e da dove (desktop o quale terminale)", "chi c'era davanti allo schermo"],
-        ["che il messaggio non era scaduto né ritirato in quel momento", "che ha capito il contenuto"],
-    ], "«TAB» — Il valore di una conferma") + \
-    note("la casella è dell'utente: un utente esperto potrebbe registrare una conferma senza aprire la finestra. "
-         "Resta comunque una sua dichiarazione, come il clic su «Ho letto».", "Una dichiarazione.") + \
-    tip("per gli avvisi che richiedono un impegno vero (una regola da rispettare, un'autorizzazione) la conferma di AMS "
-        "è un promemoria, non una firma: serve un documento a parte.", "Quando serve di più.")
+S3 = p("The confirmation records that the user <b>states</b> they have read the message, with date, time and channel, "
+       "like the read receipts of a messaging app. It cannot prove that they really read it.", lead=True) + \
+    table(["The confirmation says", "The confirmation does not say"], [
+        ["that the user pressed «Ho letto» (“I have read it” on an English desktop) or answered «s» (“y” in "
+         "English)", "that they read it carefully"],
+        ["when (day and time) and from where (desktop or which terminal)", "who was in front of the screen"],
+        ["that the message had neither expired nor been revoked at that moment", "that they understood the content"],
+    ], "«TAB» — What a confirmation is worth") + \
+    note("the mailbox belongs to the user: an expert user could record a confirmation without opening the dialog. "
+         "It is still their own statement, like the click on «Ho letto».", "A statement.") + \
+    tip("for notices that require a real commitment (a rule to follow, an authorisation) the AMS confirmation "
+        "is a reminder, not a signature: a separate document is needed.", "When more is needed.")
 
 PULIZIA = fig(
-    box(30, 60, 250, 70, "Testo incollato", "con colori, titoli, caratteri invisibili", "grey")
-    + box(325, 60, 250, 70, "AMS lo pulisce", "prima di salvarlo", "navy")
-    + box(620, 60, 250, 70, "Testo sicuro", "lettere, tabulazioni, a capo", "green")
+    box(30, 60, 250, 70, "Pasted text", "with colours, titles, invisible characters", "grey")
+    + box(325, 60, 250, 70, "AMS cleans it", "before saving it", "navy")
+    + box(620, 60, 250, 70, "Safe text", "letters, tabs, line breaks", "green")
     + '<path d="M282 95 H 321" stroke="#0050C0" stroke-width="2.2"/><path d="M577 95 H 616" stroke="#0050C0" stroke-width="2.2"/>'
-    + text(450, 160, "nessun messaggio può cambiare colori, titolo o comportamento del terminale di un utente",
+    + text(450, 160, "no message can change the colours, title or behaviour of a user's terminal",
            11.5, "#334155", "600"),
-    900, 180, "«FIG» — Il testo di ogni messaggio viene ripulito prima di essere salvato", "Testo sicuro")
+    900, 180, "«FIG» — The text of every message is cleaned before it is saved", "Safe text")
 
-S4 = p("Prima di salvare un messaggio, AMS toglie dal testo e dal titolo i caratteri invisibili e i codici che "
-       "cambiano colori, titolo o comportamento delle finestre di terminale. Un messaggio non può quindi alterare i "
-       "terminali degli utenti, anche se il testo è stato incollato da una fonte sconosciuta.", lead=True) + PULIZIA + \
-    table(["Nel testo", "Cosa succede"], [
-        ["lettere, numeri, punteggiatura, lettere accentate, simboli", "restano"],
-        ["tabulazioni e a capo", "restano (nel titolo gli a capo diventano spazi)"],
-        ["codici di colore e di movimento del cursore", "tolti"],
-        ["codici che cambiano il titolo della finestra del terminale", "tolti"],
-        ["altri caratteri di controllo invisibili", "tolti"],
-    ], "«TAB» — Cosa resta del testo") + \
-    p("Anche ciò che AMS legge dalle caselle degli utenti (conferme, rinvii) viene ripulito prima di mostrarlo "
-      "all'amministratore.")
+S4 = p("Before saving a message, AMS removes from the text and the title the invisible characters and the codes that "
+       "change the colours, title or behaviour of terminal windows. A message therefore cannot alter users' "
+       "terminals, even if the text was pasted from an unknown source.", lead=True) + PULIZIA + \
+    table(["In the text", "What happens"], [
+        ["letters, digits, punctuation, accented letters, symbols", "kept"],
+        ["tabs and line breaks", "kept (in the title, line breaks become spaces)"],
+        ["colour and cursor-movement codes", "removed"],
+        ["codes that change the terminal window's title", "removed"],
+        ["other invisible control characters", "removed"],
+    ], "«TAB» — What is left of the text") + \
+    p("What AMS reads from the users' mailboxes (confirmations, postponements) is also cleaned before it is shown "
+      "to the administrator.")
 
-S5 = p("Il registro di sistema è una traccia comoda, ma chiunque sulla macchina può scriverci righe con l'etichetta "
-       + c("ams") + ". Per questo " + c("ams log") + " e la TUI controllano chi ha scritto davvero ogni evento e "
-       "segnalano quelli sospetti.", lead=True) + term(
+S5 = p("The system log is a convenient trail, but anyone on the machine can write lines tagged "
+       + c("ams") + " into it. That is why " + c("ams log") + " and the TUI check who really wrote each event and "
+       "flag the suspicious ones.", lead=True) + term(
     "admin@server:~$ ams log 3\n"
     "Messaggio 3 · Nuova regola per le password · 30/09 19:05\n"
     "2026-09-30 19:05:12  messaggio 3 consegnato a anna (terminali scritti: 1)\n"
     "2026-09-30 19:05:12  messaggio 3 inviato da admin a: anna luca\n"
     "2026-09-30 19:06:40  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 3 (desktop)",
-    "Una conferma falsa: Luca (UID 1003) ha scritto una riga a nome di Anna") + \
-    table(["Evento", "Deve averlo scritto"], [
-        ["invio, consegna, sollecito, ritiro, cancellazione", "root (cioè " + c("ams") + ")"],
-        ["rinvio, conferma, conferma non registrata", "l'utente di cui parla"],
-    ], "«TAB» — Chi scrive ogni evento") + \
-    warn("una riga «non attendibile» non va considerata. Lo stato vero di un destinatario è quello del dettaglio del "
-         "messaggio e di " + c("ams status") + ", che non viene dal registro ma dall'archivio: lì " + CONFERMATO
-         + " vuol dire che la conferma è nella casella dell'utente.", "Fidarsi dello stato.")
+    "A forged confirmation: Luca (UID 1003) wrote a line in Anna's name") + \
+    table(["Event", "Must have been written by"], [
+        ["sending, delivery, reminder, revocation, deletion", "root (that is, " + c("ams") + ")"],
+        ["postponement, confirmation, confirmation not recorded", "the user it refers to"],
+    ], "«TAB» — Who writes each event") + \
+    warn("a line marked «non attendibile» (“not trustworthy” in English) must be disregarded. The true state of a "
+         "recipient is the one shown in the message details and by " + c("ams status") + ", which comes not from "
+         "the log but from the message store: there " + CONFERMATO
+         + " means that the confirmation is in the user's mailbox.", "Trust the state.")
 
-CHAPTER = ("Sicurezza e riservatezza", [
-    ("Chi può usare AMS", S1),
-    ("Chi vede i messaggi", S2),
-    ("Cosa vale una conferma", S3),
-    ("Testo sicuro", S4),
-    ("L'affidabilità del registro", S5),
+CHAPTER = ("Security and privacy", [
+    ("Who can use AMS", S1),
+    ("Who sees the messages", S2),
+    ("What a confirmation is worth", S3),
+    ("Safe text", S4),
+    ("How reliable the log is", S5),
 ])

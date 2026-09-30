@@ -2,145 +2,147 @@ from build import arrow, box, c, fig, key, note, p, path, schermata, table, text
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 ARCH = fig(
-    zone(20, 44, 300, 250, "La TUI · src/tui.c")
-    + box(40, 80, 260, 50, "lista", "carica_elenco → riassumi", "blue", 12)
-    + box(40, 144, 260, 50, "dettaglio", "destinatari · storia", "blue", 12)
-    + box(40, 208, 260, 50, "nuovo messaggio", "modulo, Ctrl+E, Ctrl+S", "blue", 12)
-    + zone(360, 44, 240, 250, "Stesse funzioni di ams")
-    + box(380, 80, 200, 50, "riassumi", "come ams list", "dark", 12)
-    + box(380, 144, 200, 50, "destinatari", "come ams status", "dark", 12)
-    + box(380, 208, 200, 50, "caselle_svuota", "a ogni aggiornamento", "soft", 12)
-    + zone(640, 44, 240, 250, "In un processo figlio")
+    zone(20, 44, 300, 250, "The TUI · src/tui.c")
+    + box(40, 80, 260, 50, "list", "carica_elenco → riassumi", "blue", 12)
+    + box(40, 144, 260, 50, "detail", "recipients · history", "blue", 12)
+    + box(40, 208, 260, 50, "new message", "form, Ctrl+E, Ctrl+S", "blue", 12)
+    + zone(360, 44, 240, 250, "Same functions as ams")
+    + box(380, 80, 200, 50, "riassumi", "like ams list", "dark", 12)
+    + box(380, 144, 200, 50, "destinatari", "like ams status", "dark", 12)
+    + box(380, 208, 200, 50, "caselle_svuota", "at every refresh", "soft", 12)
+    + zone(640, 44, 240, 250, "In a child process")
     + box(660, 80, 200, 40, "cmd_send", "", "navy", 12)
     + box(660, 128, 200, 40, "cmd_revoke · cmd_remind", "", "navy", 12)
     + box(660, 176, 200, 40, "cmd_purge", "", "navy", 12)
-    + box(660, 224, 200, 40, "cmd_log · conta destinatari", "", "navy", 11)
+    + box(660, 224, 200, 40, "cmd_log · recipient count", "", "navy", 11)
     + arrow(302, 105, 378, 105) + arrow(302, 169, 378, 169)
-    + path([(300, 150), (330, 150), (330, 30), (620, 30), (620, 100), (658, 100)], "#0050C0", True, "azioni", 475, 24)
-    + text(460, 312, "uscita e errori raccolti su una pipe e mostrati in una finestra", 11.5, "#475569", "600"),
-    900, 330, "«FIG» — La TUI legge con le funzioni dei comandi ed esegue i comandi stessi", "Nessun modo suo")
+    + path([(300, 150), (330, 150), (330, 30), (620, 30), (620, 100), (658, 100)], "#0050C0", True, "actions", 475, 24)
+    + text(460, 312, "output and errors collected on a pipe and shown in a window", 11.5, "#475569", "600"),
+    900, 330, "«FIG» — The TUI reads with the commands' functions and runs the commands themselves", "No way of its own")
 
-S1 = p(c("ams") + " senza argomenti, con stdin e stdout in un terminale di almeno 80 × 20, apre la TUI di "
-       + c("src/tui.c") + " dopo il recupero; in una pipe, o in un terminale più piccolo, mostra la guida. La TUI "
-       "<b>non ha un modo suo di fare le cose</b> e <b>non ha stati suoi</b>: legge l'archivio con le funzioni di "
-       + c("ams list") + " e " + c("ams status") + ", e ogni azione è il comando stesso.", lead=True) + ARCH + ul([
-    "<b>Stesse funzioni per leggere</b>: la lista usa " + c("riassumi") + " (i destinatari contati nei tre stati, "
-    "ritirato e scaduto), il dettaglio " + c("destinatari") + " (la stessa riga di " + c("ams status") + ").",
-    "<b>Le azioni sono i comandi</b>: invio, ritiro, sollecito e pulizia girano in un processo figlio che chiama "
-    + c("cmd_send") + ", " + c("cmd_revoke") + ", " + c("cmd_remind") + ", " + c("cmd_purge") + " con stdout e "
-    "stderr raccolti su una pipe e mostrati in una finestra. Un errore del comando (" + c("die") + ") chiude solo il "
-    "figlio; l'uscita del figlio dà l'esito. Anche l'anteprima dei destinatari e la storia (" + c("cmd_log")
-    + ") vengono da un figlio.",
-    "La decisione dell'utente che ha voluto la TUI è anche un vincolo di progetto: discutendo le anteprime erano "
-    "comparsi stati inventati («in attesa», «completo», «invio incompleto», «annullato»), tolti; "
-    + c("tests/tui.py") + " controlla che nessuna di queste parole compaia sullo schermo.",
+S1 = p(c("ams") + " without arguments, with stdin and stdout on a terminal of at least 80 × 20, opens the TUI of "
+       + c("src/tui.c") + " after recovery; in a pipe, or on a smaller terminal, it shows the help. The TUI "
+       "<b>has no way of its own of doing things</b> and <b>no states of its own</b>: it reads the store with the "
+       "functions of " + c("ams list") + " and " + c("ams status") + ", and every action is the command itself.",
+       lead=True) + ARCH + ul([
+    "<b>Same functions for reading</b>: the list uses " + c("riassumi") + " (the recipients counted in the three "
+    "states, revoked and expired), the detail uses " + c("destinatari") + " (the same line as " + c("ams status") + ").",
+    "<b>The actions are the commands</b>: sending, revoking, reminding and purging run in a child process that calls "
+    + c("cmd_send") + ", " + c("cmd_revoke") + ", " + c("cmd_remind") + ", " + c("cmd_purge") + " with stdout and "
+    "stderr collected on a pipe and shown in a window. An error of the command (" + c("die") + ") ends only the "
+    "child; the child's exit status gives the result. The recipients preview and the history (" + c("cmd_log")
+    + ") also come from a child.",
+    "The decision of the user who wanted the TUI is also a design constraint: while discussing the previews, "
+    "invented states had appeared (“pending”, “complete”, “incomplete send”, “cancelled”) and were removed; "
+    + c("tests/tui.py") + " checks that none of these words appears on the screen.",
 ])
 
-S2 = p("La lista mostra i messaggi dal più recente, uno per riga, con il riassunto dei destinatari: barra a tre "
-       "colori e frase. Si aggiorna da sola ogni 3 secondi.", lead=True) + \
-    schermata("lista", "«FIG» — La lista dei messaggi (schermata vera, catturata da tools/schermate-tui.sh)") + \
-    table(["Colonna", "Contenuto"], [
-        ["ID, DATA", "numero e data d'invio; " + c(">") + " segna la riga scelta, disegnata in negativo"],
-        ["MESSAGGIO", c("[ritirato]") + " e " + c("[scaduto]") + " in grigio, il titolo in grassetto, la prima riga "
-         "del testo, tagliata alla larghezza disponibile"],
-        ["DESTINATARI", "la barra di 12 segni e la frase del riassunto (" + cap(10, 3) + "); sotto 106 colonne "
-         "interne, al posto della frase, «confermati/totale» (per esempio " + c("4/8") + ")"],
-        ["legenda", "sempre in fondo: " + c("█") + " confermato, " + c("▒") + " consegnato, " + c("░") + " inviato; "
-         "con una ricerca attiva, il testo cercato"],
-    ], "«TAB» — Le colonne della lista") + table(["Tasto", "Effetto"], [
+S2 = p("The list shows the messages from the most recent, one per row, with the recipients summary: a three-colour "
+       "bar and a phrase. It refreshes by itself every 3 seconds.", lead=True) + \
+    schermata("lista", "«FIG» — The message list (real screenshot, captured by tools/schermate-tui.sh)") + \
+    table(["Column", "Content"], [
+        ["ID, DATA", "number and date of sending (DATA is DATE in English); " + c(">") + " marks the selected row, "
+         "drawn in reverse video"],
+        ["MESSAGGIO", c("[ritirato]") + " and " + c("[scaduto]") + " in grey (“[revoked]”, “[expired]” in English), "
+         "the title in bold, the first line of the text, cut to the available width"],
+        ["DESTINATARI", "the 12-cell bar and the summary phrase (" + cap(10, 3) + "); below 106 inner "
+         "columns, instead of the phrase, “confirmed/total” (for example " + c("4/8") + ")"],
+        ["legend", "always at the bottom: " + c("█") + " confirmed, " + c("▒") + " delivered, " + c("░") + " sent; "
+         "with an active search, the searched text"],
+    ], "«TAB» — The columns of the list") + table(["Key", "Effect"], [
     [key("↑") + " " + key("↓") + " " + key("PgUp") + " " + key("PgDn") + " " + key("Home") + " " + key("End"),
-     "scorre la lista"],
-    [key("Invio"), "apre il dettaglio del messaggio scelto"],
-    [key("n"), "scrive e invia un messaggio nuovo"],
-    [key("r"), "ritira il messaggio scelto, se non è già ritirato (con conferma)"],
-    [key("s"), "sollecita chi non ha confermato: solo se il messaggio non è ritirato né scaduto e ha almeno un "
-     "destinatario consegnato (con conferma)"],
-    [key("p"), "cancella i messaggi più vecchi di una durata (con conferma; proposta " + c("90d") + ")"],
-    [key("/"), "cerca per testo o titolo, senza distinguere maiuscole e minuscole; " + key("Esc") + " toglie la "
-     "ricerca"],
-    [key("?"), "la guida dei tasti"],
-    [key("q"), "esce e ridà il terminale com'era"],
-], "«TAB» — I tasti della lista")
+     "scrolls the list"],
+    [key("Enter"), "opens the detail of the selected message"],
+    [key("n"), "writes and sends a new message"],
+    [key("r"), "revokes the selected message, if it is not already revoked (with confirmation)"],
+    [key("s"), "reminds whoever has not confirmed: only if the message is neither revoked nor expired and has at "
+     "least one delivered recipient (with confirmation)"],
+    [key("p"), "deletes the messages older than a duration (with confirmation; suggested " + c("90d") + ")"],
+    [key("/"), "searches by text or title, case-insensitively; " + key("Esc") + " clears the "
+     "search"],
+    [key("?"), "the key guide"],
+    [key("q"), "quits and gives the terminal back as it was"],
+], "«TAB» — The keys of the list")
 
-S3 = p("Il dettaglio di un messaggio ha due schede: i destinatari, con la riga di stato di " + c("ams status")
-       + " colorata secondo lo stato, e la storia, cioè l'uscita di " + c("ams log") + ". Si rilegge ogni 3 "
-       "secondi e dopo ogni azione; si esce con " + key("Esc") + ".", lead=True) + \
-    schermata("dettaglio", "«FIG» — Il dettaglio: un destinatario per riga, nei tre stati (schermata vera)") + \
-    schermata("storia", "«FIG» — La scheda Storia: gli eventi del registro, riscritti nella lingua di chi legge "
-                        "(schermata vera)") + ul([
-    "L'intestazione riporta titolo, data, mittente, scadenza («scade il …» o «scaduto il …») e ritiro («ritirato "
-    "il …», in rosso); poi al più sei righe del testo, rientrate.",
-    "La riga delle schede ripete barra e frase: il riassunto resta visibile mentre si scorre l'elenco.",
-    "Colori della colonna STATO: verde confermato, giallo consegnato, rosso inviato. Sono i tre stati, e solo "
-    "quelli.",
-    "Tasti: " + key("Tab") + " cambia scheda, " + key("↑") + " " + key("↓") + " scorrono, " + key("s") + " e "
-    + key("r") + " sollecitano e ritirano con le stesse regole della lista.",
+S3 = p("The detail of a message has two tabs: the recipients, with the status line of " + c("ams status")
+       + " coloured according to the state, and the history, that is the output of " + c("ams log") + ". It is "
+       "re-read every 3 seconds and after every action; " + key("Esc") + " leaves it.", lead=True) + \
+    schermata("dettaglio", "«FIG» — The detail: one recipient per row, in the three states (real screenshot)") + \
+    schermata("storia", "«FIG» — The Storia (History) tab: the log events, rewritten in the reader's language "
+                        "(real screenshot)") + ul([
+    "The header shows title, date, sender, expiry (“expires on …” or “expired on …”) and revocation (“revoked "
+    "on …”, in red); then at most six lines of the text, indented.",
+    "The tab row repeats bar and phrase: the summary stays visible while scrolling through the list.",
+    "Colours of the STATO (STATE) column: green confirmed, yellow delivered, red sent. They are the three states, "
+    "and only those.",
+    "Keys: " + key("Tab") + " switches tab, " + key("↑") + " " + key("↓") + " scroll, " + key("s") + " and "
+    + key("r") + " remind and revoke with the same rules as the list.",
 ])
 
-S4 = p("Il modulo del nuovo messaggio ha quattro campi: destinatari, titolo, scadenza e testo. Quando si lascia il "
-       "campo dei destinatari, un figlio esegue la stessa risoluzione di " + c("ams send") + " e ne mostra il "
-       "numero, o l'errore in rosso.", lead=True) + \
-    schermata("nuovo", "«FIG» — Il modulo del nuovo messaggio, con l'anteprima dei destinatari (schermata vera)") + \
-    schermata("invio", "«FIG» — La conferma prima dell'invio (schermata vera)") + table(["Tasto", "Effetto"], [
-    [key("Tab") + ", " + key("Maiusc", "Tab"), "campo successivo o precedente"],
-    [key("Ctrl", "E"), "apre il testo nell'editor dell'amministratore"],
-    [key("Ctrl", "S"), "chiede conferma e invia: " + c("cmd_send") + " in un figlio, con il testo su stdin"],
-    [key("Esc"), "lascia perdere il messaggio, con conferma se qualcosa è stato scritto"],
-], "«TAB» — I tasti del modulo") + ul([
-    "I campi di una riga accettano al più 1000 byte; il testo mostra il conteggio «85 di 65536 byte». I controlli "
-    "veri sono quelli di " + c("ams send") + ": un errore arriva nella finestra d'esito, «Messaggio non inviato».",
-    "<b>Editor</b>: " + key("Ctrl", "E") + " scrive il testo in un file temporaneo di " + c("/tmp") + " ("
-    + c("mkstemp") + "), lo cede all'amministratore di " + c("SUDO_USER") + " e apre " + c("VISUAL") + ", "
-    + c("EDITOR") + ", " + c("nano") + " o " + c("vi") + " <b>con la sua identità</b>, non come root; poi rilegge il "
-    "file (al più il doppio della lunghezza massima, senza seguire collegamenti) e lo cancella.",
-    "Dopo l'invio la lista si ricarica e il nuovo messaggio compare in cima (" + c("tests/tui.py") + ").",
-]) + note("un difetto trovato scrivendo " + c("tests/tui.py") + ": il figlio che esegue l'invio ereditava anche "
-          "il capo della pipe da cui il padre scrive il testo, e non vedeva mai la fine del testo. Ora lo chiude "
-          "prima di chiamare " + c("cmd_send") + ".")
+S4 = p("The new-message form has four fields: recipients, title, expiry and text. When the recipients field is "
+       "left, a child performs the same resolution as " + c("ams send") + " and shows the number of recipients, "
+       "or the error in red.", lead=True) + \
+    schermata("nuovo", "«FIG» — The new-message form, with the recipients preview (real screenshot)") + \
+    schermata("invio", "«FIG» — The confirmation before sending (real screenshot)") + table(["Key", "Effect"], [
+    [key("Tab") + ", " + key("Shift", "Tab"), "next or previous field"],
+    [key("Ctrl", "E"), "opens the text in the administrator's editor"],
+    [key("Ctrl", "S"), "asks for confirmation and sends: " + c("cmd_send") + " in a child, with the text on stdin"],
+    [key("Esc"), "discards the message, with confirmation if something has been written"],
+], "«TAB» — The keys of the form") + ul([
+    "One-line fields accept at most 1000 bytes; the text shows the count “85 of 65536 bytes”. The real checks "
+    "are those of " + c("ams send") + ": an error arrives in the result window, “Message not sent”.",
+    "<b>Editor</b>: " + key("Ctrl", "E") + " writes the text to a temporary file in " + c("/tmp") + " ("
+    + c("mkstemp") + "), hands it over to the administrator in " + c("SUDO_USER") + " and opens " + c("VISUAL") + ", "
+    + c("EDITOR") + ", " + c("nano") + " or " + c("vi") + " <b>with their identity</b>, not as root; then it re-reads "
+    "the file (at most twice the maximum length, without following links) and deletes it.",
+    "After sending, the list reloads and the new message appears at the top (" + c("tests/tui.py") + ").",
+]) + note("a defect found while writing " + c("tests/tui.py") + ": the child that performs the send also inherited "
+          "the end of the pipe through which the parent writes the text, and never saw the end of the text. Now it "
+          "closes it before calling " + c("cmd_send") + ".")
 
-S5 = p("Ritiro, sollecito e pulizia chiedono sempre una conferma che descrive l'azione con i numeri veri; l'esito "
-       "del comando compare poi in una finestra.", lead=True) + \
-    schermata("sollecito", "«FIG» — La conferma di un sollecito, sopra la lista (schermata vera)") + table(
-    ["Azione", "La conferma dice", "Poi"], [
-        ["ritiro", "«Ritirare il messaggio N?», titolo e riassunto; «Chi non l'ha ancora visto non lo vedrà più; "
-         "finestre e domande aperte si chiudono da sole.»", c("cmd_revoke") + " in un figlio"],
-        ["sollecito", "quanti destinatari non hanno ancora confermato; «La domanda torna subito: al prompt "
-         "successivo e con la finestra sul desktop.»", c("cmd_remind") + " in un figlio"],
-        ["pulizia", "prima la durata («Cancellare i messaggi inviati da più di…»), poi «I messaggi più vecchi di "
-         "D, con copie e conferme. Gli eventi restano nel registro di sistema.»", c("cmd_purge") + " in un figlio"],
-        ["invio", "destinatari con il loro numero, titolo, scadenza, byte del testo", c("cmd_send") + " in un figlio"],
-    ], "«TAB» — Le azioni con conferma") + \
-    p("Finestre e conferme si disegnano su una copia dello schermo di base: una finestra successiva non resta "
-      "sopra quella di prima. " + key("s") + " conferma, " + key("n") + " o " + key("Esc") + " annulla.")
+S5 = p("Revoking, reminding and purging always ask for a confirmation that describes the action with the real "
+       "numbers; the result of the command then appears in a window.", lead=True) + \
+    schermata("sollecito", "«FIG» — The confirmation of a reminder, over the list (real screenshot)") + table(
+    ["Action", "The confirmation says", "Then"], [
+        ["revoke", "“Revoke message N?”, title and summary; “Whoever has not seen it yet will not see it; "
+         "open dialogs and questions close by themselves.”", c("cmd_revoke") + " in a child"],
+        ["remind", "how many recipients have not confirmed yet; “They are asked again now: at the next prompt "
+         "and with the dialog on the desktop.”", c("cmd_remind") + " in a child"],
+        ["purge", "first the duration (“Delete the messages sent more than…”), then “Messages older than "
+         "D, with copies and confirmations. The events stay in the system log.”", c("cmd_purge") + " in a child"],
+        ["send", "recipients with their number, title, expiry, bytes of the text", c("cmd_send") + " in a child"],
+    ], "«TAB» — The actions with confirmation") + \
+    p("Windows and confirmations are drawn on a copy of the base screen: a later window does not stay "
+      "on top of the previous one. " + key("s") + " confirms, " + key("n") + " or " + key("Esc") + " cancels.")
 
-S6 = table(["Parte", "Come funziona"], [
-    ["terminale", c("/dev/tty") + " senza eco né modo canonico; senza " + c("IXON") + " (così " + key("Ctrl", "S")
-     + " arriva alla TUI) e senza " + c("ICRNL") + "; schermo alternativo e cursore nascosto. All'uscita, e su "
-     + c("SIGINT") + ", " + c("SIGTERM") + ", " + c("SIGHUP") + ", tutto torna com'era"],
-    ["disegno", "senza ncurses: ogni schermata è composta in memoria e scritta con una sola scrittura; le lunghezze "
-     "si contano in caratteri visibili (UTF-8, senza le sequenze di colore)"],
-    ["tasti", "un byte alla volta con " + c("poll") + " di 500 ms; dopo " + c("ESC") + " il resto della sequenza "
-     "con un'attesa di 40 ms: " + key("Esc") + " da solo, frecce, " + key("PgUp") + ", " + key("PgDn") + ", "
-     + key("Home") + ", " + key("End") + ", " + key("Canc") + " e " + key("Maiusc", "Tab") + " sono riconosciuti"],
-    ["aggiornamento", "ogni 6 attese a vuoto (3 secondi) la lista o il dettaglio si rileggono, dimenticando le "
-     "caselle lette (" + c("caselle_svuota") + "); in alto a destra «aggiornato alle …»"],
-    ["dimensioni", "a ogni attesa si confronta la dimensione (" + c("TIOCGWINSZ") + ") e si ridisegna; sotto "
-     "80 × 20 la TUI esce"],
-    ["colori", "disattivati con " + c("NO_COLOR") + " (se sudo la conserva)"],
-], "«TAB» — Terminale, tasti e aggiornamento") + \
-    warn("la TUI gira come root. Tutto ciò che mostra e che viene dagli utenti (conferme, storia) passa da "
-         + c("pulisci") + " come nei comandi; l'unico programma esterno che la TUI lancia di suo, l'editor, gira con l'identità "
-         "dell'amministratore.")
+S6 = table(["Part", "How it works"], [
+    ["terminal", c("/dev/tty") + " without echo or canonical mode; without " + c("IXON") + " (so that " + key("Ctrl", "S")
+     + " reaches the TUI) and without " + c("ICRNL") + "; alternate screen and hidden cursor. On exit, and on "
+     + c("SIGINT") + ", " + c("SIGTERM") + ", " + c("SIGHUP") + ", everything goes back to how it was"],
+    ["drawing", "without ncurses: every screen is composed in memory and written with a single write; lengths "
+     "are counted in visible characters (UTF-8, without the colour sequences)"],
+    ["keys", "one byte at a time with a " + c("poll") + " of 500 ms; after " + c("ESC") + " the rest of the sequence "
+     "with a 40 ms wait: " + key("Esc") + " on its own, arrows, " + key("PgUp") + ", " + key("PgDn") + ", "
+     + key("Home") + ", " + key("End") + ", " + key("Del") + " and " + key("Shift", "Tab") + " are recognised"],
+    ["refresh", "every 6 empty waits (3 seconds) the list or the detail is re-read, forgetting the "
+     "mailboxes already read (" + c("caselle_svuota") + "); at the top right “updated at …”"],
+    ["size", "at every wait the size is compared (" + c("TIOCGWINSZ") + ") and the screen redrawn; below "
+     "80 × 20 the TUI exits"],
+    ["colours", "turned off with " + c("NO_COLOR") + " (if sudo preserves it)"],
+], "«TAB» — Terminal, keys and refresh") + \
+    warn("the TUI runs as root. Everything it shows that comes from the users (confirmations, history) goes through "
+         + c("pulisci") + " as in the commands; the only external program the TUI starts on its own, the editor, "
+         "runs with the administrator's identity.")
 
-CHAPTER = ("La TUI per gli amministratori", [
-    ("Architettura: stessi dati, stessi comandi", S1),
-    ("La lista", S2),
-    ("Il dettaglio e la storia", S3),
-    ("Scrivere e inviare", S4),
-    ("Le azioni con conferma", S5),
-    ("Terminale, tasti e aggiornamento", S6),
+CHAPTER = ("The TUI for administrators", [
+    ("Architecture: same data, same commands", S1),
+    ("The list", S2),
+    ("The detail and the history", S3),
+    ("Writing and sending", S4),
+    ("The actions with confirmation", S5),
+    ("Terminal, keys and refresh", S6),
 ])

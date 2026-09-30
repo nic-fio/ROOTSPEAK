@@ -2,134 +2,135 @@ from build import arrow, box, c, code, dialog, fig, notification, note, p, path,
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 LOOP = fig(
-    box(20, 110, 160, 58, "flock LOCK_NB", "un agente per utente", "dark")
-    + box(215, 110, 150, 58, "ams-agent.pronto", "il PID, per la sveglia", "dark", 12)
-    + box(400, 110, 170, 58, "sessione grafica?", "sd-login, a ogni giro", "navy", 12)
-    + box(605, 110, 150, 58, "per ogni messaggio", "non rimandato", "blue", 12)
-    + box(790, 110, 90, 58, "attesa", "ppoll 1 s", "soft", 12)
+    box(20, 110, 160, 58, "flock LOCK_NB", "one agent per user", "dark")
+    + box(215, 110, 150, 58, "ams-agent.pronto", "the PID, for wake-ups", "dark", 12)
+    + box(400, 110, 170, 58, "graphical session?", "sd-login, every round", "navy", 12)
+    + box(605, 110, 150, 58, "for each message", "not postponed", "blue", 12)
+    + box(790, 110, 90, 58, "wait", "ppoll 1 s", "soft", 12)
     + arrow(182, 139, 213, 139) + arrow(367, 139, 398, 139) + arrow(572, 139, 603, 139) + arrow(757, 139, 788, 139)
     + path([(835, 108), (835, 30), (485, 30), (485, 108)], "#475569", True,
-           "fine attesa: AMS_AGENT_POLL secondi o SIGUSR1", 660, 22)
-    + path([(485, 170), (485, 200)], "#b91c1c") + text(485, 216, "no: l'agente esce", 11, "#b91c1c", "600")
-    + text(100, 196, "lock occupato:", 11, "#475569") + text(100, 212, "esce subito", 11, "#475569"),
-    900, 236, "«FIG» — Il ciclo dell'agente del desktop", "Il ciclo dell'agente")
+           "end of wait: AMS_AGENT_POLL seconds or SIGUSR1", 660, 22)
+    + path([(485, 170), (485, 200)], "#b91c1c") + text(485, 216, "no: the agent exits", 11, "#b91c1c", "600")
+    + text(100, 196, "lock taken:", 11, "#475569") + text(100, 212, "exits at once", 11, "#475569"),
+    900, 236, "«FIG» — The desktop agent's loop", "The agent's loop")
 
-S1 = p("L'agente, " + c("ams-user agent") + ", parte con l'avvio automatico del desktop ("
-       + c("/etc/xdg/autostart/ams-agent.desktop") + ") o da " + c("systemd-run") + " quando " + c("ams send")
-       + " non ne trova uno, e vive quanto la sessione grafica.", lead=True) + LOOP + ul([
-    "<b>Un solo agente per utente</b>: " + c("flock(LOCK_EX | LOCK_NB)") + " su " + c("$XDG_RUNTIME_DIR/ams-agent.lock")
-    + "; se il lock è occupato l'agente esce subito, senza errore. Il descrittore è aperto con " + c("O_CLOEXEC")
-    + " e non passa a zenity: altrimenti, se l'agente muore, una sua finestra orfana terrebbe il lock e l'agente "
-    "avviato al suo posto uscirebbe subito (difetto trovato dalla VM di prova).",
-    "<b>Pronto</b>: dopo il lock l'agente scrive il suo PID in " + c("$XDG_RUNTIME_DIR/ams-agent.pronto")
-    + " e lo cancella all'uscita (" + c("atexit") + "). " + c("ams send") + " sveglia solo quel PID (" + cap(8, 5)
+S1 = p("The agent, " + c("ams-user agent") + ", starts with the desktop's autostart ("
+       + c("/etc/xdg/autostart/ams-agent.desktop") + ") or from " + c("systemd-run") + " when " + c("ams send")
+       + " does not find one, and lives as long as the graphical session.", lead=True) + LOOP + ul([
+    "<b>Only one agent per user</b>: " + c("flock(LOCK_EX | LOCK_NB)") + " on " + c("$XDG_RUNTIME_DIR/ams-agent.lock")
+    + "; if the lock is taken the agent exits at once, without an error. The descriptor is opened with " + c("O_CLOEXEC")
+    + " and is not passed on to zenity: otherwise, if the agent died, one of its orphaned dialogs would hold the lock and "
+    "the agent started in its place would exit at once (a defect found by the test VM).",
+    "<b>Ready</b>: after taking the lock the agent writes its PID to " + c("$XDG_RUNTIME_DIR/ams-agent.pronto")
+    + " and deletes it on exit (" + c("atexit") + "). " + c("ams send") + " wakes only that PID (" + cap(8, 5)
     + ").",
-    "<b>Vive quanto la sessione</b>: il ciclo continua finché " + c("sessione_grafica(getuid())") + " trova una "
-    "sessione X11 o Wayland dell'utente, oppure finché non arriva un segnale di fine.",
-    "<b>Configurazione sempre attuale</b>: " + c("conf_leggi") + " a ogni giro; una modifica di "
-    + c("AMS_REMIND_MINUTES") + " o " + c("AMS_AGENT_POLL") + " vale dal giro successivo.",
-    "<b>Una finestra alla volta</b>: i messaggi non rimandati sul canale del desktop (" + c("state/ID.gui")
-    + "), dal più vecchio (scenario I7).",
+    "<b>Lives as long as the session</b>: the loop goes on as long as " + c("sessione_grafica(getuid())") + " finds an "
+    "X11 or Wayland session of the user, or until a termination signal arrives.",
+    "<b>Configuration always current</b>: " + c("conf_leggi") + " at every round; a change to "
+    + c("AMS_REMIND_MINUTES") + " or " + c("AMS_AGENT_POLL") + " applies from the next round.",
+    "<b>One dialog at a time</b>: the messages not postponed on the desktop channel (" + c("state/ID.gui")
+    + "), oldest first (scenario I7).",
 ])
 
 SEGNALI = fig(
-    box(20, 50, 200, 60, "sempre bloccati", "USR1 TERM HUP INT CHLD", "dark")
-    + box(260, 50, 200, 60, "ppoll(…, &attesa)", "sbloccati solo qui", "navy")
+    box(20, 50, 200, 60, "always blocked", "USR1 TERM HUP INT CHLD", "dark")
+    + box(260, 50, 200, 60, "ppoll(…, &attesa)", "unblocked only here", "navy")
     + box(500, 30, 180, 44, "SIGUSR1", "sveglia = 1", "blue", 12)
     + box(500, 84, 180, 44, "SIGTERM, HUP, INT", "fine = 1", "amber", 12)
-    + box(500, 138, 180, 44, "SIGCHLD", "zenity si è chiusa", "green", 12)
-    + box(720, 30, 160, 44, "giro subito", "nuovo messaggio", "light", 12)
-    + box(720, 84, 160, 44, "esce", "al primo punto sicuro", "light", 12)
-    + box(720, 138, 160, 44, "registra", "la risposta, subito", "light", 12)
+    + box(500, 138, 180, 44, "SIGCHLD", "zenity has closed", "green", 12)
+    + box(720, 30, 160, 44, "new round now", "new message", "light", 12)
+    + box(720, 84, 160, 44, "exits", "at the first safe point", "light", 12)
+    + box(720, 138, 160, 44, "records", "the answer, at once", "light", 12)
     + arrow(222, 80, 258, 80) + arrow(462, 70, 498, 52) + arrow(462, 80, 498, 106) + arrow(462, 90, 498, 160)
     + arrow(682, 52, 718, 52) + arrow(682, 106, 718, 106) + arrow(682, 160, 718, 160)
-    + text(240, 200, "un segnale arrivato fuori dall'attesa resta in sospeso: non va perso", 11.5, "#166534", "600"),
-    900, 220, "«FIG» — I segnali dell'agente: bloccati tranne durante le attese", "Nessun segnale perso")
+    + text(240, 200, "a signal that arrives outside the wait stays pending: it is not lost", 11.5, "#166534", "600"),
+    900, 220, "«FIG» — The agent's signals: blocked except during the waits", "No signal lost")
 
-S2 = p("L'agente deve reagire a tre cose: un messaggio nuovo (" + c("SIGUSR1") + " da " + c("ams send") + "), la "
-       "fine della sessione (" + c("SIGTERM") + " da logind) e la chiusura della finestra (" + c("SIGCHLD")
-       + "). Le gestisce senza perdere segnali e senza interrompere a metà una conferma.", lead=True) + SEGNALI + \
-    table(["Segnale", "Gestore", "Effetto"], [
-        [c("SIGUSR1"), c("su_sveglia") + ": " + c("sveglia = 1"), "l'attesa finisce e il giro riparte subito; è "
-         "installato come <b>prima istruzione</b> di " + c("main") + ", perché per difetto " + c("SIGUSR1")
-         + " termina il processo (nel prototipo, 20 agenti su 20 svegliati mentre partivano morivano)"],
+S2 = p("The agent must react to three things: a new message (" + c("SIGUSR1") + " from " + c("ams send") + "), the "
+       "end of the session (" + c("SIGTERM") + " from logind) and the closing of the dialog (" + c("SIGCHLD")
+       + "). It handles them without losing signals and without interrupting a confirmation halfway.", lead=True) + SEGNALI + \
+    table(["Signal", "Handler", "Effect"], [
+        [c("SIGUSR1"), c("su_sveglia") + ": " + c("sveglia = 1"), "the wait ends and the round starts again at once; it "
+         "is installed as the <b>first statement</b> of " + c("main") + ", because by default " + c("SIGUSR1")
+         + " terminates the process (in the prototype, 20 out of 20 agents woken while starting up died)"],
         [c("SIGTERM") + ", " + c("SIGHUP") + ", " + c("SIGINT"), c("su_fine") + ": " + c("fine = 1"),
-         "l'agente finisce di registrare la risposta già data ed esce al primo punto sicuro"],
-        [c("SIGCHLD"), c("su_figlio") + ": nulla", "interrompe l'attesa: la risposta della finestra si registra in "
-         "pochi millisecondi"],
-    ], "«TAB» — I segnali dell'agente") + ul([
-    "I cinque segnali restano bloccati con " + c("sigprocmask") + " per tutto il tempo, tranne durante le attese, "
-    "fatte con " + c("ppoll") + " che li sblocca e li riblocca in modo atomico: un segnale arrivato mentre l'agente "
-    "lavora resta in sospeso e interrompe l'attesa successiva.",
-    "Le attese durano al più un secondo ciascuna; quella fra un giro e l'altro dura in tutto "
-    + c("AMS_AGENT_POLL") + " secondi (60), e finisce prima se arriva la sveglia o la fine. Il controllo periodico "
-    "resta come rete di sicurezza: un segnale perso ritarda la finestra, non la perde.",
-    "La sveglia azzera il suo indicatore all'<b>inizio</b> del giro: una sveglia arrivata con una finestra aperta "
-    "fa ripartire subito il giro successivo.",
+         "the agent finishes recording an answer already given and exits at the first safe point"],
+        [c("SIGCHLD"), c("su_figlio") + ": nothing", "interrupts the wait: the dialog's answer is recorded within "
+         "a few milliseconds"],
+    ], "«TAB» — The agent's signals") + ul([
+    "The five signals stay blocked with " + c("sigprocmask") + " all the time, except during the waits, "
+    "done with " + c("ppoll") + ", which unblocks and re-blocks them atomically: a signal that arrives while the agent "
+    "is working stays pending and interrupts the next wait.",
+    "Each wait lasts at most one second; the one between two rounds lasts "
+    + c("AMS_AGENT_POLL") + " seconds (60) in total, and ends earlier if a wake-up or termination arrives. The "
+    "periodic check stays as a safety net: a lost signal delays the dialog, it does not lose it.",
+    "The wake-up clears its flag at the <b>start</b> of the round: a wake-up that arrives while a dialog is open "
+    "makes the next round start at once.",
 ])
 
-FIN = seq([("mostra_finestra", "agente", "navy"), ("zenity", "--question --no-markup", "blue"),
-           ("Casella", "users/U", "soft"), ("Utente", "", "dark")], [
-    (0, 1, "fork, exec (segnali ripristinati)"),
+FIN = seq([("mostra_finestra", "agent", "navy"), ("zenity", "--question --no-markup", "blue"),
+           ("Mailbox", "users/U", "soft"), ("User", "", "dark")], [
+    (0, 1, "fork, exec (signals restored)"),
     (1, 3, "«Ho letto» / «Più tardi»"),
-    ("nota", 0, "ogni secondo: waitpid"),
-    (0, 2, "acks/ID? inbox/ID? scaduto?"),
-    ("sep", "tre modi di finire"),
-    (3, 1, "«Ho letto»: uscita 0"),
-    (1, 0, "SIGCHLD → conferma desktop", True),
-    (3, 1, "«Più tardi», chiusura: uscita 1"),
-    (0, 2, "rinvio: state/ID.gui"),
-    ("nota", 0, "altrove o ritirato: SIGTERM"),
-], "«FIG» — La finestra di conferma", "Una finestra, dall'apertura alla risposta")
+    ("nota", 0, "every second: waitpid"),
+    (0, 2, "acks/ID? inbox/ID? expired?"),
+    ("sep", "three ways to end".ljust(18)),
+    (3, 1, "«Ho letto»: exit 0"),
+    (1, 0, "SIGCHLD → desktop confirmation", True),
+    (3, 1, "«Più tardi», closed: exit 1"),
+    (0, 2, "postponement: state/ID.gui"),
+    ("nota", 0, "elsewhere/revoked: SIGTERM".ljust(27)),
+], "«FIG» — The confirmation dialog", "A dialog, from opening to answer")
 
-S3 = p(c("mostra_finestra") + " avvia " + c("zenity --question --no-markup --width=460") + " con titolo, testo e "
-       "pulsanti nella lingua della sessione, e ne attende la fine controllando ogni secondo anche la casella.",
+S3 = p(c("mostra_finestra") + " starts " + c("zenity --question --no-markup --width=460") + " with title, text and "
+       "buttons in the session's language, and waits for it to finish, checking the mailbox every second as well.",
        lead=True) + dialog("AMS · Messaggio dall'amministratore", "Manutenzione · 30/09 16:55",
                            "Sabato dalle 8 alle 12 il server sarà spento.",
-                           "«FIG» — La finestra come la disegna zenity su GNOME (ricostruzione)") + FIN + table(
-    ["Come finisce", "Effetto"], [
-        ["uscita 0 («Ho letto»)", c("conferma(ID, \"desktop\")") + "; se la scrittura fallisce e il messaggio è "
-         "ancora nella casella, una notifica lo dice e la finestra torna al giro successivo"],
-        ["uscita 1 («Più tardi», o finestra chiusa dall'utente)", c("rimanda(ID, \"gui\")") + ": tocca "
-         + c("state/ID.gui") + ", evento " + c("RINVIATO")],
-        ["chiusa dall'agente: conferma altrove, ritiro o scadenza", "nulla: se è scaduto, il messaggio passa in "
-         + c("read/")],
-        ["altri esiti (finestra uccisa, per esempio all'uscita dalla sessione)", "nulla: non è una scelta "
-         "dell'utente; la finestra torna al giro successivo o al prossimo login"],
-    ], "«TAB» — Come finisce una finestra") + ul([
-    c("--no-markup") + ": il testo del messaggio non è interpretato come marcatura di zenity. Il testo è già "
-    "ripulito all'invio (" + cap(8, 7) + ").",
-    "Il figlio che diventa zenity ripristina maschera e gestori dei segnali prima di " + c("exec") + ": zenity non "
-    "eredita i blocchi dell'agente.",
-    "La fine di zenity interrompe subito l'attesa (" + c("SIGCHLD") + "): la risposta si registra in pochi "
-    "millisecondi, così un " + c("ams remind") + " che arriva subito dopo un «Più tardi» trova il rinvio già "
-    "scritto e lo toglie (scenario I11; con un controllo al secondo, la VM aveva trovato il sollecito perso).",
-    "Il segnale di sveglia non chiude la finestra: l'agente continua ad aspettarla. Nel prototipo in bash il "
-    "segnale interrompeva " + c("wait") + " e l'agente dava per chiusa la finestra, registrando un rinvio mai "
-    "scelto (VM di prova, scenario I7).",
-    "All'uscita dalla sessione l'agente aspetta la finestra al più 2 secondi, poi la chiude: una conferma già "
-    "data non va persa (scenario I10: «Ho letto» e uscita dopo 0,1 s, conferma registrata).",
-    "Tempi dell'ultima esecuzione registrata nella VM: finestra dopo l'invio 0,58 s (I1), chiusura dopo una "
-    "conferma dal terminale 0,65 s (I5), dopo un ritiro 0,67 s (I6), al login grafico 2,64 s dopo il riavvio del "
-    "login (I9).",
+                           "«FIG» — The dialog as zenity draws it on GNOME (reconstruction)") + FIN + table(
+    ["How it ends", "Effect"], [
+        ["exit 0 («Ho letto», “I have read it” in English)", c("conferma(ID, \"desktop\")") + "; if writing fails "
+         "and the message is still in the mailbox, a notification says so and the dialog comes back at the next "
+         "round"],
+        ["exit 1 («Più tardi», “Later” in English, or dialog closed by the user)", c("rimanda(ID, \"gui\")")
+         + ": touches " + c("state/ID.gui") + ", event " + c("RINVIATO")],
+        ["closed by the agent: confirmation elsewhere, revocation or expiry", "nothing: if it has expired, the "
+         "message moves to " + c("read/")],
+        ["other results (dialog killed, for example when the session ends)", "nothing: it is not the user's "
+         "choice; the dialog comes back at the next round or at the next login"],
+    ], "«TAB» — How a dialog ends") + ul([
+    c("--no-markup") + ": the message text is not interpreted as zenity markup. The text has already been "
+    "cleaned at send time (" + cap(8, 7) + ").",
+    "The child that becomes zenity restores the signal mask and handlers before " + c("exec") + ": zenity does not "
+    "inherit the agent's blocked signals.",
+    "The end of zenity interrupts the wait at once (" + c("SIGCHLD") + "): the answer is recorded within a few "
+    "milliseconds, so an " + c("ams remind") + " arriving right after a «Più tardi» finds the postponement already "
+    "written and removes it (scenario I11; with a check once a second, the VM had found the reminder lost).",
+    "The wake-up signal does not close the dialog: the agent keeps waiting for it. In the bash prototype the "
+    "signal interrupted " + c("wait") + " and the agent took the dialog as closed, recording a postponement never "
+    "chosen (test VM, scenario I7).",
+    "When the session ends the agent waits for the dialog at most 2 seconds, then closes it: a confirmation already "
+    "given is not lost (scenario I10: «Ho letto» and logout after 0.1 s, confirmation recorded).",
+    "Timings of the last run recorded in the VM: dialog after sending 0.58 s (I1), closing after a "
+    "confirmation from the terminal 0.65 s (I5), after a revocation 0.67 s (I6), at graphical login 2.64 s after "
+    "the login manager restart (I9).",
 ])
 
-S4 = p("L'agente usa " + c("notify-send") + ", se è installato, per un solo caso: dire all'utente che la sua "
-       "conferma <b>non</b> è stata registrata (disco pieno, permessi). Il testo è fisso: nessun contenuto dei "
-       "messaggi passa per le notifiche, che possono sparire da sole o essere ignorate.", lead=True) + \
+S4 = p("The agent uses " + c("notify-send") + ", if it is installed, for one case only: telling the user that their "
+       "confirmation has <b>not</b> been recorded (disk full, permissions). The text is fixed: no message content "
+       "goes through notifications, which may disappear by themselves or be ignored.", lead=True) + \
     notification("AMS · Conferma non registrata",
                  "Non è stato possibile registrare la conferma: il messaggio verrà riproposto.",
-                 "«FIG» — L'unica notifica di AMS (ricostruzione)") + \
-    note("per la conferma AMS usa una finestra e non una notifica: una notifica di GNOME può sparire da sola o "
-         "essere ignorata, mentre la finestra di zenity resta aperta finché l'utente non sceglie.")
+                 "«FIG» — The only notification of AMS (reconstruction)") + \
+    note("for the confirmation AMS uses a dialog and not a notification: a GNOME notification may disappear by "
+         "itself or be ignored, whereas the zenity dialog stays open until the user chooses.")
 
-CHAPTER = ("La ricezione sul desktop", [
-    ("Il ciclo dell'agente", S1),
-    ("Segnali e attese senza perdite", S2),
-    ("La finestra di conferma", S3),
-    ("La notifica d'errore", S4),
+CHAPTER = ("Receiving on the desktop", [
+    ("The agent's loop", S1),
+    ("Signals and waits without losses", S2),
+    ("The confirmation dialog", S3),
+    ("The error notification", S4),
 ])

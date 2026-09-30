@@ -2,60 +2,60 @@ from build import arrow, box, c, code, fig, note, p, seq, table, text, ul, zone
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
 SYMLINK = fig(
-    zone(20, 44, 420, 214, "Se root scrivesse direttamente", "#fdf2f2")
-    + box(44, 84, 150, 54, "ams (root)", "scrive inbox/12", "navy")
-    + box(262, 84, 156, 54, "users/mario/inbox", "sostituita da Mario…", "amber", 12)
-    + box(262, 176, 156, 54, "/etc", "…con un collegamento", "grey")
+    zone(20, 44, 420, 214, "If root wrote directly", "#fdf2f2")
+    + box(44, 84, 150, 54, "ams (root)", "writes inbox/12", "navy")
+    + box(262, 84, 156, 54, "users/mario/inbox", "replaced by Mario…", "amber", 12)
+    + box(262, 176, 156, 54, "/etc", "…with a symlink", "grey")
     + arrow(196, 111, 260, 111, "#b91c1c")
     + arrow(340, 140, 340, 174, "#b91c1c", True)
-    + text(130, 206, "root scriverebbe", 11.5, "#b91c1c", "700")
-    + text(130, 224, "dentro /etc", 11.5, "#b91c1c", "700")
-    + zone(470, 44, 410, 214, "Con come_utente", "#f0fdf4")
+    + text(130, 206, "root would write", 11.5, "#b91c1c", "700")
+    + text(130, 224, "inside /etc", 11.5, "#b91c1c", "700")
+    + zone(470, 44, 410, 214, "With come_utente", "#f0fdf4")
     + box(494, 84, 150, 54, "ams (root)", "come_utente(mario)", "navy")
-    + box(704, 84, 156, 54, "figlio (mario)", "scrive inbox/12", "light")
-    + box(704, 176, 156, 54, "/etc", "permesso negato", "grey")
+    + box(704, 84, 156, 54, "child (mario)", "writes inbox/12", "light")
+    + box(704, 176, 156, 54, "/etc", "permission denied", "grey")
     + arrow(646, 111, 702, 111, "#16a34a")
     + arrow(782, 140, 782, 174, "#475569", True)
-    + text(580, 206, "il peggio: Mario", 11.5, "#166534", "700")
-    + text(580, 224, "rovina la sua casella", 11.5, "#166534", "700"),
-    900, 276, "«FIG» — Perché root accede alle caselle con l'identità dell'utente",
-    "Il pericolo dei collegamenti simbolici")
+    + text(580, 206, "worst case: Mario", 11.5, "#166534", "700")
+    + text(580, 224, "spoils his own mailbox", 11.5, "#166534", "700"),
+    900, 276, "«FIG» — Why root accesses the mailboxes with the user's identity",
+    "The danger of symbolic links")
 
-S1 = p("La casella " + c("users/U") + " appartiene all'utente, che può sostituirne le sottocartelle con "
-       "collegamenti simbolici, pipe o file strani. Se root ci scrivesse direttamente, seguirebbe il collegamento "
-       "e potrebbe scrivere ovunque; se ci leggesse, potrebbe mostrare file che l'utente non può leggere. Per questo "
-       "<b>ogni accesso di root al contenuto di una casella avviene in un processo figlio con l'identità "
-       "dell'utente</b>: " + c("come_utente") + " di " + c("src/utente.c") + ", al posto di " + c("runuser")
-       + " usato dal prototipo.", lead=True) + SYMLINK + \
-    p("Nel figlio valgono i permessi dell'utente: un collegamento verso " + c("/etc") + " porta a «permesso "
-      "negato», e il peggio che l'utente può ottenere è rovinare la propria copia. Lo scenario G1 della macchina di "
-      "prova lo verifica: con la casella trasformata in collegamento a " + c("/etc") + ", " + c("ams send") + " non "
-      "scrive nulla in " + c("/etc") + " e il destinatario resta «inviato, non consegnato».") + \
-    note("solo la cartella " + c("users/U") + " stessa è toccata da root: la crea (" + c("700") + ") dentro "
-         + c("users/") + ", che appartiene a root, e la cede a U con " + c("lchown") + ". Se esiste già deve essere "
-         "una cartella vera (" + c("lstat") + "); se è rimasta di root, per un invio interrotto fra la creazione e la "
-         "cessione, viene ceduta al primo invio (scenario F6).")
+S1 = p("The mailbox " + c("users/U") + " belongs to the user, who can replace its subfolders with "
+       "symbolic links, pipes or odd files. If root wrote into it directly, it would follow the link "
+       "and could write anywhere; if it read from it, it could show files the user is not allowed to read. This is "
+       "why <b>every access by root to the contents of a mailbox happens in a child process with the user's "
+       "identity</b>: " + c("come_utente") + " in " + c("src/utente.c") + ", in place of the " + c("runuser")
+       + " used by the prototype.", lead=True) + SYMLINK + \
+    p("In the child the user's permissions apply: a link to " + c("/etc") + " leads to «permission "
+      "denied», and the worst the user can achieve is to spoil their own copy. Scenario G1 on the test "
+      "machine checks this: with the mailbox turned into a link to " + c("/etc") + ", " + c("ams send") + " "
+      "writes nothing in " + c("/etc") + " and the recipient stays «sent, not delivered».") + \
+    note("only the folder " + c("users/U") + " itself is touched by root: root creates it (" + c("700") + ") inside "
+         + c("users/") + ", which belongs to root, and hands it over to U with " + c("lchown") + ". If it already "
+         "exists it must be a real folder (" + c("lstat") + "); if it is still owned by root, because a send was "
+         "interrupted between creation and handover, it is handed over at the next send (scenario F6).")
 
 FIGLIO = seq([("ams (root)", "come_utente", "navy"), ("pipe", "stdin · stdout", "soft"),
-              ("figlio", "fork", "dark"), ("figlio come U", "fn(arg)", "blue")], [
+              ("child", "fork", "dark"), ("child as U", "fn(arg)", "blue")], [
     (0, 2, "fork"),
-    ("nota", 2, "stdin e stdout sulle pipe"),
+    ("nota", 2, "stdin and stdout on pipes"),
     (2, 3, "initgroups, setresgid, setresuid"),
-    ("nota", 3, "setuid(0) deve fallire"),
-    (0, 1, "dati su stdin"),
-    (3, 1, "uscita, al più max byte", True),
-    ("sep", "entro il tempo massimo"),
-    (3, 0, "codice di uscita (waitpid)", True),
-    ("nota", 0, "tempo scaduto: SIGKILL"),
-], "«FIG» — Come nasce e come finisce il processo figlio", "Un figlio con l'identità dell'utente")
+    ("nota", 3, "setuid(0) must fail".ljust(22)),
+    (0, 1, "data on stdin"),
+    (3, 1, "output, at most max bytes", True),
+    ("sep", "within the time limit".ljust(22)),
+    (3, 0, "exit code (waitpid)", True),
+    ("nota", 0, "timed out: SIGKILL".ljust(22)),
+], "«FIG» — How the child process starts and ends", "A child with the user's identity")
 
-S2 = p(c("come_utente(u, fn, arg, in, out, max, secondi)") + " esegue " + c("fn(arg)") + " in un processo figlio "
-       "con l'identità di " + c("u") + ". Il padre gli passa dati su stdin, ne raccoglie l'uscita su una pipe e ne "
-       "attende la fine, sempre con un tempo massimo.", lead=True) + FIGLIO + code("""static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int out)
+S2 = p(c("come_utente(u, fn, arg, in, out, max, secondi)") + " runs " + c("fn(arg)") + " in a child process "
+       "with the identity of " + c("u") + ". The parent passes it data on stdin, collects its output on a pipe and "
+       "waits for it to finish, always with a time limit.", lead=True) + FIGLIO + code("""static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int out)
 {
 	/* stdin e stdout sulle pipe, stderr su /dev/null */
 	if (geteuid() == 0 && !ams_test) {
@@ -70,60 +70,61 @@ S2 = p(c("come_utente(u, fn, arg, in, out, max, secondi)") + " esegue " + c("fn(
 		_exit(126);
 	umask(022);
 	_exit(fn(arg) & 0xff);
-}""", "c", "src/utente.c (in breve)") + ul([
-    "L'ordine conta: prima i gruppi supplementari (" + c("initgroups") + "), poi il gruppo, poi l'utente; dopo "
-    + c("setresuid") + " non si può più cambiare gruppo.",
-    "Il figlio verifica di <b>non</b> poter tornare root: se " + c("setuid(0)") + " riuscisse, l'identità non "
-    "sarebbe stata assunta davvero. Qualunque anomalia termina con il codice 126, che il padre traduce in errore.",
-    "Dopo il cambio d'identità il kernel rende il processo non ispezionabile dall'utente (non «dumpable»): U non "
-    "può leggerne la memoria mentre lavora.",
-    "In modalità di prova, senza root, il figlio resta con l'identità di chi lancia la prova.",
+}""", "c", "src/utente.c (abridged)") + ul([
+    "The order matters: first the supplementary groups (" + c("initgroups") + "), then the group, then the user; after "
+    + c("setresuid") + " the group can no longer be changed.",
+    "The child checks that it can <b>not</b> become root again: if " + c("setuid(0)") + " succeeded, the identity "
+    "would not really have been assumed. Any anomaly ends with exit code 126, which the parent turns into an error.",
+    "After the identity change the kernel makes the process non-inspectable by the user (not «dumpable»): U cannot "
+    "read its memory while it works.",
+    "In test mode, without root, the child keeps the identity of whoever runs the test.",
 ])
 
-S3 = p("Il figlio gira con l'identità dell'utente, quindi l'utente può fermarlo (" + c("SIGSTOP") + ") o "
-       "rallentarlo. " + c("ams") + " non deve restare appeso: il tempo massimo vale sia mentre il figlio scrive sia "
-       "dopo, finché non esce.", lead=True) + table(["Esito di come_utente", "Quando"], [
-    ["il codice di uscita di " + c("fn") + " (0–125, 127–255)", "il figlio è uscito normalmente"],
-    [c("-1"), "il figlio non è partito (" + c("pipe2") + ", " + c("fork") + "); non ha potuto assumere l'identità "
-     "(codice 126); è stato ucciso da un segnale; il tempo è scaduto (il padre lo uccide con " + c("SIGKILL") + ")"],
-], "«TAB» — Gli esiti di come_utente") + table(["Chiamata", "Tempo massimo", "Uscita raccolta"], [
-    ["consegna, ritiro, sollecito, cancellazione", "20 s", "nessuna: conta il codice"],
-    ["lettura di una casella (" + c("leggi_casella") + ")", "20 s", "al più 4 MiB"],
-    ["sveglia dell'agente", "5 s", "nessuna"],
-    ["ambiente di un processo del terminale", "5 s", "al più 1 MiB"],
-], "«TAB» — I tempi massimi") + \
-    p("Le pipe sono create con " + c("O_CLOEXEC") + "; lo stdin del figlio si scrive in modo non bloccante, "
-      "alternato alla lettura dell'uscita con " + c("poll") + " (al più un secondo per giro), così un figlio che non "
-      "legge non blocca il padre. L'analisi statica di gcc ha trovato pipe non chiuse in un caso d'errore di "
-      + c("come_utente") + ": corrette (" + cap(21, 7) + ").")
+S3 = p("The child runs with the user's identity, so the user can stop it (" + c("SIGSTOP") + ") or "
+       "slow it down. " + c("ams") + " must not hang: the time limit applies both while the child is writing and "
+       "afterwards, until it exits.", lead=True) + table(["Result of come_utente", "When"], [
+    ["the exit code of " + c("fn") + " (0–125, 127–255)", "the child exited normally"],
+    [c("-1"), "the child did not start (" + c("pipe2") + ", " + c("fork") + "); it could not assume the identity "
+     "(code 126); it was killed by a signal; the time ran out (the parent kills it with " + c("SIGKILL") + ")"],
+], "«TAB» — The results of come_utente") + table(["Call", "Time limit", "Output collected"], [
+    ["delivery, revocation, reminder, deletion", "20 s", "none: the exit code is what counts"],
+    ["reading a mailbox (" + c("leggi_casella") + ")", "20 s", "at most 4 MiB"],
+    ["waking the agent", "5 s", "none"],
+    ["environment of a terminal's process", "5 s", "at most 1 MiB"],
+], "«TAB» — The time limits") + \
+    p("The pipes are created with " + c("O_CLOEXEC") + "; the child's stdin is written in non-blocking mode, "
+      "alternating with reading the output via " + c("poll") + " (at most one second per round), so a child that "
+      "does not read does not block the parent. gcc's static analysis found pipes left open in an error path of "
+      + c("come_utente") + ": fixed (" + cap(21, 7) + ").")
 
-S4 = p("Tutte le operazioni sulle caselle sono funzioni di " + c("src/archivio.c") + " che girano dentro il figlio. "
-       "Sono piccole di proposito: fanno una cosa, con percorsi costruiti dal numero del messaggio.", lead=True) + \
-    table(["Operazione", "Chiamata da", "Nel figlio (come U)", "Esito"], [
-        [c("op_consegna"), c("consegna_copia") + ": invio e recupero", "crea " + c("inbox read acks state")
-         + " se mancano; se il messaggio è già in " + c("read/") + " o " + c("acks/") + " non fa nulla; altrimenti "
-         "scrive " + c("inbox/ID.tmp") + " (" + c("O_EXCL|O_NOFOLLOW") + "), lo rinomina e controlla che "
-         + c("inbox/ID") + " sia un file normale non vuoto", "0 se la copia c'è (o era già letta)"],
-        [c("op_togli"), c("togli_copia") + ": ritiro", "toglie " + c("inbox/ID") + ", " + c("state/ID.term")
-         + " e " + c("state/ID.gui"), "0 se la copia non c'è più"],
-        [c("op_togli_rinvii"), c("togli_rinvii") + ": sollecito", "toglie " + c("state/ID.term") + " e "
-         + c("state/ID.gui"), "0 se non ne restano"],
-        [c("op_cancella"), c("cancella_copie") + ": cancellazione", "toglie " + c("inbox/ID") + ", " + c("read/ID")
-         + ", " + c("acks/ID") + " e i rinvii", "sempre 0"],
-        [c("op_leggi"), c("leggi_casella") + ": " + c("list") + ", " + c("status") + ", TUI", "per ogni ID ricevuto "
-         "su stdin: prima riga di " + c("acks/ID") + " (al più 200 byte, solo da un file normale) e data più "
-         "recente di " + c("state/ID.*"), "righe «A ID riga» e «S ID data» (" + cap(10, 2) + ")"],
-        [c("op_sveglia"), c("sveglia_agente"), "legge il PID pronto, controlla la riga di comando, manda "
-         + c("SIGUSR1"), "0 se svegliato (" + cap(8, 5) + ")"],
-        [c("op_environ"), c("lingua_terminale"), "legge " + c("/proc/PID/environ") + " quando root non può "
-         "(un container senza " + c("CAP_SYS_PTRACE") + ")", "l'ambiente su stdout (" + cap(16, 1) + ")"],
-    ], "«TAB» — Le operazioni eseguite come l'utente") + \
-    note("il ritiro e la cancellazione non chiedono all'utente se la cartella esiste: se " + c("users/U")
-         + " non c'è (utente mai raggiunto) non c'è nulla da togliere e l'operazione riesce senza lanciare il figlio.")
+S4 = p("All operations on the mailboxes are functions in " + c("src/archivio.c") + " that run inside the child. "
+       "They are small on purpose: each does one thing, with paths built from the message number.", lead=True) + \
+    table(["Operation", "Called by", "In the child (as U)", "Result"], [
+        [c("op_consegna"), c("consegna_copia") + ": sending and recovery", "creates " + c("inbox read acks state")
+         + " if missing; if the message is already in " + c("read/") + " or " + c("acks/") + " it does nothing; "
+         "otherwise it writes " + c("inbox/ID.tmp") + " (" + c("O_EXCL|O_NOFOLLOW") + "), renames it and checks that "
+         + c("inbox/ID") + " is a regular, non-empty file", "0 if the copy is there (or was already read)"],
+        [c("op_togli"), c("togli_copia") + ": revocation", "removes " + c("inbox/ID") + ", " + c("state/ID.term")
+         + " and " + c("state/ID.gui"), "0 if the copy is no longer there"],
+        [c("op_togli_rinvii"), c("togli_rinvii") + ": reminder", "removes " + c("state/ID.term") + " and "
+         + c("state/ID.gui"), "0 if none are left"],
+        [c("op_cancella"), c("cancella_copie") + ": deletion", "removes " + c("inbox/ID") + ", " + c("read/ID")
+         + ", " + c("acks/ID") + " and the postponements", "always 0"],
+        [c("op_leggi"), c("leggi_casella") + ": " + c("list") + ", " + c("status") + ", TUI", "for each ID received "
+         "on stdin: first line of " + c("acks/ID") + " (at most 200 bytes, only from a regular file) and most "
+         "recent date of " + c("state/ID.*"), "lines «A ID line» and «S ID date» (" + cap(10, 2) + ")"],
+        [c("op_sveglia"), c("sveglia_agente"), "reads the ready PID, checks the command line, sends "
+         + c("SIGUSR1"), "0 if woken (" + cap(8, 5) + ")"],
+        [c("op_environ"), c("lingua_terminale"), "reads " + c("/proc/PID/environ") + " when root cannot "
+         "(a container without " + c("CAP_SYS_PTRACE") + ")", "the environment on stdout (" + cap(16, 1) + ")"],
+    ], "«TAB» — The operations performed as the user") + \
+    note("revocation and deletion do not ask the user whether the folder exists: if " + c("users/U")
+         + " is not there (a user never reached) there is nothing to remove and the operation succeeds without "
+         "starting the child.")
 
-CHAPTER = ("Root con l'identità dell'utente", [
-    ("Il pericolo dei collegamenti simbolici", S1),
-    ("Come nasce il processo figlio", S2),
-    ("Tempi massimi ed esiti", S3),
-    ("Le operazioni sulle caselle", S4),
+CHAPTER = ("Root with the user's identity", [
+    ("The danger of symbolic links", S1),
+    ("How the child process starts", S2),
+    ("Time limits and results", S3),
+    ("Operations on the mailboxes", S4),
 ])

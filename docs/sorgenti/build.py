@@ -1,12 +1,14 @@
 """Generatore dei manuali di AMS, sul modello dei manuali di IR_Service.
 
 Produce due file HTML autosufficienti (nessuno script, nessun file esterno):
-  docs/AMS_Manuale_Utente.html   dai capitoli in utente/chNN_*.py
-  docs/AMS_Manuale_Tecnico.html  dai capitoli in tecnico/chNN_*.py
+  "docs/User Manual.html"       dai capitoli in utente/chNN_*.py
+  "docs/Technical Manual.html"  dai capitoli in tecnico/chNN_*.py
+
+I manuali sono in inglese: testi dei capitoli, didascalie ed etichette qui sotto.
 
 Ogni capitolo espone CHAPTER = (titolo, [(titolo_sezione, html), ...]).
-I segnaposto «FIG» e «TAB» nelle didascalie diventano «Figura N.M» e
-«Tabella N.M», numerati per capitolo. Lo stile è in stile.css.
+I segnaposto «FIG» e «TAB» nelle didascalie diventano «Figure N.M» e
+«Table N.M», numerati per capitolo. Lo stile è in stile.css.
 
     python3 docs/sorgenti/build.py            rigenera i due manuali
     python3 docs/sorgenti/build.py CARTELLA   li scrive in CARTELLA (usato da tools/check-docs.py)
@@ -22,18 +24,18 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-DATE = "Settembre 2026"
+DATE = "September 2026"
 VERSION = re.search(r'^#define AMS_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
 
 MANUALS = {
-    "utente": dict(file="AMS_Manuale_Utente.html", title="Manuale Utente — AMS", kicker="Documentazione utente",
-                   h1="Manuale Utente",
-                   sub="AMS — Advanced Messaging System · Messaggi dagli amministratori agli utenti, "
-                       "con conferma di lettura"),
-    "tecnico": dict(file="AMS_Manuale_Tecnico.html", title="Manuale Tecnico — AMS", kicker="Documentazione tecnica",
-                    h1="Manuale Tecnico",
-                    sub="AMS — Advanced Messaging System · Architettura, archivio dei messaggi, "
-                        "consegna, conferme e sicurezza"),
+    "utente": dict(file="User Manual.html", title="User Manual — AMS", kicker="User documentation",
+                   h1="User Manual",
+                   sub="AMS — Advanced Messaging System · Messages from administrators to users, "
+                       "with read confirmation"),
+    "tecnico": dict(file="Technical Manual.html", title="Technical Manual — AMS", kicker="Technical documentation",
+                    h1="Technical Manual",
+                    sub="AMS — Advanced Messaging System · Architecture, message store, "
+                        "delivery, confirmations and security"),
 }
 
 # Aggiunte allo stile di IR: procedure, etichette, terminali, finestre di esempio.
@@ -122,15 +124,15 @@ def steps(items):
     return '<ol class="steps">' + "".join(f"<li>{i}</li>" for i in items) + "</ol>"
 
 
-def note(t, title="Nota."):
+def note(t, title="Note."):
     return f'<div class="callout c-info"><div class="callout-i">i</div><div><b>{title}</b> {t}</div></div>'
 
 
-def warn(t, title="Attenzione."):
+def warn(t, title="Warning."):
     return f'<div class="callout c-warn"><div class="callout-i">!</div><div><b>{title}</b> {t}</div></div>'
 
 
-def tip(t, title="Consiglio."):
+def tip(t, title="Tip."):
     return f'<div class="callout c-ok"><div class="callout-i">+</div><div><b>{title}</b> {t}</div></div>'
 
 
@@ -212,7 +214,7 @@ def dialog(title, heading, body, cap):
 
 
 def notification(title, body, cap):
-    return (f'<figure class="fig"><div class="shot"><div class="ntf" role="img" aria-label="Notifica">'
+    return (f'<figure class="fig"><div class="shot"><div class="ntf" role="img" aria-label="Notification">'
             f'<div class="ntf-a">AMS</div><b>{esc(title)}</b>{esc(body)}</div></div>'
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 
@@ -392,7 +394,7 @@ def file_map(rows, cap):
     for f, role in rows:
         n = len((ROOT / f).read_text().splitlines())
         out.append([c(f), str(n), role])
-    return table(["File", "Righe", "Ruolo"], out, cap, "file-map")
+    return table(["File", "Lines", "Role"], out, cap, "file-map")
 
 
 # ── I risultati delle prove, letti dai file che le prove scrivono ────────
@@ -406,28 +408,28 @@ def risultati_prove():
     import json
     attuale = impronta_attuale()
     righe = []
-    for nome, f, unita in (("tests/engine.sh", "tests/risultati/engine.json", "controlli"),
-                           ("tests/container/esegui.sh", "tests/container/risultati/risultati.json", "scenari"),
-                           ("tests/vm/esegui.sh", "tests/vm/risultati/risultati.json", "scenari")):
+    for nome, f, unita in (("tests/engine.sh", "tests/risultati/engine.json", "checks"),
+                           ("tests/container/esegui.sh", "tests/container/risultati/risultati.json", "scenarios"),
+                           ("tests/vm/esegui.sh", "tests/vm/risultati/risultati.json", "scenarios")):
         path = ROOT / f
         if not path.exists():
-            righe.append([c(nome), "mai eseguita", "", "", "", ""])
+            righe.append([c(nome), "never run", "", "", "", ""])
             continue
         d = json.loads(path.read_text())
         m = d.get("meta", d)
-        esito = f"{m['ok']} riusciti su {m['totale']} {unita}"
+        esito = f"{m['ok']} of {m['totale']} {unita} passed"
         if m.get("no"):
-            esito += f", <b>{m['no']} falliti</b>"
+            esito += f", <b>{m['no']} failed</b>"
         if m.get("non_provati"):
-            esito += f", {m['non_provati']} non provati"
+            esito += f", {m['non_provati']} not tested"
         if m.get("solo"):
-            esito += f" (solo {m['solo']})"
-        imp = m.get("impronta", "sconosciuta")
-        righe.append([c(nome), esito, m.get("data", ""), c(m.get("commit", "sconosciuto")), c(imp),
-                      "sì" if imp == attuale else "<b>no</b>: codice cambiato dopo la prova"])
-    return table(["Suite", "Esito", "Data", "Commit", "Impronta", "Vale per il codice attuale"], righe,
-                 "«TAB» — L'ultima esecuzione di ogni suite (" + c("tests/*/risultati/") + "); impronta del codice "
-                 "attuale: " + c(attuale))
+            esito += f" (only {m['solo']})"
+        imp = m.get("impronta", "unknown")
+        righe.append([c(nome), esito, m.get("data", ""), c(m.get("commit", "unknown")), c(imp),
+                      "yes" if imp == attuale else "<b>no</b>: code changed after the run"])
+    return table(["Suite", "Result", "Date", "Commit", "Fingerprint", "Valid for the current code"], righe,
+                 "«TAB» — The last run of each suite (" + c("tests/*/risultati/") + "); fingerprint of the current "
+                 "code: " + c(attuale))
 
 
 # ── La guida integrata come fonte del riferimento ───────────────────────
@@ -455,10 +457,12 @@ GUIDA_CONTESTI = {"AMS_HELP_COMMANDS": "guida-comandi", "AMS_HELP_OPTIONS": "gui
 
 
 def help_items(name):
-    """Le voci «etichetta¦descrizione» di un gruppo della guida, in italiano: le
-    traduzioni di po/it.po con il contesto del gruppo, nell'ordine di src/guida.c."""
+    """Le voci «etichetta¦descrizione» di un gruppo della guida, in inglese come i
+    manuali: i testi di partenza di po/ams.pot (estratti da src/guida.c con make pot)
+    con il contesto del gruppo, nell'ordine di src/guida.c. tools/check-docs.py li
+    confronta con quelli estratti in quel momento dal codice."""
     ctx = GUIDA_CONTESTI[name]
-    return [tuple((tr or mid).split("¦", 1)) for c, mid, tr in po_voci(ROOT / "po/it.po") if c == ctx]
+    return [tuple(mid.split("¦", 1)) for c, mid, _ in po_voci(ROOT / "po/ams.pot") if c == ctx]
 
 
 def help_reference(name, kind):
@@ -499,7 +503,7 @@ def number(doc):
         def num(mm):
             k = mm.group(1)
             counters[k] += 1
-            return f'{"Figura" if k == "FIG" else "Tabella"} {cur}.{counters[k]}'
+            return f'{"Figure" if k == "FIG" else "Table"} {cur}.{counters[k]}'
         out.append(re.sub(r"«(FIG|TAB)»", num, part) if counters else part)
     return "".join(out)
 
@@ -510,7 +514,7 @@ def build(kind, outdir):
     toc, body = [], []
     for ci, (ctitle, sections) in enumerate(load_chapters(kind), 1):
         toc.append(f'<li class="toc-ch"><a href="#ch{ci}"><span class="toc-n">{ci}</span><span class="toc-t">{esc(ctitle)}</span></a></li>')
-        body.append(f'<section class="chapter" id="ch{ci}"><div class="ch-head"><span class="ch-kick">Capitolo {ci}</span>'
+        body.append(f'<section class="chapter" id="ch{ci}"><div class="ch-head"><span class="ch-kick">Chapter {ci}</span>'
                     f'<h2 class="h-ch">{esc(ctitle)}</h2></div>')
         for si, (stitle, shtml) in enumerate(sections, 1):
             sid = f"ch{ci}s{si}"
@@ -518,7 +522,7 @@ def build(kind, outdir):
             body.append(f'<section class="sec" id="{sid}"><h3 class="h-sec">{ci}.{si} · {esc(stitle)}</h3>{shtml}</section>')
         body.append("</section>")
     doc = number("".join(body))
-    page = f"""<!doctype html><html lang="it"><head><meta charset="utf-8">
+    page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{meta["title"]}</title>
 <style>{css}</style></head>
 <body>
@@ -529,17 +533,17 @@ def build(kind, outdir):
     <h1 class="cover-title">{meta["h1"]}</h1>
     <div class="cover-sub">{meta["sub"]}</div>
     <div class="cover-meta">
-      <div><span>Versione</span><b>{VERSION}</b></div>
-      <div><span>Data</span><b>{DATE}</b></div>
-      <div><span>Stato</span><b>Riservato</b></div>
+      <div><span>Version</span><b>{VERSION}</b></div>
+      <div><span>Date</span><b>{DATE}</b></div>
+      <div><span>Status</span><b>Confidential</b></div>
     </div>
     <div class="cover-swoosh"></div>
   </section>
   <div class="with-side">
-    <aside class="side"><div class="side-inner"><h2 class="toc-head">Indice</h2><ul class="toc-list">{"".join(toc)}</ul></div></aside>
+    <aside class="side"><div class="side-inner"><h2 class="toc-head">Contents</h2><ul class="toc-list">{"".join(toc)}</ul></div></aside>
     <main class="main">{doc}</main>
   </div>
-  <footer class="doc-foot">AMS — Advanced Messaging System · {meta["h1"]} v{VERSION} · {DATE} · Documento riservato · Copyright (c) 2026 nic-fio</footer>
+  <footer class="doc-foot">AMS — Advanced Messaging System · {meta["h1"]} v{VERSION} · {DATE} · Confidential document · Copyright (c) 2026 nic-fio</footer>
 </div></body></html>
 """
     out = pathlib.Path(outdir) / meta["file"]

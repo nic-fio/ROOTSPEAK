@@ -5,122 +5,124 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import c, flow, note, p, steps, table, term, tip, tree, warn  # noqa: E402
 from _aiuti import rif  # noqa: E402
 
-S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debian 13 con GNOME su Wayland: dal vivo, "
-       "e con prove automatiche in una macchina di prova e in una macchina virtuale con desktop. Con X11, altri desktop "
-       "e altre distribuzioni con systemd dovrebbe funzionare allo stesso modo, ma non è stato provato; senza systemd "
-       "non funziona.", lead=True) + \
-    table(["Requisito", "A cosa serve", "Pacchetto su Debian e Ubuntu"], [
-        ["systemd", "sapere chi è collegato e dove, e aprire la finestra sul desktop", "già presente"],
-        ["sudo e un gruppo di amministratori", "decidere chi può usare " + c("ams"),
-         c("sudo") + " (gruppo " + c("sudo") + "; su Fedora e simili " + c("wheel") + ")"],
-        ["una shell: bash, zsh o fish", "la domanda di conferma nei terminali a ogni prompt; con sh, dash e ksh "
-         "solo al login", "bash è già presente"],
-        ["zenity", "la finestra «Ho letto» / «Più tardi» sul desktop", c("zenity")],
-        ["notify-send (facoltativo)", "l'avviso sul desktop quando una conferma non si è potuta registrare",
+S1 = p("AMS runs on a Linux distribution with systemd. It has been tested on Debian 13 with GNOME on Wayland: live, "
+       "and with automated tests in a test machine and in a virtual machine with a desktop. With X11, other desktops "
+       "and other systemd distributions it should work the same way, but this has not been tested; without systemd "
+       "it does not work.", lead=True) + \
+    table(["Requirement", "What it is for", "Package on Debian and Ubuntu"], [
+        ["systemd", "knowing who is logged in and where, and opening the dialog on the desktop", "already present"],
+        ["sudo and an administrators group", "deciding who may use " + c("ams"),
+         c("sudo") + " (group " + c("sudo") + "; on Fedora and similar " + c("wheel") + ")"],
+        ["a shell: bash, zsh or fish", "the confirmation question in terminals at every prompt; with sh, dash and ksh "
+         "only at login", "bash is already present"],
+        ["zenity", "the «Ho letto» / «Più tardi» dialog on the desktop", c("zenity")],
+        ["notify-send (optional)", "the desktop notice when a confirmation could not be recorded",
          c("libnotify-bin")],
-        ["gli strumenti per compilare, solo per installare", "AMS è scritto in C: " + c("install.sh") + " lo compila "
-         "se serve", c("gcc make pkg-config libsystemd-dev gettext")],
-    ], "«TAB» — I requisiti") + \
+        ["the build tools, only for installing", "AMS is written in C: " + c("install.sh") + " compiles it "
+         "if needed", c("gcc make pkg-config libsystemd-dev gettext")],
+    ], "«TAB» — Requirements") + \
     term("admin@server:~$ sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev gettext",
-         "Installare i pacchetti su Debian e Ubuntu") + \
-    note("sulle macchine senza desktop zenity non serve: AMS usa solo i terminali. L'installazione segnala "
-         "«Attenzione: manca zenity» ma prosegue.", "Server senza desktop.")
+         "Installing the packages on Debian and Ubuntu") + \
+    note("on machines without a desktop zenity is not needed: AMS uses only the terminals. The installation reports "
+         "«Attenzione: manca zenity» (zenity is missing) but carries on.", "Servers without a desktop.")
 
-PERCORSO = flow([("make", "compila, come utente", "dark"), ("./install.sh", "installa, con sudo", "navy"),
-                 ("ams version", "risponde?", "blue"), ("ams", "la TUI, vuota", "green")],
-                "«FIG» — Dall'archivio dei sorgenti al primo avvio", "Installazione in quattro passi")
+PERCORSO = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "installs, with sudo", "navy"),
+                 ("ams version", "does it answer?", "blue"), ("ams", "the TUI, empty", "green")],
+                "«FIG» — From the source tree to the first start", "Installation in four steps")
 
 S2 = PERCORSO + steps([
-    "Aprire un terminale nella cartella di AMS e compilare, come utente normale:" + term(
+    "Open a terminal in the AMS folder and compile, as a normal user:" + term(
         "admin@server:~/AMS$ make"),
-    "Lanciare l'installazione: lo script si rilancia da solo con sudo e chiede la password." + term(
+    "Run the installation: the script restarts itself with sudo and asks for the password." + term(
         "admin@server:~/AMS$ ./install.sh\n"
         "[sudo] password di admin:\n"
         "AMS installato. Comando: /usr/local/bin/ams (utilizzabile dal gruppo sudo).\n"
-        "Manuali: /usr/local/share/doc/ams/AMS_Manuale_Utente.html e AMS_Manuale_Tecnico.html\n"
+        "Manuali: /usr/local/share/doc/ams/User Manual.html e Technical Manual.html\n"
         "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda\n"
         "di conferma dalla prossima shell o dal prossimo login."),
-    "Controllare che il comando risponda:" + term("admin@server:~$ ams version\n"
-                                                  "AMS - Advanced Messaging System 0.2.0"),
-]) + tip("se " + c("make") + " non è stato lanciato, o se i programmi erano stati compilati per altre cartelle, "
-         + c("install.sh") + " compila da solo. Se la compilazione non riesce scrive «Compilazione non riuscita: "
-         "servono gcc, make, pkg-config, libsystemd-dev e gettext».", "Compilazione automatica.") + \
-    note("gli utenti già collegati ricevono subito i messaggi, anche sul desktop. La domanda di conferma nel "
-         "terminale arriva invece dalla prossima finestra di terminale che aprono: quelle già aperte non hanno ancora "
-         "caricato AMS.", "Utenti già collegati.")
+    "Check that the command answers:" + term("admin@server:~$ ams version\n"
+                                             "AMS - Advanced Messaging System 0.2.0"),
+]) + tip("if " + c("make") + " has not been run, or if the programs were compiled for other folders, "
+         + c("install.sh") + " compiles on its own. If compilation fails it writes «Compilazione non riuscita: "
+         "servono gcc, make, pkg-config, libsystemd-dev e gettext» (compilation failed: gcc, make, pkg-config, "
+         "libsystemd-dev and gettext are needed).", "Automatic compilation.") + \
+    note("users who are already logged in receive messages straight away, on the desktop too. The confirmation "
+         "question in the terminal, instead, arrives from the next terminal window they open: the ones already open "
+         "have not loaded AMS yet.", "Users already logged in.")
 
 ALBERO = tree([
-    "/usr/local/bin/ams  # il comando degli amministratori (root:sudo, 750)",
-    "/usr/local/lib/ams/  # le parti interne",
-    "├── ams-user  # mostra i messaggi e registra le conferme, come l'utente",
-    "├── ams.bash  # aggancio di bash",
-    "└── ams.zsh  # aggancio di zsh",
-    "/usr/local/share/locale/it/LC_MESSAGES/ams.mo  # la traduzione italiana",
-    "/usr/local/share/doc/ams/  # questo manuale e il manuale tecnico",
-    "/etc/ams/ams.conf  # le impostazioni (non sovrascritte da un aggiornamento)",
-    "/etc/profile.d/ams.sh  # aggancio delle shell al login",
-    "/etc/fish/conf.d/ams.fish  # aggancio di fish",
-    "/etc/xdg/autostart/ams-agent.desktop  # avvio automatico sul desktop",
-    "/var/lib/ams/  # i messaggi e le conferme",
-    "├── sent/  # le copie di riferimento (solo root)",
-    "└── users/  # una casella per utente",
-], "«FIG» — I file installati da install.sh")
+    "/usr/local/bin/ams  # the administrators' command (root:sudo, 750)",
+    "/usr/local/lib/ams/  # the internal parts",
+    "├── ams-user  # shows the messages and records the confirmations, as the user",
+    "├── ams.bash  # bash hook",
+    "└── ams.zsh  # zsh hook",
+    "/usr/local/share/locale/it/LC_MESSAGES/ams.mo  # the Italian translation",
+    "/usr/local/share/doc/ams/  # this manual and the technical manual",
+    "/etc/ams/ams.conf  # the settings (not overwritten by an upgrade)",
+    "/etc/profile.d/ams.sh  # shell hook at login",
+    "/etc/fish/conf.d/ams.fish  # fish hook",
+    "/etc/xdg/autostart/ams-agent.desktop  # autostart on the desktop",
+    "/var/lib/ams/  # messages and confirmations",
+    "├── sent/  # the reference copies (root only)",
+    "└── users/  # one mailbox per user",
+], "«FIG» — The files installed by install.sh")
 
-S3 = p("L'installazione mette ogni cosa nei posti abituali di Linux. Oltre a questi file aggiunge una riga, marcata "
-       + c("# AMS hook") + ", in fondo a " + c("/etc/bash.bashrc") + " e, se zsh è installata, allo zshrc di "
-       "sistema: è ciò che fa comparire la domanda nei terminali del desktop.", lead=True) + ALBERO + \
-    table(["Dove", "Che cos'è", "Chi lo usa"], [
-        [c("/usr/local/bin/ams"), "Il comando. Solo il gruppo degli amministratori può eseguirlo.", "amministratori"],
-        [c("/usr/local/lib/ams/ams-user"), "L'aiutante che mostra i messaggi e registra le conferme. Non è un "
-         "comando: gli utenti non lo lanciano mai, parte da solo.", "shell e desktop degli utenti"],
-        [c("/etc/ams/ams.conf"), "Le impostazioni (" + rif(10) + ").", "tutti, in lettura"],
-        [c("/var/lib/ams/"), "I messaggi, le caselle degli utenti, le conferme.", "AMS"],
-        [c("/etc/xdg/autostart/ams-agent.desktop"), "Avvia l'agente del desktop a ogni accesso grafico.",
-         "il desktop degli utenti"],
-    ], "«TAB» — Cosa viene installato")
+S3 = p("The installation puts everything in the usual Linux places. Besides these files it adds a line, marked "
+       + c("# AMS hook") + ", at the end of " + c("/etc/bash.bashrc") + " and, if zsh is installed, to the system "
+       "zshrc: this is what makes the question appear in the desktop's terminals.", lead=True) + ALBERO + \
+    table(["Where", "What it is", "Who uses it"], [
+        [c("/usr/local/bin/ams"), "The command. Only the administrators group can run it.", "administrators"],
+        [c("/usr/local/lib/ams/ams-user"), "The helper that shows the messages and records the confirmations. It is "
+         "not a command: users never launch it, it starts on its own.", "users' shells and desktops"],
+        [c("/etc/ams/ams.conf"), "The settings (" + rif(10) + ").", "everyone, read-only"],
+        [c("/var/lib/ams/"), "The messages, the users' mailboxes, the confirmations.", "AMS"],
+        [c("/etc/xdg/autostart/ams-agent.desktop"), "Starts the desktop agent at every graphical login.",
+         "the users' desktops"],
+    ], "«TAB» — What gets installed")
 
-S4 = p("Il comando " + c("ams") + " appartiene a root e al gruppo degli amministratori che la macchina ha già: "
-       + c("sudo") + " su Debian e Ubuntu, " + c("wheel") + " su Fedora e simili (in mancanza, " + c("admin") + " o "
-       + c("root") + "). AMS non ha un suo elenco di amministratori.", lead=True) + \
+S4 = p("The " + c("ams") + " command belongs to root and to the administrators group the machine already has: "
+       + c("sudo") + " on Debian and Ubuntu, " + c("wheel") + " on Fedora and similar (failing that, " + c("admin")
+       + " or " + c("root") + "). AMS has no list of administrators of its own.", lead=True) + \
     term("admin@server:~$ stat -c '%U:%G %a %n' /usr/local/bin/ams\n"
-         "root:sudo 750 /usr/local/bin/ams", "Il comando e i suoi permessi: root e il gruppo sudo, nessun altro") + \
-    table(["Per", "Comando", "Quando vale"], [
-        ["dare l'accesso ad AMS", c("sudo usermod -aG sudo anna"), "dal prossimo accesso di anna"],
-        ["toglierlo", c("sudo gpasswd -d anna sudo"), "dal prossimo accesso di anna"],
-        ["sapere chi può usarlo", c("getent group sudo"), "subito"],
-    ], "«TAB» — Gestire gli amministratori") + \
-    warn("entrare nel gruppo " + c("sudo") + " vuol dire poter diventare root su tutta la macchina, non solo usare "
-         "AMS. È voluto: mandare messaggi a tutti gli utenti è un compito da amministratore.", "Un solo gruppo.")
+         "root:sudo 750 /usr/local/bin/ams", "The command and its permissions: root and the sudo group, nobody else") + \
+    table(["To", "Command", "When it takes effect"], [
+        ["give access to AMS", c("sudo usermod -aG sudo anna"), "from anna's next login"],
+        ["take it away", c("sudo gpasswd -d anna sudo"), "from anna's next login"],
+        ["find out who can use it", c("getent group sudo"), "immediately"],
+    ], "«TAB» — Managing the administrators") + \
+    warn("joining the " + c("sudo") + " group means being able to become root on the whole machine, not only to "
+         "use AMS. This is intended: sending messages to all users is an administrator's task.", "A single group.")
 
-S5 = p("Subito dopo l'installazione conviene fare tre prove, tutte senza disturbare nessuno.", lead=True) + steps([
-    "Aprire la guida integrata: " + c("ams --help") + " (" + rif(9) + "). Si esce con " + c("q") + ".",
-    "Controllare l'elenco dei messaggi: è vuoto, perché non è ancora partito nulla." + term(
+S5 = p("Right after installation it is worth doing three checks, none of which disturbs anyone.", lead=True) + steps([
+    "Open the built-in help: " + c("ams --help") + " (" + rif(9) + "). Leave it with " + c("q") + ".",
+    "Check the list of messages: it is empty, because nothing has been sent yet." + term(
         "admin@server:~$ ams list\nNessun messaggio inviato."),
-    "Aprire la TUI scrivendo " + c("ams") + " da solo: mostra «Nessun messaggio inviato.» e i tasti in basso. Si "
-    "esce con " + c("q") + ".",
-    "Per una prova completa mandare un messaggio a se stessi, come nel " + rif(4) + ".",
-]) + tip("un messaggio mandato a se stessi mostra in pochi secondi tutto quello che vedranno gli utenti: il testo "
-         "nel terminale, la domanda al prompt, la finestra sul desktop.", "Prova su di sé.")
+    "Open the TUI by typing " + c("ams") + " on its own: it shows «Nessun messaggio inviato.» (No messages sent.) "
+    "and the keys at the bottom. Leave it with " + c("q") + ".",
+    "For a complete test, send a message to yourself, as in " + rif(4) + ".",
+]) + tip("a message sent to yourself shows in a few seconds everything the users will see: the text in the "
+         "terminal, the question at the prompt, the dialog on the desktop.", "Try it on yourself.")
 
-S6 = table(["Per", "Comando", "Cosa succede"], [
-    ["Aggiornare", c("./install.sh") + " dalla cartella della versione nuova",
-     "Installa la versione nuova; messaggi e impostazioni restano. Gli agenti del desktop della versione precedente "
-     "vengono chiusi: ne parte uno nuovo al primo messaggio o al prossimo accesso."],
-    ["Rimuovere AMS", c("./install.sh --uninstall"), "Toglie comando, agganci, manuali e traduzioni; messaggi "
-     "(" + c("/var/lib/ams") + ") e impostazioni (" + c("/etc/ams") + ") restano, per un'eventuale reinstallazione."],
-    ["Rimuovere tutto", c("./install.sh --purge"), "Come sopra, e in più cancella i messaggi e le impostazioni."],
-], "«TAB» — Aggiornare e rimuovere") + \
+S6 = table(["To", "Command", "What happens"], [
+    ["Upgrade", c("./install.sh") + " from the folder of the new version",
+     "Installs the new version; messages and settings are kept. The desktop agents of the previous version are "
+     "closed: a new one starts with the first message or at the next login."],
+    ["Remove AMS", c("./install.sh --uninstall"), "Removes the command, hooks, manuals and translations; messages "
+     "(" + c("/var/lib/ams") + ") and settings (" + c("/etc/ams") + ") are kept, for a possible reinstallation."],
+    ["Remove everything", c("./install.sh --purge"), "As above, and in addition deletes the messages and the "
+     "settings."],
+], "«TAB» — Upgrading and removing") + \
     term("admin@server:~/AMS$ ./install.sh --uninstall\n"
-         "AMS rimosso. Messaggi (/var/lib/ams) e configurazione (/etc/ams) conservati.", "Rimozione") + \
-    warn(c("--purge") + " cancella anche l'elenco di chi ha confermato cosa. Se serve conservarlo, prima si copia "
-         + c("/var/lib/ams") + " altrove. Gli eventi restano comunque nel registro di sistema.",
-         "Prima di --purge.")
+         "AMS rimosso. Messaggi (/var/lib/ams) e configurazione (/etc/ams) conservati.", "Removal") + \
+    warn(c("--purge") + " also deletes the record of who confirmed what. If it needs to be kept, copy "
+         + c("/var/lib/ams") + " elsewhere first. The events remain in the system log in any case.",
+         "Before --purge.")
 
-CHAPTER = ("Installazione e primo avvio", [
-    ("Requisiti", S1),
-    ("Compilare e installare", S2),
-    ("Cosa viene installato", S3),
-    ("Gli amministratori", S4),
-    ("Primo avvio", S5),
-    ("Aggiornare e rimuovere", S6),
+CHAPTER = ("Installation and first start", [
+    ("Requirements", S1),
+    ("Compiling and installing", S2),
+    ("What gets installed", S3),
+    ("The administrators", S4),
+    ("First start", S5),
+    ("Upgrading and removing", S6),
 ])

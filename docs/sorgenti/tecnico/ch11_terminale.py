@@ -2,31 +2,31 @@ from build import arrow, box, c, code, diamond, fig, flow, note, p, seq, table, 
 
 
 def cap(n, s=None):
-    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">capitolo {n}{"." + str(s) if s else ""}</a>'
+    return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
-S1 = p("Ogni shell ha il suo aggancio, installato dove quella shell lo legge. Tutti fanno la stessa cosa: se la "
-       "casella contiene messaggi, lanciano " + c("ams-user prompt") + ", subito al login e poi prima di ogni "
-       "prompt.", lead=True) + table(["Shell", "File installato", "Letto da", "Quando chiede"], [
-    ["bash", c("/usr/local/lib/ams/ams.bash"), c("/etc/profile.d/ams.sh") + " (shell di login) e "
-     + c("/etc/bash.bashrc") + " (le altre)", "al login e a ogni prompt (" + c("PROMPT_COMMAND") + ")"],
-    ["zsh", c("/usr/local/lib/ams/ams.zsh"), "una riga in " + c("/etc/zsh/zshrc") + " (o " + c("/etc/zshrc") + ")",
-     "al login e a ogni prompt (" + c("precmd") + ")"],
-    ["fish", c("/etc/fish/conf.d/ams.fish"), "fish stessa, all'avvio", "al login e a ogni prompt (evento "
-     + c("fish_prompt") + ")"],
-    ["sh, dash, ksh…", c("/etc/profile.d/ams.sh"), c("/etc/profile") + ", nelle shell di login", "solo al login"],
-], "«TAB» — Gli agganci delle shell") + \
-    p("Il testo del messaggio arriva nel terminale all'invio con qualunque shell: lo scrive root, non la shell "
-      "(" + cap(8, 4) + "). dash, ksh e le shell simili non hanno un punto in cui agganciarsi prima del prompt: la "
-      "domanda arriva al login successivo, o dalla finestra del desktop (scenari K della macchina di prova). "
-      + c("profile.d/ams.sh") + " è scritto in sh semplice perché lo leggono tutte: rimanda bash ad "
-      + c("ams.bash") + ", lascia zsh al suo aggancio e alle altre chiede al login.") + \
-    note("zsh legge lo zshrc di sistema: se viene installata dopo AMS, basta rilanciare " + c("install.sh")
-         + " per aggiungere la riga. fish legge " + c("conf.d") + " anche se arriva dopo.")
+S1 = p("Each shell has its own hook, installed where that shell reads it. They all do the same thing: if the "
+       "mailbox contains messages, they run " + c("ams-user prompt") + ", right at login and then before every "
+       "prompt.", lead=True) + table(["Shell", "Installed file", "Read by", "When it asks"], [
+    ["bash", c("/usr/local/lib/ams/ams.bash"), c("/etc/profile.d/ams.sh") + " (login shells) and "
+     + c("/etc/bash.bashrc") + " (the others)", "at login and at every prompt (" + c("PROMPT_COMMAND") + ")"],
+    ["zsh", c("/usr/local/lib/ams/ams.zsh"), "a line in " + c("/etc/zsh/zshrc") + " (or " + c("/etc/zshrc") + ")",
+     "at login and at every prompt (" + c("precmd") + ")"],
+    ["fish", c("/etc/fish/conf.d/ams.fish"), "fish itself, at startup", "at login and at every prompt ("
+     + c("fish_prompt") + " event)"],
+    ["sh, dash, ksh…", c("/etc/profile.d/ams.sh"), c("/etc/profile") + ", in login shells", "only at login"],
+], "«TAB» — The shell hooks") + \
+    p("The message text reaches the terminal at send time whatever the shell: root writes it, not the shell "
+      "(" + cap(8, 4) + "). dash, ksh and similar shells have no place to hook into before the prompt: the "
+      "question arrives at the next login, or through the desktop dialog (scenarios K of the test machine). "
+      + c("profile.d/ams.sh") + " is written in plain sh because every shell reads it: it hands bash over to "
+      + c("ams.bash") + ", leaves zsh to its own hook and asks the others at login.") + \
+    note("zsh reads the system-wide zshrc: if it is installed after AMS, just run " + c("install.sh")
+         + " again to add the line. fish reads " + c("conf.d") + " even if it arrives later.")
 
-S2 = flow([("bash interattiva", "$- contiene i", "dark"), ("profile.d/ams.sh", "→ ams.bash, una volta", "blue"),
-           ("PROMPT_COMMAND", "+ __ams_prompt", "blue"), ("casella vuota?", "compgen -G", "navy"),
-           ("ams-user prompt", "solo se serve", "light")], "«FIG» — Dall'aggancio alla domanda, in bash") + \
+S2 = flow([("interactive bash", "$- contains i", "dark"), ("profile.d/ams.sh", "→ ams.bash, once", "blue"),
+           ("PROMPT_COMMAND", "+ __ams_prompt", "blue"), ("mailbox empty?", "compgen -G", "navy"),
+           ("ams-user prompt", "only if needed", "light")], "«FIG» — From the hook to the question, in bash") + \
     code("""__ams_prompt() {
 	local s=$?
 	# Controllo senza processi esterni: con la casella vuota non costa nulla.
@@ -34,95 +34,95 @@ S2 = flow([("bash interattiva", "$- contiene i", "dark"), ("profile.d/ams.sh", "
 		@LIBDIR@/ams-user prompt
 	fi
 	return $s
-}""", "bash", "etc/ams.bash (estratto)") + ul([
-    "L'aggancio agisce solo in una shell interattiva, se " + c("ams-user") + " esiste, e una volta per shell "
-    "(variabile " + c("__AMS_HOOK") + ", in fish " + c("__ams_hook") + ").",
-    "Aggiunge " + c("__ams_prompt") + " a " + c("PROMPT_COMMAND") + ": come elemento se è un array (bash 5.1 e "
-    "successive), in testa se è una stringa. Conserva " + c("$?") + ": il prompt dell'utente vede l'esito del suo "
-    "ultimo comando.",
-    "Il controllo della casella usa " + c("compgen -G") + ", un comando interno di bash che non lancia processi: "
-    "con la casella vuota il prompt non costa nulla. zsh fa lo stesso con il glob " + c("(N)") + ", fish con "
-    + c("string match") + " sui nomi (i glob di fish non hanno " + c("[0-9]") + ").",
-    "In una shell di login chiama subito " + c("ams-user prompt --login") + ": il messaggio compare prima del "
-    "primo prompt (scenario C1b: circa 0,3 s dal login).",
-    "Su Debian le shell interattive non di login (i terminali del desktop) non leggono " + c("/etc/profile.d")
-    + ": l'aggancio è richiamato anche da " + c("/etc/bash.bashrc") + " (" + cap(3, 3) + ").",
+}""", "bash", "etc/ams.bash (excerpt)") + ul([
+    "The hook acts only in an interactive shell, if " + c("ams-user") + " exists, and once per shell "
+    "(variable " + c("__AMS_HOOK") + ", in fish " + c("__ams_hook") + ").",
+    "It adds " + c("__ams_prompt") + " to " + c("PROMPT_COMMAND") + ": as an element if it is an array (bash 5.1 and "
+    "later), at the front if it is a string. It preserves " + c("$?") + ": the user's prompt sees the result of their "
+    "last command.",
+    "The mailbox check uses " + c("compgen -G") + ", a bash builtin that starts no processes: "
+    "with an empty mailbox the prompt costs nothing. zsh does the same with the " + c("(N)") + " glob, fish with "
+    + c("string match") + " on the names (fish globs have no " + c("[0-9]") + ").",
+    "In a login shell it calls " + c("ams-user prompt --login") + " straight away: the message appears before the "
+    "first prompt (scenario C1b: about 0.3 s after login).",
+    "On Debian, interactive non-login shells (the desktop terminals) do not read " + c("/etc/profile.d")
+    + ": the hook is also called from " + c("/etc/bash.bashrc") + " (" + cap(3, 3) + ").",
 ])
 
 GIRO = fig(
-    box(20, 40, 170, 56, "in_attesa", "inbox in ordine di numero", "dark")
-    + diamond(360, 68, 240, 72, "rimandato da poco?", "amber")
-    + box(570, 40, 160, 56, "promemoria", "contato, non chiesto", "soft")
-    + box(270, 160, 180, 56, "mostra e chiede", "testo, poi [s/N]", "blue")
-    + box(560, 160, 170, 56, "esito", "conferma · rinvio · …", "green")
-    + arrow(192, 68, 238, 68) + arrow(482, 68, 568, 68, "#d97706", False, "sì, non al login", 525, 58)
+    box(20, 40, 170, 56, "in_attesa", "inbox in numeric order", "dark")
+    + diamond(360, 68, 240, 72, "recently postponed?", "amber")
+    + box(570, 40, 160, 56, "reminder", "counted, not asked", "soft")
+    + box(270, 160, 180, 56, "shows and asks", "text, then [s/N]", "blue")
+    + box(560, 160, 170, 56, "result", "confirm · postpone · …", "green")
+    + arrow(192, 68, 238, 68) + arrow(482, 68, 568, 68, "#d97706", False, "yes, not at login", 525, 58)
     + arrow(360, 106, 360, 158, "#475569", False, "no", 376, 134)
     + arrow(452, 188, 558, 188)
-    + text(815, 60, "alla fine, se ce ne sono:", 11, "#475569")
+    + text(815, 60, "at the end, if there are any:", 11, "#475569")
     + text(815, 78, "«Hai N messaggi", 11, "#92400e", "600")
     + text(815, 94, "dell'amministratore", 11, "#92400e", "600")
     + text(815, 110, "da confermare.»", 11, "#92400e", "600")
-    + text(105, 130, "confermati e scaduti", 11, "#475569")
-    + text(105, 146, "passano in read/", 11, "#475569"),
-    900, 236, "«FIG» — ams-user prompt, per ogni messaggio della casella", "Il giro di ams-user prompt")
+    + text(105, 130, "confirmed and expired", 11, "#475569")
+    + text(105, 146, "move to read/", 11, "#475569"),
+    900, 236, "«FIG» — ams-user prompt, for each message in the mailbox", "The ams-user prompt loop")
 
-S3 = p(c("ams-user prompt") + " di " + c("src/ams-user.c") + " prende i messaggi della casella in ordine di "
-       "numero. Se lo stdin non è un terminale non fa nulla; il canale della conferma è il nome del terminale ("
+S3 = p(c("ams-user prompt") + " in " + c("src/ams-user.c") + " takes the messages in the mailbox in numeric "
+       "order. If stdin is not a terminal it does nothing; the confirmation channel is the terminal name ("
        + c("terminale pts/3") + ").", lead=True) + GIRO + ul([
-    c("in_attesa") + " elenca " + c("inbox/") + " (solo nomi fatti di cifre e file normali). Un messaggio con "
-    "la conferma già presente, per un'interruzione fra la conferma e lo spostamento, passa in " + c("read/")
-    + " senza chiedere; uno scaduto passa in " + c("read/") + " senza conferma.",
-    "Un messaggio rimandato da meno di " + c("AMS_REMIND_MINUTES") + " minuti (data di modifica di "
-    + c("state/ID.term") + ") non si chiede: si conta, e alla fine compare il promemoria di una riga. Con "
-    + c("--login") + " il rinvio non vale.",
-]) + table(["Esito di chiedi", "Cosa fa", "Stampa"], [
-    ["0 · «s», «S», «y» o «Y»", c("conferma(ID, \"terminale pts/N\")"), "[AMS] Confermato. (oppure scaduto, "
-     "ritirato, o «Non è stato possibile registrare la conferma: la domanda verrà ripetuta.»)"],
-    ["1 · altro, o solo Invio", c("rimanda(ID, \"term\")") + ": tocca " + c("state/ID.term") + ", evento "
-     + c("RINVIATO"), "[AMS] La domanda verrà riproposta tra 30 minuti."],
-    ["2 · confermato altrove", "sposta in " + c("read/"), "[AMS] Messaggio già confermato altrove (per esempio "
-     "dal desktop)."],
-    ["3 · ritirato", "nulla", "[AMS] L'amministratore ha ritirato il messaggio."],
-    ["4 · scaduto mentre la domanda era aperta", "sposta in " + c("read/"), "[AMS] Il messaggio è scaduto."],
-], "«TAB» — Gli esiti della domanda") + term(
+    c("in_attesa") + " lists " + c("inbox/") + " (only names made of digits, and regular files). A message whose "
+    "confirmation is already present, because of an interruption between the confirmation and the move, goes to "
+    + c("read/") + " without asking; an expired one goes to " + c("read/") + " without a confirmation.",
+    "A message postponed less than " + c("AMS_REMIND_MINUTES") + " minutes ago (modification time of "
+    + c("state/ID.term") + ") is not asked about: it is counted, and at the end the one-line reminder appears. With "
+    + c("--login") + " the postponement does not apply.",
+]) + table(["Result of chiedi", "What it does", "Prints"], [
+    ["0 · «s», «S», «y» or «Y»", c("conferma(ID, \"terminale pts/N\")"), "[AMS] Confirmed. (or expired, "
+     "revoked, or “[AMS] The confirmation could not be recorded: you will be asked again.”)"],
+    ["1 · anything else, or just Enter", c("rimanda(ID, \"term\")") + ": touches " + c("state/ID.term") + ", event "
+     + c("RINVIATO"), "[AMS] You will be asked again in 30 minutes."],
+    ["2 · confirmed elsewhere", "moves to " + c("read/"), "[AMS] Message already confirmed elsewhere (for example "
+     "on the desktop)."],
+    ["3 · revoked", "nothing", "[AMS] The administrator has revoked the message."],
+    ["4 · expired while the question was open", "moves to " + c("read/"), "[AMS] The message has expired."],
+], "«TAB» — The results of the question") + term(
     "mario@server:~$ \n"
     "── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
     "Sabato dalle 8 alle 12 il server sarà spento.\n"
     "────────────────────────────────────────\n"
     "[AMS] Confermi di aver letto il messaggio? [s/N] s\n"
     "[AMS] Confermato.\n"
-    "mario@server:~$ ", "La domanda al prompt") + \
-    note(c("ams-user") + " gira dentro il prompt dell'utente: non termina mai con un errore che interrompa la "
-         "shell, e ogni suo problema (casella illeggibile, terminale assente) si traduce nel non fare nulla.")
+    "mario@server:~$ ", "The question at the prompt") + \
+    note(c("ams-user") + " runs inside the user's prompt: it never ends with an error that would disrupt the "
+         "shell, and any problem it meets (unreadable mailbox, no terminal) turns into doing nothing.")
 
-ASK = seq([("Utente", "tastiera", "dark"), ("chiedi", "poll 1 s su /dev/tty", "blue"),
-           ("Casella", "users/U", "soft")], [
+ASK = seq([("User", "keyboard", "dark"), ("chiedi", "poll 1 s on /dev/tty", "blue"),
+           ("Mailbox", "users/U", "soft")], [
     (1, 0, "[AMS] Confermi di aver letto…? [s/N]"),
-    ("nota", 1, "attende al più 1 secondo"),
-    (1, 2, "acks/ID? inbox/ID? scaduto?"),
-    ("nota", 1, "niente di nuovo: ricomincia"),
-    ("sep", "intanto l'utente conferma dal desktop"),
-    (1, 2, "acks/ID esiste"),
-    (1, 0, "esito 2: «già confermato altrove»", True),
-], "«FIG» — La domanda si accorge di ciò che succede altrove", "Una domanda che controlla ogni secondo")
+    ("nota", 1, "waits at most 1 second".ljust(24)),
+    (1, 2, "acks/ID? inbox/ID? expired?"),
+    ("nota", 1, "nothing new: starts over".ljust(27)),
+    ("sep", "meanwhile: user confirms on desktop".ljust(37)),
+    (1, 2, "acks/ID exists"),
+    (1, 0, "result 2: “confirmed elsewhere”", True),
+], "«FIG» — The question notices what happens elsewhere", "A question that checks every second")
 
-S4 = p(c("chiedi") + " aspetta la risposta su " + c("/dev/tty") + " con " + c("poll") + ", un secondo alla volta, "
-       "poi la legge con " + c("read") + ". A ogni secondo senza risposta controlla la casella: se è comparsa la "
-       "conferma, l'utente ha confermato altrove; se il messaggio è sparito, è stato ritirato; se è scaduto, la "
-       "domanda si ferma.", lead=True) + ASK + ul([
-    "Il terminale resta in modo canonico: ciò che l'utente sta scrivendo resta nel buffer del terminale e non si "
-    "perde fra un secondo e l'altro.",
-    "La domanda si chiude entro circa un secondo: conferma da un'altra sessione (scenario C4b, 0,95 s), ritiro "
-    "(scenario E3, 1,0 s), scadenza (" + c("tests/engine.sh") + ", gruppo 4).",
-    "Senza " + c("/dev/tty") + " (nessun terminale di controllo) la risposta vale «no»: il messaggio resta e torna "
-    "più tardi.",
-    "La risposta si confronta solo con il primo carattere: " + c("s") + ", " + c("S") + ", " + c("y") + " e "
-    + c("Y") + " valgono sì in ogni lingua.",
+S4 = p(c("chiedi") + " waits for the answer on " + c("/dev/tty") + " with " + c("poll") + ", one second at a time, "
+       "then reads it with " + c("read") + ". At every second without an answer it checks the mailbox: if the "
+       "confirmation has appeared, the user confirmed elsewhere; if the message has disappeared, it was revoked; if "
+       "it has expired, the question stops.", lead=True) + ASK + ul([
+    "The terminal stays in canonical mode: whatever the user is typing stays in the terminal's buffer and is not "
+    "lost from one second to the next.",
+    "The question closes within about a second: confirmation from another session (scenario C4b, 0.95 s), "
+    "revocation (scenario E3, 1.0 s), expiry (" + c("tests/engine.sh") + ", group 4).",
+    "Without " + c("/dev/tty") + " (no controlling terminal) the answer counts as “no”: the message stays and comes "
+    "back later.",
+    "Only the first character of the answer is checked: " + c("s") + ", " + c("S") + ", " + c("y") + " and "
+    + c("Y") + " mean yes in every language.",
 ])
 
-CHAPTER = ("La ricezione nel terminale", [
-    ("Gli agganci delle shell", S1),
-    ("Dall'aggancio alla domanda", S2),
+CHAPTER = ("Receiving in the terminal", [
+    ("The shell hooks", S1),
+    ("From the hook to the question", S2),
     ("ams-user prompt", S3),
-    ("La domanda e l'attesa", S4),
+    ("The question and the wait", S4),
 ])

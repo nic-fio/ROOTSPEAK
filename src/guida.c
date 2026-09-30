@@ -63,7 +63,7 @@ static const char *const FILES[] = {
 	NC_("guida-file", "/etc/ams/ams.conf¦Configuration: minutes before a postponed message is asked about again, check interval of the desktop agent."),
 	NC_("guida-file", "/var/lib/ams/¦The messages: sent/ (reference copies, root only) and users/USER/ (each user's mailbox, readable only by them and by root)."),
 	NC_("guida-file", "sudo journalctl -t ams¦The system log: sending, deliveries, confirmations and revocations."),
-	NC_("guida-file", "/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦The complete user manual (in Italian), to open in a browser."),
+	NC_("guida-file", "/usr/local/share/doc/ams/User Manual.html¦The complete user manual, to open in a browser."),
 };
 
 static const char *const SINTASSI[] = {
@@ -248,7 +248,7 @@ static void pagina(FILE *f, bool colore, int larghezza)
 	fprintf(f, "%s%s1%s\n", ti, G_, R_);
 	PARA(T("Error: the error message, starting with «ams:», says which."), di);
 	TITOLO(T("SEE ALSO"));
-	PARA(T("wall(1), write(1), and the user manual (in Italian) in /usr/local/share/doc/ams/AMS_Manuale_Utente.html"), 7);
+	PARA(T("wall(1), write(1), and the user manual in /usr/local/share/doc/ams/User Manual.html"), 7);
 	fputc('\n', f);
 	s = xasprintf("ams %s", AMS_VERSION);
 	TRE(s, "", "AMS(1)");
@@ -352,7 +352,7 @@ static riga_t *righe_scheda(int s, int interno, size_t *n)
 		strv_free(&w);
 		aggiungi(&r, n, 'T', "");
 		{
-			char *m = xasprintf(T("AMS %s · complete manual (in Italian): /usr/local/share/doc/ams/AMS_Manuale_Utente.html"),
+			char *m = xasprintf(T("AMS %s · complete manual: /usr/local/share/doc/ams/User Manual.html"),
 					    AMS_VERSION);
 
 			x = xasprintf("   %s", m);

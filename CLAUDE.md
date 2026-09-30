@@ -10,7 +10,12 @@ Il nome è **AMS - Advanced Messaging System** (non «Message System», senza «
 ## Come si lavora
 
 - **Si parla con l'utente in italiano, sempre**, senza frasi in inglese.
-  Codice, commenti, messaggi del programma e documentazione sono in italiano.
+  Codice, commenti, messaggi del programma e il resto della documentazione
+  sono in italiano, come prima.
+- **I manuali sono in inglese**: `docs/User Manual.html` e
+  `docs/Technical Manual.html` e i loro sorgenti in `docs/sorgenti/` (testi dei
+  capitoli, didascalie, etichette di `build.py`). Comandi, percorsi, uscite del
+  programma e schermate restano come sono.
 - **Quando l'utente propone qualcosa**, prima si dice se migliora o peggiora il
   risultato e perché, poi lo si esegue o si fa una controproposta.
 - **Testi per l'utente senza gergo da programmatori**: guida integrata,
@@ -44,7 +49,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | **Root non tocca le caselle come root** | Ogni accesso a `/var/lib/ams/users/U` avviene in un processo figlio con l'identità dell'utente (`come_utente`), con un tempo massimo. |
 | **zenity** per il desktop | Finestra «Ho letto» / «Più tardi»; `notify-send`, se c'è, solo per segnalare una conferma non registrata. |
 | **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi in `src/guida.c` (inglese) e nei cataloghi `po/`. |
-| **Manuali sul modello di IR_Service** | Generati da `docs/sorgenti/` (un file per capitolo) in due file HTML autosufficienti, con lo stile del Manuale Tecnico di IR_Service: copertina, indice laterale, figure SVG e tabelle numerate. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
+| **Manuali sul modello di IR_Service** | Generati da `docs/sorgenti/` (un file per capitolo) in due file HTML autosufficienti in inglese (`User Manual.html`, `Technical Manual.html`), con lo stile del Manuale Tecnico di IR_Service: copertina, indice laterale, figure SVG e tabelle numerate. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
 | **Riscrittura in C (30 settembre)** | Tutto: `ams` e `ams-user`; gli agganci delle shell restano script, la finestra resta zenity. Fatta: versione 0.2.0; il prototipo in bash è stato tolto quando il C ha passato tutte le prove (resta nella storia di git). Difese obbligatorie: tutti gli avvisi, `-fanalyzer`, sanitizer nei test, fuzzing di ciò che legge file degli utenti. |
 | **Lingue con gettext (30 settembre)** | Formato e strumenti di gettext (`po/*.po`, `.mo`, `msgfmt --check`), testi di partenza in inglese; i `.mo` li legge un lettore di AMS, non la libintl: con la libintl una lingua non installata nel sistema non funziona (provato: `C.UTF-8` ignora `LANGUAGE`), e root deve scrivere a ogni terminale nella sua lingua. |
 | **TUI per gli amministratori (30 settembre)** | `ams` senza argomenti in un terminale apre la TUI (`--help` resta la guida; in una pipe `ams` mostra la guida). Consultare, agire (ritiro, pulizia, sollecito) con conferma, scrivere e inviare (Ctrl+E apre `$EDITOR`), aggiornamento automatico. Niente ncurses. La TUI usa le stesse funzioni dei comandi e **non inventa stati**: solo inviato, consegnato, confermato; ritirato e scaduto come proprietà. Un messaggio si riassume con i suoi destinatari: barra a tre colori e «14 confermato · 5 consegnato · 2 inviato». |
@@ -59,8 +64,8 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `Makefile` | `make`, `make prove`, `make sanitizer`, `make analizza`, `make pot`. |
 | `etc/` | Aggancio della shell, avvio automatico dell'agente, configurazione predefinita. |
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
-| `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`, `revisione-avversariale.md`. |
-| `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
+| `docs/` | `User Manual.html` e `Technical Manual.html` (in inglese, generati, mai a mano), `decisioni-e-storia.md`, `revisione-avversariale.md`. |
+| `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/` (in inglese). Il riferimento dei comandi del manuale utente viene dai testi di partenza inglesi di `po/ams.pot`. |
 | `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero; `vm/`: la VM con desktop sul server delle prove. Risultati in `*/risultati/`. |
 
 **Server delle prove** (192.168.0.2, accesso ssh con chiave): la VM vive in

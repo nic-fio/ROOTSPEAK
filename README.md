@@ -90,7 +90,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 ### Configurazione e distribuzione
 - [1] `/etc/ams/ams.conf`: intervallo dei solleciti, controllo dell'agente del desktop
 - [1] Script di installazione
-- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno), generati da `docs/sorgenti/` con lo stile dei manuali di IR_Service
+- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sorgenti/` con lo stile dei manuali di IR_Service
 - [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
@@ -109,7 +109,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 ## Architettura
 
 Nessun demone: ogni pezzo usa strumenti già presenti nel sistema. I dettagli sono nel
-[manuale tecnico](docs/AMS_Manuale_Tecnico.html).
+[manuale tecnico](docs/Technical%20Manual.html) (in inglese).
 
 - `ams` gira sempre come root (si rilancia con sudo): salva il messaggio e lo consegna subito alle
   sessioni attive, scrivendo sui terminali e svegliando l'agente del desktop con un segnale
@@ -150,20 +150,20 @@ make                      # compila in build/
 | `/etc/fish/conf.d/ams.fish` | Hook di fish |
 | `/etc/xdg/autostart/ams-agent.desktop` | Avvio automatico dell'agente del desktop |
 | `/var/lib/ams/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
-| `/usr/local/share/doc/ams/` | Manuale utente e manuale tecnico |
+| `/usr/local/share/doc/ams/` | Manuale utente e manuale tecnico (`User Manual.html`, `Technical Manual.html`) |
 
 ## Documentazione
 
 | Documento | Per chi |
 |---|---|
-| [`docs/AMS_Manuale_Utente.html`](docs/AMS_Manuale_Utente.html) | Gli amministratori che usano AMS |
-| [`docs/AMS_Manuale_Tecnico.html`](docs/AMS_Manuale_Tecnico.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test |
+| [`docs/User Manual.html`](docs/User%20Manual.html) | Gli amministratori che usano AMS (in inglese) |
+| [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test (in inglese) |
 | [`docs/decisioni-e-storia.md`](docs/decisioni-e-storia.md) | Perché AMS è fatto così |
 | [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
 | `ams --help` | La guida integrata, a schede |
 
 I due manuali sono file HTML autosufficienti: si aprono con un doppio clic o con
-`xdg-open docs/AMS_Manuale_Utente.html`, si allegano a una email e si stampano. GitHub non li
+`xdg-open "docs/User Manual.html"`, si allegano a una email e si stampano. GitHub non li
 mostra impaginati (mostra il codice sorgente): scaricarli o aprirli dalla copia locale.
 Dopo l'installazione sono anche in `/usr/local/share/doc/ams/`.
 
