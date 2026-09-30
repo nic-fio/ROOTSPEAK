@@ -56,7 +56,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `lib/` | `ams-common.sh` (comune), `ams-user` (aiutante come utente), `ams-help.sh` (guida integrata), `lingue/` (testi in italiano e inglese, guida compresa). |
 | `etc/` | Aggancio della shell, avvio automatico dell'agente, configurazione predefinita. |
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
-| `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
+| `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`, `revisione-avversariale.md`, `nota-per-la-revisione.md` (da allegare al manuale tecnico in una nuova revisione). |
 | `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
 | `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero; `vm/`: la VM con desktop sul server delle prove. Risultati in `*/risultati/`. |
 
