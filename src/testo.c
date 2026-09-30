@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Pulizia del testo, formato dei messaggi, configurazione. */
 #include "testo.h"
 

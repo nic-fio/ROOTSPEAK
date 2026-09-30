@@ -24,7 +24,7 @@ PANORAMA = fig(
     900, 340, "«FIG» — Un messaggio raggiunge ogni sessione dell'utente; la prima conferma torna all'amministratore",
     "Il percorso di un messaggio")
 
-S1 = p("<b>AMS - Advanced Messaging System for linux</b> permette a chi amministra una macchina Linux di mandare un "
+S1 = p("<b>AMS - Advanced Messaging System</b> permette a chi amministra una macchina Linux di mandare un "
        "messaggio agli utenti e di sapere, per ciascuno, se ha confermato di averlo letto. È pensato per gli avvisi "
        "che contano: una manutenzione, un riavvio, una nuova regola, un account in scadenza.", lead=True) + \
     p("L'amministratore scrive il messaggio nell'interfaccia a tutto schermo di " + c("ams") + " oppure con un comando. "

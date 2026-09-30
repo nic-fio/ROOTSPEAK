@@ -28,11 +28,11 @@ VERSION = re.search(r'^#define AMS_VERSION "([^"]+)"', (ROOT / "src/comune.h").r
 MANUALS = {
     "utente": dict(file="AMS_Manuale_Utente.html", title="Manuale Utente — AMS", kicker="Documentazione utente",
                    h1="Manuale Utente",
-                   sub="AMS — Advanced Messaging System for linux · Messaggi dagli amministratori agli utenti, "
+                   sub="AMS — Advanced Messaging System · Messaggi dagli amministratori agli utenti, "
                        "con conferma di lettura"),
     "tecnico": dict(file="AMS_Manuale_Tecnico.html", title="Manuale Tecnico — AMS", kicker="Documentazione tecnica",
                     h1="Manuale Tecnico",
-                    sub="AMS — Advanced Messaging System for linux · Architettura, archivio dei messaggi, "
+                    sub="AMS — Advanced Messaging System · Architettura, archivio dei messaggi, "
                         "consegna, conferme e sicurezza"),
 }
 
@@ -469,9 +469,9 @@ def help_reference(name, kind):
 
 
 # ── Copertina ──────────────────────────────────────────────────────────
-LOGO = """<div class="cover-logo"><svg viewBox="0 0 520 100" width="270" height="52" xmlns="http://www.w3.org/2000/svg" aria-label="AMS">
+LOGO = """<div class="cover-logo"><svg viewBox="0 0 700 100" width="364" height="52" xmlns="http://www.w3.org/2000/svg" aria-label="AMS - Advanced Messaging System">
 <text x="8" y="78" font-size="70" font-weight="800" fill="#ffffff">AMS</text>
-<text x="176" y="78" font-size="38" font-weight="500" fill="#cfe0ff">Messaging System</text></svg></div>"""
+<text x="176" y="78" font-size="38" font-weight="500" fill="#cfe0ff">Advanced Messaging System</text></svg></div>"""
 
 
 # ── Assemblaggio ─────────────────────────────────────────────────────────
@@ -539,7 +539,7 @@ def build(kind, outdir):
     <aside class="side"><div class="side-inner"><h2 class="toc-head">Indice</h2><ul class="toc-list">{"".join(toc)}</ul></div></aside>
     <main class="main">{doc}</main>
   </div>
-  <footer class="doc-foot">AMS — Advanced Messaging System for linux · {meta["h1"]} v{VERSION} · {DATE} · Documento riservato · Copyright (c) 2026 nic-fio</footer>
+  <footer class="doc-foot">AMS — Advanced Messaging System · {meta["h1"]} v{VERSION} · {DATE} · Documento riservato · Copyright (c) 2026 nic-fio</footer>
 </div></body></html>
 """
     out = pathlib.Path(outdir) / meta["file"]

@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Impronta del codice: SHA-256 (primi 12 caratteri) dei file che fanno AMS
 # (src/, po/, Makefile, etc/, install.sh). Le prove la registrano con i risultati e il
 # manuale tecnico la confronta con il codice attuale: un risultato vale per il

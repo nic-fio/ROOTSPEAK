@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Ognuno legge AMS nella sua lingua. I testi di partenza sono in inglese; le
  * traduzioni stanno nei file .mo di gettext (po/XX.po), che AMS legge da sé:
  * così una lingua funziona anche se non è installata nel sistema, e root può

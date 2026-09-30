@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * ams: invio e gestione dei messaggi. Riservato agli amministratori: gira
  * sempre come root, anche per la guida e la versione, e si rilancia da solo
  * con sudo. AMS_TEST=1 permette di provarlo senza root su una cartella di prova. */
@@ -1406,7 +1406,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	if (!strcmp(cmd, "version") || !strcmp(cmd, "--version")) {
-		printf("AMS - Advanced Messaging System for linux %s\n", AMS_VERSION);
+		printf("AMS - Advanced Messaging System %s\n", AMS_VERSION);
 		return 0;
 	}
 	if (strcmp(cmd, "send") && strcmp(cmd, "list") && strcmp(cmd, "status") && strcmp(cmd, "revoke") &&

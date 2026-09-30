@@ -7,7 +7,7 @@ from _aiuti import rif  # noqa: E402
 
 S1 = p("Le impostazioni di AMS sono due e stanno in un solo file, " + c("/etc/ams/ams.conf") + ". Vanno bene così "
        "come sono installate; si cambiano solo per esigenze particolari.", lead=True) + \
-    code("""# AMS - Advanced Messaging System for linux: configurazione
+    code("""# AMS - Advanced Messaging System: configurazione
 # File di dati, non uno script: righe CHIAVE=valore con numeri interi positivi.
 # Chiavi sconosciute e valori non validi sono ignorati.
 

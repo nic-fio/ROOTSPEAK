@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Eventi strutturati nel journal. */
 #ifndef AMS_EVENTO_H
 #define AMS_EVENTO_H

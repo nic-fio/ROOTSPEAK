@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Fuzzing (libFuzzer) di ciò che legge dati non fidati: il primo byte sceglie
  * il bersaglio, il resto è il dato.
  *   0 pulizia del testo            (testo e titolo dei messaggi)

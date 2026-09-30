@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Aggancio per fish interattiva (/etc/fish/conf.d/ams.fish): prima di ogni
 # prompt mostra i messaggi dell'amministratore e chiede la conferma di lettura.
 if status is-interactive; and not set -q __ams_hook; and test -x @LIBDIR@/ams-user

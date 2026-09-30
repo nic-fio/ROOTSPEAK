@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Aggancio per zsh interattiva (richiamato da /etc/zsh/zshrc): prima di ogni
 # prompt mostra i messaggi dell'amministratore e chiede la conferma di lettura.
 if [[ -o interactive ]] && [[ -z ${__AMS_HOOK:-} ]] && [[ -x @LIBDIR@/ams-user ]]; then

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Utenti, e azioni di root con l'identità di un utente (al posto di runuser). */
 #include "utente.h"
 

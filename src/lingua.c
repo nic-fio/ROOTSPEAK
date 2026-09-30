@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Scelta della lingua e lettore dei cataloghi .mo di gettext. */
 #include "lingua.h"
 

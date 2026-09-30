@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Aggancio per bash interattiva (richiamato da /etc/profile.d/ams.sh): prima di
 # ogni prompt mostra i messaggi dell'amministratore e chiede la conferma di lettura.
 if [[ $- == *i* ]] && [ -z "${__AMS_HOOK:-}" ] && [ -x @LIBDIR@/ams-user ]; then

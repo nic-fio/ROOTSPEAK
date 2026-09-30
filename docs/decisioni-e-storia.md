@@ -9,7 +9,7 @@
 
 ## 1. Cos'è
 
-**AMS - Advanced Messaging System for linux** è uno strumento con cui gli
+**AMS - Advanced Messaging System** è uno strumento con cui gli
 amministratori di una macchina Linux mandano messaggi di testo agli utenti e
 sanno chi ha confermato di averli letti.
 

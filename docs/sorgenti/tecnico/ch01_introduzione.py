@@ -25,7 +25,7 @@ OVERVIEW = fig(
     900, 326, "«FIG» — I tre ambiti di AMS: il comando di root, l'archivio, l'aiutante che gira come utente",
     "AMS in una figura")
 
-S1 = p("<b>AMS — Advanced Messaging System for linux</b> è lo strumento con cui gli amministratori di una macchina "
+S1 = p("<b>AMS — Advanced Messaging System</b> è lo strumento con cui gli amministratori di una macchina "
        "Linux mandano messaggi di testo agli utenti e sanno chi ha confermato di averli letti. Risponde a una domanda "
        "che gli strumenti del sistema lasciano aperta: <b>«chi non ha ancora letto?»</b>", lead=True) + \
     p(c("wall") + " e " + c("write") + " scrivono sui terminali dei collegati senza tenere traccia di nulla; "

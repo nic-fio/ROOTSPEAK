@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Gira sul server delle prove. Costruisce una volta il disco base della VM di
 # prova (Debian 13 + GNOME, utenti, login automatico di sara): al primo avvio
 # cloud-init installa e configura tutto, poi la VM si spegne. Le esecuzioni dei

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * La TUI per gli amministratori: ams senza argomenti in un terminale.
  *
  * Legge l'archivio con le stesse funzioni di ams list e ams status, e ogni

@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux: traduzione italiana.
+# AMS - Advanced Messaging System: traduzione italiana.
 msgid ""
 msgstr ""
 "Project-Id-Version: AMS 0.2.0\n"

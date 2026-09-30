@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Destinatari e sessioni (logind). */
 #ifndef AMS_SESSIONI_H
 #define AMS_SESSIONI_H

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Parti comuni ad ams (amministratore, root) e ams-user (utente). */
 #ifndef AMS_COMUNE_H
 #define AMS_COMUNE_H

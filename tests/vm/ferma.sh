@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Gira sul server delle prove: spegne la VM di prova e ne cancella il disco di lavoro.
 #   ferma.sh CARTELLA_VM
 DIR=$1

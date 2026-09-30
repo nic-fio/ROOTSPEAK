@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Test del motore: invio, casella, conferme, in modalità di prova (senza root,
 # su un archivio temporaneo). Uso: tests/engine.sh [-v]   (-v mostra gli output)
 # Prova i programmi compilati in build/ (make; AMS_BUILD per un'altra

@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Gira sul server delle prove: avvia la VM di prova da una copia pulita del disco
 # base (prepara.sh) e attende che risponda su ssh (127.0.0.1:2222 del server).
 #   avvia.sh CARTELLA_VM

@@ -41,7 +41,7 @@ S2 = PERCORSO + steps([
         "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda\n"
         "di conferma dalla prossima shell o dal prossimo login."),
     "Controllare che il comando risponda:" + term("admin@server:~$ ams version\n"
-                                                  "AMS - Advanced Messaging System for linux 0.2.0"),
+                                                  "AMS - Advanced Messaging System 0.2.0"),
 ]) + tip("se " + c("make") + " non è stato lanciato, o se i programmi erano stati compilati per altre cartelle, "
          + c("install.sh") + " compila da solo. Se la compilazione non riesce scrive «Compilazione non riuscita: "
          "servono gcc, make, pkg-config, libsystemd-dev e gettext».", "Compilazione automatica.") + \

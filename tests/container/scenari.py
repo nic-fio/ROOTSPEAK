@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System for linux
+"""AMS - Advanced Messaging System
 Scenari di prova dal vero: gira come root dentro la macchina di prova
 (tests/container), con AMS installato, utenti veri e sessioni ssh vere.
 

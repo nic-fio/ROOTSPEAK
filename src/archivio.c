@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Caselle degli utenti (sempre con la loro identità), terminali, agente. */
 #include "archivio.h"
 

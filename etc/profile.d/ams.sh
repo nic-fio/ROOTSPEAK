@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Aggancio per le shell. bash chiede la conferma a ogni prompt (ams.bash); zsh
 # e fish hanno il loro aggancio (ams.zsh da zshrc, ams.fish da fish/conf.d);
 # le altre shell che leggono /etc/profile (sh, dash, ksh…) ricevono la domanda

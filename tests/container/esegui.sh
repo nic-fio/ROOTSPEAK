@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Prove dal vero in una macchina di prova (container con systemd, senza root):
 # costruisce l'immagine se manca, avvia la macchina, installa AMS dal repository,
 # esegue gli scenari e salva i risultati in tests/container/risultati/.

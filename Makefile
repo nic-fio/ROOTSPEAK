@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 #   make                  compila ams, ams-user e le lingue in build/
 #   make prove            prove delle parti interne (build/prove-unita)
 #   make analizza         analisi statica di gcc (-fanalyzer)

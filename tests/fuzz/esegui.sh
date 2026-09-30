@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Fuzzing con libFuzzer (clang) in un container Debian 13, senza toccare il
 # sistema: compila tests/fuzz/fuzz.c con AddressSanitizer e UBSan e lo lancia
 # per ogni bersaglio. Un difetto ferma il fuzzing e lascia il caso in

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Guida integrata di ams --help, sul modello di MTERM. */
 #ifndef AMS_GUIDA_H
 #define AMS_GUIDA_H

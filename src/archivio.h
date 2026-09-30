@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Operazioni sulle caselle degli utenti, eseguite con la loro identità, e
  * scrittura nei terminali. Usate da ams (root). */
 #ifndef AMS_ARCHIVIO_H

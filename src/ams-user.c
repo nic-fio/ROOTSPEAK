@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * ams-user: aiutante interno, non è un comando per l'utente. Gira con
  * l'identità dell'utente, lanciato dall'aggancio della shell (prompt) e
  * dall'avvio automatico del desktop (agent): mostra i messaggi e registra la

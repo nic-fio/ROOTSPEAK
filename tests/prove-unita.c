@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Prove delle parti interne della versione in C.
  *   prove-unita                    tutte le prove
  *   prove-unita pulisci            pulisce stdin su stdout (confronto con il prototipo)

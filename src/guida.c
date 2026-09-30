@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Guida integrata di ams --help, sul modello di MTERM: guida interattiva a
  * schede in un terminale; con un terminale più piccolo di 44x10, pagina in
  * stile manuale con un pager; se l'uscita non è un terminale, testo semplice.

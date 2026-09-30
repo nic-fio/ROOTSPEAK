@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Destinatari e sessioni, da passwd, group e logind. */
 #include "sessioni.h"
 

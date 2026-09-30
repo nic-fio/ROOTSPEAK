@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Le parti di ams usate anche dalla TUI: la TUI legge l'archivio con le
  * stesse funzioni dei comandi, e le azioni sono i comandi stessi. */
 #ifndef AMS_AMS_H

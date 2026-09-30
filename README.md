@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 
 Strumento con cui gli amministratori di una macchina Linux inviano messaggi
 testuali agli utenti e sanno chi ha confermato di averli letti.

@@ -1,4 +1,4 @@
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Macchina di prova: Debian 13 con systemd acceso (logind, sshd), per provare AMS
 # dal vero come root, con utenti e sessioni reali. Non tocca il sistema su cui gira.
 #   podman build -t ams-prova -f tests/container/Containerfile tests/container

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System for linux
+"""AMS - Advanced Messaging System
 Gira dentro la VM di prova, con l'identità dell'utente del desktop e il suo bus
 di sessione: guarda e usa le finestre di AMS attraverso l'accessibilità di GNOME
 (AT-SPI), come farebbe una persona, anche su Wayland.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Schermate vere della TUI per i manuali: nella macchina di prova (container
 # con utenti e sessioni reali) prepara alcuni messaggi, fa confermare e
 # rimandare gli utenti, apre la TUI come root su un terminale virtuale di

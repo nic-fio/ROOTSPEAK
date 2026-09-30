@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux: installazione e rimozione.
+# AMS - Advanced Messaging System: installazione e rimozione.
 #   ./install.sh              installa
 #   ./install.sh --uninstall  rimuove (i messaggi in /var/lib/ams restano)
 #   ./install.sh --purge      rimuove anche i messaggi

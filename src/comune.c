@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Utilità comuni: ambiente, errori, memoria, testi che crescono, file. */
 #include "comune.h"
 

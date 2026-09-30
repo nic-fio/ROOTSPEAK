@@ -1,5 +1,5 @@
 #cloud-config
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Macchina virtuale di prova con desktop: Debian 13, GNOME su Wayland, login
 # automatico di «sara»; gli altri utenti come nel container (tests/container).
 # @CHIAVI@ viene sostituito da prepara.sh con le chiavi ssh autorizzate per root.

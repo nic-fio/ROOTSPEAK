@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System for linux
+"""AMS - Advanced Messaging System
 Prova la TUI degli amministratori (ams senza argomenti) su un terminale
 virtuale, in modalità di prova su un archivio temporaneo: la apre, preme dei
 tasti come farebbe una persona e controlla lo schermo e l'archivio dopo ognuno.

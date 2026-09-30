@@ -5,7 +5,7 @@ controllare prima di registrare una modifica. Un clone più questo file sono
 tutto il contesto di lavoro: niente di ciò che serve per continuare sta fuori
 dal repository.
 
-Il nome è **AMS - Advanced Messaging System for linux** (non «Message System»).
+Il nome è **AMS - Advanced Messaging System** (non «Message System», senza «for linux»).
 
 ## Come si lavora
 

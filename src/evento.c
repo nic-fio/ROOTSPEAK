@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Eventi strutturati nel journal, e il loro testo in ogni lingua. */
 #include "evento.h"
 

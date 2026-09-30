@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System for linux
+# AMS - Advanced Messaging System
 # Prove dal vero nella VM con desktop, sul server delle prove (per non caricare
 # il PC): copia il codice sul server, avvia la VM da una copia pulita del disco
 # base, installa AMS, esegue gli scenari (tests/container/scenari.py, con quelli

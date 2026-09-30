@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System for linux
+/* AMS - Advanced Messaging System
  * Testo pulito, messaggi, configurazione. */
 #ifndef AMS_TESTO_H
 #define AMS_TESTO_H
