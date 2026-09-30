@@ -1,5 +1,12 @@
 from build import c, p, table, term
 
+S0 = p(c("tests/engine.sh") + " prova il motore in modalità di prova, senza root, su un archivio temporaneo nuovo per "
+       "ogni caso. Ogni difetto corretto vi aggiunge i controlli che falliscono senza la correzione.", lead=True) + \
+    table(["Gruppo", "Controlli"], [
+        ["conferme", "conferma normale; scrittura impossibile (il messaggio resta, l'utente è avvisato, nessun file "
+         "temporaneo, la domanda torna e poi riesce); conferma già presente (resta la prima)"],
+    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n\nOK: 7 controlli")
+
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \
     table(["Prova", "Controllo"], [
@@ -22,7 +29,7 @@ S2 = table(["Controllo", "Fallisce se"], [
     ["link", "un link " + c("#ancora") + " non porta a nessun id"],
 ], "«TAB» — I controlli di tools/check-docs.py") + term(
     "nicfio@server:~/AMS$ tools/check-docs.py\n"
-    "documentazione allineata: 2 manuali, 11 voci della guida, 12 file nella mappa, versione 0.1.0")
+    "documentazione allineata: 2 manuali, 11 voci della guida, 13 file nella mappa, versione 0.1.0")
 
 S3 = p("La consegna reale richiede root, sessioni vere e un desktop, e non è automatizzata. Nella versione 0.1.0 è stata "
        "provata dal vivo su Debian 13 con GNOME 48 su Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
@@ -35,6 +42,7 @@ S3 = p("La consegna reale richiede root, sessioni vere e un desktop, e non è au
 ], "«TAB» — Cosa è stato provato")
 
 CHAPTER = ("Test e controlli", [
+    ("Il motore: tests/engine.sh", S0),
     ("La guida integrata: tests/help-tui.py", S1),
     ("La documentazione: tools/check-docs.py", S2),
     ("Prove dal vivo", S3),

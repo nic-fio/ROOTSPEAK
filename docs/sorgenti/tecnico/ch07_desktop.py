@@ -41,7 +41,7 @@ DIALOG = seq([("show_dialog", "", "navy"), ("zenity", "--question --no-markup", 
 S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in background: il testo non è interpretato "
        "come markup. Poi controlla ogni secondo la casella e chiude la finestra se il messaggio è stato confermato "
        "altrove o ritirato.", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
-    ["codice 0 («Ho letto»)", c("ack ID desktop")],
+    ["codice 0 («Ho letto»)", c("ack ID desktop") + "; se la scrittura fallisce, una notifica lo dice e la finestra torna al giro successivo"],
     ["altro codice («Più tardi», finestra chiusa)", c("snooze ID gui") + ": tocca " + c("state/ID.gui")],
     ["processo chiuso da show_dialog", "nulla: la conferma o il ritiro sono già avvenuti"],
 ], "«TAB» — Come finisce una finestra")

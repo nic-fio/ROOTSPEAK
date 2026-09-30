@@ -43,12 +43,28 @@ mark_shown() {
 }
 
 # Registra la conferma. Vale la prima: una conferma successiva da un altro
-# canale non sovrascrive quella già registrata.
+# canale non sovrascrive quella già registrata. La conferma è scritta in un
+# file temporaneo e pubblicata con ln, che fallisce se acks/ID esiste già: così
+# «già confermato» e «scrittura fallita» restano distinti, e non può esistere
+# una conferma scritta a metà.
+# Esito: 0 registrata (o già presente), 1 non registrata: il messaggio resta
+# nella casella e verrà richiesto di nuovo.
 ack() {
-	if ! (set -C; printf '%s %s\n' "$(date +%s)" "$2" >"$D/acks/$1") 2>/dev/null; then
+	local tmp=$D/acks/.$1.$$ err
+	if [ -e "$D/acks/$1" ]; then
 		mark_read "$1"
-		return
+		return 0
 	fi
+	if ! err=$({ printf '%s %s\n' "$(date +%s)" "$2" >"$tmp" && ln "$tmp" "$D/acks/$1"; } 2>&1); then
+		rm -f "$tmp"
+		if [ -e "$D/acks/$1" ]; then
+			mark_read "$1"
+			return 0
+		fi
+		ams_log "utente $U: ERRORE, conferma del messaggio $1 non registrata ($2): ${err:-errore sconosciuto}"
+		return 1
+	fi
+	rm -f "$tmp"
 	mark_read "$1"
 	ams_log "utente $U: confermata la lettura del messaggio $1 ($2)"
 }
@@ -95,7 +111,13 @@ cmd_prompt() {
 		ams_msg_term "$f"
 		ask "$id"
 		case $? in
-		0) ack "$id" "$where"; echo "[AMS] Confermato." ;;
+		0)
+			if ack "$id" "$where"; then
+				echo "[AMS] Confermato."
+			else
+				echo "[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta."
+			fi
+			;;
 		2) mark_read "$id"; echo "[AMS] Messaggio già confermato altrove (per esempio dal desktop)." ;;
 		3) echo "[AMS] L'amministratore ha ritirato il messaggio." ;;
 		*) snooze "$id" term; echo "[AMS] La domanda verrà riproposta tra $AMS_REMIND_MINUTES minuti." ;;
@@ -132,7 +154,13 @@ show_dialog() {
 	wait "$pid"
 	rc=$?
 	[ -e "$D/acks/$id" ] || [ ! -e "$f" ] && return
-	if [ $rc -eq 0 ]; then ack "$id" desktop; else snooze "$id" gui; fi
+	if [ $rc -ne 0 ]; then
+		snooze "$id" gui
+	elif ! ack "$id" desktop; then
+		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
+		notify-send -a AMS "AMS · Conferma non registrata" \
+			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null
+	fi
 }
 
 cmd_agent() {

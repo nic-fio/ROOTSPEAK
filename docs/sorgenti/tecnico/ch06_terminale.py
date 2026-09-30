@@ -33,7 +33,7 @@ PROMPT = fig(
 
 S2 = p(c("ams-user prompt") + " prende i messaggi della casella in ordine di numero. Quelli scaduti passano subito in "
        + c("read/") + ".", lead=True) + PROMPT + table(["Esito di ask", "Cosa fa", "Stampa"], [
-    ["0 · «s»", c("ack ID \"terminale pts/N\""), "[AMS] Confermato."],
+    ["0 · «s»", c("ack ID \"terminale pts/N\""), "[AMS] Confermato. (se la scrittura fallisce: «Non è stato possibile registrare la conferma…», e il messaggio resta)"],
     ["1 · altro, o solo Invio", c("snooze ID term") + ": tocca " + c("state/ID.term"), "[AMS] La domanda verrà riproposta tra N minuti."],
     ["2 · confermato altrove", "sposta in " + c("read/"), "[AMS] Messaggio già confermato altrove…"],
     ["3 · ritirato", "nulla", "[AMS] L'amministratore ha ritirato il messaggio."],

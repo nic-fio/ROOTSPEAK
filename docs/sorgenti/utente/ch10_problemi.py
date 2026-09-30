@@ -25,6 +25,8 @@ S2 = table(["Problema", "Causa probabile", "Rimedio"], [
      "ritirare il doppione con " + c("ams revoke")],
     ["un utente entrato con " + c("su") + " non vede il testo all'invio", "con " + c("su") + " la finestra di terminale resta di chi l'ha aperta",
      "vede comunque la domanda al prompt successivo; con " + c("ssh") + " tutto funziona normalmente"],
+    ["un utente vede «Non è stato possibile registrare la conferma»", "la sua casella non è scrivibile, per esempio "
+     "perché il disco è pieno", "liberare spazio; il messaggio viene richiesto di nuovo e la conferma non va persa"],
     ["un utente dice di non aver visto nulla", "—", "guardare " + c("ams status") + " (era collegato? il testo è stato scritto nei suoi terminali?) e il registro (capitolo 5.5)"],
 ], "«TAB» — Problemi frequenti") + \
     tip("quando qualcosa non torna, i posti da guardare sono, nell'ordine: " + c("ams status") + " del messaggio, il "

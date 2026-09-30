@@ -13,6 +13,7 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
     ("etc/xdg/autostart/ams-agent.desktop", "Avvio automatico dell'agente del desktop."),
     ("etc/ams/ams.conf", "La configurazione predefinita."),
     ("install.sh", "Installazione, aggiornamento, rimozione."),
+    ("tests/engine.sh", "Test del motore in modalità di prova: conferme, casella, guasti."),
     ("tests/help-tui.py", "Prova della guida integrata su un terminale virtuale."),
     ("tools/check-docs.py", "Controlli di coerenza tra codice, guida e manuali."),
     ("docs/sorgenti/build.py", "Generatore dei due manuali."),
@@ -64,7 +65,7 @@ S4 = steps([
     c("python3 docs/sorgenti/build.py") + " se sono cambiati i manuali o la guida integrata.",
     c("tools/check-docs.py") + ": manuali generati aggiornati, riferimento allineato alla guida, mappa dei file "
     "completa, link interni validi (capitolo 11.2).",
-    c("tests/help-tui.py") + " se è cambiata la guida.",
+    c("tests/engine.sh") + " sempre; " + c("tests/help-tui.py") + " se è cambiata la guida.",
     "Una prova del flusso toccato in modalità di prova; per desktop, sudo e altri utenti, una prova dal vivo dopo "
     + c("./install.sh") + ".",
 ])

@@ -57,7 +57,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
 | `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
 | `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
-| `tests/` | `help-tui.py`: la guida interattiva su un terminale virtuale. |
+| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale. |
 | `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali. |
 
 ## Prima di registrare una modifica
@@ -68,7 +68,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
    riferimento del manuale utente divergono, se un file di codice manca dalla
    mappa dei file, se la versione non coincide o se un link interno è rotto.
    **Fallisce se i manuali non sono aggiornati.**
-3. `tests/help-tui.py` se è cambiata la guida.
+3. `tests/engine.sh` sempre; `tests/help-tui.py` se è cambiata la guida.
 4. Prova del flusso toccato in modalità di prova; per desktop, sudo e altri
    utenti, prova dal vivo dopo `./install.sh`, fatta dall'utente.
 5. I commit usano l'identità locale del repository (nome `nic-fio`, indirizzo
@@ -84,5 +84,6 @@ Prototipo 0.1.0 installato e provato dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
 avvisi `info`, testo e domanda nel terminale anche via ssh, conferma unica fra
 i canali, `list` e `status`. `revoke`, scadenze, errori e pulizia del testo
-provati in modalità di prova. Aperti: le voci [2] del README e la decisione
-sulla risposta dell'utente all'amministratore.
+provati in modalità di prova. Aperti: i punti della revisione avversariale del 30 settembre 2026
+([docs/revisione-avversariale.md](docs/revisione-avversariale.md)), da chiudere
+prima delle voci [2] del README, che restano congelate.
