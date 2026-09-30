@@ -2,4 +2,4 @@ __pycache__/
 build/
 build-analisi/
 build-san/
-tests/fuzz/risultati/
+tests/fuzz/results/

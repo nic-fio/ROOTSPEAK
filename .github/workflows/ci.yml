@@ -1,0 +1,40 @@
+# Prove di AMS a ogni push e pull request, con ciò che gira su una macchina di
+# GitHub: compilazione (avvisi come errori), prove delle parti interne,
+# controlli dei manuali e tests/engine.sh in modalità di prova (senza root).
+# Le prove dal vero (tests/container/run.sh, tests/vm/run.sh) e il fuzzing
+# restano sul PC e sul server delle prove: servono podman con systemd o una VM
+# con desktop.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pacchetti
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends gcc make pkg-config libsystemd-dev gettext python3-pygments
+
+      - name: Compilazione (make)
+        run: make
+
+      - name: Prove delle parti interne (make prove)
+        run: make prove
+
+      # prima di tests/engine.sh, che riscrive tests/results/engine.json
+      - name: Controlli dei manuali (make docs-check)
+        run: make docs-check
+
+      - name: Motore in modalità di prova (tests/engine.sh)
+        run: tests/engine.sh

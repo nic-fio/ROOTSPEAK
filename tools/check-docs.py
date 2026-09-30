@@ -3,7 +3,7 @@
 
 Fallisce se:
   - i manuali in docs/ non coincidono con quelli rigenerati dai sorgenti
-    (docs/sorgenti/build.py): i file HTML non si modificano a mano;
+    (docs/sources/build.py): i file HTML non si modificano a mano;
   - un comando o un'opzione della guida integrata (contesti guida-comandi e
     guida-opzioni in src/guida.c) manca dal riferimento del manuale utente
     (attributo data-help), vi ha una descrizione diversa dal testo di partenza
@@ -16,7 +16,7 @@ Fallisce se:
   - un catalogo po/*.po non passa msgfmt --check (stessi %s dell'originale),
     ha traduzioni da rivedere, o manca di testi presenti nei sorgenti;
   - l'ultima esecuzione di tests/engine.sh non ha l'impronta del codice
-    attuale (tools/impronta.sh) o ha controlli falliti.
+    attuale (tools/fingerprint.sh) o ha controlli falliti.
 """
 import html
 import importlib.util
@@ -38,16 +38,16 @@ def plain(s):
 
 
 # ---- manuali rigenerati ----
-spec = importlib.util.spec_from_file_location("build", DOCS / "sorgenti" / "build.py")
+spec = importlib.util.spec_from_file_location("build", DOCS / "sources" / "build.py")
 build = importlib.util.module_from_spec(spec)
-sys.path.insert(0, str(DOCS / "sorgenti"))
+sys.path.insert(0, str(DOCS / "sources"))
 spec.loader.exec_module(build)
 with tempfile.TemporaryDirectory() as tmp:
     for kind in build.MANUALS:
         fresh, _ = build.build(kind, tmp)
         current = DOCS / fresh.name
         if not current.exists() or current.read_text() != fresh.read_text():
-            errors.append(f"{current.name}: non corrisponde ai sorgenti, rigenerare con python3 docs/sorgenti/build.py")
+            errors.append(f"{current.name}: non corrisponde ai sorgenti, rigenerare con python3 docs/sources/build.py")
 
 user = USER.read_text()
 tech = TECH.read_text()
@@ -89,9 +89,9 @@ for f in sorted(set(wanted) & set(documented)):
 fmap = tech[tech.index('id="file-map"'):]
 fmap = fmap[:fmap.index("</table>")]
 rows = set(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>\d+</td>", fmap))
-code_files = {"install.sh", "Makefile", "docs/sorgenti/build.py", "docs/sorgenti/stile.css"}
+code_files = {"install.sh", "Makefile", "docs/sources/build.py", "docs/sources/style.css"}
 code_files |= {str(p.relative_to(ROOT)) for d in ("src", "po", "etc", "tests", "tools")
-               for p in (ROOT / d).rglob("*") if p.is_file() and "risultati" not in p.parts
+               for p in (ROOT / d).rglob("*") if p.is_file() and "results" not in p.parts
                and "__pycache__" not in p.parts}
 for f in sorted(code_files - rows):
     errors.append(f"manuale tecnico: {f} manca dalla mappa dei file")
@@ -126,7 +126,7 @@ base = sorgenti
 
 # ---- prove ----
 import json
-eng = ROOT / "tests" / "risultati" / "engine.json"
+eng = ROOT / "tests" / "results" / "engine.json"
 if not eng.exists() or json.loads(eng.read_text()).get("impronta") != build.impronta_attuale():
     errors.append("prove: tests/engine.sh non è stato eseguito sul codice attuale (impronta diversa): lanciarlo")
 elif json.loads(eng.read_text()).get("no"):

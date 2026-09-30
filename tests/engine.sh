@@ -12,13 +12,13 @@ BASE=$(mktemp -d)
 trap 'chmod -R u+w "$BASE" 2>/dev/null; rm -rf "$BASE"' EXIT
 export AMS_TEST=1 AMS_CONF=/dev/null AMS_TEST_TTY=
 B=${AMS_BUILD:-$ROOT/build}
-[ -x "$B/ams" ] && [ -x "$B/prove-unita" ] || { echo "manca $B: lanciare make e make build/prove-unita" >&2; exit 1; }
+[ -x "$B/ams" ] && [ -x "$B/unit-tests" ] || { echo "manca $B: lanciare make e make build/unit-tests" >&2; exit 1; }
 export AMS_LIB=$B AMS_LOCALEDIR=$B/locale
 AMS=$B/ams AMS_USER=$B/ams-user
 # le parti interne: la conferma da sola, la configurazione, la scelta della lingua
 ams_ack() { "$AMS_USER" conferma "$@"; }
-leggi_conf() { AMS_CONF=$1 "$B/prove-unita" conf; }
-lingua() { "$B/prove-unita" lingua "$@"; }
+leggi_conf() { AMS_CONF=$1 "$B/unit-tests" conf; }
+lingua() { "$B/unit-tests" lingua "$@"; }
 # i test controllano i testi italiani; il gruppo 8 prova le altre lingue
 export LANG=it_IT.UTF-8
 unset LC_ALL LC_MESSAGES LANGUAGE
@@ -404,8 +404,8 @@ check "ams remind di un messaggio ritirato: errore" '[[ $out == *"è stato ritir
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi
 # risultato, con commit e impronta del codice provato (letti dal manuale tecnico, capitolo 11)
-mkdir -p "$ROOT/tests/risultati"
+mkdir -p "$ROOT/tests/results"
 printf '{"data": "%s", "commit": "%s", "impronta": "%s", "ok": %d, "no": %d, "totale": %d}\n' \
-	"$(date '+%Y-%m-%d %H:%M:%S %Z')" "$("$ROOT/tools/impronta.sh" --commit)" "$("$ROOT/tools/impronta.sh")" \
-	$((total - fails)) "$fails" "$total" >"$ROOT/tests/risultati/engine.json"
+	"$(date '+%Y-%m-%d %H:%M:%S %Z')" "$("$ROOT/tools/fingerprint.sh" --commit)" "$("$ROOT/tools/fingerprint.sh")" \
+	$((total - fails)) "$fails" "$total" >"$ROOT/tests/results/engine.json"
 [ $fails -eq 0 ]

@@ -1,6 +1,9 @@
 # AMS - Advanced Messaging System
 #   make                  compila ams, ams-user e le lingue in build/
-#   make prove            prove delle parti interne (build/prove-unita)
+#   make prove            prove delle parti interne (build/unit-tests)
+#   make test             prove veloci: prove, controlli dei manuali, tests/engine.sh
+#   make docs             rigenera i manuali (python3 docs/sources/build.py)
+#   make docs-check       solo i controlli dei manuali (tools/check-docs.py)
 #   make analizza         analisi statica di gcc (-fanalyzer)
 #   make sanitizer        compila con AddressSanitizer e UBSan in build-san/
 #   make pot              aggiorna po/ams.pot e i .po dai sorgenti
@@ -38,10 +41,10 @@ $(B)/ams: $(OGG) $(B)/ams.o $(B)/guida.o $(B)/archivio.o $(B)/tui.o
 $(B)/ams-user: $(OGG) $(B)/ams-user.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(B)/prove-unita: $(OGG) $(B)/prove-unita.o
+$(B)/unit-tests: $(OGG) $(B)/unit-tests.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(B)/prove-unita.o: tests/prove-unita.c src/*.h | $(B)
+$(B)/unit-tests.o: tests/unit-tests.c src/*.h | $(B)
 	$(CC) $(CFLAGS) -Isrc -c -o $@ $<
 
 $(B)/locale/%/LC_MESSAGES/ams.mo: po/%.po
@@ -51,15 +54,26 @@ $(B)/locale/%/LC_MESSAGES/ams.mo: po/%.po
 $(B):
 	mkdir -p $(B)
 
-prove: $(B)/prove-unita $(MO)
-	AMS_TEST=1 AMS_LOCALEDIR=$(B)/locale $(B)/prove-unita
+prove: $(B)/unit-tests $(MO)
+	AMS_TEST=1 AMS_LOCALEDIR=$(B)/locale $(B)/unit-tests
+
+# i controlli dei manuali prima di tests/engine.sh: il motore riscrive
+# tests/results/engine.json (data e commit), che i manuali riportano
+test: all prove docs-check
+	tests/engine.sh
+
+docs:
+	python3 docs/sources/build.py
+
+docs-check:
+	python3 tools/check-docs.py
 
 analizza:
 	$(MAKE) B=build-analisi CFLAGS="-O1 -g -fanalyzer" all
 
 sanitizer:
 	$(MAKE) B=build-san CFLAGS="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer" \
-		LDFLAGS="-fsanitize=address,undefined" DIFESE="-fPIE" all build-san/prove-unita
+		LDFLAGS="-fsanitize=address,undefined" DIFESE="-fPIE" all build-san/unit-tests
 
 pot:
 	xgettext --from-code=UTF-8 -k -kT -kN_ -kTC:1c,2 -kNC_:1c,2 -ktl:2 -ktlc:2c,3 --add-comments=TRADUTTORI \
@@ -70,4 +84,4 @@ pot:
 clean:
 	rm -rf build build-analisi build-san
 
-.PHONY: all prove analizza sanitizer pot clean
+.PHONY: all prove test docs docs-check analizza sanitizer pot clean

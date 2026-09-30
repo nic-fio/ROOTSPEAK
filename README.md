@@ -90,7 +90,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 ### Configurazione e distribuzione
 - [1] `/etc/ams/ams.conf`: intervallo dei solleciti, controllo dell'agente del desktop
 - [1] Script di installazione
-- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sorgenti/` con lo stile dei manuali di IR_Service
+- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sources/` con lo stile dei manuali di IR_Service
 - [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
@@ -130,7 +130,9 @@ Il primo prototipo (0.1.0) era in shell, per validare il flusso; dalla versione 
 
 ## Installazione
 
-Servono `gcc make pkg-config libsystemd-dev gettext` per compilare e `zenity` per il desktop.
+Servono `gcc make pkg-config libsystemd-dev gettext` per compilare e `zenity` per il desktop;
+`tools/setup-dev.sh` dice quali mancano (con `--install` li installa). `tools/backup.sh` salva tutto il
+repository, con la storia, in un solo file.
 
 ```
 make                      # compila in build/
@@ -158,7 +160,9 @@ make                      # compila in build/
 |---|---|
 | [`docs/User Manual.html`](docs/User%20Manual.html) | Gli amministratori che usano AMS (in inglese) |
 | [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test (in inglese) |
-| [`docs/decisioni-e-storia.md`](docs/decisioni-e-storia.md) | Perché AMS è fatto così |
+| [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Perché AMS è fatto così |
+| [`NOTICE.md`](NOTICE.md) | Copyright e componenti di terzi |
+| [`logos/ams-logo.jpg`](logos/ams-logo.jpg) | Il logo di AMS (i file di logo stanno in `logos/`) |
 | [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
 | `ams --help` | La guida integrata, a schede |
 
@@ -167,8 +171,9 @@ I due manuali sono file HTML autosufficienti: si aprono con un doppio clic o con
 mostra impaginati (mostra il codice sorgente): scaricarli o aprirli dalla copia locale.
 Dopo l'installazione sono anche in `/usr/local/share/doc/ams/`.
 
-Sono generati: si modificano i capitoli in `docs/sorgenti/utente/` e `docs/sorgenti/tecnico/`
-e si rigenerano con `python3 docs/sorgenti/build.py` (serve `python3-pygments`).
+Sono generati: si modificano i capitoli in `docs/sources/user/` e `docs/sources/technical/`
+e si rigenerano con `make docs` (serve `python3-pygments`); `make docs-check` controlla che siano allineati.
+In `docs/` c'è anche `index.html`, la pagina iniziale della documentazione ([`docs/README.md`](docs/README.md)).
 
 Esempi:
 
