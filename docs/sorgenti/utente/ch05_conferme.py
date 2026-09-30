@@ -33,7 +33,8 @@ S2 = p(c("ams status") + " seguito dal numero mostra il testo del messaggio e lo
          "perché non si è potuta scrivere (per esempio disco pieno). Il prossimo comando " + c("ams") + " riprova da solo"],
         [pill("consegnato", "wait"), "la copia è nella casella: l'utente la vede subito se è collegato, altrimenti al "
          "prossimo accesso. Può essere accompagnato da dettagli: «scritto su N terminali» (era collegato all'invio), "
-         "«rimandato il …» (ha premuto «Più tardi» o risposto «no»), «non confermato (scaduto)» o «(ritirato)»"],
+         "«rimandato il …» (ha premuto «Più tardi» o risposto «no»), «non confermato (scaduto)» o «(ritirato)». Una conferma "
+         "data dopo la scadenza non vale: «non confermato (scaduto; conferma arrivata dopo la scadenza)»"],
         [pill("confermato", "ok"), "l'utente ha dichiarato di averlo letto: data, ora e canale (" + c("desktop")
          + ", " + c("terminale pts/2") + ", " + c("terminale tty3") + " per una console)"],
     ], "«TAB» — I tre stati di un destinatario")

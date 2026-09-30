@@ -162,6 +162,54 @@ send --expires 1m "prova"
 sed -i "s/^expires: .*/expires: $(( $(date +%s) - 5 ))/" "$AMS_VAR/sent/1/msg"
 check "scaduto: consegnato, non confermato" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
 
+# ---- 4. scadenza: domande e finestre si chiudono, una conferma tardiva non vale ----
+
+echo "4. scadenza"
+fresh expire-during
+send --expires 1m "scade durante la domanda"
+exp=$(( $(date +%s) + 2 ))
+sed -i "s/^expires: .*/expires: $exp/" "$AMS_VAR/sent/1/msg" "$D/inbox/1"
+out=$( (sleep 4; echo s) | script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1)
+check "scadenza durante la domanda: la domanda si ferma" '[[ $out == *"Il messaggio è scaduto."* ]]'
+check "scadenza durante la domanda: nessuna conferma registrata" '[ ! -e "$D/acks/1" ] && [ -e "$D/read/1" ]'
+check "scadenza durante la domanda: stato «non confermato (scaduto)»" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
+
+fresh late-ack
+send --expires 1m "conferma fuori tempo"
+exp=$(( $(date +%s) - 10 ))
+sed -i "s/^expires: .*/expires: $exp/" "$AMS_VAR/sent/1/msg"
+echo "$(date +%s) desktop" >"$D/acks/1"
+check "conferma con ora dopo la scadenza (copia di riferimento): non vale" \
+	'[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)" ]'
+check "ams list non la conta" '[[ $("$ROOT/bin/ams" list) == *" 0/1 "* ]]'
+
+# ---- 5. agente del desktop: sveglia solo quando è pronto ----
+# Richiede una sessione grafica dell'utente che esegue i test (l'agente esce
+# subito senza); altrimenti il gruppo è saltato.
+
+echo "5. agente"
+if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
+	fresh agent
+	mkdir -p "$AMS_VAR/users" "$BASE/run-agent"
+	vivi=0 pronti=0
+	for i in 1 2 3 4 5 6 7 8 9 10; do
+		rm -f "$BASE/run-agent/ams-agent.pronto"
+		XDG_RUNTIME_DIR=$BASE/run-agent "$ROOT/lib/ams-user" agent &
+		p=$!
+		for k in $(seq 1 200); do [ -s "$BASE/run-agent/ams-agent.pronto" ] && break; sleep 0.01; done
+		[ "$(cat "$BASE/run-agent/ams-agent.pronto" 2>/dev/null)" = "$p" ] && pronti=$((pronti + 1))
+		for k in 1 2 3 4 5; do pkill -USR1 -F "$BASE/run-agent/ams-agent.pronto" -f 'ams-user agent$' 2>/dev/null; done
+		sleep 0.2
+		kill -0 $p 2>/dev/null && vivi=$((vivi + 1))
+		kill $p 2>/dev/null; wait $p 2>/dev/null
+	done
+	check "l'agente scrive il suo PID in ams-agent.pronto quando è pronto (10 su 10)" '[ $pronti = 10 ]'
+	check "la sveglia al PID pronto non lo uccide (10 su 10)" '[ $vivi = 10 ]'
+	check "all'uscita ams-agent.pronto sparisce" '[ ! -e "$BASE/run-agent/ams-agent.pronto" ]'
+else
+	echo "  --   saltato: nessuna sessione grafica"
+fi
+
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi
 [ $fails -eq 0 ]

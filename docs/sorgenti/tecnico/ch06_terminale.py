@@ -33,6 +33,7 @@ S2 = p(c("ams-user prompt") + " prende i messaggi della casella in ordine di num
     ["1 · altro, o solo Invio", c("snooze ID term") + ": tocca " + c("state/ID.term"), "[AMS] La domanda verrà riproposta tra N minuti."],
     ["2 · confermato altrove", "sposta in " + c("read/"), "[AMS] Messaggio già confermato altrove…"],
     ["3 · ritirato", "nulla", "[AMS] L'amministratore ha ritirato il messaggio."],
+    ["4 · scaduto mentre la domanda era aperta", "sposta in " + c("read/"), "[AMS] Il messaggio è scaduto."],
 ], "«TAB» — Gli esiti della domanda")
 
 ASK = seq([("Utente", "tastiera", "dark"), ("ask", "read -t 1", "blue"), ("Casella", "users/U", "soft")], [
@@ -47,7 +48,7 @@ ASK = seq([("Utente", "tastiera", "dark"), ("ask", "read -t 1", "blue"), ("Casel
 
 S3 = p(c("ask") + " legge la risposta da " + c("/dev/tty") + " con " + c("read -t 1") + " in un ciclo. A ogni secondo "
        "senza risposta controlla la casella: se è comparsa la conferma, l'utente ha confermato altrove; se il messaggio "
-       "è sparito, è stato ritirato.", lead=True) + ASK + \
+       "è sparito, è stato ritirato; se è scaduto, la domanda si ferma.", lead=True) + ASK + \
     p("Il terminale resta in modo canonico: ciò che l'utente sta scrivendo resta nel buffer del terminale e non si "
       "perde fra un secondo e l'altro. Il rinvio vale " + c("AMS_REMIND_MINUTES") + " dalla data di modifica di "
       + c("state/ID.term") + "; con " + c("--login") + " non vale.")

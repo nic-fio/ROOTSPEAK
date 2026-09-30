@@ -100,10 +100,16 @@ WAKE = seq([("ams send", "root", "navy"), ("pkill (come U)", "", "dark"), ("Agen
 ], "«FIG» — La sveglia dell'agente del desktop", "Sveglia o avvio dell'agente")
 
 S5 = p("Dopo aver scritto la casella, " + c("wake_agent U") + " fa comparire subito la finestra.", lead=True) + WAKE + ul([
-    "Il segnale parte con " + c("pkill") + " eseguito <b>come U</b> e sulla riga di comando <b>esatta</b> dell'agente "
-    "(" + c("^/bin/bash …/ams-user agent$") + "): non può raggiungere processi d'altri, né processi di U con un nome simile.",
-    "Se nessun agente c'è (sessione aperta prima dell'installazione), " + c("systemd-run --user") + " lo avvia nel "
-    "gestore utente di systemd, che conosce già l'ambiente grafico.",
+    "Il segnale va solo a un agente <b>pronto</b>: quello il cui PID è in " + c("/run/user/UID/ams-agent.pronto")
+    + ", scritto dall'agente dopo aver preparato la ricezione del segnale. Un agente svegliato mentre partiva moriva "
+    "(20 su 20 in una prova): bash non ha ancora letto la prima riga, e " + c("SIGUSR1") + " per difetto termina il "
+    "processo.",
+    "Il segnale parte con " + c("pkill -F ams-agent.pronto") + " eseguito <b>come U</b> e sulla riga di comando "
+    "<b>esatta</b> dell'agente (" + c("^/bin/bash …/ams-user agent$") + "): non può raggiungere processi d'altri, né un "
+    "processo di U che avesse ereditato un PID vecchio.",
+    "Se non c'è un agente pronto, " + c("systemd-run --user") + " ne avvia uno nel gestore utente di systemd, che "
+    "conosce già l'ambiente grafico. Se un agente stava partendo, il nuovo trova il lock ed esce; quello che partiva "
+    "legge comunque la casella al primo giro.",
 ])
 
 S6 = table(["Tolto", "Esempio", "Perché"], [

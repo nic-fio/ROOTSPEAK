@@ -3,6 +3,10 @@
 # ams-user: helper interno, non è un comando per l'utente. Gira con l'identità
 # dell'utente, lanciato dall'hook della shell (prompt) e dall'avvio automatico
 # del desktop (agent): mostra i messaggi e registra la conferma di lettura.
+
+# Prima di tutto: il segnale di sveglia (SIGUSR1) non deve uccidere l'agente
+# mentre parte. ams send lo manda comunque solo a un agente già pronto (ams-agent.pronto).
+trap : USR1
 set -uo pipefail
 
 AMS_LIB=$(dirname "$(readlink -f "$0")")
@@ -42,12 +46,17 @@ mark_read() { mv -f "$D/inbox/$1" "$D/read/$1" 2>/dev/null; rm -f "$D/state/$1".
 # «già confermato» e «scrittura fallita» restano distinti, e non può esistere
 # una conferma scritta a metà.
 # Esito: 0 registrata (o già presente), 1 non registrata: il messaggio resta
-# nella casella e verrà richiesto di nuovo.
+# nella casella e verrà richiesto di nuovo; 2 messaggio scaduto: una conferma
+# dopo la scadenza non vale.
 ack() {
 	local tmp=$D/acks/.$1.$$ err
 	if [ -e "$D/acks/$1" ]; then
 		mark_read "$1"
 		return 0
+	fi
+	if [ -e "$D/inbox/$1" ] && ams_msg_expired "$D/inbox/$1"; then
+		mark_read "$1"
+		return 2
 	fi
 	if ! err=$({ printf '%s %s\n' "$(date +%s)" "$2" >"$tmp" && ln "$tmp" "$D/acks/$1"; } 2>&1); then
 		rm -f "$tmp"
@@ -66,7 +75,8 @@ ack() {
 # ---- terminale: chiamato dall'hook della shell prima di ogni prompt ----
 
 # Chiede la conferma. Esito: 0 sì, 1 no, 2 già confermato altrove (per
-# esempio dal desktop) mentre la domanda era in attesa, 3 messaggio ritirato.
+# esempio dal desktop) mentre la domanda era in attesa, 3 messaggio ritirato,
+# 4 messaggio scaduto mentre la domanda era in attesa.
 ask() {
 	local ans='' rc
 	printf "[AMS] Confermi di aver letto il messaggio? [s/N] "
@@ -82,6 +92,10 @@ ask() {
 		if [ ! -e "$D/inbox/$1" ]; then
 			echo
 			return 3
+		fi
+		if ams_msg_expired "$D/inbox/$1"; then
+			echo
+			return 4
 		fi
 	done
 	case $ans in [sSyY]*) return 0 ;; *) return 1 ;; esac
@@ -101,14 +115,16 @@ cmd_prompt() {
 		ask "$id"
 		case $? in
 		0)
-			if ack "$id" "$where"; then
-				echo "[AMS] Confermato."
-			else
-				echo "[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta."
-			fi
+			ack "$id" "$where"
+			case $? in
+			0) echo "[AMS] Confermato." ;;
+			2) echo "[AMS] Il messaggio è scaduto: la conferma non è stata registrata." ;;
+			*) echo "[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta." ;;
+			esac
 			;;
 		2) mark_read "$id"; echo "[AMS] Messaggio già confermato altrove (per esempio dal desktop)." ;;
 		3) echo "[AMS] L'amministratore ha ritirato il messaggio." ;;
+		4) mark_read "$id"; echo "[AMS] Il messaggio è scaduto." ;;
 		*) snooze "$id" term; echo "[AMS] La domanda verrà riproposta tra $AMS_REMIND_MINUTES minuti." ;;
 		esac
 	done
@@ -136,15 +152,19 @@ show_dialog() {
 	# La finestra si chiude da sola se l'utente conferma da un terminale o se
 	# l'amministratore ritira il messaggio.
 	while kill -0 "$pid" 2>/dev/null; do
-		if [ -e "$D/acks/$id" ] || [ ! -e "$f" ]; then kill "$pid" 2>/dev/null; fi
+		if [ -e "$D/acks/$id" ] || [ ! -e "$f" ] || ams_msg_expired "$f"; then kill "$pid" 2>/dev/null; fi
 		sleep 1 9>&-
 	done
 	wait "$pid"
 	rc=$?
 	[ -e "$D/acks/$id" ] || [ ! -e "$f" ] && return
+	if ams_msg_expired "$f"; then
+		mark_read "$id"
+		return
+	fi
 	if [ $rc -ne 0 ]; then
 		snooze "$id" gui
-	elif ! ack "$id" desktop; then
+	elif ! ack "$id" desktop && [ -e "$f" ]; then
 		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
 		command -v notify-send >/dev/null && notify-send -a AMS "AMS · Conferma non registrata" \
 			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null 9>&-
@@ -156,10 +176,14 @@ cmd_agent() {
 	# Il lock (fd 9) non passa ai processi figli (9>&-): se l'agente muore, un
 	# suo sleep o una sua finestra rimasti orfani non devono impedire a un nuovo
 	# agente di partire.
-	exec 9>"${XDG_RUNTIME_DIR:-/tmp}/ams-agent.lock"
+	local run=${XDG_RUNTIME_DIR:-/tmp}
+	exec 9>"$run/ams-agent.lock"
 	flock -n 9 || exit 0
-	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio.
+	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio,
+	# ma solo al PID scritto qui, cioè a un agente che sa già riceverlo.
 	trap : USR1
+	trap 'rm -f "$run/ams-agent.pronto"' EXIT
+	echo $$ >"$run/ams-agent.pronto"
 	while graphical_session; do
 		for id in $(pending); do
 			f=$D/inbox/$id

@@ -114,8 +114,14 @@ wake_agent() {
 	local u=$1
 	[ -z "${AMS_TEST:-}" ] || return 0
 	has_graphical_session "$u" || return 0
-	# Il segnale parte con l'identità dell'utente: raggiunge solo i suoi processi.
-	as_user "$u" pkill -USR1 -u "$u" -f "$AGENT_RE" && return 0
+	# Il segnale va solo all'agente pronto (PID in ams-agent.pronto) e solo se la
+	# sua riga di comando è quella dell'agente; parte con l'identità dell'utente,
+	# quindi non può raggiungere processi d'altri. Se non c'è un agente pronto se
+	# ne avvia uno: se uno stava partendo, il nuovo esce (lock) e quello che
+	# partiva legge comunque la casella al primo giro.
+	local pronto
+	pronto=/run/user/$(id -u "$u")/ams-agent.pronto
+	as_user "$u" pkill -USR1 -u "$u" -F "$pronto" -f "$AGENT_RE" 2>/dev/null && return 0
 	if is_root; then
 		systemd-run --user --machine="$u@.host" --collect --quiet "$AMS_LIB/ams-user" agent || true
 	else
@@ -328,7 +334,7 @@ cmd_send() {
 # Stato di un destinatario, uno dei tre: "inviato" (la copia non è ancora nella
 # casella), "consegnato" (è nella casella), "confermato EPOCH CANALE".
 recipient_state() {
-	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel
+	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel exp
 	if ! delivered "$u" "$id"; then
 		echo inviato
 		return
@@ -337,6 +343,13 @@ recipient_state() {
 	if [ -n "$ack" ]; then
 		read -r epoch channel <<<"$ack"
 		[[ $epoch =~ ^[0-9]+$ ]] || epoch=0
+		# La scadenza che conta è quella della copia di riferimento (sent/), che
+		# l'utente non può toccare: una conferma arrivata dopo non vale.
+		exp=$(ams_msg_get "$AMS_VAR/sent/$id/msg" expires)
+		if [ -n "$exp" ] && [ "$epoch" -gt "$exp" ]; then
+			echo "consegnato tardiva"
+			return
+		fi
 		echo "confermato $epoch ${channel:-?}"
 	else
 		echo consegnato
@@ -404,6 +417,7 @@ cmd_status() {
 		*)
 			line="consegnato"
 			if [ -e "$AMS_VAR/sent/$id/revoked" ]; then line+=", non confermato (ritirato)"
+			elif [ "$state" = "consegnato tardiva" ]; then line+=", non confermato (scaduto; conferma arrivata dopo la scadenza)"
 			elif ams_msg_expired "$msg"; then line+=", non confermato (scaduto)"
 			else
 				nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)

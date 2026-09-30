@@ -55,6 +55,8 @@ FILES = fig(
 S3 = p("Lo stato di un destinatario, uno dei tre (inviato, consegnato, confermato), non è scritto da nessuna parte: si deduce dai file.", lead=True) + FILES + \
     table(["Condizione", "Stato (recipient_state)", "Come appare in ams status"], [
         ["nessuna riga in " + c("sent/ID/delivery"), c("inviato"), "inviato, non consegnato (con la causa, se " + c("incomplete") + ")"],
+        [c("acks/ID") + " con data dopo la scadenza di " + c("sent/ID/msg"), c("consegnato tardiva"),
+         "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)"],
         [c("acks/ID") + " esiste", c("confermato DATA CANALE"), "confermato il … (canale)"],
         ["altrimenti", c("consegnato"), "consegnato; dettagli: terminali scritti (da " + c("delivery") + "), «rimandato il …» (data "
          "di " + c("state/ID.*") + "), «non confermato (scaduto)» o «(ritirato)»"],

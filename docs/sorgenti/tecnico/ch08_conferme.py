@@ -27,6 +27,7 @@ S1 = p(c("ack ID CANALE") + " scrive la conferma in un file temporaneo e la pubb
         [c("acks/ID") + " già presente", "0", "passa in " + c("read/") + "; resta la prima conferma"],
         ["scrittura fallita (disco pieno, permessi)", "1", "<b>resta in " + c("inbox/")
          + "</b>; l'utente è avvisato, l'errore va nel registro, la domanda o la finestra tornano"],
+        ["messaggio scaduto", "2", "passa in " + c("read/") + " senza conferma: una conferma dopo la scadenza non vale"],
     ], "«TAB» — Gli esiti di ack") + RACE + \
     p("Due conferme quasi contemporanee, dalla finestra e da un terminale, producono una sola registrazione. Il canale è "
       + c("desktop") + " oppure " + c("terminale pts/N") + " (" + c("terminale tty3") + " per una console).")

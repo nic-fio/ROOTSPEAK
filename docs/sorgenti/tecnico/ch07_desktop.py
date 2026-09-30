@@ -12,6 +12,9 @@ LOOP = fig(
 
 S1 = p("L'agente, " + c("ams-user agent") + ", parte con l'avvio automatico del desktop e vive quanto la sessione "
        "grafica.", lead=True) + LOOP + ul([
+    "<b>Pronto</b>: la ricezione del segnale è la prima istruzione dello script; dopo il lock l'agente scrive il suo "
+    "PID in " + c("$XDG_RUNTIME_DIR/ams-agent.pronto") + " e lo cancella all'uscita. " + c("ams send") + " sveglia solo "
+    "quel PID (capitolo 5.6).",
     "<b>Un solo agente per utente</b>: " + c("flock -n") + " su " + c("$XDG_RUNTIME_DIR/ams-agent.lock")
     + ". Il descrittore del lock non passa ai figli (" + c("9>&-") + " su " + c("zenity") + " e " + c("sleep")
     + "): altrimenti, se l'agente muore, un suo " + c("sleep") + " o una sua finestra rimasti orfani terrebbero il lock "
@@ -38,7 +41,7 @@ DIALOG = seq([("show_dialog", "", "navy"), ("zenity", "--question --no-markup", 
 
 S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in background: il testo non è interpretato "
        "come markup. Poi controlla ogni secondo la casella e chiude la finestra se il messaggio è stato confermato "
-       "altrove o ritirato.", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
+       "altrove, ritirato o è scaduto.", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
     ["codice 0 («Ho letto»)", c("ack ID desktop") + "; se la scrittura fallisce, una notifica lo dice e la finestra torna al giro successivo"],
     ["altro codice («Più tardi», finestra chiusa)", c("snooze ID gui") + ": tocca " + c("state/ID.gui")],
     ["processo chiuso da show_dialog", "nulla: la conferma o il ritiro sono già avvenuti"],

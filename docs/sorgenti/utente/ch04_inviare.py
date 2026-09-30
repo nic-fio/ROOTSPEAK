@@ -61,7 +61,8 @@ S3 = p("Il testo si può scrivere in tre modi. Per messaggi lunghi conviene prep
     tip("AMS toglie dal testo i caratteri invisibili e i codici di colore: si può incollare testo da qualunque parte "
         "senza rischiare di disturbare i terminali degli utenti.", "Testo sicuro.")
 
-S4 = p("Con " + c("--expires") + " un messaggio smette di essere mostrato dopo un certo tempo. Serve per gli avvisi "
+S4 = p("Con " + c("--expires") + " un messaggio smette di essere mostrato dopo un certo tempo; una finestra o una "
+       "domanda ancora aperte si chiudono da sole, e una conferma arrivata dopo non vale. Serve per gli avvisi "
        "che perdono senso: chi non l'ha visto in tempo non lo vedrà più.", lead=True) + \
     table(["Scrivi", "Il messaggio scade"], [
         [c("--expires 30m"), "tra 30 minuti"],
