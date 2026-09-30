@@ -812,8 +812,11 @@ def rapporto():
 
 
 if __name__ == "__main__":
+    solo = os.environ.get("AMS_PROVA_SOLO", "").split(",")   # per esempio i_desktop
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
                j_registro, k_shell, l_lingua, h_prestazioni, i_desktop):
+        if solo != [""] and fn.__name__ not in solo:
+            continue
         print(fn.__name__)
         scenario(fn)
     sys.exit(0 if rapporto() else 1)

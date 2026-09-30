@@ -65,7 +65,10 @@ S3 = table(["#", "Invariante"], [
     ["I9", "Gli ID crescono sempre (sequenza con " + c("flock") + "); si riusano solo se l'archivio viene azzerato."],
     ["I10", "AMS non blocca mai una sessione e non tocca le sessioni senza terminale."],
     ["I11", "Il segnale di sveglia va solo a un agente pronto; la casella resta la coda autorevole: un segnale perso "
-     "ritarda la finestra al più di " + c("AMS_AGENT_POLL") + " secondi, non la perde."],
+     "ritarda la finestra al più di " + c("AMS_AGENT_POLL") + " secondi, non la perde. Il segnale non chiude né "
+     "cambia una finestra già aperta."],
+    ["I12", "Un rinvio si registra solo per una scelta dell'utente («Più tardi», finestra chiusa, risposta diversa da "
+     "sì): una finestra chiusa dal sistema non è un rinvio."],
 ], "«TAB» — Le invarianti")
 
 S4 = p("Per ogni punto in cui un processo può interrompersi, lo stato che resta e chi lo ripara.", lead=True) + \
@@ -80,8 +83,10 @@ S4 = p("Per ogni punto in cui un processo può interrompersi, lo stato che resta
          + ", nessuna conferma", "la domanda torna; il file temporaneo è ignorato"],
         ["dopo " + c("ln") + ", prima dello spostamento in " + c("read/"), "conferma presente, copia ancora in "
          + c("inbox/"), "chi legge la casella completa lo spostamento senza chiedere di nuovo"],
-        ["uscita dalla sessione subito dopo «Ho letto»", "conferma registrata: l'agente attende la finestra e scrive "
-         "la risposta appena arriva", "nessuna (scenario I10: uscita dopo 0,1 s)"],
+        ["uscita dalla sessione subito dopo «Ho letto»", "conferma registrata: l'agente attende la finestra, scrive "
+         "la risposta appena arriva e rimanda il SIGTERM a dopo la scrittura", "nessuna (scenario I10: uscita dopo 0,1 s)"],
+        ["uscita dalla sessione con la finestra aperta", "nessun rinvio registrato: la finestra torna al prossimo login",
+         "nessuna"],
         ["l'agente del desktop muore", "lock rilasciato; una sua finestra può restare aperta", c("ams send")
          + " o il login avviano un nuovo agente; la finestra orfana non registra più nulla"],
     ], "«TAB» — Comportamento dopo un'interruzione") + \

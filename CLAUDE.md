@@ -96,7 +96,7 @@ Versione: `AMS_VERSION` in `lib/ams-common.sh`, e la stessa nei due manuali
 ## A che punto è
 
 Prototipo 0.1.0. Suite: `tests/engine.sh` 62 controlli, container 66 scenari (shell e lingue comprese)
-(più il desktop, non provabile lì), VM con desktop (in inglese) 59 scenari, tutti riusciti (le shell si provano solo nel container)
+(più il desktop, non provabile lì), VM con desktop in italiano 59 scenari, tutti riusciti (le shell si provano solo nel container; `AMS_PROVA_LINGUA=en` per il desktop in inglese, 11 su 11)
 (30 settembre 2026). Provato anche dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
 testo e domanda nel terminale anche via ssh, conferma unica fra

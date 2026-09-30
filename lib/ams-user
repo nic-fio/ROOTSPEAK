@@ -173,20 +173,34 @@ show_dialog() {
 		done
 	) 9>&- &
 	local controllore=$!
-	wait "$pid"
-	rc=$?
+	# Il segnale di sveglia di `ams send` (un messaggio nuovo) interrompe wait
+	# con esito 138 mentre la finestra è ancora aperta: allora si aspetta
+	# ancora, altrimenti l'agente la darebbe per chiusa.
+	while true; do
+		wait "$pid"
+		rc=$?
+		if [ $rc -gt 128 ] && [ -z "${AMS_FINE:-}" ] && kill -0 "$pid" 2>/dev/null; then continue; fi
+		break
+	done
 	kill "$controllore" 2>/dev/null
 	[ -e "$D/acks/$id" ] || [ ! -e "$f" ] && return
 	if ams_msg_expired "$f"; then
 		mark_read "$id"
 		return
 	fi
-	if [ $rc -ne 0 ]; then
-		snooze "$id" gui
-	elif ! ack "$id" desktop && [ -e "$f" ]; then
-		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
-		command -v notify-send >/dev/null && notify-send -a AMS "$(t notify_title)" "$(t notify_text)" 2>/dev/null 9>&-
-	fi
+	# zenity esce con 0 per «Ho letto», con 1 per «Più tardi» o la finestra
+	# chiusa dall'utente. Altri esiti (finestra uccisa, per esempio all'uscita
+	# dalla sessione) non sono una scelta dell'utente: niente rinvio, la
+	# finestra ricompare al giro successivo o al prossimo login.
+	case $rc in
+	0)
+		if ! ack "$id" desktop && [ -e "$f" ]; then
+			# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
+			command -v notify-send >/dev/null && notify-send -a AMS "$(t notify_title)" "$(t notify_text)" 2>/dev/null 9>&-
+		fi
+		;;
+	1) snooze "$id" gui ;;
+	esac
 }
 
 cmd_agent() {
@@ -200,16 +214,25 @@ cmd_agent() {
 	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio,
 	# ma solo al PID scritto qui, cioè a un agente che sa già riceverlo.
 	trap : USR1
-	trap 'rm -f "$run/ams-agent.pronto"' EXIT
+	# (il percorso si fissa adesso: all'uscita la variabile locale non c'è più)
+	# shellcheck disable=SC2064
+	trap "rm -f '$run/ams-agent.pronto'" EXIT
+	# All'uscita dalla sessione arriva SIGTERM a tutti i processi dell'utente:
+	# l'agente finisce di registrare la risposta già data (una conferma a metà
+	# andrebbe persa) ed esce al primo punto sicuro.
+	AMS_FINE=''
+	trap 'AMS_FINE=1' TERM HUP INT
 	echo $$ >"$run/ams-agent.pronto"
-	while graphical_session; do
+	while [ -z "$AMS_FINE" ] && graphical_session; do
 		# la configurazione si rilegge a ogni giro: una modifica vale subito anche qui
 		ams_load_conf
 		for id in $(pending); do
 			f=$D/inbox/$id
 			[ -f "$f" ] || continue
 			if ! snoozed "$id" gui; then show_dialog "$id"; fi
+			[ -z "$AMS_FINE" ] || break
 		done
+		[ -z "$AMS_FINE" ] || break
 		# Attesa interrompibile: il segnale di `ams send` la termina subito.
 		sleep "$AMS_AGENT_POLL" 9>&- &
 		wait $!

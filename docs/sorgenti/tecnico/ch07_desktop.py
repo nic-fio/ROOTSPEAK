@@ -27,6 +27,9 @@ S1 = p("L'agente, " + c("ams-user agent") + ", parte con l'avvio automatico del 
     "<b>Attesa interrompibile</b>: " + c("sleep AMS_AGENT_POLL & wait $!") + " con " + c("trap : USR1") + ". Il segnale "
     "di " + c("ams send") + " interrompe " + c("wait") + ": la finestra compare in circa un decimo di secondo. Il "
     "controllo periodico, ogni 60 secondi, resta come rete di sicurezza.",
+    "<b>Uscita pulita</b>: all'uscita dalla sessione logind manda " + c("SIGTERM") + " a tutti i processi dell'utente. "
+    "L'agente lo annota (" + c("trap 'AMS_FINE=1' TERM HUP INT") + "), finisce di registrare la risposta già data ed "
+    "esce al primo punto sicuro: una conferma interrotta a metà andrebbe persa.",
 ])
 
 DIALOG = seq([("show_dialog", "", "navy"), ("zenity", "--question --no-markup", "blue"), ("Casella", "users/U", "soft"),
@@ -36,7 +39,7 @@ DIALOG = seq([("show_dialog", "", "navy"), ("zenity", "--question --no-markup", 
     (0, 2, "ogni secondo: acks/ID? inbox/ID?"),
     ("sep", "tre modi di finire"),
     (3, 1, "«Ho letto»: codice 0 → ack desktop"),
-    (3, 1, "«Più tardi» o chiusura → snooze gui", True),
+    (3, 1, "«Più tardi» o chiusura (codice 1) → snooze gui", True),
     (0, 1, "confermato altrove o ritirato → kill", True),
 ], "«FIG» — La finestra di conferma", "")
 
@@ -46,9 +49,15 @@ S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in b
        "altrove, ritirato o è scaduto. Prima era l'agente stesso a controllare ogni secondo: un'uscita dalla sessione "
        "subito dopo «Ho letto» poteva perdere la conferma (trovato dalla VM di prova, scenario I10).", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
     ["codice 0 («Ho letto»)", c("ack ID desktop") + "; se la scrittura fallisce, una notifica lo dice e la finestra torna al giro successivo"],
-    ["altro codice («Più tardi», finestra chiusa)", c("snooze ID gui") + ": tocca " + c("state/ID.gui")],
+    ["codice 1 («Più tardi», finestra chiusa dall'utente)", c("snooze ID gui") + ": tocca " + c("state/ID.gui")],
     ["processo chiuso da show_dialog", "nulla: la conferma o il ritiro sono già avvenuti"],
-], "«TAB» — Come finisce una finestra")
+    ["altri codici (finestra uccisa, per esempio all'uscita dalla sessione)", "nulla: non è una scelta dell'utente; "
+     "la finestra torna al giro successivo o al prossimo login"],
+], "«TAB» — Come finisce una finestra") + \
+    p("Il segnale di sveglia di " + c("ams send") + " interrompe anche l'attesa sulla finestra (" + c("wait")
+      + " esce con 138 mentre zenity è ancora aperto): in quel caso " + c("show_dialog") + " attende di nuovo. Prima "
+      "l'agente dava per chiusa la finestra e registrava un rinvio mai scelto; il difetto è comparso quando le "
+      "traduzioni hanno ritardato di poco l'apertura della finestra (VM di prova, scenario I7).")
 
 S3 = p("L'agente usa " + c("notify-send") + ", se è installato, per un solo caso: dire all'utente che la sua conferma non "
        "è stata registrata. Il testo è fisso: nessun contenuto dei messaggi passa per le notifiche.", lead=True)
