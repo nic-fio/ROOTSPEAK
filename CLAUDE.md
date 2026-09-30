@@ -19,7 +19,9 @@ Il nome è **AMS - Advanced Messaging System for linux** (non «Message System»
   un'esecuzione: modalità di prova, `tests/`, o una prova dal vivo dopo
   `./install.sh`. «Dovrebbe funzionare» non è un risultato.
 - **La documentazione conta quanto il codice.** Una funzione non è finita
-  finché i manuali non la descrivono.
+  finché i manuali non la descrivono. I manuali si giudicano come un lavoro di
+  grafica: schemi in ogni capitolo, testi pratici, e ogni pagina guardata con
+  uno screenshot prima di consegnarla.
 - **Claude non ha la password di sudo**: l'installazione e le prove come root
   le lancia l'utente (`! ./install.sh`, `! ams …`). Attenzione: se le
   credenziali di sudo dell'utente sono ancora valide, `bin/ams` senza
@@ -41,7 +43,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | **Root non tocca le caselle come root** | Ogni accesso a `/var/lib/ams/users/U` passa da `as_user` (`runuser`). |
 | **zenity e notify-send** per il desktop | Finestra «Ho letto» / «Più tardi»; notifiche per `info`. |
 | **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi solo in `lib/ams-help.sh`. |
-| **Manuali HTML in italiano, tema chiaro** | Stile e palette di NESH, impianto di MTERM. |
+| **Manuali sul modello di IR_Service** | Generati da `docs/sorgenti/` (un file per capitolo) in due file HTML autosufficienti, con lo stile del Manuale Tecnico di IR_Service: copertina, indice laterale, figure SVG e tabelle numerate. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
 | **Prototipo in bash** | Riscrittura in un linguaggio compilato solo per limiti concreti. |
 | **Nessuna licenza** | Repository privato, copyright nic-fio. |
 
@@ -53,17 +55,19 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `lib/` | `ams-common.sh` (comune), `ams-user` (aiutante come utente), `ams-help.sh` (guida integrata). |
 | `etc/` | Aggancio della shell, avvio automatico dell'agente, configurazione predefinita. |
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
-| `docs/` | `manuale-utente.html`, `manuale-tecnico.html`, `decisioni-e-storia.md`, `assets/`. |
+| `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
+| `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
 | `tests/` | `help-tui.py`: la guida interattiva su un terminale virtuale. |
 | `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali. |
 
 ## Prima di registrare una modifica
 
 1. `bash -n` su tutti gli script.
-2. `tools/check-docs.py`: fallisce se guida integrata e riferimento del manuale
-   utente divergono, se la mappa dei file del manuale tecnico non è aggiornata
-   (file mancanti o righe oltre il 10%), se la versione non coincide o se un
-   link interno è rotto. **Fallisce se i manuali non sono aggiornati.**
+2. `python3 docs/sorgenti/build.py`, poi `tools/check-docs.py`: fallisce se i
+   manuali in `docs/` non corrispondono ai sorgenti, se guida integrata e
+   riferimento del manuale utente divergono, se un file di codice manca dalla
+   mappa dei file, se la versione non coincide o se un link interno è rotto.
+   **Fallisce se i manuali non sono aggiornati.**
 3. `tests/help-tui.py` se è cambiata la guida.
 4. Prova del flusso toccato in modalità di prova; per desktop, sudo e altri
    utenti, prova dal vivo dopo `./install.sh`, fatta dall'utente.

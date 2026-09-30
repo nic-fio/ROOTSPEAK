@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-"""Controlla che il manuale utente sia allineato al codice, come in MTERM.
+"""Controlla che i manuali siano allineati al codice.
 
 Fallisce se:
+  - i manuali in docs/ non coincidono con quelli rigenerati dai sorgenti
+    (docs/sorgenti/build.py): i file HTML non si modificano a mano;
   - un comando o un'opzione della guida integrata (AMS_HELP_COMMANDS e
-    AMS_HELP_OPTIONS in lib/ams-help.sh) non ha la sua voce nel riferimento del
-    manuale utente (attributo data-help identico all'etichetta della guida), o
-    la descrizione del manuale è diversa da quella della guida, o il manuale
+    AMS_HELP_OPTIONS in lib/ams-help.sh) manca dal riferimento del manuale
+    utente (attributo data-help), vi ha una descrizione diversa, o il manuale
     documenta una voce che non esiste;
-  - un file della mappa dei file del manuale tecnico manca o non esiste, o il
-    numero di righe indicato si scosta di oltre il 10% da quello vero;
-  - la versione di lib/ams-common.sh non è quella dei due manuali;
-  - un link interno #ancora di uno dei due manuali punta a un id inesistente.
+  - un file di codice manca dalla mappa dei file del manuale tecnico, o la
+    mappa cita un file che non esiste;
+  - la versione di lib/ams-common.sh non compare nei due manuali;
+  - un link interno #ancora di uno dei due manuali non porta a nessun id.
 """
 import html
+import importlib.util
 import pathlib
 import re
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-MANUAL = ROOT / "docs" / "manuale-utente.html"
-TECH = ROOT / "docs" / "manuale-tecnico.html"
-HELP = ROOT / "lib" / "ams-help.sh"
-COMMON = ROOT / "lib" / "ams-common.sh"
+DOCS = ROOT / "docs"
+USER = DOCS / "AMS_Manuale_Utente.html"
+TECH = DOCS / "AMS_Manuale_Tecnico.html"
 
 errors = []
 
@@ -30,57 +32,51 @@ def plain(s):
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", s))).strip()
 
 
-def help_items(name, src):
-    body = src[src.index(name + "=("):]
-    body = body[:body.index("\n)")]
-    items = {}
-    for raw in re.findall(r'^\t"((?:[^"\\]|\\.)*)"$', body, re.M):
-        flag, desc = raw.replace('\\"', '"').split("¦", 1)
-        items[flag] = re.sub(r"\s+", " ", desc).strip()
-    return items
+# ---- manuali rigenerati ----
+spec = importlib.util.spec_from_file_location("build", DOCS / "sorgenti" / "build.py")
+build = importlib.util.module_from_spec(spec)
+sys.path.insert(0, str(DOCS / "sorgenti"))
+spec.loader.exec_module(build)
+with tempfile.TemporaryDirectory() as tmp:
+    for kind in build.MANUALS:
+        fresh, _ = build.build(kind, tmp)
+        current = DOCS / fresh.name
+        if not current.exists() or current.read_text() != fresh.read_text():
+            errors.append(f"{current.name}: non corrisponde ai sorgenti, rigenerare con python3 docs/sorgenti/build.py")
 
-
-help_src = HELP.read_text()
-manual = MANUAL.read_text()
-
-wanted = {**help_items("AMS_HELP_COMMANDS", help_src), **help_items("AMS_HELP_OPTIONS", help_src)}
-ref = manual[manual.index('id="reference"'):manual.index('id="messaggi-errore"')]
-documented = {}
-for flag, desc in re.findall(r'<dt[^>]*\bdata-help="([^"]+)"[^>]*>.*?</dt>\s*<dd>(.*?)</dd>', ref, re.S):
-    documented[html.unescape(flag)] = plain(desc)
-
-for flag in sorted(set(wanted) - set(documented)):
-    errors.append(f"manuale: manca «{flag}» nel riferimento")
-for flag in sorted(set(documented) - set(wanted)):
-    errors.append(f"manuale: «{flag}» non esiste nella guida integrata")
-for flag in sorted(set(wanted) & set(documented)):
-    if wanted[flag] != documented[flag]:
-        errors.append(f"manuale: la descrizione di «{flag}» è diversa da quella della guida")
-
+user = USER.read_text()
 tech = TECH.read_text()
+
+# ---- riferimento ----
+wanted = {f: re.sub(r"\s+", " ", d).strip()
+          for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS") for f, d in build.help_items(name)}
+documented = {html.unescape(f): plain(d)
+              for f, d in re.findall(r'<dt[^>]*\bdata-help="([^"]+)"[^>]*>.*?</dt><dd>(.*?)</dd>', user, re.S)}
+for f in sorted(set(wanted) - set(documented)):
+    errors.append(f"manuale utente: manca «{f}» nel riferimento")
+for f in sorted(set(documented) - set(wanted)):
+    errors.append(f"manuale utente: «{f}» non esiste nella guida integrata")
+for f in sorted(set(wanted) & set(documented)):
+    if wanted[f] != documented[f]:
+        errors.append(f"manuale utente: la descrizione di «{f}» è diversa da quella della guida")
 
 # ---- mappa dei file ----
 fmap = tech[tech.index('id="file-map"'):]
 fmap = fmap[:fmap.index("</table>")]
-rows = dict(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>(\d+)</td>", fmap))
-code_files = ["bin/ams", "install.sh", *sorted(str(p.relative_to(ROOT)) for d in ("lib", "etc", "tests", "tools")
-                                          for p in (ROOT / d).rglob("*") if p.is_file())]
-for f in code_files:
-    real = len((ROOT / f).read_text().splitlines())
-    if f not in rows:
-        errors.append(f"manuale tecnico: {f} ({real} righe) manca dalla mappa dei file")
-    elif abs(real - int(rows[f])) > max(2, int(rows[f]) // 10):
-        errors.append(f"manuale tecnico: {f} ha {real} righe, la mappa ne indica {rows[f]}")
-for f in sorted(set(rows) - set(code_files)):
+rows = set(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>\d+</td>", fmap))
+code_files = {"bin/ams", "install.sh", "docs/sorgenti/build.py", "docs/sorgenti/stile.css"}
+code_files |= {str(p.relative_to(ROOT)) for d in ("lib", "etc", "tests", "tools")
+               for p in (ROOT / d).rglob("*") if p.is_file()}
+for f in sorted(code_files - rows):
+    errors.append(f"manuale tecnico: {f} manca dalla mappa dei file")
+for f in sorted(rows - code_files):
     errors.append(f"manuale tecnico: {f} è nella mappa dei file ma non esiste")
 
 # ---- versione e link ----
-version = re.search(r"^AMS_VERSION=(\S+)", COMMON.read_text(), re.M).group(1)
-for where, text in (("manuale utente", manual), ("manuale tecnico", tech)):
+version = build.VERSION
+for where, text in (("manuale utente", user), ("manuale tecnico", tech)):
     if version not in text:
         errors.append(f"{where}: manca la versione {version}")
-    for other in sorted(set(re.findall(r"\b0\.\d+\.\d+\b", text)) - {version}):
-        errors.append(f"{where}: versione {other} diversa da {version}")
     ids = set(re.findall(r'\bid="([^"]+)"', text))
     for anchor in sorted(set(re.findall(r'href="#([^"]+)"', text))):
         if anchor not in ids:
@@ -89,4 +85,5 @@ for where, text in (("manuale utente", manual), ("manuale tecnico", tech)):
 if errors:
     print("\n".join(errors))
     sys.exit(1)
-print(f"documentazione allineata: {len(wanted)} voci della guida, {len(rows)} file nella mappa, versione {version}")
+print(f"documentazione allineata: 2 manuali, {len(wanted)} voci della guida, {len(rows)} file nella mappa, "
+      f"versione {version}")

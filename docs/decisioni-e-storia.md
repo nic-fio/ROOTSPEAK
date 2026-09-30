@@ -1,8 +1,8 @@
 # AMS — decisioni e storia
 
 > Perché AMS è fatto così: il contesto, le decisioni e la storia del progetto.
-> Il funzionamento in dettaglio è nel [manuale tecnico](manuale-tecnico.html),
-> l'uso nel [manuale utente](manuale-utente.html) (file HTML: vanno aperti in un browser).
+> Il funzionamento in dettaglio è nel [manuale tecnico](AMS_Manuale_Tecnico.html),
+> l'uso nel [manuale utente](AMS_Manuale_Utente.html) (file HTML: vanno aperti in un browser).
 > Stato: **prototipo 0.1.0 funzionante**, provato dal vivo su Debian 13 con GNOME 48 su Wayland (settembre 2026).
 
 ---
@@ -62,7 +62,7 @@ affidabile è **logind**, non utmp.
 | **zenity per la finestra** | Pacchetto standard e piccolo; una finestra che resta aperta finché l'utente non sceglie. Le notifiche di GNOME possono essere ignorate o sparire da sole: inaffidabili per la conferma. |
 | **Prototipo in bash** | Per validare il flusso con gli strumenti del sistema. Una riscrittura in un linguaggio compilato si farà solo se emergeranno limiti concreti. |
 | **Guida integrata come quella di MTERM, niente man page** | «Non voglio un sistema man, ma un sistema molto più evoluto»: guida a schede in un terminale, pagina in stile manuale con un pager se il terminale è piccolo, testo semplice in una pipe. Un controllo (`tools/check-docs.py`) tiene allineati guida e manuale. |
-| **Manuali HTML in italiano, tema chiaro** | Stessa struttura, stile e palette dei manuali di NESH; nomi dei file e impianto (manuale utente, manuale tecnico, decisioni e storia, `CLAUDE.md`) come in MTERM. |
+| **Manuali sul modello di IR_Service** | Una prima versione copiata dai manuali di NESH è stata bocciata dall'utente su tutto (grafici, aspetto, testi, apertura): «Ancora una volta i manuali html fanno schifo». Il riferimento indicato è il Manuale Tecnico di IR_Service: i manuali sono generati da sorgenti Python (un file per capitolo) in due file HTML autosufficienti, con copertina, indice laterale, schemi SVG e tabelle numerate, senza script. Il riferimento dei comandi è generato dai testi della guida integrata. |
 | **Nessuna licenza** | Repository privato, copyright nic-fio. |
 
 ## 5. Scelte tecniche nate dalle prove
@@ -84,4 +84,4 @@ affidabile è **logind**, non utmp.
 |---|---|
 | 29 settembre 2026, sera | Classificazione delle sessioni, scopo, ricerca di strumenti esistenti, lista delle funzionalità, decisioni su livelli, blocco, comandi degli utenti e permessi. Prototipo in bash e installazione; prime prove dal vivo (finestra, terminale, conferma unica, sveglia dell'agente). Repository privato su GitHub. |
 | 29 settembre 2026, notte | Prove con un secondo utente: consegna al login grafico, avvisi `info`, terminale via ssh. Manuale utente in HTML sullo stile di NESH; versione 0.1.0. |
-| 30 settembre 2026 | Guida integrata interattiva sul modello di MTERM, sempre come root; `tools/check-docs.py` e `tests/help-tui.py`. Manuale tecnico, questo documento e `CLAUDE.md`. |
+| 30 settembre 2026 | Guida integrata interattiva sul modello di MTERM, sempre come root; `tools/check-docs.py` e `tests/help-tui.py`. Manuale tecnico, questo documento e `CLAUDE.md`. Manuali rifatti da capo sul modello di IR_Service, con generatore in `docs/sorgenti/`. |

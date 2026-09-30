@@ -20,9 +20,11 @@ def spawn(rows, cols):
     return pid, fd
 
 
-def read_all(fd, wait=0.6):
-    out, end = b"", time.time() + wait
-    while time.time() < end:
+def read_all(fd, wait=0.6, limit=5.0):
+    """Legge finché arriva qualcosa e poi resta tutto fermo per «wait» secondi
+    (al massimo «limit»): a macchina carica il disegno può tardare."""
+    out, start, last = b"", time.time(), time.time()
+    while time.time() - start < limit:
         r, _, _ = select.select([fd], [], [], 0.05)
         if r:
             try:
@@ -32,6 +34,11 @@ def read_all(fd, wait=0.6):
             if not data:
                 break
             out += data
+            last = time.time()
+        elif out and time.time() - last >= wait:
+            break
+        elif not out and time.time() - start >= max(wait, 2.0):
+            break
     return out.decode("utf-8", "replace")
 
 

@@ -1,0 +1,101 @@
+from build import arrow, box, c, diamond, fig, flow, note, p, path, seq, table, text, ul, zone
+
+S1 = flow([("Libreria", "AMS_LIB o accanto a sé", "dark"), ("Root?", "altrimenti exec sudo", "navy"),
+           ("Guida, versione", "help, --help, version", "blue"), ("Comando", "send, list, status, revoke", "blue")],
+          "«FIG» — L'avvio di bin/ams") + \
+    p(c("bin/ams") + " gira con " + c("set -euo pipefail") + ". Carica la libreria da " + c("AMS_LIB") + " (o da "
+      + c("../lib") + " accanto a sé, nel repository) e, se non è root e " + c("AMS_TEST") + " non è impostata, "
+      "si rilancia con " + c('exec sudo -- "$(readlink -f "$0")" "$@"') + ". Solo dopo guarda il comando: guida e "
+      "versione comprese, nulla gira senza root. Un comando sconosciuto termina con " + c("ams_die") + ".")
+
+S2 = table(["Funzione", "Cosa restituisce"], [
+    [c("resolve_recipients DEST"), "divide " + c("DEST") + " sulle virgole, risolve ogni parte e toglie i doppioni; un nome "
+     "inesistente è un errore"],
+    [c("human_users"), "gli utenti con UID fra " + c("UID_MIN") + " e " + c("UID_MAX") + " di " + c("/etc/login.defs")
+     + " (predefiniti 1000 e 60000) e una shell che non finisce con " + c("nologin") + " o " + c("false")],
+    [c("online_users"), "gli utenti con almeno una sessione logind di classe " + c("user")],
+    [c("group_members G"), "i membri elencati nel gruppo più gli utenti che hanno G come gruppo principale"],
+    [c("user_sessions U"), "le sessioni " + c("user") + " di U, con tipo e terminale da " + c("loginctl show-session")],
+    [c("user_terminals U"), "gli pseudo-terminali in " + c("/dev/pts") + " di proprietà di U, più le console delle sue "
+     "sessioni di tipo " + c("tty")],
+    [c("has_graphical_session U"), "vero se U ha una sessione " + c("x11") + " o " + c("wayland")],
+], "«TAB» — Destinatari e sessioni")
+
+SYMLINK = fig(
+    zone(20, 44, 420, 214, "Senza as_user: root scrive direttamente", "#fdf2f2")
+    + box(44, 84, 150, 54, "ams (root)", "cat > inbox/12", "navy")
+    + box(262, 84, 156, 54, "users/mario/inbox", "sostituita da Mario…", "amber")
+    + box(262, 176, 156, 54, "/etc", "…con un collegamento", "grey")
+    + arrow(196, 111, 260, 111, "#b91c1c")
+    + arrow(340, 140, 340, 174, "#b91c1c", True, "segue il link", 390, 160)
+    + text(230, 250, "root scriverebbe in /etc", 11.5, "#b91c1c", "700")
+    + zone(470, 44, 410, 214, "Con as_user: runuser -u mario", "#f0fdf4")
+    + box(494, 84, 150, 54, "ams (root)", "as_user mario …", "navy")
+    + box(704, 84, 156, 54, "processo di mario", "cat > inbox/12", "light")
+    + box(704, 176, 156, 54, "/etc", "permesso negato", "grey")
+    + arrow(646, 111, 702, 111, "#16a34a")
+    + arrow(782, 140, 782, 174, "#475569", True)
+    + text(675, 250, "il peggio: Mario rovina la sua casella", 11.5, "#166534", "700"),
+    900, 276, "«FIG» — Perché root accede alle caselle con l'identità dell'utente", "Il pericolo dei collegamenti simbolici")
+
+S3 = p("La casella " + c("users/U") + " appartiene all'utente, che può sostituirne le cartelle con collegamenti "
+       "simbolici. Se root ci scrivesse direttamente, seguirebbe il collegamento e potrebbe scrivere ovunque. Per questo "
+       "ogni accesso di root alle caselle passa da " + c("as_user U comando…") + ", cioè " + c("runuser -u U -- comando…")
+       + ".", lead=True) + SYMLINK + ul([
+        "Solo la cartella " + c("users/U") + " è creata da root, dentro " + c("users/") + " che appartiene a root, e poi "
+        "ceduta a U; le sottocartelle le crea U.",
+        "Il messaggio viene scritto in " + c("inbox/ID.tmp") + " e poi rinominato: " + c("ams-user") + " non vede mai un "
+        "file a metà.",
+        c("revoke") + " toglie i file come U; " + c("status") + " legge le conferme come U (capitolo 8.2).",
+    ])
+
+S4 = p("Per ogni terminale di " + c("user_terminals") + ", " + c("ams_msg_term") + " formatta il messaggio, " + c("sed")
+       + " aggiunge un ritorno a capo " + c("\\r") + " a fine riga (il terminale può essere in modo grezzo, per esempio "
+       "dentro un editor) e " + c("timeout 3 tee") + " lo scrive: un terminale bloccato non ferma l'invio. Il numero di "
+       "terminali scritti finisce in " + c("sent/ID/delivery") + ". Un " + c("info") + " scritto su almeno un terminale "
+       "passa subito in " + c("read/") + " e viene annotato nel registro.", lead=True)
+
+WAKE = seq([("ams send", "root", "navy"), ("pkill (come U)", "", "dark"), ("Agente di U", "sleep & wait", "blue"),
+            ("systemd --user", "di U", "soft")], [
+    (0, 0, "has_graphical_session U?"),
+    (0, 1, "runuser -u U pkill -USR1 -f ^…ams-user agent$"),
+    (1, 2, "SIGUSR1: wait si interrompe"),
+    (2, 2, "controlla subito la casella"),
+    ("sep", "se nessun agente risponde"),
+    (0, 3, "systemd-run --user --machine=U@.host --collect ams-user agent"),
+    (3, 2, "avvia l'agente con l'ambiente grafico"),
+], "«FIG» — La sveglia dell'agente del desktop", "Sveglia o avvio dell'agente")
+
+S5 = p("Dopo aver scritto la casella, " + c("wake_agent U") + " fa comparire subito la finestra.", lead=True) + WAKE + ul([
+    "Il segnale parte con " + c("pkill") + " eseguito <b>come U</b> e sulla riga di comando <b>esatta</b> dell'agente "
+    "(" + c("^/bin/bash …/ams-user agent$") + "): non può raggiungere processi d'altri, né processi di U con un nome simile.",
+    "Se nessun agente c'è (sessione aperta prima dell'installazione), " + c("systemd-run --user") + " lo avvia nel "
+    "gestore utente di systemd, che conosce già l'ambiente grafico.",
+])
+
+S6 = table(["Tolto", "Esempio", "Perché"], [
+    ["sequenze CSI", c("ESC [ 31 m"), "colori, movimenti del cursore, cancellazioni"],
+    ["sequenze OSC", c("ESC ] 0 ; titolo BEL"), "titolo della finestra, collegamenti, appunti"],
+    ["caratteri di controllo C0", "tranne tabulazione e a capo", "campanello, ritorno carrello, escape isolati"],
+    [c("DEL"), c("0x7F"), "cancellazioni"],
+    ["caratteri C1 in UTF-8", c("C2 80") + " … " + c("C2 9F"), "alcuni terminali li interpretano come comandi"],
+], "«TAB» — Cosa toglie ams_sanitize, nell'ordine") + \
+    p(c("ams_sanitize") + " si applica a testo e titolo prima di salvarli, e alle conferme che " + c("ams status")
+      + " legge dalle caselle.")
+
+S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e chiamano " + c("recipient_state")
+       + " per ogni destinatario. " + c("ams revoke") + " scrive " + c("sent/ID/revoked") + " e toglie " + c("inbox/ID")
+       + " e i rinvii da ogni casella, come l'utente: finestre e domande aperte se ne accorgono entro un secondo "
+       "(capitoli 6.3 e 7.2).", lead=True) + \
+    note(c("ams list") + " chiama " + c("runuser") + " per ogni destinatario di ogni messaggio: con molti utenti e molti "
+         "messaggi diventa lento (capitolo 13).")
+
+CHAPTER = ("L'invio: ams", [
+    ("Avvio e rilancio con sudo", S1),
+    ("Destinatari e sessioni", S2),
+    ("Scrivere nelle caselle: as_user", S3),
+    ("Scrivere nei terminali", S4),
+    ("Svegliare l'agente del desktop", S5),
+    ("Pulizia del testo", S6),
+    ("list, status, revoke", S7),
+])

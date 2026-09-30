@@ -45,10 +45,10 @@ do_install() {
 	chown "root:$group" "$BINDIR/ams"
 	chmod 750 "$BINDIR/ams"
 	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
-	install -d -m 755 "$DOCDIR/assets"
-	rm -f "$DOCDIR/user-manual.html"   # nome usato fino alla 0.1.0 di sviluppo
-	install -m 644 "$SRC/docs/manuale-utente.html" "$SRC/docs/manuale-tecnico.html" "$DOCDIR/"
-	install -m 644 "$SRC/docs/assets/docs.css" "$SRC/docs/assets/docs.js" "$DOCDIR/assets/"
+	# manuali in un solo file ciascuno; via i nomi e gli asset delle versioni di sviluppo
+	install -d -m 755 "$DOCDIR"
+	rm -rf "$DOCDIR/assets" "$DOCDIR/user-manual.html" "$DOCDIR/manuale-utente.html" "$DOCDIR/manuale-tecnico.html"
+	install -m 644 "$SRC/docs/AMS_Manuale_Utente.html" "$SRC/docs/AMS_Manuale_Tecnico.html" "$DOCDIR/"
 	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
 	subst "$SRC/etc/xdg/autostart/ams-agent.desktop" >/etc/xdg/autostart/ams-agent.desktop
 	chmod 644 /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
@@ -67,7 +67,7 @@ do_install() {
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 
 	echo "AMS installato. Comando: $BINDIR/ams (utilizzabile dal gruppo $group)."
-	echo "Manuale: $DOCDIR/manuale-utente.html"
+	echo "Manuali: $DOCDIR/AMS_Manuale_Utente.html e AMS_Manuale_Tecnico.html"
 	echo "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda"
 	echo "di conferma dalla prossima shell o dal prossimo login."
 }

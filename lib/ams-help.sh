@@ -38,7 +38,7 @@ AMS_HELP_FILES=(
 	"/etc/ams/ams.conf¦Configurazione: livello predefinito, minuti prima di riproporre un messaggio rimandato, intervallo di controllo dell'agente del desktop."
 	"/var/lib/ams/¦I messaggi: sent/ (copie di riferimento, solo root) e users/UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
 	"sudo journalctl -t ams¦Il registro di sistema: invii, conferme, avvisi mostrati e ritiri."
-	"/usr/local/share/doc/ams/manuale-utente.html¦Il manuale utente completo, da aprire in un browser."
+	"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦Il manuale utente completo, da aprire in un browser."
 )
 
 AMS_HELP_DESCRIPTION="AMS permette agli amministratori di mandare messaggi di testo agli utenti della \
@@ -149,7 +149,7 @@ _help_page() { # colore, larghezza
 	printf '%s%s1%s\n' "$ti" "$_G" "$_R"
 	para "Errore: il messaggio d'errore, che inizia con «ams:», dice quale." "$di"
 	hdr "VEDERE ANCHE"
-	para "wall(1), write(1), e il manuale utente in /usr/local/share/doc/ams/manuale-utente.html" 7
+	para "wall(1), write(1), e il manuale utente in /usr/local/share/doc/ams/AMS_Manuale_Utente.html" 7
 	echo
 	three "ams $AMS_VERSION" "" "AMS(1)"
 }
@@ -185,7 +185,7 @@ _help_tab_lines() {
 		_help_wrap "$AMS_HELP_DESCRIPTION" "$inner" 3
 		for w in "${_W[@]}"; do add T "$w"; done
 		add T ''
-		add T "   AMS $AMS_VERSION · manuale completo: /usr/local/share/doc/ams/manuale-utente.html"
+		add T "   AMS $AMS_VERSION · manuale completo: /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
 		;;
 	1) add H Comandi; add T ''; items AMS_HELP_COMMANDS ;;
 	2) add H "Opzioni di send"; add T ''; items AMS_HELP_OPTIONS ;;
