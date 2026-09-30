@@ -145,6 +145,66 @@ next_id() {
 	echo "$n"
 }
 
+# Vero se il destinatario U ha già la sua copia del messaggio ID.
+delivered() {
+	awk -v u="$1" '$1 == u { f = 1 } END { exit !f }' "$AMS_VAR/sent/$2/delivery" 2>/dev/null
+}
+
+# Scrive la copia del messaggio ID nella casella di U e verifica che ci sia.
+# Non la riscrive se U l'ha già letta o confermata. Esito 1 se la copia manca.
+deliver_copy() {
+	local u=$1 id=$2 d=$AMS_VAR/users/$1
+	user_dir "$u" 2>/dev/null || return 1
+	if as_user "$u" test -e "$d/read/$id" -o -e "$d/acks/$id" 2>/dev/null; then
+		return 0
+	fi
+	as_user "$u" sh -c 'cat >"$1.tmp" && mv "$1.tmp" "$1"' _ "$d/inbox/$id" <"$AMS_VAR/sent/$id/msg" 2>/dev/null &&
+		as_user "$u" test -s "$d/inbox/$id" 2>/dev/null
+}
+
+# Completa gli invii rimasti a metà (sent/ID/incomplete): gira all'avvio di
+# ogni comando. Un invio interrotto prima di aver salvato messaggio e
+# destinatari viene annullato (sent/ID/failed).
+recover() {
+	local f dir id u miss n
+	[ -d "$AMS_VAR/sent" ] || return 0
+	for f in "$AMS_VAR"/sent/*/incomplete; do
+		[ -e "$f" ] || continue
+		dir=${f%/incomplete}
+		id=${dir##*/}
+		if [ ! -s "$dir/msg" ] || [ ! -s "$dir/recipients" ]; then
+			date +%s >"$dir/failed"
+			rm -f "$f"
+			ams_log "messaggio $id: invio interrotto prima del salvataggio, annullato"
+			echo "ams: il messaggio $id era stato interrotto prima di essere salvato ed è stato annullato" >&2
+			continue
+		fi
+		if [ -e "$dir/revoked" ] || ams_msg_expired "$dir/msg"; then
+			rm -f "$f"
+			continue
+		fi
+		miss=0 n=0
+		for u in $(cat "$dir/recipients"); do
+			delivered "$u" "$id" && continue
+			if deliver_copy "$u" "$id"; then
+				echo "$u $(date +%s) 0" >>"$dir/delivery"
+				wake_agent "$u"
+				n=$((n + 1))
+			else
+				miss=$((miss + 1))
+			fi
+		done
+		if [ $miss -eq 0 ]; then rm -f "$f"; fi
+		if [ $n -gt 0 ]; then
+			ams_log "messaggio $id: consegna completata per $n destinatari dopo un'interruzione"
+			echo "ams: completata la consegna del messaggio $id a $n destinatari" >&2
+		fi
+		if [ $miss -gt 0 ]; then
+			echo "ams: messaggio $id ancora non consegnato a $miss destinatari (vedi ams status $id)" >&2
+		fi
+	done
+}
+
 sent_msg() {
 	local f=$AMS_VAR/sent/$1/msg
 	[[ $1 =~ ^[0-9]+$ ]] && [ -f "$f" ] || ams_die "messaggio inesistente: $1"
@@ -170,7 +230,7 @@ check_expires() {
 
 cmd_send() {
 	local to='' level=$AMS_DEFAULT_LEVEL title='' expires='' file='' text id dir msg u t
-	local nterm users n
+	local nterm users n failed
 	while [ $# -gt 0 ]; do
 		case $1 in
 		--to) to=${2:?}; shift 2 ;;
@@ -201,6 +261,9 @@ cmd_send() {
 	id=$(next_id)
 	dir=$AMS_VAR/sent/$id
 	mkdir -m 700 "$dir"
+	# Il segno resta finché tutte le copie non sono consegnate: se l'invio si
+	# interrompe, il comando ams successivo lo completa (recover).
+	: >"$dir/incomplete"
 	msg=$dir/msg
 	{
 		echo "id: $id"
@@ -211,12 +274,18 @@ cmd_send() {
 		echo "expires: $expires"
 		echo
 		printf '%s\n' "$text"
-	} >"$msg"
-	echo "$users" >"$dir/recipients"
+	} >"$msg.tmp"
+	mv "$msg.tmp" "$msg"
+	echo "$users" >"$dir/recipients.tmp"
+	mv "$dir/recipients.tmp" "$dir/recipients"
 
+	failed=''
 	for u in $users; do
-		user_dir "$u"
-		as_user "$u" sh -c 'cat >"$1.tmp" && mv "$1.tmp" "$1"' _ "$AMS_VAR/users/$u/inbox/$id" <"$msg"
+		if ! deliver_copy "$u" "$id"; then
+			failed+=" $u"
+			ams_log "messaggio $id: ERRORE, copia per $u non scritta"
+			continue
+		fi
 
 		nterm=0
 		for t in $(user_terminals "$u"); do
@@ -235,12 +304,22 @@ cmd_send() {
 
 	ams_log "messaggio $id ($level) inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
 	n=$(wc -w <<<"$users")
+	if [ -n "$failed" ]; then
+		echo "Messaggio $id consegnato a $((n - $(wc -w <<<"$failed"))) destinatari su $n."
+		ams_die "messaggio $id non consegnato a:$failed (vedi il registro; il prossimo comando ams riproverà)"
+	fi
+	rm -f "$dir/incomplete"
 	if [ "$n" -eq 1 ]; then echo "Messaggio $id inviato a 1 utente."; else echo "Messaggio $id inviato a $n utenti."; fi
 }
 
-# Stato di un destinatario: "confermato EPOCH CANALE", "mostrato" (solo info), "attesa".
+# Stato di un destinatario: "nonconsegnato", "confermato EPOCH CANALE",
+# "mostrato" (solo info), "attesa".
 recipient_state() {
 	local u=$1 id=$2 d=$AMS_VAR/users/$1 ack epoch channel level
+	if ! delivered "$u" "$id"; then
+		echo nonconsegnato
+		return
+	fi
 	level=$(ams_msg_get "$AMS_VAR/sent/$id/msg" level)
 	ack=$(as_user "$u" cat "$d/acks/$id" 2>/dev/null | head -c 200 | ams_sanitize) || true
 	if [ -n "$ack" ]; then
@@ -255,21 +334,29 @@ recipient_state() {
 }
 
 cmd_list() {
-	local dir id msg level n tot state flag u
+	local dir id msg level n tot state flag u nd
 	[ -d "$AMS_VAR/sent" ] || { echo "Nessun messaggio inviato."; return; }
 	printf '%-5s %-12s %-5s %-9s %s\n' ID DATA LIV. CONFERME TESTO
 	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -n); do
 		msg=$AMS_VAR/sent/$dir/msg
 		id=$dir
 		level=$(ams_msg_get "$msg" level)
-		n=0 tot=0
+		n=0 tot=0 nd=0
+		if [ -e "$AMS_VAR/sent/$id/failed" ]; then
+			printf '%-5s %-12s %-5s %-9s %s\n' "$id" "-" "-" "-" "[invio annullato: interrotto prima del salvataggio]"
+			continue
+		fi
 		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 			tot=$((tot + 1))
 			state=$(recipient_state "$u" "$id")
-			case $state in confermato* | mostrato) n=$((n + 1)) ;; esac
+			case $state in
+			confermato* | mostrato) n=$((n + 1)) ;;
+			nonconsegnato) nd=$((nd + 1)) ;;
+			esac
 		done
 		flag=''
-		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag='[ritirato] '
+		[ $nd -gt 0 ] && flag="[$nd non consegnati] "
+		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag+='[ritirato] '
 		ams_msg_expired "$msg" && flag+='[scaduto] '
 		printf '%-5s %-12s %-5s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
 			"$level" "$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
@@ -279,6 +366,7 @@ cmd_list() {
 cmd_status() {
 	local id=${1:?manca l\'ID del messaggio} msg u state epoch channel line when nterm
 	msg=$(sent_msg "$id")
+	[ -e "$AMS_VAR/sent/$id/failed" ] && ams_die "il messaggio $id è stato annullato: l'invio si era interrotto prima del salvataggio"
 	echo "Messaggio $id · $(ams_msg_get "$msg" level) · $(ams_msg_heading "$msg") · da $(ams_msg_get "$msg" from)"
 	[ -e "$AMS_VAR/sent/$id/revoked" ] && echo "RITIRATO il $(date -d "@$(cat "$AMS_VAR/sent/$id/revoked")" '+%d/%m %H:%M')"
 	ams_msg_expired "$msg" && echo "SCADUTO"
@@ -292,6 +380,12 @@ cmd_status() {
 			read -r _ epoch channel <<<"$state"
 			line="confermato il $(date -d "@$epoch" '+%d/%m %H:%M') ($channel)" ;;
 		mostrato) line="mostrato" ;;
+		nonconsegnato)
+			if [ -e "$AMS_VAR/sent/$id/incomplete" ]; then
+				line="non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)"
+			else
+				line="non consegnato"
+			fi ;;
 		*)
 			nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
 			if [ -e "$AMS_VAR/sent/$id/revoked" ] || ams_msg_expired "$msg"; then line="non confermato"
@@ -317,6 +411,10 @@ cmd_revoke() {
 	ams_log "messaggio $id ritirato da ${SUDO_USER:-$(id -un)}"
 	echo "Messaggio $id ritirato."
 }
+
+case ${1:-} in
+send | list | status | revoke) recover ;;
+esac
 
 case ${1:-} in
 send) shift; cmd_send "$@" ;;

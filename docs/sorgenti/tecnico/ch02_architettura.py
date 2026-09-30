@@ -17,7 +17,8 @@ S1 = p("Un messaggio attraversa tre ambiti con privilegi diversi. " + c("ams sen
        "riferimento e la casella; da lì i componenti dell'utente, con i suoi soli permessi, lo mostrano e ne "
        "registrano la conferma.", lead=True) + SEND + table(["Passo", "Chi", "Effetto"], [
     ["1", c("ams send"), "risolve i destinatari, pulisce testo e titolo, prende un ID, scrive " + c("sent/ID/")],
-    ["2", c("ams send") + " come U", "scrive " + c("users/U/inbox/ID") + " (prima " + c(".tmp") + ", poi rinomina)"],
+    ["2", c("ams send") + " come U", "scrive " + c("users/U/inbox/ID") + " (prima " + c(".tmp") + ", poi rinomina), verifica "
+     "che ci sia, e solo allora annota la consegna in " + c("sent/ID/delivery")],
     ["3", c("ams send"), "scrive il testo su ogni terminale di U; per " + c("info") + ", se almeno uno riceve, lo segna mostrato"],
     ["4", c("ams send") + " come U", "sveglia l'agente con " + c("SIGUSR1") + ", o lo avvia con " + c("systemd-run --user")],
     ["5", "aggancio o agente", "mostrano il messaggio; la conferma crea " + c("acks/ID") + " e sposta il messaggio in " + c("read/")],

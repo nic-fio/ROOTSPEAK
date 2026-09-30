@@ -5,7 +5,10 @@ S0 = p(c("tests/engine.sh") + " prova il motore in modalità di prova, senza roo
     table(["Gruppo", "Controlli"], [
         ["conferme", "conferma normale; scrittura impossibile (il messaggio resta, l'utente è avvisato, nessun file "
          "temporaneo, la domanda torna e poi riesce); conferma già presente (resta la prima)"],
-    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n\nOK: 7 controlli")
+        ["consegna", "invio normale a due destinatari; copia non scrivibile per uno (errore, l'altro la riceve, "
+         "«non consegnato», segno di invio incompleto); guasto risolto e recupero; interruzione simulata a metà; "
+         "recupero che non ripropone un messaggio confermato; invio interrotto prima del salvataggio (annullato)"],
+    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n\nOK: 17 controlli")
 
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \

@@ -8,7 +8,9 @@ S1 = p("L'archivio è fatto di file e cartelle. Una parte appartiene a root, una
     "│   └── 12/",
     "│       ├── msg                 # il messaggio (copia di riferimento)",
     "│       ├── recipients          # un destinatario per riga",
-    "│       ├── delivery            # «utente data terminali-scritti» per destinatario",
+    "│       ├── delivery            # «utente data terminali-scritti» per ogni copia consegnata",
+    "│       ├── incomplete          # solo durante l'invio, o se non è stato completato",
+    "│       ├── failed              # invio interrotto prima del salvataggio: annullato",
     "│       └── revoked             # data del ritiro, se ritirato",
     "└── users/                      # root 755",
     "    └── mario/                  # mario 700 · la casella: solo Mario e root",
@@ -53,6 +55,7 @@ FILES = fig(
 
 S3 = p("Lo stato di un destinatario non è scritto da nessuna parte: si deduce dai file.", lead=True) + FILES + \
     table(["Condizione", "Stato (recipient_state)", "Come appare in ams status"], [
+        ["nessuna riga in " + c("sent/ID/delivery"), c("nonconsegnato"), "non consegnato"],
         [c("acks/ID") + " esiste", c("confermato DATA CANALE"), "confermato il …, (canale)"],
         ["livello " + c("info") + " e " + c("read/ID") + " esiste", c("mostrato"), "mostrato"],
         ["altrimenti, messaggio scaduto o ritirato", c("attesa"), "non confermato"],

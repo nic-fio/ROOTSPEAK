@@ -49,6 +49,33 @@ S3 = p("La casella " + c("users/U") + " appartiene all'utente, che può sostitui
         c("revoke") + " toglie i file come U; " + c("status") + " legge le conferme come U (capitolo 8.2).",
     ])
 
+RECOVER = seq([("ams send", "root", "navy"), ("sent/ID", "", "dark"), ("Casella U1", "", "blue"), ("Casella U2", "", "blue"),
+               ("ams (dopo)", "qualunque comando", "light")], [
+    (0, 1, "incomplete, msg, recipients"),
+    (0, 2, "copia, verifica"),
+    (0, 1, "delivery: U1"),
+    ("sep", "interruzione: U2 non ha la copia"),
+    (4, 1, "recover: incomplete?"),
+    (4, 3, "copia mancante, verifica"),
+    (4, 1, "delivery: U2; toglie incomplete"),
+], "«FIG» — Un invio interrotto viene completato dal comando successivo", "Consegna verificata e recupero")
+
+SD = p("L'invio è una sequenza di passi; se si interrompe a metà, il comando " + c("ams") + " successivo lo completa.",
+       lead=True) + RECOVER + table(["Regola", "Come"], [
+    ["l'invio si vede finché non è completo", c("sent/ID/incomplete") + " nasce prima di tutto e sparisce solo quando ogni "
+     "destinatario ha la sua copia"],
+    [c("msg") + " e " + c("recipients") + " sono interi o assenti", "scritti in un file temporaneo e rinominati"],
+    ["«consegnato» vuol dire copia verificata", c("deliver_copy") + " scrive la copia come l'utente e controlla che esista; "
+     "solo allora la riga va in " + c("delivery")],
+    ["un guasto non ferma gli altri destinatari", "la copia non scritta viene annotata nel registro; " + c("ams send")
+     + " prosegue, poi termina con errore e lascia " + c("incomplete")],
+    ["il recupero è idempotente", c("recover") + " gira all'avvio di " + c("send") + ", " + c("list") + ", " + c("status")
+     + ", " + c("revoke") + " e consegna solo le copie mancanti; non riscrive la copia a chi l'ha già letta o confermata"],
+    ["un invio non salvato si annulla", "senza " + c("msg") + " o " + c("recipients") + " il messaggio diventa "
+     + c("failed") + " e viene segnalato"],
+    ["ritirati e scaduti non si completano", c("recover") + " toglie il segno senza consegnare"],
+], "«TAB» — Le regole della consegna")
+
 S4 = p("Per ogni terminale di " + c("user_terminals") + ", " + c("ams_msg_term") + " formatta il messaggio, " + c("sed")
        + " aggiunge un ritorno a capo " + c("\\r") + " a fine riga (il terminale può essere in modo grezzo, per esempio "
        "dentro un editor) e " + c("timeout 3 tee") + " lo scrive: un terminale bloccato non ferma l'invio. Il numero di "
@@ -94,6 +121,7 @@ CHAPTER = ("L'invio: ams", [
     ("Avvio e rilancio con sudo", S1),
     ("Destinatari e sessioni", S2),
     ("Scrivere nelle caselle: as_user", S3),
+    ("Consegna verificata e recupero", SD),
     ("Scrivere nei terminali", S4),
     ("Svegliare l'agente del desktop", S5),
     ("Pulizia del testo", S6),

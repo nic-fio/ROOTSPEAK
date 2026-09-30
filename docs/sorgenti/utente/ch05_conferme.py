@@ -13,7 +13,8 @@ S1 = p(c("ams list") + " mostra tutti i messaggi mandati, dal più vecchio al pi
         ["DATA", "giorno e ora dell'invio"],
         ["LIV.", c("ack") + " (con conferma) o " + c("info") + " (solo avviso)"],
         ["CONFERME", "per " + c("ack") + ": chi ha confermato sul totale; per " + c("info") + ": a chi è stato mostrato"],
-        ["TESTO", "la prima riga; " + c("[ritirato]") + " e " + c("[scaduto]") + " segnalano i messaggi non più mostrati"],
+        ["TESTO", "la prima riga; " + c("[ritirato]") + " e " + c("[scaduto]") + " segnalano i messaggi non più mostrati, "
+         + c("[2 non consegnati]") + " i destinatari la cui copia non è stata scritta"],
     ], "«TAB» — Le colonne di ams list")
 
 S2 = p(c("ams status") + " seguito dal numero mostra il testo del messaggio e la situazione di ogni destinatario.",
@@ -36,6 +37,8 @@ S2 = p(c("ams status") + " seguito dal numero mostra il testo del messaggio e la
         [pill("mostrato", "info"), "solo per " + c("info") + ": l'avviso gli è stato mostrato"],
         [pill("non ancora mostrato", "info"), "solo per " + c("info") + ": non l'ha ancora visto"],
         [pill("non confermato", "off"), "il messaggio è scaduto o è stato ritirato prima della conferma"],
+        [pill("non consegnato", "snooze"), "AMS non è riuscito a scrivere la copia per quell'utente (per esempio disco pieno): "
+         "il prossimo comando " + c("ams") + " riprova da solo"],
     ], "«TAB» — Gli stati di un destinatario")
 
 LIFE = fig(

@@ -63,6 +63,57 @@ echo "1000 desktop" >"$D/acks/1"
 (. "$ROOT/lib/ams-common.sh"; D=$D U=$U; source <(sed -n '/^mark_read()/,/^}/p;/^ack()/,/^}/p' "$ROOT/lib/ams-user"); ack 1 "terminale pts/9")
 check "conferma già presente: resta la prima" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
 
+# ---- 2. consegna: tracciata per destinatario, completata dopo un'interruzione ----
+# Il secondo destinatario è root: in modalità di prova la sua casella è una
+# cartella qualunque dell'archivio di prova.
+
+echo "2. consegna"
+state_of() { "$ROOT/bin/ams" status "$1" 2>/dev/null | awk -v u="$2" '$1 == u { $1 = ""; sub(/^ +/, ""); print }'; }
+R=$AMS_VAR/users/root
+
+fresh send-ok
+"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+R=$AMS_VAR/users/root
+check "invio normale: due consegne registrate, nessun segno di invio incompleto" \
+	'[ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 2 ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ]'
+check "invio normale: stato «da confermare»" '[ "$(state_of 1 root)" = "da confermare" ]'
+
+fresh send-fail
+R=$AMS_VAR/users/root
+mkdir -p "$R/inbox" && chmod 555 "$R/inbox"
+out=$("$ROOT/bin/ams" send --to "$U,root" "prova" 2>&1)
+rc=$?
+[ -n "$VERBOSE" ] && echo "$out" | sed 's/^/       /'
+check "copia non scrivibile: ams send termina con errore" '[ $rc -ne 0 ] && [[ $out == *"non consegnato a: root"* ]]'
+check "copia non scrivibile: l'altro destinatario la riceve" '[ -e "$D/inbox/1" ] && delivered_u=$(awk "{print \$1}" "$AMS_VAR/sent/1/delivery") && [ "$delivered_u" = "$U" ]'
+check "copia non scrivibile: resta il segno di invio incompleto" '[ -e "$AMS_VAR/sent/1/incomplete" ]'
+check "copia non scrivibile: stato «non consegnato», non «da confermare»" '[[ $(state_of 1 root) == "non consegnato"* ]]'
+chmod 755 "$R/inbox"
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "guasto risolto: il comando successivo completa la consegna" \
+	'[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "da confermare" ]'
+
+fresh crash
+R=$AMS_VAR/users/root
+"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+# interruzione simulata dopo il primo destinatario
+rm -f "$R/inbox/1"; sed -i '/^root /d' "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
+"$ROOT/bin/ams" status 1 >/dev/null 2>&1
+check "invio interrotto: il comando successivo consegna chi mancava" '[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ]'
+
+fresh crash-acked
+"$ROOT/bin/ams" send --to "$U" "prova" >/dev/null
+prompt s >/dev/null
+sed -i "/^$U /d" "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "recupero: non ripropone un messaggio già confermato" '[ ! -e "$D/inbox/1" ] && [[ $(state_of 1 "$U") == confermato* ]]'
+
+fresh unsaved
+mkdir -p "$AMS_VAR/sent/7" "$AMS_VAR/users"; : >"$AMS_VAR/sent/7/incomplete"
+out=$("$ROOT/bin/ams" list 2>&1)
+check "invio interrotto prima del salvataggio: annullato e segnalato" \
+	'[ -e "$AMS_VAR/sent/7/failed" ] && [ ! -e "$AMS_VAR/sent/7/incomplete" ] && [[ $out == *"annullato"* ]]'
+
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi
 [ $fails -eq 0 ]

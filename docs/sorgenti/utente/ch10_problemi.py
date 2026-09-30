@@ -11,6 +11,10 @@ S1 = p("Quando un comando non va a buon fine, " + c("ams") + " stampa una riga c
     [c("scadenza non valida: X"), "la scadenza non è stata capita", "usare " + c("2h") + " o " + c('"2026-10-04 12:00"') + " (capitolo 4.4)"],
     [c("la scadenza è già passata"), "la data indicata è nel passato", "correggere la data"],
     [c("messaggio inesistente: ID"), "nessun messaggio con quel numero", "controllare con " + c("ams list")],
+    [c("messaggio N non consegnato a: …"), "per quegli utenti la copia non si è potuta scrivere; gli altri l'hanno ricevuta",
+     "risolvere la causa (spesso il disco pieno): il prossimo comando " + c("ams") + " completa la consegna"],
+    [c("completata la consegna del messaggio N"), "un invio precedente si era interrotto a metà ed è stato completato", "nulla"],
+    [c("il messaggio N … è stato annullato"), "un invio si era interrotto prima ancora di salvare il messaggio", "mandarlo di nuovo"],
     [c("comando sconosciuto: X"), "comando scritto male", c("ams --help")],
     [c("opzione sconosciuta: X"), "opzione scritta male", c("ams --help")],
 ], "«TAB» — I messaggi di errore")
