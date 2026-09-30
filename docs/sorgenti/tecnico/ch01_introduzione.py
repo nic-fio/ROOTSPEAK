@@ -49,7 +49,8 @@ STATI = fig(
     + arrow(552, 90, 658, 90, "#16a34a", False, "«Ho letto» or «s»", 605, 80)
     + box(250, 160, 400, 46, "message properties: revoked · expired", "", "soft", 12)
     + text(450, 232, "a message is summarised by counting its recipients in the three states", 11.5, "#475569", "600"),
-    900, 250, "«FIG» — The three states of a recipient; revocation and expiry are properties of the message",
+    900, 250, "«FIG» — The three states of a recipient; revocation and expiry are properties of the message. The user "
+    "confirms with «Ho letto» (“I have read it”) on the desktop or «s» (“y”) in the terminal",
     "Three states, two properties")
 
 S2 = p("A few concepts are enough to read the rest of the manual. They are the same in the code, in the tests and "
@@ -57,13 +58,13 @@ S2 = p("A few concepts are enough to read the rest of the manual. They are the s
     ("Message", "a text (at most 65536 bytes) with an optional title and an optional expiry, identified by a "
      "sequential number, the <b>ID</b>. The sender is the administrator who ran " + c("ams") + "."),
     ("Recipient", "a human user of the machine to whom the message is addressed: by name, by group ("
-     + c("@gruppo") + "), everyone (" + c("all") + ") or the logged-in users (" + c("online") + ")."),
+     + c("@gruppo") + ", “@group”), everyone (" + c("all") + ") or the logged-in users (" + c("online") + ")."),
     ("Reference copy", "the message in " + c("/var/lib/ams/sent/ID/") + ", readable only by root: what was sent, "
      "to whom, when, with which expiry. It is the authoritative source."),
     ("Mailbox", "a user's " + c("/var/lib/ams/users/U/") + " folder: a working copy that the user controls, with "
      "the subfolders " + c("inbox") + ", " + c("read") + ", " + c("acks") + " and " + c("state") + "."),
     ("Channel", "where the user sees the message and confirms it: a terminal (" + c("terminale pts/N") + ", "
-     + c("terminale tty3") + ") or the desktop (" + c("desktop") + ")."),
+     + c("terminale tty3") + ", “terminal pts/N”, “terminal tty3”) or the desktop (" + c("desktop") + ")."),
     ("Confirmation", "the user's statement of having read the message, written into their mailbox in "
      + c("acks/ID") + " with date and channel. The first one counts."),
     ("Postponement", "the answer “no” in the terminal or «Più tardi» (“Later”) on the desktop: the question "

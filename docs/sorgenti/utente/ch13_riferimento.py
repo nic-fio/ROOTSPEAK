@@ -27,7 +27,9 @@ S1 = p("This chapter lists all the commands and options of " + c("ams") + ". The
        "and examples are the same as those of the built-in help (" + c("ams --help") + ", " + rif(9) + "): this page "
        "is generated from its English source texts, so the two cannot diverge. The help itself speaks the language "
        "of the session; the example below comes from an Italian session.", lead=True) + \
-    term(SINTASSI, "The syntax, from the help in text form") + \
+    term(SINTASSI, "The syntax, from the help in text form: «Manuale di ams» (“ams manual”), «NOME» (“NAME”): «ams — "
+         "invia messaggi agli utenti della macchina e ne segue la conferma di lettura» (“ams — sends messages to the "
+         "users of the machine and tracks their read confirmation”), «SINTASSI» (“SYNOPSIS”)") + \
     table(["Part", "Meaning"], [
         [c("ID"), "the number of a message, as it appears in the list"],
         [c("DEST"), "the recipients: names, " + c("@gruppo") + ", " + c("all") + ", " + c("online") + ", separated "
@@ -62,7 +64,8 @@ S5 = table(["Exit status", "Meaning"], [
 ], "«TAB» — The exit status of the commands") + \
     p("The exit status makes it possible to use " + c("ams") + " in scripts:") + \
     term('admin@server:~$ ams send --to online --expires 15m "Riavvio alle 13:00." || echo "invio non riuscito"\n'
-         "Messaggio 7 inviato a 3 utenti.", "In a script") + \
+         "Messaggio 7 inviato a 3 utenti.", "In a script: «Riavvio alle 13:00.» (“Reboot at 13:00.”), «invio non "
+         "riuscito» (“sending failed”), «Messaggio 7 inviato a 3 utenti.» (“Message 7 sent to 3 users.”)") + \
     table(["Variable", "Effect"], [
         [c("PAGER"), "the program that pages the help on small terminals (default: less)"],
         [c("NO_COLOR"), "if set, disables colours"],

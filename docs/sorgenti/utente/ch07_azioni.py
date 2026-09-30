@@ -14,13 +14,14 @@ RITIRO = seq([("Administrator", "r key or ams revoke", "dark"), ("AMS", "message
     (1, 0, "«Messaggio 4 ritirato.»", True),
     ("sep", "later".ljust(9)),
     (3, 1, "Luca logs in: sees nothing"),
-], "«FIG» — What happens when a message is revoked", "Revocation")
+], "«FIG» — What happens when a message is revoked; the reply «Messaggio 4 ritirato.» means “Message 4 revoked.”",
+   "Revocation")
 
 S1 = p("A message sent by mistake, or no longer valid, is <b>revoked</b>: in the TUI with " + key("r") + " on the "
        "selected message (in the list or in the open message), from the command line with " + c("ams revoke") + ". "
        "Before revoking, the TUI always asks for confirmation.", lead=True) + \
     schermata_u("ritira", "«FIG» — The revocation confirmation: title and recipients in the three states") + \
-    term("admin@server:~$ ams revoke 4\nMessaggio 4 ritirato.", "With a command") + RITIRO + \
+    term("admin@server:~$ ams revoke 4\nMessaggio 4 ritirato.", "With a command: “Message 4 revoked.”") + RITIRO + \
     table(["Who", "What happens"], [
         ["whoever has not seen it yet (not logged in)", "will never see it: the copy disappears from their mailbox"],
         ["whoever has a confirmation dialog open", "the dialog closes by itself within a second"],
@@ -29,7 +30,7 @@ S1 = p("A message sent by mistake, or no longer valid, is <b>revoked</b>: in the
         ["whoever had already confirmed", "stays " + CONFERMATO + ": confirmations already received count"],
         ["whoever confirms after the revocation", "the confirmation does not count: stays " + CONSEGNATO
          + ", «non confermato (ritirato)» (“not confirmed (revoked)”)"],
-        ["the administrator", "in the list the message has " + c("[ritirato]") + " in front; " + c("ams status")
+        ["the administrator", "in the list the message has " + c("[ritirato]") + " (“[revoked]”) in front; " + c("ams status")
          + " writes «RITIRATO il …» (“REVOKED on …”)"],
     ], "«TAB» — The effects of revocation") + \
     warn("the text that already appeared in the terminals when the message was sent cannot be erased: it is already "
@@ -46,7 +47,8 @@ S2 = p("Whoever postponed sees the message again after 30 minutes. If it is need
        "next prompt and the dialog reappears at once on the desktop, even if the user had just postponed it.",
        lead=True) + \
     schermata("sollecito", "«FIG» — The reminder confirmation, with how many people it concerns") + \
-    term("admin@server:~$ ams remind 2\nMessaggio 2: sollecitati 3 destinatari.", "With a command") + \
+    term("admin@server:~$ ams remind 2\nMessaggio 2: sollecitati 3 destinatari.",
+         "With a command: “Message 2: 3 recipients reminded.”") + \
     table(["Recipient", "Reminded?"], [
         [CONSEGNATO + " (has the copy, has not confirmed)", "yes: question at the next prompt, dialog at once"],
         [CONFERMATO, "no: not disturbed"],
@@ -74,7 +76,8 @@ S3 = p("Messages and confirmations stay in the message store until they are dele
         "The next dialog shows the reply from AMS, for example «Cancellati 12 messaggi più vecchi di 90d.» (“Deleted "
         "12 messages older than 90d.”).",
     ]) + schermata_u("pulizia", "«FIG» — The duration prompt") + \
-    term("admin@server:~$ ams purge 90d\nCancellati 12 messaggi più vecchi di 90d.", "With a command") + ul([
+    term("admin@server:~$ ams purge 90d\nCancellati 12 messaggi più vecchi di 90d.",
+         "With a command: “Deleted 12 messages older than 90d.”") + ul([
         "A deleted message disappears from the list and from " + c("ams status") + "; if someone had not confirmed "
         "it yet, they will no longer be asked.",
         "A sending still in progress is not touched.",
@@ -87,13 +90,18 @@ S3 = p("Messages and confirmations stay in the message store until they are dele
 S4 = p("Not every action makes sense on every message. When a key has no effect, the TUI simply does "
        "nothing; the commands, instead, reply with an error.", lead=True) + \
     table(["Action", "Not possible when…", "Command reply"], [
-        [key("r") + " / " + c("ams revoke"), "the message is already revoked", "no error: «Messaggio 4 ritirato.»"],
-        [key("s") + " / " + c("ams remind"), "the message is revoked", c("ams: il messaggio 4 è stato ritirato: nessuno da sollecitare")],
-        [key("s") + " / " + c("ams remind"), "the message has expired", c("ams: il messaggio 4 è scaduto: nessuno da sollecitare")],
+        [key("r") + " / " + c("ams revoke"), "the message is already revoked", "no error: «Messaggio 4 ritirato.» "
+         "(“Message 4 revoked.”)"],
+        [key("s") + " / " + c("ams remind"), "the message is revoked", c("ams: il messaggio 4 è stato ritirato: nessuno da sollecitare")
+         + " (“ams: message 4 has been revoked: nobody to remind”)"],
+        [key("s") + " / " + c("ams remind"), "the message has expired", c("ams: il messaggio 4 è scaduto: nessuno da sollecitare")
+         + " (“ams: message 4 has expired: nobody to remind”)"],
         [key("s") + " / " + c("ams remind"), "nobody is " + CONSEGNATO, "nothing in the TUI; the command replies "
          "«sollecitati 0 destinatari» (“0 recipients reminded”)"],
-        [key("Enter") + " / " + c("ams status"), "the number does not exist", c("ams: messaggio inesistente: 99")],
-        [key("p") + " / " + c("ams purge"), "the duration is badly written", c("ams: durata non valida: 3 (per esempio 90d, 12h, 30m)")],
+        [key("Enter") + " / " + c("ams status"), "the number does not exist", c("ams: messaggio inesistente: 99")
+         + " (“ams: no such message: 99”)"],
+        [key("p") + " / " + c("ams purge"), "the duration is badly written", c("ams: durata non valida: 3 (per esempio 90d, 12h, 30m)")
+         + " (“ams: invalid duration: 3 (for example 90d, 12h, 30m)”)"],
     ], "«TAB» — When an action cannot be carried out") + \
     note("no TUI action starts without a confirmation: the message to revoke, the people to remind and the messages "
          "to delete are always shown first. " + key("n") + " or " + key("Esc") + " cancel.",

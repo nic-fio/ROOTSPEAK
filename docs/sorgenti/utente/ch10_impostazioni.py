@@ -16,7 +16,10 @@ AMS_REMIND_MINUTES=30
 
 # Ogni quanti secondi l'agente del desktop ricontrolla i messaggi
 # (i nuovi messaggi lo svegliano comunque subito)
-AMS_AGENT_POLL=60""", "conf", "/etc/ams/ams.conf, as AMS installs it") + \
+AMS_AGENT_POLL=60""", "conf", "/etc/ams/ams.conf, as AMS installs it. The comments say: “AMS - Advanced Messaging "
+    "System: configuration. Data file, not a script: KEY=value lines with positive integers. Unknown keys and invalid "
+    "values are ignored.” “After how many minutes to show again a message postponed by the user.” “How often, in "
+    "seconds, the desktop agent checks the messages again (new messages wake it at once anyway).”") + \
     table(["Setting", "Default", "What it decides"], [
         [c("AMS_REMIND_MINUTES"), c("30"), "after how many minutes a postponed message is asked again, in the "
          "terminal and on the desktop; it is also the number written in «La domanda verrà riproposta tra 30 "
@@ -26,7 +29,7 @@ AMS_AGENT_POLL=60""", "conf", "/etc/ams/ams.conf, as AMS installs it") + \
          "battery"],
     ], "«TAB» — The settings") + \
     table(["File rule", "Example"], [
-        ["one line per setting, " + c("CHIAVE=valore"), c("AMS_REMIND_MINUTES=15")],
+        ["one line per setting, " + c("CHIAVE=valore") + " (“KEY=value”)", c("AMS_REMIND_MINUTES=15")],
         ["only integers greater than zero, at most six digits", c("AMS_AGENT_POLL=120")],
         ["spaces do not matter", c("AMS_REMIND_MINUTES = 15")],
         ["anything after " + c("#") + " is a comment", c("AMS_AGENT_POLL=30  # laptops on charge")],

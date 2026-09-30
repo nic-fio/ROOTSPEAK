@@ -25,11 +25,11 @@ S1 = p(c("risolvi_destinatari") + " in " + c("src/ams.c") + " turns the value of
     "The value is split on commas; each part is one of the four forms in the figure. Empty parts (two commas in a "
     "row) are skipped; a space, on the other hand, becomes part of the name, which therefore does not exist: this is "
     "why the help asks for names separated by commas without spaces.",
-    "An unknown user or group ends with " + c("die") + " («utente inesistente: pippo», «gruppo "
-    "inesistente: x»); for the user this is scenario B6 on the test machine.",
+    "An unknown user or group ends with " + c("die") + " («utente inesistente: pippo» (“no such user: pippo”), «gruppo "
+    "inesistente: x» (“no such group: x”)); for the user this is scenario B6 on the test machine.",
     "Duplicates are removed along the way (scenario B2) and the final list is in alphabetical order: this is the "
     "order of the deliveries and of " + c("sent/ID/recipients") + ".",
-    "An empty list (for example a group with no members) ends with «nessun destinatario» (scenario B7).",
+    "An empty list (for example a group with no members) ends with «nessun destinatario» (“no recipients”) (scenario B7).",
     "An explicit name may also be a system account or root: the filter on human users applies only to "
     + c("all") + " and " + c("online") + ".",
 ])

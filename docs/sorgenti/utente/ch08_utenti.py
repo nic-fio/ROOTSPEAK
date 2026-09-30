@@ -11,7 +11,11 @@ S1 = p("On the desktop the message appears by itself, on top of the other window
        "<b>desktop agent</b>, which waits for messages.", lead=True) + \
     dialog("AMS · Messaggio dall'amministratore", "Manutenzione · 30/09 16:55",
            "Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi.",
-           "«FIG» — The confirmation dialog (on GNOME; its look follows the desktop theme)") + \
+           "«FIG» — The confirmation dialog (on GNOME; its look follows the desktop theme): «AMS · Messaggio "
+           "dall'amministratore» (“AMS · Message from the administrator”), «Manutenzione» (“Maintenance”), «Sabato "
+           "dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi.» (“On Saturday from 8 to 12 the "
+           "server will be switched off for disk maintenance.”), buttons «Più tardi» (“Later”) and «Ho letto» (“I have "
+           "read it”)") + \
     table(["The user…", "What happens"], [
         ["presses " + ui("Ho letto") + " (\"I have read it\" on an English desktop)", "The message is " + CONFERMATO
          + " and never appears again, in any session."],
@@ -30,7 +34,9 @@ S1 = p("On the desktop the message appears by itself, on top of the other window
     ]) + \
     notification("AMS · Conferma non registrata",
                  "Non è stato possibile registrare la conferma: il messaggio verrà riproposto.",
-                 "«FIG» — The rare notice of a confirmation that could not be saved") + \
+                 "«FIG» — The rare notice of a confirmation that could not be saved: «AMS · Conferma non registrata» "
+                 "(“AMS · Confirmation not recorded”), «Non è stato possibile registrare la conferma: il messaggio verrà "
+                 "riproposto.» (“The confirmation could not be recorded: the message will be shown again.”)") + \
     note("if the confirmation cannot be saved (for example because the disk is full), the desktop shows the notice "
          "above (\"AMS · Confirmation not recorded\" on an English desktop) and the message is asked again: the "
          "confirmation is never lost silently. The notice requires " + c("notify-send")
@@ -44,7 +50,10 @@ S2 = p("In every terminal window of the user, whether local, inside the desktop,
     "── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
     "Sabato dalle 8 alle 12 il server sarà spento.\n"
     "────────────────────────────────────────\n"
-    "gcc -O2 -o prova main.o", "When the message is sent") + \
+    "gcc -O2 -o prova main.o",
+    "When the message is sent: «AMS · Messaggio dall'amministratore» (“AMS · Message from the administrator”), then "
+    "title, date and text («Sabato dalle 8 alle 12 il server sarà spento.», “On Saturday from 8 to 12 the server will be "
+    "switched off.”)") + \
     p("As soon as the user is back at the prompt (if already at the prompt, just press " + key("Enter") + "), AMS "
       "shows the message again and asks for confirmation:") + \
     term("── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
@@ -52,7 +61,9 @@ S2 = p("In every terminal window of the user, whether local, inside the desktop,
          "────────────────────────────────────────\n"
          "[AMS] Confermi di aver letto il messaggio? [s/N] s\n"
          "[AMS] Confermato.\n"
-         "mario@server:~/progetti$", "At the next prompt") + \
+         "mario@server:~/progetti$",
+         "At the next prompt: «[AMS] Confermi di aver letto il messaggio? [s/N]» (“[AMS] Do you confirm you have read "
+         "the message? [y/N]”)") + \
     table(["The user answers", "What happens"], [
         [key("s") + " (or " + key("y") + ") and " + key("Enter"), "«[AMS] Confermato.» (in English: “[AMS] "
          "Confirmed.”): the message is confirmed everywhere."],
@@ -72,7 +83,9 @@ S2 = p("In every terminal window of the user, whether local, inside the desktop,
          "mario@server:~/progetti$ ls\n"
          "main.c  main.o  prova\n"
          "[AMS] Hai 1 messaggio dell'amministratore da confermare.\n"
-         "mario@server:~/progetti$", "If the user postpones") + \
+         "mario@server:~/progetti$",
+         "If the user postpones: «[AMS] Hai 1 messaggio dell'amministratore da confermare.» (“[AMS] You have 1 message "
+         "from the administrator to confirm.”)") + \
     note("if the user is running a full-screen program, such as an editor, the text sent to the terminal is drawn "
          "over the screen, as happens with " + c("wall") + ". Nothing is lost: the screen fixes itself, or with "
          + key("Ctrl", "L") + ", and the question only comes when the user leaves the program.",
@@ -90,7 +103,7 @@ S3 = p("The confirmation question in the terminal depends on the user's shell. T
     ], "«TAB» — Shells and the confirmation question") + \
     ul([
         "The question only appears in <b>interactive</b> shells: scripts, cron, " + c("scp") + ", " + c("rsync")
-        + " and commands run with " + c("ssh server comando") + " never see it.",
+        + " and commands run with " + c("ssh server comando") + " (comando: “command”) never see it.",
         "Terminal windows already open when AMS is installed receive the text, but the question only from the next "
         "window or the next login.",
         "If zsh is installed after AMS, re-running " + c("./install.sh") + " is enough to get the question in zsh; "
@@ -108,7 +121,8 @@ FUORI = seq([("Administrator", "sends", "dark"), ("AMS", "Luca's mailbox", "navy
     (1, 2, "dialog, or text and question"),
     (2, 1, "“Ho letto” or “s”"),
     (1, 0, "in the list: tutti confermato", True),
-], "«FIG» — A message for someone who is not logged in", "Delivery at the next login")
+], "«FIG» — A message for someone who is not logged in; “Ho letto” is “I have read it”, “s” is “y”, and «tutti "
+   "confermato» is “all confirmed”", "Delivery at the next login")
 
 S4 = p("Users who are not logged in find the message at their next login, however they log in. Meanwhile it is "
        "already " + CONSEGNATO + ": the copy is in their mailbox, waiting for them.", lead=True) + FUORI + \
@@ -125,13 +139,16 @@ UNA = seq([("Anna's desktop", "dialog", "blue"), ("AMS", "", "navy"), ("Anna's t
     (0, 1, "Anna presses “Ho letto”"),
     (1, 1, "records the first confirmation"),
     (1, 2, "“Messaggio già confermato altrove”", True),
-], "«FIG» — The first confirmation closes all the other requests", "One confirmation is valid for all sessions")
+], "«FIG» — The first confirmation closes all the other requests: the dialog “Ho letto” / “Più tardi” (“I have read it” "
+   "/ “Later”), the question “Confermi?” (“Do you confirm?”) and, after the confirmation on the desktop, “Messaggio già "
+   "confermato altrove” (“Message already confirmed elsewhere”) in the terminal",
+   "One confirmation is valid for all sessions")
 
 S5 = p("A user with several open sessions, for example the desktop and two ssh connections, receives the message in "
        "all of them. Confirming once is enough.", lead=True) + UNA + \
     p("The dialog closes by itself if the user confirms from a terminal, and the question in the terminal closes if "
       "the user confirms on the desktop. The message status keeps the first confirmation, with the channel it came "
-      "from: " + c("desktop") + " or " + c("terminale pts/2") + ".") + \
+      "from: " + c("desktop") + " or " + c("terminale pts/2") + " (“terminal pts/2”).") + \
     note("postponing, instead, applies to the channel where it is done: a user who presses “Più tardi” (“Later”) on "
          "the desktop still sees the question in the terminal, and vice versa.", "Separate postponements.")
 
@@ -150,7 +167,8 @@ TEMPI = fig(
     + text(360, 212, "30 minutes", 11.5, "#92400e", "700")
     + '<path d="M262 196 h196" stroke="#d97706" stroke-width="2" stroke-dasharray="4 3"/>'
     + text(550, 230, "a reminder does not wait: the dialog comes back at once", 11.5, "#1e40af", "600"),
-    900, 250, "«FIG» — A message postponed, asked again, reminded and finally confirmed", "Postponements and reminders")
+    900, 250, "«FIG» — A message postponed, asked again, reminded and finally confirmed; «Più tardi» is the “Later” "
+    "button and «Ho letto» the “I have read it” button", "Postponements and reminders")
 
 S6 = p("AMS never blocks work: the user can always postpone. But whoever postpones is asked again, at regular "
        "intervals, until they confirm.", lead=True) + TEMPI + \
@@ -170,7 +188,9 @@ S7 = p("Everyone sees AMS in their own language: dialog, buttons, header, questi
          "Sabato dalle 8 alle 12 il server sarà spento.\n"
          "────────────────────────────────────────\n"
          "[AMS] Do you confirm you have read the message? [y/N] y\n"
-         "[AMS] Confirmed.", "The same message for a user who works in English") + \
+         "[AMS] Confirmed.", "The same message for a user who works in English: the title «Manutenzione» "
+         "(“Maintenance”) and the text «Sabato dalle 8 alle 12 il server sarà spento.» (“On Saturday from 8 to 12 the "
+         "server will be switched off.”) stay as they were written") + \
     table(["Session language (" + c("LANG") + ", " + c("LC_MESSAGES") + ", " + c("LC_ALL") + ", "
            + c("LANGUAGE") + ")", "AMS appears in"], [
         ["Italian, for example " + c("LANG=it_IT.UTF-8"), "Italian"],
@@ -185,7 +205,8 @@ S7 = p("Everyone sees AMS in their own language: dialog, buttons, header, questi
         "of the reader.",
     ]) + dialog("AMS · Message from the administrator", "Manutenzione · 30/09 16:55",
                 "Sabato dalle 8 alle 12 il server sarà spento.",
-                "«FIG» — The dialog for a user working in English: buttons “I have read it” and “Later”").replace(
+                "«FIG» — The dialog for a user working in English: buttons “I have read it” and “Later”; title and text "
+                "stay in Italian, as written («Manutenzione», “Maintenance”)").replace(
         "<span>Più tardi</span><span>Ho letto</span>", "<span>Later</span><span>I have read it</span>")
 
 S8 = p("Users have no AMS commands and do not need to learn anything. It can still help to answer a few "

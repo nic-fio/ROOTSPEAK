@@ -84,13 +84,18 @@ FIN = seq([("mostra_finestra", "agent", "navy"), ("zenity", "--question --no-mar
     (3, 1, "«Più tardi», closed: exit 1"),
     (0, 2, "postponement: state/ID.gui"),
     ("nota", 0, "elsewhere/revoked: SIGTERM".ljust(27)),
-], "«FIG» — The confirmation dialog", "A dialog, from opening to answer")
+], "«FIG» — The confirmation dialog; the buttons «Ho letto» and «Più tardi» are “I have read it” and “Later”",
+   "A dialog, from opening to answer")
 
 S3 = p(c("mostra_finestra") + " starts " + c("zenity --question --no-markup --width=460") + " with title, text and "
        "buttons in the session's language, and waits for it to finish, checking the mailbox every second as well.",
        lead=True) + dialog("AMS · Messaggio dall'amministratore", "Manutenzione · 30/09 16:55",
                            "Sabato dalle 8 alle 12 il server sarà spento.",
-                           "«FIG» — The dialog as zenity draws it on GNOME (reconstruction)") + FIN + table(
+                           "«FIG» — The dialog as zenity draws it on GNOME (reconstruction): «AMS · Messaggio "
+                           "dall'amministratore» (“AMS · Message from the administrator”), «Manutenzione» "
+                           "(“Maintenance”), «Sabato dalle 8 alle 12 il server sarà spento.» (“On Saturday from 8 to 12 "
+                           "the server will be switched off.”), buttons «Più tardi» (“Later”) and «Ho letto» (“I have "
+                           "read it”)") + FIN + table(
     ["How it ends", "Effect"], [
         ["exit 0 («Ho letto», “I have read it” in English)", c("conferma(ID, \"desktop\")") + "; if writing fails "
          "and the message is still in the mailbox, a notification says so and the dialog comes back at the next "
@@ -107,13 +112,13 @@ S3 = p(c("mostra_finestra") + " starts " + c("zenity --question --no-markup --wi
     "The child that becomes zenity restores the signal mask and handlers before " + c("exec") + ": zenity does not "
     "inherit the agent's blocked signals.",
     "The end of zenity interrupts the wait at once (" + c("SIGCHLD") + "): the answer is recorded within a few "
-    "milliseconds, so an " + c("ams remind") + " arriving right after a «Più tardi» finds the postponement already "
+    "milliseconds, so an " + c("ams remind") + " arriving right after a «Più tardi» (“Later”) finds the postponement already "
     "written and removes it (scenario I11; with a check once a second, the VM had found the reminder lost).",
     "The wake-up signal does not close the dialog: the agent keeps waiting for it. In the bash prototype the "
     "signal interrupted " + c("wait") + " and the agent took the dialog as closed, recording a postponement never "
     "chosen (test VM, scenario I7).",
     "When the session ends the agent waits for the dialog at most 2 seconds, then closes it: a confirmation already "
-    "given is not lost (scenario I10: «Ho letto» and logout after 0.1 s, confirmation recorded).",
+    "given is not lost (scenario I10: «Ho letto» (“I have read it”) and logout after 0.1 s, confirmation recorded).",
     "Timings of the last run recorded in the VM: dialog after sending 0.58 s (I1), closing after a "
     "confirmation from the terminal 0.65 s (I5), after a revocation 0.67 s (I6), at graphical login 2.64 s after "
     "the login manager restart (I9).",
@@ -124,7 +129,9 @@ S4 = p("The agent uses " + c("notify-send") + ", if it is installed, for one cas
        "goes through notifications, which may disappear by themselves or be ignored.", lead=True) + \
     notification("AMS · Conferma non registrata",
                  "Non è stato possibile registrare la conferma: il messaggio verrà riproposto.",
-                 "«FIG» — The only notification of AMS (reconstruction)") + \
+                 "«FIG» — The only notification of AMS (reconstruction): «AMS · Conferma non registrata» (“AMS · "
+                 "Confirmation not recorded”), «Non è stato possibile registrare la conferma: il messaggio verrà "
+                 "riproposto.» (“The confirmation could not be recorded: the message will be shown again.”)") + \
     note("for the confirmation AMS uses a dialog and not a notification: a GNOME notification may disappear by "
          "itself or be ignored, whereas the zenity dialog stays open until the user chooses.")
 

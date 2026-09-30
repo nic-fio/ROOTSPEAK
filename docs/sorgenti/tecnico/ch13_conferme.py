@@ -24,9 +24,10 @@ FLUSSO = fig(
     + arrow(615, 70, 648, 70, "#0050C0", False, "no", 630, 60)
     + arrow(765, 102, 765, 128) + arrow(765, 192, 765, 218, "#16a34a", False, "succeeds", 800, 208)
     + path([(648, 160), (620, 160), (620, 255), (582, 255)], "#b45309", True, "error", 588, 212),
-    900, 300, "«FIG» — conferma(ID, CANALE): the checks and the exclusive publication", "How a confirmation is born")
+    900, 300, "«FIG» — conferma(ID, CANALE) (CANALE: “CHANNEL”): the checks and the exclusive publication",
+    "How a confirmation is born")
 
-S1 = p(c("conferma(ID, CANALE)") + " in " + c("src/ams-user.c") + " is the only place where a confirmation is born. "
+S1 = p(c("conferma(ID, CANALE)") + " (“confirm(ID, CHANNEL)”) in " + c("src/ams-user.c") + " is the only place where a confirmation is born. "
        "It writes it to a temporary file, flushes it to disk and publishes it with " + c("link") + ", which fails if "
        + c("acks/ID") + " already exists: the confirmation is born <b>whole or not at all</b>, and “already confirmed” "
        "stays distinct from “write failed”.", lead=True) + FLUSSO + code("""static int conferma(long long id, const char *canale)
@@ -56,8 +57,9 @@ S1 = p(c("conferma(ID, CANALE)") + " in " + c("src/ams-user.c") + " is the only 
     ["message expired", "2", "moves to " + c("read/") + " without a confirmation: a confirmation after the expiry does not count"],
     ["copy gone (revoked)", "3", "no confirmation"],
 ], "«TAB» — The results of conferma") + ul([
-    "The line is " + c("data canale") + ": seconds since the Unix epoch, a space, the channel with no translation ("
-    + c("desktop") + ", " + c("terminale pts/3") + ", " + c("terminale tty3") + ").",
+    "The line is " + c("data canale") + " (“date channel”): seconds since the Unix epoch, a space, the channel with no "
+    "translation (" + c("desktop") + ", " + c("terminale pts/3") + ", " + c("terminale tty3") + ": “terminal pts/3”, "
+    "“terminal tty3”).",
     "The temporary file " + c("acks/.ID.PID") + " starts with a dot: it is never mistaken for a confirmation. If "
     "an interruption leaves it behind, it is ignored.",
     "If the revocation arrives between the check of " + c("inbox/ID") + " and " + c("link") + ", the confirmation is "
@@ -76,15 +78,17 @@ RACE = seq([("Dialog", "conferma … desktop", "blue"), ("acks/ID", "link: exclu
     ("nota", 0, "CONFERMATO (desktop)"),
     ("sep", "a second later, the other open question"),
     (2, 1, "acks/ID appeared?"),
-    ("nota", 2, "“confirmed elsewhere”".ljust(24)),
-], "«FIG» — Two almost simultaneous confirmations: the first one counts", "The first confirmation wins")
+    ("nota", 2, "«già confermato altrove»".ljust(24)),
+], "«FIG» — Two almost simultaneous confirmations: the first one counts; «già confermato altrove» means “already "
+   "confirmed elsewhere”", "The first confirmation wins")
 
 S2 = p("A user may have the dialog open on the desktop and the question in two terminals. The confirmation must be "
        "<b>one</b>: the first to arrive.", lead=True) + RACE + ul([
     "Two almost simultaneous confirmations produce a single record: " + c("link") + " succeeds only once; "
     "the other finds " + c("acks/ID") + " and only moves the message.",
     "The questions and dialogs still open notice it at their next check (within a second) and "
-    "close: “Message already confirmed elsewhere (for example on the desktop).” in the terminal, while the dialog "
+    "close: «[AMS] Messaggio già confermato altrove (per esempio dal desktop).» (“[AMS] Message already confirmed "
+    "elsewhere (for example on the desktop).”) in the terminal, while the dialog "
     "closes by itself (scenarios C4b and I5).",
     "This rule came from a live test of the prototype: the user had to confirm twice, from the "
     "dialog and from the terminal.",
@@ -103,7 +107,7 @@ S3 = p(c("ams status") + " reads the confirmations from the mailbox, which the u
     ], "«TAB» — The confirmations read by root") + \
     note("<b>“Confirmed” means</b>: the mailbox holds a valid declaration of reading by the user. It is not "
          "an action observed by AMS nor a proof of reading: the user controls their own mailbox and could "
-         "write it themselves, just as they could press «Ho letto» without reading. Whoever uses " + c("ams status")
+         "write it themselves, just as they could press «Ho letto» (“I have read it”) without reading. Whoever uses " + c("ams status")
          + " for an audit must read it this way (" + cap(20, 1) + ").")
 
 CHAPTER = ("Confirmations", [

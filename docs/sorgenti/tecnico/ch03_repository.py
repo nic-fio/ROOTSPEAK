@@ -136,8 +136,8 @@ S3 = flow([("Build", "make, if needed", "dark"), ("Programs", "ams 750 · ams-us
     + c("LIBDIR") + " path does not appear inside " + c("build/ams") + "), it builds them with " + c("make PREFIX=…")
     + " (gcc, make, pkg-config, libsystemd-dev and gettext are needed).",
     "It installs " + c("$PREFIX/lib/ams/ams-user") + " (" + c("755") + "), the catalogs in "
-    + c("$PREFIX/share/locale/LINGUA/LC_MESSAGES/ams.mo") + " and " + c("$PREFIX/bin/ams") + " with owner "
-    + c("root:gruppo") + " and permissions " + c("750") + "; it removes the files of the bash prototype and an old "
+    + c("$PREFIX/share/locale/LINGUA/LC_MESSAGES/ams.mo") + " (LINGUA: “LANGUAGE”) and " + c("$PREFIX/bin/ams")
+    + " with owner " + c("root:gruppo") + " (gruppo: “group”, the administrators' group) and permissions " + c("750") + "; it removes the files of the bash prototype and an old "
     + c("sbin/ams") + ". " + c("PREFIX") + " is " + c("/usr/local") + ".",
     "It installs the manuals in " + c("$PREFIX/share/doc/ams/") + ", the configuration (only if missing), the shell "
     "hooks and the autostart entry, replacing " + c("@LIBDIR@") + " and " + c("@VARDIR@") + ".",

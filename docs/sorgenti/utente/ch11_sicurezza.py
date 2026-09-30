@@ -10,7 +10,8 @@ S1 = p("Only the machine's administrators can use " + c("ams") + ": the members 
        "leaves the group gains or loses access from their next login to the machine (" + rif(2, 4) + ").",
        lead=True) + term(
     "mario@server:~$ ams list\n"
-    "bash: /usr/local/bin/ams: Permesso negato", "An ordinary user cannot even start the command") + \
+    "bash: /usr/local/bin/ams: Permesso negato",
+    "An ordinary user cannot even start the command: «Permesso negato» (“Permission denied”)") + \
     ul([
         c("ams") + " always works as administrator, even to show the help or the version: if it is not already "
         "root, it restarts itself with sudo, which asks for the password.",
@@ -64,7 +65,7 @@ S3 = p("The confirmation records that the user <b>states</b> they have read the 
         ["that the message had neither expired nor been revoked at that moment", "that they understood the content"],
     ], "«TAB» — What a confirmation is worth") + \
     note("the mailbox belongs to the user: an expert user could record a confirmation without opening the dialog. "
-         "It is still their own statement, like the click on «Ho letto».", "A statement.") + \
+         "It is still their own statement, like the click on «Ho letto» (“I have read it”).", "A statement.") + \
     tip("for notices that require a real commitment (a rule to follow, an authorisation) the AMS confirmation "
         "is a reminder, not a signature: a separate document is needed.", "When more is needed.")
 
@@ -98,7 +99,9 @@ S5 = p("The system log is a convenient trail, but anyone on the machine can writ
     "2026-09-30 19:05:12  messaggio 3 consegnato a anna (terminali scritti: 1)\n"
     "2026-09-30 19:05:12  messaggio 3 inviato da admin a: anna luca\n"
     "2026-09-30 19:06:40  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 3 (desktop)",
-    "A forged confirmation: Luca (UID 1003) wrote a line in Anna's name") + \
+    "A forged confirmation: Luca (UID 1003) wrote a line in Anna's name. «Nuova regola per le password» (“New rule for "
+    "passwords”); «[non attendibile: scritto da UID 1003]» (“[not trustworthy: written by UID 1003]”); the other "
+    "lines are those of the history in chapter 6.4: delivered, sent, «confermata la lettura» (“confirmed reading”)") + \
     table(["Event", "Must have been written by"], [
         ["sending, delivery, reminder, revocation, deletion", "root (that is, " + c("ams") + ")"],
         ["postponement, confirmation, confirmation not recorded", "the user it refers to"],

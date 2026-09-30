@@ -23,7 +23,8 @@ FLUSSO = fig(
 S1 = p("Every relevant fact in the life of a message becomes a <b>structured event</b> in the system journal. "
        "The log answers a different question from " + c("ams status") + ": not “where does it stand” but “what "
        "happened, when, and by whose hand”.", lead=True) + FLUSSO + ul([
-    c("evento(EVENTO, ID, UTENTE, CANALE, DETTAGLI, AUTORE)") + " in " + c("src/evento.c") + " writes with "
+    c("evento(EVENTO, ID, UTENTE, CANALE, DETTAGLI, AUTORE)") + " (“event(EVENT, ID, USER, CHANNEL, DETAILS, "
+    "AUTHOR)”) in " + c("src/evento.c") + " writes with "
     + c("sd_journal_send") + " a readable text (" + c("MESSAGE") + ") and the structured fields. If the journal does "
     "not respond, it writes at least the text with " + c("syslog") + ".",
     "The readable text is in the <b>system language</b> (" + c("/etc/default/locale") + " or "
@@ -39,38 +40,45 @@ S2 = table(["Field", "Content", "Set by"], [
     [c("SYSLOG_IDENTIFIER"), c("ams") + ", for all events, including those of " + c("ams-user"), "AMS"],
     [c("MESSAGE"), "the readable text, in the system language", "AMS"],
     [c("PRIORITY"), "6 (informational)", "AMS"],
-    [c("AMS_EVENTO"), "the name of the event: " + c("INVIATO") + ", " + c("CONFERMATO") + "…", "AMS"],
-    [c("AMS_MESSAGGIO"), "the message number", "AMS"],
-    [c("AMS_UTENTE"), "the recipient, where relevant", "AMS"],
-    [c("AMS_CANALE"), c("terminale pts/N") + ", " + c("desktop") + "; for postponements " + c("terminale") + " or "
-     + c("desktop"), "AMS"],
-    [c("AMS_DETTAGLI"), "recipients, terminals written, number reminded or recovered, duration, error", "AMS"],
-    [c("AMS_AUTORE"), "the administrator (" + c("SUDO_USER") + ")", "AMS"],
+    [c("AMS_EVENTO") + " (“event”)", "the name of the event: " + c("INVIATO") + " (“sent”), " + c("CONFERMATO")
+     + " (“confirmed”)…", "AMS"],
+    [c("AMS_MESSAGGIO") + " (“message”)", "the message number", "AMS"],
+    [c("AMS_UTENTE") + " (“user”)", "the recipient, where relevant", "AMS"],
+    [c("AMS_CANALE") + " (“channel”)", c("terminale pts/N") + ", " + c("desktop") + "; for postponements "
+     + c("terminale") + " (“terminal”) or " + c("desktop"), "AMS"],
+    [c("AMS_DETTAGLI") + " (“details”)", "recipients, terminals written, number reminded or recovered, duration, error", "AMS"],
+    [c("AMS_AUTORE") + " (“author”)", "the administrator (" + c("SUDO_USER") + ")", "AMS"],
     [c("_UID") + ", " + c("_PID") + ", time", "who actually wrote the event, and when", "the journal"],
 ], "«TAB» — The fields of an event") + \
     p("For an audit, " + c("journalctl AMS_MESSAGGIO=12 -o verbose") + " shows all the fields, " + c("_UID")
       + " included; " + c("journalctl -t ams") + " shows the text of all AMS events.")
 
 S3 = table(["Event", "Written by", "When", "Text (Italian)"], [
-    [c("INVIATO"), "ams (root)", "at the end of " + c("ams send") + ", after the deliveries",
-     "messaggio 12 inviato da admin a: anna mario"],
-    [c("CONSEGNATO"), "ams (root)", "for every copy written and verified; also by recovery",
-     "messaggio 12 consegnato a mario (terminali scritti: 1) · (recupero)"],
-    [c("NON_CONSEGNATO"), "ams (root)", "copy not written", "messaggio 12: ERRORE, copia per anna non scritta"],
-    [c("RECUPERATO"), "ams (root)", "recovery of an interrupted sending", "messaggio 12: consegna completata per 3 "
-     "destinatari dopo un'interruzione"],
-    [c("ANNULLATO"), "ams (root)", "recovery of a sending that was not saved", "messaggio 12: invio interrotto prima del "
-     "salvataggio, annullato"],
-    [c("RITIRATO"), "ams (root)", c("ams revoke") + ", the first time", "messaggio 12 ritirato da admin"],
-    [c("SOLLECITATO"), "ams (root)", c("ams remind"), "messaggio 12: sollecitati 3 destinatari da admin"],
-    [c("CANCELLATO"), "ams (root)", c("ams purge") + ", at the rename", "messaggio 12 cancellato da admin (più "
-     "vecchio di 90d)"],
-    [c("RINVIATO"), "ams-user (U)", "«Più tardi» (“Later”) or an answer other than yes", "utente mario: rimandato il messaggio "
-     "12 (terminale)"],
-    [c("CONFERMATO"), "ams-user (U)", "confirmation recorded", "utente mario: confermata la lettura del messaggio 12 "
-     "(desktop)"],
-    [c("CONFERMA_FALLITA"), "ams-user (U)", "confirmation could not be recorded", "utente mario: ERRORE, conferma del "
-     "messaggio 12 non registrata (desktop): …"],
+    [c("INVIATO") + " (“sent”)", "ams (root)", "at the end of " + c("ams send") + ", after the deliveries",
+     "messaggio 12 inviato da admin a: anna mario (“message 12 sent by admin to: anna mario”)"],
+    [c("CONSEGNATO") + " (“delivered”)", "ams (root)", "for every copy written and verified; also by recovery",
+     "messaggio 12 consegnato a mario (terminali scritti: 1) · (recupero) (“message 12 delivered to mario (terminals "
+     "written: 1) · (recovery)”)"],
+    [c("NON_CONSEGNATO") + " (“not delivered”)", "ams (root)", "copy not written", "messaggio 12: ERRORE, copia per "
+     "anna non scritta (“message 12: ERROR, copy for anna not written”)"],
+    [c("RECUPERATO") + " (“recovered”)", "ams (root)", "recovery of an interrupted sending", "messaggio 12: consegna "
+     "completata per 3 destinatari dopo un'interruzione (“message 12: delivery completed for 3 recipients after an "
+     "interruption”)"],
+    [c("ANNULLATO") + " (“cancelled”)", "ams (root)", "recovery of a sending that was not saved", "messaggio 12: invio "
+     "interrotto prima del salvataggio, annullato (“message 12: sending interrupted before it was saved, cancelled”)"],
+    [c("RITIRATO") + " (“revoked”)", "ams (root)", c("ams revoke") + ", the first time", "messaggio 12 ritirato da "
+     "admin (“message 12 revoked by admin”)"],
+    [c("SOLLECITATO") + " (“reminded”)", "ams (root)", c("ams remind"), "messaggio 12: sollecitati 3 destinatari da "
+     "admin (“message 12: 3 recipients reminded by admin”)"],
+    [c("CANCELLATO") + " (“deleted”)", "ams (root)", c("ams purge") + ", at the rename", "messaggio 12 cancellato da "
+     "admin (più vecchio di 90d) (“message 12 deleted by admin (older than 90d)”)"],
+    [c("RINVIATO") + " (“postponed”)", "ams-user (U)", "«Più tardi» (“Later”) or an answer other than yes", "utente "
+     "mario: rimandato il messaggio 12 (terminale) (“user mario: postponed message 12 (terminal)”)"],
+    [c("CONFERMATO") + " (“confirmed”)", "ams-user (U)", "confirmation recorded", "utente mario: confermata la lettura "
+     "del messaggio 12 (desktop) (“user mario: confirmed reading message 12 (desktop)”)"],
+    [c("CONFERMA_FALLITA") + " (“confirmation failed”)", "ams-user (U)", "confirmation could not be recorded", "utente "
+     "mario: ERRORE, conferma del messaggio 12 non registrata (desktop): … (“user mario: ERROR, confirmation of "
+     "message 12 not recorded (desktop): …”)"],
 ], "«TAB» — The events")
 
 LOG = seq([("ams log 12", "root", "navy"), ("journal", "sd_journal", "green"), ("Reader", "terminal, TUI", "light")], [
@@ -78,9 +86,10 @@ LOG = seq([("ams log 12", "root", "navy"), ("journal", "sd_journal", "green"), (
     (0, 1, "ams and AMS_MESSAGGIO=12"),
     (0, 1, "from the sending date minus 1 s"),
     (1, 0, "one event at a time, with _UID", True),
-    ("nota", 0, "_UID expected? no: «not trustworthy»".ljust(37)),
+    ("nota", 0, "_UID expected? no: «non attendibile»".ljust(37)),
     (0, 2, "text in the reader's language, cleaned"),
-], "«FIG» — ams log: the history of a message, rewritten from the fields", "ams log")
+], "«FIG» — ams log: the history of a message, rewritten from the fields; «non attendibile» means “not trustworthy”",
+   "ams log")
 
 S4 = p(c("ams log ID") + " reconstructs the history of a message from the events, in the language of whoever runs "
        "it; the History tab of the TUI shows the same output.", lead=True) + LOG + ul([
@@ -100,7 +109,10 @@ S4 = p(c("ams log ID") + " reconstructs the history of a message from the events
           "2026-09-30 20:42:25  messaggio 1 consegnato a anna (terminali scritti: 0)\n"
           "2026-09-30 20:42:25  messaggio 1 inviato da admin a: anna mario\n"
           "2026-09-30 20:43:02  utente mario: confermata la lettura del messaggio 1 (terminale pts/2)",
-          "A history") + \
+          "A history: «Messaggio 1 · Manutenzione» (“Message 1 · Maintenance”), «consegnato a … (terminali scritti: 1)» "
+          "(“delivered to … (terminals written: 1)”), «inviato da admin a:» (“sent by admin to:”), «utente mario: "
+          "confermata la lettura del messaggio 1 (terminale pts/2)» (“user mario: confirmed reading message 1 (terminal "
+          "pts/2)”)") + \
     note("writing an event is a separate action from the change it records: if the journal does not respond, "
          "the state in the message store stays correct; of the history only the text written with " + c("syslog") + " remains, which "
          + c("ams log") + " does not read.")

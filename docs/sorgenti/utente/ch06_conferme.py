@@ -37,7 +37,13 @@ LISTA = lista([
 S1 = p("The main screen of the TUI (" + rif(3, 2) + ") and the " + c("ams list") + " command show all the "
        "messages sent, each summarised by its recipients in the three states. The TUI puts the most recent first and "
        "updates by itself; " + c("ams list") + " lists them from the oldest, once.", lead=True) + \
-    term(LISTA, "The same four messages as in the screenshot in chapter 3") + \
+    term(LISTA, "The same four messages as in the screenshot in chapter 3: «Stanotte alle 23 il server di posta viene "
+         "aggiornato.» (“Tonight at 23:00 the mail server is updated.”), «Sabato dalle 8 alle 12 il server sarà spento "
+         "per la manutenzione dei dischi.» (“On Saturday from 8 to 12 the server will be switched off for disk "
+         "maintenance.”), «Il tuo account scade venerdì: passa dall'ufficio IT.» (“Your account expires on Friday: come "
+         "to the IT office.”), «[ritirato] Riavvio alle 13:00.» (“[revoked] Reboot at 13:00.”); «tutti confermato (3)» "
+         "(“all confirmed (3)”), «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”), "
+         "«1 consegnato» (“1 delivered”)") + \
     table(["Column", "In the TUI", "In " + c("ams list")], [
         ["ID", "the message number", "the same: it is used for " + c("status") + ", " + c("log") + ", "
          + c("revoke") + " and " + c("remind")],
@@ -48,9 +54,10 @@ S1 = p("The main screen of the TUI (" + rif(3, 2) + ") and the " + c("ams list")
          "the phrase"],
     ], "«TAB» — The columns of the list") + \
     table(["Mark in front of the text", "Meaning"], [
-        [c("[ritirato]"), "the message has been revoked (" + rif(7, 1) + "): it is no longer shown"],
-        [c("[scaduto]"), "the expiry has passed: it is no longer shown"],
-        [c("[invio annullato: interrotto prima del salvataggio]"), "only in " + c("ams list") + ": a sending "
+        [c("[ritirato]") + " (“[revoked]”)", "the message has been revoked (" + rif(7, 1) + "): it is no longer shown"],
+        [c("[scaduto]") + " (“[expired]”)", "the expiry has passed: it is no longer shown"],
+        [c("[invio annullato: interrotto prima del salvataggio]") + " (“[send cancelled: interrupted before it was "
+         "saved]”)", "only in " + c("ams list") + ": a sending "
          "stopped before the message was even saved (" + rif(12, 4) + ")"],
     ], "«TAB» — The marks in the list") + \
     note("the phrase counts recipients, not the people who have seen the message: «3 consegnato» (“3 delivered”) "
@@ -76,29 +83,33 @@ S2 = p("Pressing " + key("Enter") + " on the list opens the selected message: at
        + " (“Recipients”) tab shows the state of each user, with the colours of the bar.", lead=True) + \
     schermata("dettaglio", "«FIG» — A message opened in the TUI: the state of each recipient") + \
     p("The same list, for one message at a time, is obtained with " + c("ams status") + " followed by the number:") + \
-    term(DETTAGLIO_CLI, "The state of the recipients with a command") + \
+    term(DETTAGLIO_CLI, "The state of the recipients with a command: «Messaggio 2 · Manutenzione · 30/09 16:55 · da "
+         "root» (“Message 2 · Maintenance · 30/09 16:55 · from root”), the text as in the figure above, the columns "
+         "UTENTE (USER) and STATO (STATE); each status line is translated in the table below") + \
     table(["Status line", "State", "What it means"], [
-        [c("inviato, non consegnato"), INVIATO, "the copy is not yet in the mailbox: AMS retries"],
+        [c("inviato, non consegnato") + " (“sent, not delivered”)", INVIATO, "the copy is not yet in the mailbox: AMS retries"],
         [c("inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams "
-           "riproverà)"), INVIATO, "the sending ran into an error for this user, usually a full disk"],
-        [c("consegnato"), CONSEGNATO, "has the copy; has not confirmed yet"],
-        [c("consegnato, scritto su 2 terminali"), CONSEGNATO, "was logged in when the message was sent, and the text "
+           "riproverà)") + " (“sent, not delivered: the copy could not be written (see the log; the next ams command "
+         "will retry)”)", INVIATO, "the sending ran into an error for this user, usually a full disk"],
+        [c("consegnato") + " (“delivered”)", CONSEGNATO, "has the copy; has not confirmed yet"],
+        [c("consegnato, scritto su 2 terminali") + " (“delivered, written to 2 terminals”)", CONSEGNATO, "was logged in when the message was sent, and the text "
          "appeared in two terminal windows"],
-        [c("consegnato, rimandato il 30/09 16:55"), CONSEGNATO, "answered «Più tardi» (“Later”) or «n»; the time is "
+        [c("consegnato, rimandato il 30/09 16:55") + " (“delivered, postponed on 30/09 16:55”)", CONSEGNATO, "answered «Più tardi» (“Later”) or «n»; the time is "
          "that of the last postponement"],
-        [c("consegnato, non confermato (ritirato)"), CONSEGNATO, "the message was revoked before this user confirmed"],
-        [c("consegnato, non confermato (scaduto)"), CONSEGNATO, "the message expired before this user confirmed"],
-        [c("consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)"), CONSEGNATO,
+        [c("consegnato, non confermato (ritirato)") + " (“delivered, not confirmed (revoked)”)", CONSEGNATO, "the message was revoked before this user confirmed"],
+        [c("consegnato, non confermato (scaduto)") + " (“delivered, not confirmed (expired)”)", CONSEGNATO, "the message expired before this user confirmed"],
+        [c("consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)") + " (“delivered, not confirmed "
+         "(expired; confirmation arrived after the expiry)”)", CONSEGNATO,
          "confirmed, but too late: the confirmation does not count"],
-        [c("confermato il 30/09 16:55 (desktop)"), CONFERMATO, "pressed «Ho letto» (“I have read it”) in the dialog"],
-        [c("confermato il 30/09 16:55 (terminale pts/2)"), CONFERMATO, "answered «s» (“y” in English) in a terminal "
+        [c("confermato il 30/09 16:55 (desktop)") + " (“confirmed on 30/09 16:55 (desktop)”)", CONFERMATO, "pressed «Ho letto» (“I have read it”) in the dialog"],
+        [c("confermato il 30/09 16:55 (terminale pts/2)") + " (“confirmed on 30/09 16:55 (terminal pts/2)”)", CONFERMATO, "answered «s» (“y” in English) in a terminal "
          "window or in an ssh connection (" + c("pts") + ")"],
-        [c("confermato il 30/09 16:55 (terminale tty3)"), CONFERMATO, "answered «s» on a console of the machine"],
+        [c("confermato il 30/09 16:55 (terminale tty3)") + " (“confirmed on 30/09 16:55 (terminal tty3)”)", CONFERMATO, "answered «s» on a console of the machine"],
     ], "«TAB» — The status lines of a recipient") + \
     p("Above the list, " + c("ams status") + " writes " + c("RITIRATO il …") + " (“REVOKED on …”) if the message has "
       "been revoked and " + c("SCADUTO") + " (“EXPIRED”) if the expiry has passed. In the TUI the same information is in "
       "the line at the top, in red for a revocation.") + \
-    tip("in the " + ui("Destinatari") + " tab you scroll with " + key("↑") + " " + key("↓") + " and "
+    tip("in the " + ui("Destinatari") + " (“Recipients”) tab you scroll with " + key("↑") + " " + key("↓") + " and "
         + key("PgUp") + " " + key("PgDn") + "; " + key("s") + " reminds and " + key("r") + " revokes this very "
         "message; " + key("Esc") + " returns to the list.", "Message keys.")
 
@@ -118,7 +129,8 @@ VITA = fig(
     + text(450, 236, "Mario's history for message 2: there are only three states; postponing and reminding are events",
            11.5, "#334155", "600")
     + text(450, 256, "that stay in the log, and the state remains “delivered” until the confirmation.", 11.5, "#334155", "600"),
-    900, 280, "«FIG» — The life of a message for one recipient, from sending to confirmation", "States and events")
+    900, 280, "«FIG» — The life of a message for one recipient, from sending to confirmation; «Ho letto» is the “I have "
+    "read it” button", "States and events")
 
 S3 = p("Every message has a history made of <b>events</b>: the sending, the delivery to each recipient, the "
        "postponements, the reminders, the confirmations, a possible revocation. Events change the state of a recipient "
@@ -126,10 +138,10 @@ S3 = p("Every message has a history made of <b>events</b>: the sending, the deli
     table(["Event", "Who causes it", "Effect on the recipient's state"], [
         ["sending", "the administrator", "everyone " + INVIATO + " for an instant"],
         ["delivery", "AMS", INVIATO + " → " + CONSEGNATO],
-        ["postponement", "the user («Più tardi», «n»)", "none: stays " + CONSEGNATO],
+        ["postponement", "the user: «Più tardi» (“Later”) or «n» (no)", "none: stays " + CONSEGNATO],
         ["reminder", "the administrator (" + key("s") + ", " + c("ams remind") + ")", "none: stays "
          + CONSEGNATO + ", but is asked again immediately"],
-        ["confirmation", "the user («Ho letto», «s»)", CONSEGNATO + " → " + CONFERMATO],
+        ["confirmation", "the user: «Ho letto» (“I have read it”) or «s» (“y”)", CONSEGNATO + " → " + CONFERMATO],
         ["revocation", "the administrator (" + key("r") + ", " + c("ams revoke") + ")", "none; the message becomes "
          + RITIRATO + " and is no longer shown"],
         ["expiry", "time", "none; the message becomes " + SCADUTO + " and is no longer shown"],
@@ -150,19 +162,27 @@ LOG = ("admin@server:~$ ams log 2\n"
 S4 = p("The message's " + ui("Storia") + " (“History”) tab, opened with " + key("Tab") + ", lists the events of the "
        "message taken from the system log, oldest first, with date and time to the second.", lead=True) + \
     schermata("storia", "«FIG» — The history of a message in the TUI") + \
-    p("With a command, the same history is read with " + c("ams log") + ":") + term(LOG, "The history with a command") + \
+    p("With a command, the same history is read with " + c("ams log") + ":") + term(
+        LOG, "The history with a command: «Messaggio 2 · Manutenzione · 30/09 16:55» (“Message 2 · Maintenance · 30/09 "
+        "16:55”); each kind of line is translated in the table below") + \
     table(["Line", "When it appears"], [
-        [c("messaggio N consegnato a U (terminali scritti: K)"), "for each copy that reached a mailbox; K is the "
+        [c("messaggio N consegnato a U (terminali scritti: K)") + " (“message N delivered to U (terminals written: "
+         "K)”)", "for each copy that reached a mailbox; K is the "
          "number of terminal windows in which the text appeared when it was sent"],
-        [c("messaggio N inviato da A a: …"), "at the end of each sending, with the list of recipients"],
-        [c("messaggio N: ERRORE, copia per U non scritta"), "when a delivery fails"],
-        [c("messaggio N consegnato a U (recupero)"), "when AMS completes a delivery that had been left behind"],
-        [c("utente U: rimandato il messaggio N (terminale)") + " or " + c("(desktop)"), "when the user postpones"],
-        [c("utente U: confermata la lettura del messaggio N (canale)"), "on confirmation"],
-        [c("utente U: ERRORE, conferma del messaggio N non registrata (…)"), "when the confirmation could not be "
+        [c("messaggio N inviato da A a: …") + " (“message N sent by A to: …”)", "at the end of each sending, with the list of recipients"],
+        [c("messaggio N: ERRORE, copia per U non scritta") + " (“message N: ERROR, copy for U not written”)",
+         "when a delivery fails"],
+        [c("messaggio N consegnato a U (recupero)") + " (“message N delivered to U (recovery)”)", "when AMS completes a delivery that had been left behind"],
+        [c("utente U: rimandato il messaggio N (terminale)") + " or " + c("(desktop)")
+         + " (“user U: postponed message N (terminal)” or “(desktop)”)", "when the user postpones"],
+        [c("utente U: confermata la lettura del messaggio N (canale)") + " (“user U: confirmed reading message N "
+         "(channel)”)", "on confirmation"],
+        [c("utente U: ERRORE, conferma del messaggio N non registrata (…)") + " (“user U: ERROR, confirmation of "
+         "message N not recorded (…)”)", "when the confirmation could not be "
          "saved, for example with a full disk"],
-        [c("messaggio N: sollecitati K destinatari da A"), "at each reminder"],
-        [c("messaggio N ritirato da A"), "on revocation"],
+        [c("messaggio N: sollecitati K destinatari da A") + " (“message N: K recipients reminded by A”)",
+         "at each reminder"],
+        [c("messaggio N ritirato da A") + " (“message N revoked by A”)", "on revocation"],
     ], "«TAB» — The lines of the history") + \
     note("the history comes from the system log, which the machine may rotate and delete after a while according to "
          "its settings. The state of the recipients, on the other hand, comes from the AMS message store and remains "
@@ -175,7 +195,7 @@ S5 = p("Every event is also written to the machine's system log, with the tag " 
     "set 30 16:55:57 server ams[20914]: messaggio 2 consegnato a anna (terminali scritti: 0)\n"
     "set 30 16:55:57 server ams[20914]: messaggio 2 inviato da root a: admin anna dario fabio kora luca mario zeno\n"
     "set 30 16:56:10 server ams[21310]: utente anna: confermata la lettura del messaggio 2 (desktop)",
-    "The system log") + \
+    "The system log: the same lines as in the history above; «set 30» is 30 September, abbreviated in Italian") + \
     table(["To see…", "Command"], [
         ["all of today's AMS events", c("sudo journalctl -t ams --since today")],
         ["the events of the last hour", c('sudo journalctl -t ams --since "1 hour ago"')],

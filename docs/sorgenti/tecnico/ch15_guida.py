@@ -57,10 +57,11 @@ LEVELS = fig(
 
 S2 = p(c("ams_guida") + " chooses the form according to where the output goes. All three have the same content.",
        lead=True) + LEVELS + table(["Form", "When", "How"], [
-    ["tabbed help", "stdin and stdout on a terminal of at least 44 × 10", "five tabs: Info, Commands, Options, "
-     "Examples, Files"],
-    ["manual-style page", "smaller terminal", "the page (NAME, SYNOPSIS, DESCRIPTION, COMMANDS, SEND OPTIONS, "
-     "EXAMPLES, FILES, ENVIRONMENT, EXIT STATUS, SEE ALSO) as wide as the terminal, between 60 and 100 "
+    ["tabbed help", "stdin and stdout on a terminal of at least 44 × 10", "five tabs: Info, Comandi (Commands), "
+     "Opzioni (Options), Esempi (Examples), File (Files)"],
+    ["manual-style page", "smaller terminal", "the page (NOME (NAME), SINTASSI (SYNOPSIS), DESCRIZIONE "
+     "(DESCRIPTION), COMANDI (COMMANDS), OPZIONI DI SEND (SEND OPTIONS), ESEMPI (EXAMPLES), FILE (FILES), AMBIENTE "
+     "(ENVIRONMENT), STATO DI USCITA (EXIT STATUS), VEDERE ANCHE (SEE ALSO)) as wide as the terminal, between 60 and 100 "
      "columns, through " + c("$PAGER") + " or " + c("less -R -F -X") + " if it is in the " + c("PATH") + "; otherwise "
      "directly"],
     ["plain text", "stdin or stdout is not a terminal (a pipe, a file)", "the same page, 80 columns, "
@@ -68,7 +69,7 @@ S2 = p(c("ams_guida") + " chooses the form according to where the output goes. A
 ], "«TAB» — The three forms of the help") + ul([
     "Colours are turned off with " + c("NO_COLOR") + "; " + c("PAGER") + " and " + c("NO_COLOR") + " reach "
     + c("ams") + " only if sudo preserves them (" + c("env_keep") + " in sudoers): the help says so in the "
-    "ENVIRONMENT section.",
+    "AMBIENTE (ENVIRONMENT) section.",
     "The help too requires root: " + c("ams --help") + " re-runs itself with sudo like every other command ("
     + cap(4, 1) + "). It is the user's decision, at the cost of asking for the password even for the help.",
     c("ams") + " on its own in a pipe shows the help as plain text (" + c("tests/tui.py") + ").",
@@ -78,7 +79,9 @@ S2 = p(c("ams_guida") + " chooses the form according to where the output goes. A
           "NOME\n"
           "       ams — invia messaggi agli utenti della macchina e ne segue la conferma di\n"
           "       lettura",
-          "The help in a pipe (beginning)")
+          "The help in a pipe (beginning): «Manuale di ams» (“ams manual”), «NOME» (“NAME”), «ams — invia messaggi agli "
+          "utenti della macchina e ne segue la conferma di lettura» (“ams — sends messages to the users of the machine "
+          "and tracks their read confirmation”)")
 
 S3 = table(["Part", "How it works"], [
     ["terminal", c("/dev/tty") + " without echo or canonical mode (" + c("termios") + "), alternate screen and "
@@ -91,7 +94,7 @@ S3 = table(["Part", "How it works"], [
      + key("l") + ", " + key("Enter") + ", or the digits " + key("1") + "…" + key("5")],
     ["scrolling", key("↑") + " " + key("↓") + " (" + key("k") + " " + key("j") + "), " + key("PgUp") + " "
      + key("PgDn") + " (" + key("b") + " " + key("Space") + "), " + key("g") + " " + key("G") + "; each tab "
-     "remembers its position; at the bottom “lines 1-20/57”"],
+     "remembers its position; at the bottom «righe 1-20/57» (“lines 1-20/57”)"],
     ["resizing", "at every 0.3 s wait the help compares the size (" + c("TIOCGWINSZ")
      + ") with the last one and redraws; below 44 × 10 it exits"],
     ["drawing", "the tab's lines are prepared without colours, so the lengths are the visible ones; frame, "

@@ -38,7 +38,8 @@ S1 = p("Administrators are trusted: they can already do anything on the machine,
 ], "«TAB» — The boundary, direction by direction")
 
 S2 = table(["Risk", "Countermeasure", "Test"], [
-    ["an ordinary user runs " + c("ams"), "permissions " + c("750 root:gruppo admin") + "; re-launch with sudo, which "
+    ["an ordinary user runs " + c("ams"), "permissions " + c("750 root:gruppo admin") + " (gruppo admin: “admin "
+     "group”); re-launch with sudo, which "
      "applies its own rules", "scenarios A3, A4"],
     [c("AMS_TEST") + " used to bypass sudo", "it grants nothing: without root a user keeps their own permissions; "
      "the test variables apply only in test mode", "scenario G4"],
@@ -50,8 +51,8 @@ S2 = table(["Risk", "Countermeasure", "Test"], [
      "scenario G2"],
     ["forged confirmations", "read as the user, at most 200 bytes, cleaned; a confirmation remains a statement "
      "by the user, not a proof", "scenario G3"],
-    ["fake events in the journal", "the journal adds " + c("_UID") + "; " + c("ams log") + " flags as “not "
-     "trustworthy” an event written by the wrong user; states are read from the message store", "scenario J3"],
+    ["fake events in the journal", "the journal adds " + c("_UID") + "; " + c("ams log") + " flags as «non "
+     "attendibile» (“not trustworthy”) an event written by the wrong user; states are read from the message store", "scenario J3"],
     ["text meant for one user written to another user's terminal", "the owner of the terminal is checked "
      "after opening it, not the name " + c("/dev/pts/N"), c("engine.sh") + ", group 9"],
     ["signals to the wrong processes", "the signal is sent from a child with the user's identity, and only to the "

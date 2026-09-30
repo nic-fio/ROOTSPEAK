@@ -23,7 +23,8 @@ AVVIO = fig(
     + arrow(700, 148, 718, 148, "#0050C0")
     + path([(700, 160), (706, 160), (706, 257), (718, 257)], "#b45309", True)
     + text(160, 250, "relaunches unchanged", 11, "#475569"),
-    900, 300, "«FIG» — Starting ams: environment, language, root, then the command", "Starting ams")
+    900, 300, "«FIG» — Starting ams: environment, language, root, then the command; «ams: comando sconosciuto» means "
+    "“ams: unknown command”", "Starting ams")
 
 S1 = p("The " + c("main") + " of " + c("src/ams.c") + " is short and its order is a rule: <b>nothing runs without "
        "root</b>, not even the help. Before looking at the arguments it reads the environment and the language; then, "
@@ -67,11 +68,11 @@ S2 = p(c("ams-user") + " never relaunches itself: it runs with the identity of w
          "process, and " + c("ams send") + " might send it to an agent that has just started (" + cap(12, 2) + ")"],
         ["2. " + c("ams_init(\"ams-user\")") + ", " + c("lingua_init") + ", " + c("conf_leggi"),
          "environment, the user's language, configuration"],
-        ["3. user from " + c("getuid") + " and " + c("getpwuid"), "the mailbox is " + c("users/<nome>") + ": the name "
+        ["3. user from " + c("getuid") + " and " + c("getpwuid"), "the mailbox is " + c("users/<nome>") + " (“&lt;name&gt;”): the name "
          "never comes from an argument"],
         ["4. " + c("prompt [--login]"), "the question in the terminal (" + cap(11) + ")"],
         ["5. " + c("agent"), "the desktop agent (" + cap(12) + ")"],
-        ["6. " + c("conferma ID CANALE"), "only in test mode: recording the confirmation on its own, for "
+        ["6. " + c("conferma ID CANALE") + " (“confirm ID CHANNEL”)", "only in test mode: recording the confirmation on its own, for "
          + c("tests/engine.sh")],
         ["otherwise", "«ams-user: helper interno di AMS, non va usato direttamente» (in English: “ams-user: internal "
          "AMS helper, not meant to be run directly”), exit status 1"],
@@ -93,7 +94,7 @@ S3 = p(c("ams_init") + " in " + c("src/comune.c") + " sets the working folders. 
      "sets it keeps their own permissions (scenario G4: «Permesso negato», “Permission denied”, as soon as "
      + c("ams") + " is executed), and sudo removes it from the environment."),
     ("AMS_TEST_TTY=file", "the “terminal” that " + c("ams send") + " writes to in test mode; empty: none."),
-    ("AMS_BUILD=cartella", "for the tests: the programs to test (for example " + c("build-san") + ")."),
+    ("AMS_BUILD=cartella", "(cartella: “folder”) for the tests: the programs to test (for example " + c("build-san") + ")."),
 ])
 
 S4 = p("The code is tested from the repository folder as an ordinary user, on a test message store, after "
@@ -104,7 +105,8 @@ S4 = p("The code is tested from the repository folder as an ordinary user, on a 
     "nicfio@server:~/AMS$ export AMS_VAR=/tmp/prova AMS_CONF=/dev/null AMS_TEST_TTY=/tmp/tty\n"
     "nicfio@server:~/AMS$ build/ams send --to nicfio \"Prova\"\n"
     "Messaggio 1 inviato a 1 utente.\n"
-    "nicfio@server:~/AMS$ script -qec 'build/ams-user prompt' /dev/null", "A test without root") + \
+    "nicfio@server:~/AMS$ script -qec 'build/ams-user prompt' /dev/null",
+    "A test without root: the text «Prova» (“Test”); «Messaggio 1 inviato a 1 utente.» (“Message 1 sent to 1 user.”)") + \
     warn("without " + c("AMS_TEST") + ", " + c("build/ams") + " goes through sudo; if the sudo credentials are still "
          "valid it starts as root without asking anything, on the real message store. In tests always set "
          "test mode.") + \
@@ -133,7 +135,9 @@ AMS_REMIND_MINUTES=30
 
 # Ogni quanti secondi l'agente del desktop ricontrolla i messaggi
 # (i nuovi messaggi lo svegliano comunque subito)
-AMS_AGENT_POLL=60""", "conf", "etc/ams/ams.conf") + CONF + table(["Key", "Default", "Who uses it", "When it is re-read"], [
+AMS_AGENT_POLL=60""", "conf", "etc/ams/ams.conf: “After how many minutes to show again a message postponed by the "
+    "user”; “How often, in seconds, the desktop agent checks the messages again (new messages wake it at once "
+    "anyway)”") + CONF + table(["Key", "Default", "Who uses it", "When it is re-read"], [
     [c("AMS_REMIND_MINUTES"), "30", c("ams-user prompt") + " and the agent: how long a postponement lasts",
      "at every " + c("ams-user prompt") + "; at every round of the agent"],
     [c("AMS_AGENT_POLL"), "60", "the agent: the periodic check, in addition to the wake-up", "at every round of the agent"],

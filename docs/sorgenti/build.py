@@ -289,9 +289,97 @@ def zone(x, y, w, h, title, color="#e8eef7"):
             + text(x + 14, y + 20, title, 11.5, "#003a90", "700", "start", False))
 
 
+# Le scritte italiane delle schermate, con la traduzione inglese (quella di po/ams.pot quando
+# esiste): schermata() le aggiunge alla didascalia, perché il contenuto resta uguale allo schermo.
+_DISTESO = ("the text: «Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi. Salvate il lavoro "
+            "entro venerdì sera.» (“On Saturday from 8 to 12 the server will be switched off for disk maintenance. "
+            "Save your work by Friday evening.”)")
+_MESSAGGIO = ("«Messaggio 2 · Manutenzione» (“Message 2 · Maintenance”), «aggiornato alle» (“updated at”), «da root» "
+              "(“from root”); " + _DISTESO + "; tabs «Destinatari (8)» (“Recipients (8)”) and «Storia» (“History”); "
+              "«4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”)")
+_TASTI_MESSAGGIO = ("keys «Tab destinatari/storia» (“recipients/history”), «↑/↓ scorri» (“scroll”), «s sollecita» "
+                    "(“remind”), «r ritira» (“revoke”), «Esc indietro» (“back”)")
+_CONFERMA = "«s Conferma» (“Confirm”), «n Annulla» (“Cancel”); key line «s conferma · n o Esc annulla» (“confirm · n or Esc cancel”)"
+_INVIO_ESC = "key line «Invio conferma» (“Enter confirm”), «Esc annulla» (“cancel”)"
+TRADUZIONI_SCHERMATE = {
+    "lista": "«AMS · messaggi inviati» (“AMS · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» "
+             "(“DATE”), «MESSAGGIO» (“MESSAGE”), «DESTINATARI» (“RECIPIENTS”); the example titles «Riavvio» "
+             "(“Reboot”), «Il tuo account scade venerdì» (“Your account expires on Friday”), «Manutenzione» "
+             "(“Maintenance”), «Aggiornamento del server · Stanotte» (“Server update · Tonight”); «[ritirato]» "
+             "(“[revoked]”); «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”), "
+             "«tutti confermato (3)» (“all confirmed (3)”); keys «Invio apri» (“Enter open”), «n nuovo» (“new”), "
+             "«r ritira» (“revoke”), «s sollecita» (“remind”), «p pulizia» (“purge”), «/ cerca» (“search”), "
+             "«? tasti» (“keys”), «q esci» (“quit”)",
+    "dettaglio": _MESSAGGIO + "; columns «UTENTE» (“USER”) and «STATO» (“STATE”); «confermato il 30/09 18:58 "
+                 "(terminale pts/0)» (“confirmed on 30/09 18:58 (terminal pts/0)”), «inviato, non consegnato» (“sent, "
+                 "not delivered”), «consegnato, rimandato il 30/09 18:58» (“delivered, postponed on 30/09 18:58”); "
+                 + _TASTI_MESSAGGIO,
+    "storia": _MESSAGGIO + "; the events «messaggio 2 consegnato a admin (terminali scritti: 0)» (“message 2 delivered "
+              "to admin (terminals written: 0)”) and «messaggio 2 inviato da root a: …» (“message 2 sent by root to: "
+              "…”); " + _TASTI_MESSAGGIO,
+    "nuovo": "«Nuovo messaggio» (“New message”); fields «A» (“To”), «Titolo» (“Title”), «Scadenza» (“Expires”), «Testo» "
+             "(“Text”); hints «2 destinatari» (“2 recipients”), «facoltativo, una riga» (“optional, one line”), "
+             "«facoltativa: 30m, 2h,» (“optional: 30m, 2h,”); the text: «Sabato dalle 8 alle 12 il server sarà spento. "
+             "Salvate il lavoro entro venerdì sera.» (“On Saturday from 8 to 12 the server will be switched off. Save "
+             "your work by Friday evening.”); «85 di 65536 byte» (“85 of 65536 bytes”); keys «Tab campo successivo» "
+             "(“next field”), «Ctrl+E apri nell'editor» (“open in the editor”), «Ctrl+S invia» (“send”), «Esc "
+             "annulla» (“cancel”)",
+    "invio": "over the new message, «Inviare il messaggio?» (“Send the message?”) with «A: @sviluppo (2 destinatari)» "
+             "(“To: @sviluppo (2 recipients)”), «Titolo» (“Title”), «Scadenza» (“Expires”), «Testo: 85 byte» (“Text: "
+             "85 bytes”); " + _CONFERMA,
+    "sollecito": "over the list, «Sollecitare il messaggio 2?» (“Remind message 2?”), «3 destinatari non hanno ancora "
+                 "confermato.» (“3 recipients have not confirmed yet.”), «La domanda torna subito: al prompt successivo "
+                 "e con la finestra sul desktop.» (“They are asked again now: at the next prompt and with the dialog on "
+                 "the desktop.”); " + _CONFERMA,
+    "../utente/schermate/aiuto": "over the list, «Tasti» (“Keys”): «scorre la lista» (“move through the list”), «Invio» "
+                                 "(Enter) «apre il messaggio: destinatari e storia» (“open the message: recipients and "
+                                 "history”), «scrive e invia un messaggio nuovo» (“write and send a new message”), «ritira "
+                                 "il messaggio scelto» (“revoke the selected message”), «sollecita chi non ha confermato» "
+                                 "(“remind whoever has not confirmed”), «cancella i messaggi vecchi» (“delete old "
+                                 "messages”), «cerca i messaggi per testo o titolo» (“search the messages by text or "
+                                 "title”), «esci» (“quit”); «La lista si aggiorna da sola ogni 3 secondi.» (“The list "
+                                 "updates by itself every 3 seconds.”), «La guida completa: ams --help.» (“The complete "
+                                 "guide: ams --help.”), «un tasto per continuare» (“any key to continue”)",
+    "../utente/schermate/cerca": "over the list, «Cerca» (“Search”), «Mostra solo i messaggi che contengono:» (“Show only "
+                                 "the messages containing:”); " + _INVIO_ESC,
+    "../utente/schermate/cercato": "at the bottom, «ricerca: «server» (Esc per toglierla)» (“search: «server» (Esc to "
+                                   "clear)”)",
+    "../utente/schermate/pulizia": "over the list, «Cancellare i messaggi vecchi» (“Delete old messages”), «Cancellare i "
+                                   "messaggi inviati da più di (per esempio 90d, 12h):» (“Delete the messages sent more "
+                                   "than (for example 90d, 12h):”); " + _INVIO_ESC,
+    "../utente/schermate/ritira": "over the list, «Ritirare il messaggio 2?» (“Revoke message 2?”), ««Manutenzione» · 1 "
+                                  "confermato · 1 consegnato» (“«Maintenance» · 1 confirmed · 1 delivered”), «Chi non "
+                                  "l'ha ancora visto non lo vedrà più; finestre e domande aperte si chiudono da sole.» "
+                                  "(“Whoever has not seen it yet will not see it; open dialogs and questions close by "
+                                  "themselves.”); " + _CONFERMA,
+    "../utente/schermate/guida-info": "«ams — guida» (“ams — guide”); tabs «Comandi» (“Commands”), «Opzioni» "
+                                      "(“Options”), «Esempi» (“Examples”), «File» (“Files”); «NOME» (“NAME”): «ams — "
+                                      "messaggi agli utenti con conferma di lettura» (“ams — messages to users with read "
+                                      "confirmation”); «SINTASSI» (“SYNOPSIS”), with «[opzioni] [TESTO]» (“[options] "
+                                      "[TEXT]”) and «DURATA» (“DURATION”); «DESCRIZIONE» (“DESCRIPTION”): «AMS permette "
+                                      "agli amministratori di mandare messaggi di testo agli…» (“AMS lets administrators "
+                                      "send text messages to the…”); «←/→ schede · ↑/↓ scorri · … · q esci» (“←/→ tabs · "
+                                      "↑/↓ scroll · … · q quit”), «righe 1-16/26» (“lines 1-16/26”)",
+    "../utente/schermate/guida-opzioni": "«Opzioni di send» (“Send options”); «--to DEST: Destinatari, separati da "
+                                         "virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti "
+                                         "gli utenti umani) oppure online (solo quelli collegati adesso).» (“Recipients, "
+                                         "separated by commas without spaces: a user (mario), a Unix group, all (every "
+                                         "human user) or online (only those logged in now).”); «--title TITOLO: Titolo "
+                                         "mostrato nell'intestazione del messaggio e nella finestra del desktop.» (“TITLE: "
+                                         "Title shown in the message header and in the desktop dialog.”); «--expires "
+                                         "DURATA: Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, "
+                                         "3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole vanno in "
+                                         "inglese).» (“DURATION: Expiry, after which the message is no longer shown: "
+                                         "30m, 2h, 3d or a date and time; dates in words must be in English.”)",
+}
+
+
 def schermata(nome, cap):
     """Una schermata vera della TUI (docs/sorgenti/schermate/NOME.ans, catturata da
-    tools/schermate-tui.sh), con i suoi colori."""
+    tools/schermate-tui.sh), con i suoi colori. Il contenuto resta uguale allo schermo;
+    la traduzione delle scritte (TRADUZIONI_SCHERMATE) va nella didascalia."""
+    if nome in TRADUZIONI_SCHERMATE:
+        cap = cap.rstrip(".") + ". On screen: " + TRADUZIONI_SCHERMATE[nome] + "."
     raw = (HERE / "schermate" / f"{nome}.ans").read_bytes().decode("utf-8", "replace")
     raw = re.sub(r"\x1b\[\?[0-9;]*[a-zA-Z]|\x1b\[[0-9]*;[0-9]*H|\x1b\[J|\r", "", raw)
     stato, out = set(), []
@@ -312,6 +400,7 @@ def schermata(nome, cap):
             continue
         if pezzo:
             out.append(f'<span class="{" ".join(sorted(stato))}">{esc(pezzo)}</span>' if stato else esc(pezzo))
+    assert nome in TRADUZIONI_SCHERMATE, f"schermata {nome}: manca la traduzione delle scritte"
     return (f'<figure class="fig"><pre class="code schermo"><code>{"".join(out)}</code></pre>'
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 

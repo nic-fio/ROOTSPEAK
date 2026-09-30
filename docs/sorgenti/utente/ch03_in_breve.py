@@ -60,15 +60,22 @@ ANATOMIA = fig(
     + mono(62, 322, "Invio apri  n nuovo  r ritira  s sollecita  p pulizia  / cerca  ? guida  q esci", 12, "#e5e7eb")
     + numero(30, 60, 1) + numero(870, 60, 2) + numero(30, 96, 3) + numero(30, 146, 4) + numero(870, 146, 5)
     + numero(30, 258, 6) + numero(30, 318, 7),
-    900, 360, "«FIG» — The parts of the main screen (the same as in the real screenshot below)",
+    900, 360, "«FIG» — The parts of the main screen (the same as in the real screenshot below). On screen: «AMS · "
+    "messaggi inviati» (“AMS · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» (“DATE”), «MESSAGGIO» "
+    "(“MESSAGE”), «DESTINATARI» (“RECIPIENTS”); the example titles «Il tuo account scade…» (“Your account expires…”), "
+    "«Manutenzione · Sabato…» (“Maintenance · Saturday…”), «Aggiornamento del…» (“Update of the…”); «1 consegnato» "
+    "(“1 delivered”), «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”), «tutti "
+    "confermato (3)» (“all confirmed (3)”); keys «Invio apri» (“Enter open”), «n nuovo» (“new”), «r ritira» "
+    "(“revoke”), «s sollecita» (“remind”), «p pulizia» (“purge”), «/ cerca» (“search”), «? guida» (“guide”), «q esci» "
+    "(“quit”)",
     "")
 
 S2 = p("The main screen of the TUI is the list of sent messages. All AMS screens have the same frame: the title "
        "at the top left, the time of the last update at the top right, the content in the middle and, at the "
        "bottom, the line of keys that can be pressed at that moment.", lead=True) + ANATOMIA + \
     table(["", "Part", "What it shows"], [
-        ["1", "Title", "Where you are: " + c("AMS · messaggi inviati") + ", " + c("Messaggio 2 · Manutenzione") + ", "
-         + c("Nuovo messaggio") + "."],
+        ["1", "Title", "Where you are: " + c("AMS · messaggi inviati") + " (“AMS · sent messages”), "
+         + c("Messaggio 2 · Manutenzione") + " (“Message 2 · Maintenance”), " + c("Nuovo messaggio") + " (“New message”)."],
         ["2", "Update", "The time at which AMS last reread the message store. It changes every 3 seconds: if it "
          "stops, the TUI is no longer receiving updates."],
         ["3", "Header", "The columns: message number, date and time of sending, title and first line of the text, "
@@ -102,7 +109,9 @@ STATI = fig(
     + text(250, 322, "revoked: ams revoke, key r", 12, "#475569", "600")
     + text(650, 322, "expired: the --expires time has passed", 12, "#475569", "600")
     + text(450, 70, "for each recipient, exactly one of the three states", 12, "#003a90", "700"),
-    900, 360, "«FIG» — The three states of a recipient; revocation and expiry stop the message without changing the states",
+    900, 360, "«FIG» — The three states of a recipient; revocation and expiry stop the message without changing the states. "
+    "The user confirms with «Ho letto» (“I have read it”) or «s» (“y”, yes), and postpones with «Più tardi» (“Later”) "
+    "or «n» (no)",
     "Sent, delivered, confirmed")
 
 BARRA = fig(
@@ -113,7 +122,8 @@ BARRA = fig(
     + mono(520, 84, "4 confermato · 3 consegnato · 1 inviato", 13, "#0f172a", "700")
     + text(450, 160, "8 recipients, 12 marks: each state takes its share; whoever is still “sent” always gets at least one mark",
            11.5, "#334155"),
-    900, 180, "«FIG» — How to read the bar of a message with 8 recipients", "The bar and the phrase")
+    900, 180, "«FIG» — How to read the bar of a message with 8 recipients; the phrase «4 confermato · 3 consegnato · 1 "
+    "inviato» means “4 confirmed · 3 delivered · 1 sent”", "The bar and the phrase")
 
 S3 = p("There is only one concept you need to know to use AMS: every recipient of every message is in one of "
        "<b>three states</b>. There are no others.", lead=True) + STATI + \
@@ -138,7 +148,8 @@ S3 = p("There is only one concept you need to know to use AMS: every recipient o
         "they last postponed (" + rif(6, 2) + ").", "What about those who postpone?")
 
 S4 = table(["I want to…", "In the TUI", "With a command", "Where"], [
-    ["send a message", key("n") + ", then " + key("Ctrl", "S"), c("ams send --to … \"testo\""), rif(5)],
+    ["send a message", key("n") + ", then " + key("Ctrl", "S"), c("ams send --to … \"testo\"") + " (testo: “text”)",
+     rif(5)],
     ["see all messages", "the main screen", c("ams list"), rif(6, 1)],
     ["see who has confirmed", key("Enter") + " on the message", c("ams status ID"), rif(6, 2)],
     ["see the history of a message", key("Enter") + ", then " + key("Tab"), c("ams log ID"), rif(6, 4)],

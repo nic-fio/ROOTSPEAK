@@ -15,7 +15,7 @@ S1 = p("AMS runs on a Linux distribution with systemd. It has been tested on Deb
          c("sudo") + " (group " + c("sudo") + "; on Fedora and similar " + c("wheel") + ")"],
         ["a shell: bash, zsh or fish", "the confirmation question in terminals at every prompt; with sh, dash and ksh "
          "only at login", "bash is already present"],
-        ["zenity", "the «Ho letto» / «Più tardi» dialog on the desktop", c("zenity")],
+        ["zenity", "the «Ho letto» (“I have read it”) / «Più tardi» (“Later”) dialog on the desktop", c("zenity")],
         ["notify-send (optional)", "the desktop notice when a confirmation could not be recorded",
          c("libnotify-bin")],
         ["the build tools, only for installing", "AMS is written in C: " + c("install.sh") + " compiles it "
@@ -24,7 +24,7 @@ S1 = p("AMS runs on a Linux distribution with systemd. It has been tested on Deb
     term("admin@server:~$ sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev gettext",
          "Installing the packages on Debian and Ubuntu") + \
     note("on machines without a desktop zenity is not needed: AMS uses only the terminals. The installation reports "
-         "«Attenzione: manca zenity» (zenity is missing) but carries on.", "Servers without a desktop.")
+         "«Attenzione: manca zenity» (“Warning: zenity is missing”) but carries on.", "Servers without a desktop.")
 
 PERCORSO = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "installs, with sudo", "navy"),
                  ("ams version", "does it answer?", "blue"), ("ams", "the TUI, empty", "green")],
@@ -33,7 +33,12 @@ PERCORSO = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "inst
 S2 = PERCORSO + steps([
     "Open a terminal in the AMS folder and compile, as a normal user:" + term(
         "admin@server:~/AMS$ make"),
-    "Run the installation: the script restarts itself with sudo and asks for the password." + term(
+    "Run the installation: the script restarts itself with sudo and asks for the password («password di admin», "
+    "“admin's password”). At the end it confirms «AMS installato» (“AMS installed”), gives the paths of the command "
+    "(usable by the sudo group) and of the manuals, and reminds that «Le sessioni già aperte ricevono i messaggi sul "
+    "terminale subito e la domanda di conferma dalla prossima shell o dal prossimo login» (“Sessions already open "
+    "receive the messages in the terminal at once, and the confirmation question from the next shell or the next "
+    "login”)." + term(
         "admin@server:~/AMS$ ./install.sh\n"
         "[sudo] password di admin:\n"
         "AMS installato. Comando: /usr/local/bin/ams (utilizzabile dal gruppo sudo).\n"
@@ -95,7 +100,8 @@ S4 = p("The " + c("ams") + " command belongs to root and to the administrators g
 
 S5 = p("Right after installation it is worth doing three checks, none of which disturbs anyone.", lead=True) + steps([
     "Open the built-in help: " + c("ams --help") + " (" + rif(9) + "). Leave it with " + c("q") + ".",
-    "Check the list of messages: it is empty, because nothing has been sent yet." + term(
+    "Check the list of messages: it is empty, because nothing has been sent yet: «Nessun messaggio inviato.» (“No "
+    "messages sent.”)." + term(
         "admin@server:~$ ams list\nNessun messaggio inviato."),
     "Open the TUI by typing " + c("ams") + " on its own: it shows «Nessun messaggio inviato.» (No messages sent.) "
     "and the keys at the bottom. Leave it with " + c("q") + ".",
@@ -113,7 +119,8 @@ S6 = table(["To", "Command", "What happens"], [
      "settings."],
 ], "«TAB» — Upgrading and removing") + \
     term("admin@server:~/AMS$ ./install.sh --uninstall\n"
-         "AMS rimosso. Messaggi (/var/lib/ams) e configurazione (/etc/ams) conservati.", "Removal") + \
+         "AMS rimosso. Messaggi (/var/lib/ams) e configurazione (/etc/ams) conservati.",
+         "Removal: “AMS removed. Messages (/var/lib/ams) and configuration (/etc/ams) kept.”") + \
     warn(c("--purge") + " also deletes the record of who confirmed what. If it needs to be kept, copy "
          + c("/var/lib/ams") + " elsewhere first. The events remain in the system log in any case.",
          "Before --purge.")

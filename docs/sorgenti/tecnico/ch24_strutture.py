@@ -101,7 +101,7 @@ typedef struct {
 	size_t n;
 } casella_t;""", "c", "src/archivio.h") + \
     p("A " + c("casella_t") + " is built by " + c("casella_da_testo") + ", which parses the child's output ("
-      + c("A ID riga") + " for confirmations, " + c("S ID data") + " for postponements), already cleaned; malformed "
+      + c("A ID riga") + " (“A ID line”) for confirmations, " + c("S ID data") + " (“S ID date”) for postponements), already cleaned; malformed "
       "lines are discarded, and for each ID the first confirmation and the most recent postponement count. "
       + c("casella_da_testo") + " is also exposed for the tests and for fuzzing.")
 

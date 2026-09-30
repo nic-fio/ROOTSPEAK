@@ -21,7 +21,8 @@ PANORAMA = fig(
     + path([(684, 250), (706, 250), (706, 170), (728, 170)], "#16a34a", True)
     + path([(805, 194), (805, 318), (105, 318), (105, 194)], "#475569", True)
     + text(455, 309, "the message list and ams status: who has confirmed and who has not", 11.5, "#334155", "600"),
-    900, 340, "«FIG» — A message reaches every session of the user; the first confirmation goes back to the administrator",
+    900, 340, "«FIG» — A message reaches every session of the user; the first confirmation goes back to the administrator. "
+    "The dialog buttons «Ho letto» and «Più tardi» mean “I have read it” and “Later”",
     "The path of a message")
 
 S1 = p("<b>AMS - Advanced Messaging System</b> lets whoever administers a Linux machine send a message to the "
@@ -76,7 +77,7 @@ S3 = table(["Who", "What they do with AMS", "Chapters"], [
         "installed next to this one in " + c("/usr/local/share/doc/ams/") + ".", "Further reading.")
 
 S4 = table(["Convention", "Meaning"], [
-    [ui("Ho letto"), "Text that appears on the screen: buttons, window titles, fields, AMS messages. The "
+    [ui("Ho letto") + " (“I have read it”)", "Text that appears on the screen: buttons, window titles, fields, AMS messages. The "
      "screenshots in this manual show AMS in Italian; on an English system the same button reads “I have read it”."],
     [c("ams send --to mario"), "Commands, file names and values to type exactly as shown."],
     [key("Ctrl", "S") + " " + key("Enter"), "Keys to press; the + sign means “together”."],

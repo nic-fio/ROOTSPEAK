@@ -30,14 +30,19 @@ S1 = p("A recipient's state is not written anywhere: " + c("stato_destinatario")
        "mailbox and from the reference copy. The expiry and revocation that count are <b>root's</b>, not those of the "
        "copy, which the user might have altered.", lead=True) + DECIDE + table(["Condition", "State",
                                                                                  "Line in ams status"], [
-    ["no line for U in " + c("delivery"), "sent", "«inviato, non consegnato»; if there is " + c("incomplete")
-     + ": «…: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)»"],
-    ["line in " + c("delivery") + ", no confirmation", "delivered", "«consegnato», plus the details: «scritto su N "
-     "terminali», «rimandato il …»; or «non confermato (ritirato)» or «(scaduto)»"],
+    ["no line for U in " + c("delivery"), "sent", "«inviato, non consegnato» (“sent, not delivered”); if there is "
+     + c("incomplete") + ": «…: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)» "
+     "(“…: the copy could not be written (see the log; the next ams command will retry)”)"],
+    ["line in " + c("delivery") + ", no confirmation", "delivered", "«consegnato» (“delivered”), plus the details: "
+     "«scritto su N terminali» (“written to N terminals”), «rimandato il …» (“postponed on …”); or «non confermato "
+     "(ritirato)» (“not confirmed (revoked)”) or «(scaduto)» (“(expired)”)"],
     ["confirmation dated after the expiry in " + c("sent/ID/msg"), "delivered", "«consegnato, non confermato "
-     "(scaduto; conferma arrivata dopo la scadenza)»"],
-    ["confirmation dated after " + c("sent/ID/revoked"), "delivered", "«consegnato, non confermato (ritirato)»"],
-    ["valid confirmation", "confirmed", "«confermato il 30/09 17:10 (terminale pts/2)»"],
+     "(scaduto; conferma arrivata dopo la scadenza)» (“delivered, not confirmed (expired; confirmation arrived after "
+     "the expiry)”)"],
+    ["confirmation dated after " + c("sent/ID/revoked"), "delivered", "«consegnato, non confermato (ritirato)» "
+     "(“delivered, not confirmed (revoked)”)"],
+    ["valid confirmation", "confirmed", "«confermato il 30/09 17:10 (terminale pts/2)» (“confirmed on 30/09 17:10 "
+     "(terminal pts/2)”)"],
 ], "«TAB» — The state deduced from the files") + ul([
     "The date of the confirmation is the number before the space in " + c("acks/ID") + " (0 if it is not a number); "
     "the rest of the line is the channel, translated only when it is shown (" + c("canale_testo") + ").",
@@ -83,13 +88,13 @@ S3 = p("In the list of messages, in " + c("ams list") + " and in the TUI, a mess
 } riassunto_t;""", "c", "src/ams.h") + table(["Function", "What it does"], [
     [c("riassumi(id, r)"), "reads message, recipients, deliveries and revocation date <b>before</b> counting; "
      "false if the message no longer exists, has no recipients or if the send was cancelled (" + c("failed") + ")"],
-    [c("riassunto_frase(r, out)"), "«14 confermato · 5 consegnato · 2 inviato», omitting zero counts; "
-     "«tutti confermato (58)» if nobody is missing"],
+    [c("riassunto_frase(r, out)"), "«14 confermato · 5 consegnato · 2 inviato» (“14 confirmed · 5 delivered · 2 "
+     "sent”), omitting zero counts; «tutti confermato (58)» (“all confirmed (58)”) if nobody is missing"],
     ["the TUI bar", "12 marks: " + c("█") + " confirmed (green), " + c("▒") + " delivered (yellow), "
      + c("░") + " sent (red); a single sent recipient still gets at least one mark"],
 ], "«TAB» — Summarising a message") + \
-    note("the phrase always uses the name of the state («5 consegnato»), not an adjective agreeing in number: it is "
-         "the same word as in the STATO column of " + c("ams status") + ", in every language.")
+    note("the phrase always uses the name of the state («5 consegnato», “5 delivered”), not an adjective agreeing in "
+         "number: it is the same word as in the STATO (STATE) column of " + c("ams status") + ", in every language.")
 
 LIST = ("admin@server:~$ sudo ams list\n"
         "ID    DATA         TESTO                                     DESTINATARI\n"
@@ -115,18 +120,28 @@ STATUS = ("admin@server:~$ sudo ams status 2\n"
 
 S4 = p("The two query commands show the same state at two levels: the list of messages and the detail "
        "of one. Both run recovery first; after that, only reads, without locks.", lead=True) + \
-    term(LIST, "ams list: one message per line (the messages in the screenshots of chapter 14)") + ul([
+    term(LIST, "ams list: one message per line (the messages in the screenshots of chapter 14). Columns DATA (DATE), "
+         "TESTO (TEXT), DESTINATARI (RECIPIENTS); the texts «Stanotte alle 23 il server di posta viene aggiornato» "
+         "(“Tonight at 23:00 the mail server is updated”), «Sabato dalle 8 alle 12 il server sarà spento…» (“On "
+         "Saturday from 8 to 12 the server will be switched off…”), «Il tuo account scade venerdì: passa dall'ufficio "
+         "IT» (“Your account expires on Friday: come to the IT office”), «[ritirato] Riavvio alle 13:00.» (“[revoked] "
+         "Reboot at 13:00.”); the phrases as in the table above") + ul([
     "Columns: ID, sending date («30/09 16:55»), the first 40 columns of the first line of the text (preceded by "
-    + c("[ritirato]") + " and " + c("[scaduto]") + "), the summary phrase.",
-    "A cancelled send appears as «[invio annullato: interrotto prima del salvataggio]»: it reports an internal "
-    "marker, not a state.",
-]) + term(STATUS, "ams status: one recipient per line") + ul([
-    "Header: number, title and date, sender; then «RITIRATO il …» and «SCADUTO» if they apply; then the text, "
-    "indented.",
+    + c("[ritirato]") + " (“[revoked]”) and " + c("[scaduto]") + " (“[expired]”)), the summary phrase.",
+    "A cancelled send appears as «[invio annullato: interrotto prima del salvataggio]» (“[send cancelled: interrupted "
+    "before it was saved]”): it reports an internal marker, not a state.",
+]) + term(STATUS, "ams status: one recipient per line. «Messaggio 2 · Manutenzione · 30/09 16:55 · da root» (“Message "
+          "2 · Maintenance · 30/09 16:55 · from root”), the text «Sabato dalle 8 alle 12 il server sarà spento per la "
+          "manutenzione dei dischi. Salvate il lavoro entro venerdì sera.» (“On Saturday from 8 to 12 the server will "
+          "be switched off for disk maintenance. Save your work by Friday evening.”), columns UTENTE (USER) and STATO "
+          "(STATE); the state lines are translated in the first table of this chapter") + ul([
+    "Header: number, title and date, sender; then «RITIRATO il …» (“REVOKED on …”) and «SCADUTO» (“EXPIRED”) if they "
+    "apply; then the text, indented.",
     "One line per recipient, in the order of " + c("recipients") + " (alphabetical), with the state line from the "
     "previous table; the same lines appear in the TUI's detail view.",
-    "A non-existent or cancelled message ends with an error: «messaggio inesistente: 99», «il messaggio N è stato "
-    "annullato: l'invio si era interrotto prima del salvataggio».",
+    "A non-existent or cancelled message ends with an error: «messaggio inesistente: 99» (“no such message: 99”), «il "
+    "messaggio N è stato annullato: l'invio si era interrotto prima del salvataggio» (“message N was cancelled: "
+    "sending was interrupted before it was saved”).",
 ]) + p("Times measured in the last recorded run (scenarios H2 and H3, 10 messages to 58 recipients "
        "on the test machine): " + c("ams list") + " 0.24 s, " + c("ams status") + " 0.28 s. In the prototype, "
        "before reading per user, " + c("ams list") + " took about 6 s.")

@@ -59,13 +59,13 @@ S2 = table(["Defect", "Found by", "Fix", "Where"], [
      cap(6, 2)],
     ["the agent's lock was inherited by its children: an orphaned dialog blocked the new agent", "VM",
      c("O_CLOEXEC") + " (in the prototype, closing the descriptor)", cap(12, 1)],
-    ["logging out of the session right after «Ho letto» could lose the confirmation", "VM, I10", "signals blocked "
+    ["logging out of the session right after «Ho letto» (“I have read it”) could lose the confirmation", "VM, I10", "signals blocked "
      "outside the waits; the dialog is waited for 2 s", cap(12, 3)],
     ["the wake-up interrupted the wait for the dialog and recorded a postponement never chosen", "VM, I7", "the "
      "wake-up does not close the dialog", cap(12, 3)],
     ["a dialog closed by the system counted as a postponement", "VM", "postponement only with zenity exit status 1",
      cap(12, 3)],
-    ["a reminder within one second of «Più tardi» was lost", "VM, I11", "the answer is recorded as soon as "
+    ["a reminder within one second of «Più tardi» (“Later”) was lost", "VM, I11", "the answer is recorded as soon as "
      "zenity closes (" + c("SIGCHLD") + ")", cap(12, 3)],
     [c("ams revoke") + " did not wait for a sending in progress", "review C", "revocation on disk, then the lock",
      cap(9, 1)],
@@ -84,8 +84,8 @@ S2 = table(["Defect", "Found by", "Fix", "Where"], [
      "not use", cap(14, 4)],
     ["pipes not closed in an error path of " + c("come_utente"), c("-fanalyzer"), "closed", cap(7, 3)],
     ["a function assumed an already zeroed structure", "fuzzing", "fixed", cap(21, 7)],
-    ["states invented in the TUI and in the specification (“pending”, “complete”, “incomplete sending”, "
-     "“cancelled”)", "the user, on the previews", "only the three states; summary with the counts", cap(20, 3)],
+    ["states invented in the TUI and in the specification («in attesa», «completo», «invio incompleto», «annullato»: "
+     "“pending”, “complete”, “incomplete sending”, “cancelled”)", "the user, on the previews", "only the three states; summary with the counts", cap(20, 3)],
 ], "«TAB» — The defects found and fixed") + \
     p("The live tests of the prototype also gave rise to three rules: the first confirmation counts for all "
       "channels (one had to confirm twice), waking the agent with a signal (the dialog arrived after 3-4 seconds) "

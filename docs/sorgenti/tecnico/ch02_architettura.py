@@ -104,7 +104,8 @@ PERCORSO = seq([("ams send", "root", "navy"), ("sent/ID", "message store", "dark
     (4, 2, "reads inbox/ID"),
     (4, 2, "«Ho letto»: acks/ID"),
     ("nota", 2, "inbox/ID → read/ID"),
-], "«FIG» — The path of a message, from sending to confirmation", "The path of a message", width=920)
+], "«FIG» — The path of a message, from sending to confirmation; «Ho letto» is the “I have read it” button",
+   "The path of a message", width=920)
 
 S4 = p("The complete path touches every subsystem. Here it is in brief; each step has its own chapter.",
        lead=True) + PERCORSO + table(["Step", "Who", "Effect", "Where"], [

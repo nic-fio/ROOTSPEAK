@@ -37,8 +37,9 @@ S1 = p(c("ams") + " without arguments, with stdin and stdout on a terminal of at
     "child; the child's exit status gives the result. The recipients preview and the history (" + c("cmd_log")
     + ") also come from a child.",
     "The decision of the user who wanted the TUI is also a design constraint: while discussing the previews, "
-    "invented states had appeared (“pending”, “complete”, “incomplete send”, “cancelled”) and were removed; "
-    + c("tests/tui.py") + " checks that none of these words appears on the screen.",
+    "invented states had appeared («in attesa», «completo», «incompleto», «annullato»: “pending”, “complete”, "
+    "“incomplete”, “cancelled”) and were removed; " + c("tests/tui.py") + " checks that none of these words appears "
+    "on the screen.",
 ])
 
 S2 = p("The list shows the messages from the most recent, one per row, with the recipients summary: a three-colour "
@@ -47,9 +48,9 @@ S2 = p("The list shows the messages from the most recent, one per row, with the 
     table(["Column", "Content"], [
         ["ID, DATA", "number and date of sending (DATA is DATE in English); " + c(">") + " marks the selected row, "
          "drawn in reverse video"],
-        ["MESSAGGIO", c("[ritirato]") + " and " + c("[scaduto]") + " in grey (“[revoked]”, “[expired]” in English), "
+        ["MESSAGGIO (MESSAGE)", c("[ritirato]") + " and " + c("[scaduto]") + " in grey (“[revoked]”, “[expired]” in English), "
          "the title in bold, the first line of the text, cut to the available width"],
-        ["DESTINATARI", "the 12-cell bar and the summary phrase (" + cap(10, 3) + "); below 106 inner "
+        ["DESTINATARI (RECIPIENTS)", "the 12-cell bar and the summary phrase (" + cap(10, 3) + "); below 106 inner "
          "columns, instead of the phrase, “confirmed/total” (for example " + c("4/8") + ")"],
         ["legend", "always at the bottom: " + c("█") + " confirmed, " + c("▒") + " delivered, " + c("░") + " sent; "
          "with an active search, the searched text"],
@@ -74,8 +75,8 @@ S3 = p("The detail of a message has two tabs: the recipients, with the status li
     schermata("dettaglio", "«FIG» — The detail: one recipient per row, in the three states (real screenshot)") + \
     schermata("storia", "«FIG» — The Storia (History) tab: the log events, rewritten in the reader's language "
                         "(real screenshot)") + ul([
-    "The header shows title, date, sender, expiry (“expires on …” or “expired on …”) and revocation (“revoked "
-    "on …”, in red); then at most six lines of the text, indented.",
+    "The header shows title, date, sender, expiry («scade il …» or «scaduto il …»: “expires on …”, “expired on …”) "
+    "and revocation («ritirato il …», “revoked on …”, in red); then at most six lines of the text, indented.",
     "The tab row repeats bar and phrase: the summary stays visible while scrolling through the list.",
     "Colours of the STATO (STATE) column: green confirmed, yellow delivered, red sent. They are the three states, "
     "and only those.",
@@ -93,8 +94,9 @@ S4 = p("The new-message form has four fields: recipients, title, expiry and text
     [key("Ctrl", "S"), "asks for confirmation and sends: " + c("cmd_send") + " in a child, with the text on stdin"],
     [key("Esc"), "discards the message, with confirmation if something has been written"],
 ], "«TAB» — The keys of the form") + ul([
-    "One-line fields accept at most 1000 bytes; the text shows the count “85 of 65536 bytes”. The real checks "
-    "are those of " + c("ams send") + ": an error arrives in the result window, “Message not sent”.",
+    "One-line fields accept at most 1000 bytes; the text shows the count «85 di 65536 byte» (“85 of 65536 bytes”). "
+    "The real checks are those of " + c("ams send") + ": an error arrives in the result window, «Esito dell'invio» "
+    "(“Sending result”).",
     "<b>Editor</b>: " + key("Ctrl", "E") + " writes the text to a temporary file in " + c("/tmp") + " ("
     + c("mkstemp") + "), hands it over to the administrator in " + c("SUDO_USER") + " and opens " + c("VISUAL") + ", "
     + c("EDITOR") + ", " + c("nano") + " or " + c("vi") + " <b>with their identity</b>, not as root; then it re-reads "
@@ -108,12 +110,16 @@ S5 = p("Revoking, reminding and purging always ask for a confirmation that descr
        "numbers; the result of the command then appears in a window.", lead=True) + \
     schermata("sollecito", "«FIG» — The confirmation of a reminder, over the list (real screenshot)") + table(
     ["Action", "The confirmation says", "Then"], [
-        ["revoke", "“Revoke message N?”, title and summary; “Whoever has not seen it yet will not see it; "
-         "open dialogs and questions close by themselves.”", c("cmd_revoke") + " in a child"],
-        ["remind", "how many recipients have not confirmed yet; “They are asked again now: at the next prompt "
-         "and with the dialog on the desktop.”", c("cmd_remind") + " in a child"],
-        ["purge", "first the duration (“Delete the messages sent more than…”), then “Messages older than "
-         "D, with copies and confirmations. The events stay in the system log.”", c("cmd_purge") + " in a child"],
+        ["revoke", "«Ritirare il messaggio N?» (“Revoke message N?”), title and summary; «Chi non l'ha ancora visto "
+         "non lo vedrà più; finestre e domande aperte si chiudono da sole.» (“Whoever has not seen it yet will not "
+         "see it; open dialogs and questions close by themselves.”)", c("cmd_revoke") + " in a child"],
+        ["remind", "how many recipients have not confirmed yet; «La domanda torna subito: al prompt successivo e con "
+         "la finestra sul desktop.» (“They are asked again now: at the next prompt and with the dialog on the "
+         "desktop.”)", c("cmd_remind") + " in a child"],
+        ["purge", "first the duration («Cancellare i messaggi inviati da più di…», “Delete the messages sent more "
+         "than…”), then «I messaggi più vecchi di D, con copie e conferme. Gli eventi restano nel registro di "
+         "sistema.» (“Messages older than D, with copies and confirmations. The events stay in the system log.”)",
+         c("cmd_purge") + " in a child"],
         ["send", "recipients with their number, title, expiry, bytes of the text", c("cmd_send") + " in a child"],
     ], "«TAB» — The actions with confirmation") + \
     p("Windows and confirmations are drawn on a copy of the base screen: a later window does not stay "
@@ -129,7 +135,7 @@ S6 = table(["Part", "How it works"], [
      "with a 40 ms wait: " + key("Esc") + " on its own, arrows, " + key("PgUp") + ", " + key("PgDn") + ", "
      + key("Home") + ", " + key("End") + ", " + key("Del") + " and " + key("Shift", "Tab") + " are recognised"],
     ["refresh", "every 6 empty waits (3 seconds) the list or the detail is re-read, forgetting the "
-     "mailboxes already read (" + c("caselle_svuota") + "); at the top right “updated at …”"],
+     "mailboxes already read (" + c("caselle_svuota") + "); at the top right «aggiornato alle …» (“updated at …”)"],
     ["size", "at every wait the size is compared (" + c("TIOCGWINSZ") + ") and the screen redrawn; below "
      "80 × 20 the TUI exits"],
     ["colours", "turned off with " + c("NO_COLOR") + " (if sudo preserves it)"],

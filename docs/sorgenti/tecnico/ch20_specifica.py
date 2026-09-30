@@ -91,10 +91,12 @@ RIASS = fig(
     box(20, 40, 260, 56, "recipients of sent/ID", "recipients", "dark")
     + box(330, 40, 180, 56, "stato_destinatario", "one of the three, for each", "navy")
     + box(560, 20, 320, 40, "14 confermato · 5 consegnato · 2 inviato", "", "blue", 12)
-    + box(560, 70, 320, 40, "████████▒▒▒░  e  [ritirato] [scaduto]", "", "soft", 12)
+    + box(560, 70, 320, 40, "████████▒▒▒░  and  [ritirato] [scaduto]", "", "soft", 12)
     + arrow(282, 68, 328, 68) + arrow(512, 60, 558, 40) + arrow(512, 76, 558, 90)
     + text(450, 138, "no other word describes the state of a message", 11.5, "#b91c1c", "700"),
-    900, 158, "«FIG» — A message is summarised by the counts of its recipients", "The summary")
+    900, 158, "«FIG» — A message is summarised by the counts of its recipients: «14 confermato · 5 consegnato · 2 "
+    "inviato» (“14 confirmed · 5 delivered · 2 sent”), the bar and the marks «[ritirato]» (“[revoked]”) and «[scaduto]» "
+    "(“[expired]”)", "The summary")
 
 SM = p("In the message list (TUI and " + c("ams list") + ") a message is summarised by its recipients: "
        "how many are in each of the three states, in words and with a bar (confirmed, delivered, sent), plus the "
@@ -239,12 +241,13 @@ S5 = table(["Aspect", "Rule"], [
 S6 = p("Message store format 1. Readers ignore header keys they do not know.", lead=True) + \
     table(["File", "Content"], [
         [c("sent/.seq"), "the last ID assigned, a number"],
-        [c("sent/ID/msg"), "header " + c("chiave: valore") + " (" + c("format") + ", " + c("id") + ", "
+        [c("sent/ID/msg"), "header " + c("chiave: valore") + " (“key: value”; " + c("format") + ", " + c("id") + ", "
          + c("from") + ", " + c("date") + ", " + c("title") + ", " + c("expires") + "), blank line, text; UTF-8 "
          "without control characters"],
         [c("sent/ID/recipients"), "one user name per line, no duplicates"],
-        [c("sent/ID/delivery"), "one line per delivery: " + c("utente data terminali") + ", fields separated by a "
-         "space; " + c("data") + " in seconds since the Unix epoch, " + c("terminali") + " the number of terminals written "
+        [c("sent/ID/delivery"), "one line per delivery: " + c("utente data terminali") + " (“user date terminals”), "
+         "fields separated by a space; " + c("data") + " (date) in seconds since the Unix epoch, " + c("terminali")
+         + " (terminals) the number of terminals written "
          "(0 in recovery)"],
         [c("sent/ID/revoked"), "the revocation date, in seconds since the Unix epoch"],
         [c("sent/ID/failed"), "the cancellation date; its presence is what counts"],
@@ -252,8 +255,8 @@ S6 = p("Message store format 1. Readers ignore header keys they do not know.", l
          "incomplete sending, revocation to be completed; " + c("lock") + " is used with " + c("flock")],
         [c("sent/.cancella-ID/"), "a message that " + c("ams purge") + " is deleting"],
         [c("users/U/inbox/ID") + ", " + c("read/ID"), "copy of " + c("msg")],
-        [c("users/U/acks/ID"), c("data canale") + ": date in seconds since the Unix epoch, a space, channel ("
-         + c("desktop") + " or " + c("terminale pts/N") + "); the first line counts, at most 200 bytes"],
+        [c("users/U/acks/ID"), c("data canale") + " (“date channel”): date in seconds since the Unix epoch, a space, "
+         "channel (" + c("desktop") + " or " + c("terminale pts/N") + ", “terminal pts/N”); the first line counts, at most 200 bytes"],
         [c("users/U/state/ID.term") + ", " + c("ID.gui"), "empty; the modification time counts"],
     ], "«TAB» — The message store format")
 

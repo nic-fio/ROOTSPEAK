@@ -34,7 +34,7 @@ S1 = p("The mailbox " + c("users/U") + " belongs to the user, who can replace it
     p("In the child the user's permissions apply: a link to " + c("/etc") + " leads to «permission "
       "denied», and the worst the user can achieve is to spoil their own copy. Scenario G1 on the test "
       "machine checks this: with the mailbox turned into a link to " + c("/etc") + ", " + c("ams send") + " "
-      "writes nothing in " + c("/etc") + " and the recipient stays «sent, not delivered».") + \
+      "writes nothing in " + c("/etc") + " and the recipient stays «inviato, non consegnato» (“sent, not delivered”).") + \
     note("only the folder " + c("users/U") + " itself is touched by root: root creates it (" + c("700") + ") inside "
          + c("users/") + ", which belongs to root, and hands it over to U with " + c("lchown") + ". If it already "
          "exists it must be a real folder (" + c("lstat") + "); if it is still owned by root, because a send was "

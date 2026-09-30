@@ -64,11 +64,12 @@ GIRO = fig(
     + text(815, 110, "da confermare.»", 11, "#92400e", "600")
     + text(105, 130, "confirmed and expired", 11, "#475569")
     + text(105, 146, "move to read/", 11, "#475569"),
-    900, 236, "«FIG» — ams-user prompt, for each message in the mailbox", "The ams-user prompt loop")
+    900, 236, "«FIG» — ams-user prompt, for each message in the mailbox; «Hai N messaggi dell'amministratore da "
+    "confermare.» means “You have N messages from the administrator to confirm.”", "The ams-user prompt loop")
 
 S3 = p(c("ams-user prompt") + " in " + c("src/ams-user.c") + " takes the messages in the mailbox in numeric "
        "order. If stdin is not a terminal it does nothing; the confirmation channel is the terminal name ("
-       + c("terminale pts/3") + ").", lead=True) + GIRO + ul([
+       + c("terminale pts/3") + ", “terminal pts/3”).", lead=True) + GIRO + ul([
     c("in_attesa") + " lists " + c("inbox/") + " (only names made of digits, and regular files). A message whose "
     "confirmation is already present, because of an interruption between the confirmation and the move, goes to "
     + c("read/") + " without asking; an expired one goes to " + c("read/") + " without a confirmation.",
@@ -76,14 +77,20 @@ S3 = p(c("ams-user prompt") + " in " + c("src/ams-user.c") + " takes the message
     + c("state/ID.term") + ") is not asked about: it is counted, and at the end the one-line reminder appears. With "
     + c("--login") + " the postponement does not apply.",
 ]) + table(["Result of chiedi", "What it does", "Prints"], [
-    ["0 · «s», «S», «y» or «Y»", c("conferma(ID, \"terminale pts/N\")"), "[AMS] Confirmed. (or expired, "
-     "revoked, or “[AMS] The confirmation could not be recorded: you will be asked again.”)"],
+    ["0 · «s», «S», «y» or «Y»", c("conferma(ID, \"terminale pts/N\")"), "«[AMS] Confermato.» (“[AMS] Confirmed.”); "
+     "or «[AMS] Il messaggio è scaduto: la conferma non è stata registrata.» (“[AMS] The message has expired: the "
+     "confirmation was not recorded.”), «[AMS] L'amministratore ha ritirato il messaggio.» (“[AMS] The administrator "
+     "has revoked the message.”), «[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta.» "
+     "(“[AMS] The confirmation could not be recorded: you will be asked again.”)"],
     ["1 · anything else, or just Enter", c("rimanda(ID, \"term\")") + ": touches " + c("state/ID.term") + ", event "
-     + c("RINVIATO"), "[AMS] You will be asked again in 30 minutes."],
-    ["2 · confirmed elsewhere", "moves to " + c("read/"), "[AMS] Message already confirmed elsewhere (for example "
-     "on the desktop)."],
-    ["3 · revoked", "nothing", "[AMS] The administrator has revoked the message."],
-    ["4 · expired while the question was open", "moves to " + c("read/"), "[AMS] The message has expired."],
+     + c("RINVIATO"), "«[AMS] La domanda verrà riproposta tra 30 minuti.» (“[AMS] You will be asked again in 30 "
+     "minutes.”)"],
+    ["2 · confirmed elsewhere", "moves to " + c("read/"), "«[AMS] Messaggio già confermato altrove (per esempio dal "
+     "desktop).» (“[AMS] Message already confirmed elsewhere (for example on the desktop).”)"],
+    ["3 · revoked", "nothing", "«[AMS] L'amministratore ha ritirato il messaggio.» (“[AMS] The administrator has "
+     "revoked the message.”)"],
+    ["4 · expired while the question was open", "moves to " + c("read/"), "«[AMS] Il messaggio è scaduto.» (“[AMS] The "
+     "message has expired.”)"],
 ], "«TAB» — The results of the question") + term(
     "mario@server:~$ \n"
     "── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
@@ -91,7 +98,8 @@ S3 = p(c("ams-user prompt") + " in " + c("src/ams-user.c") + " takes the message
     "────────────────────────────────────────\n"
     "[AMS] Confermi di aver letto il messaggio? [s/N] s\n"
     "[AMS] Confermato.\n"
-    "mario@server:~$ ", "The question at the prompt") + \
+    "mario@server:~$ ", "The question at the prompt: «[AMS] Confermi di aver letto il messaggio? [s/N]» (“[AMS] Do you "
+    "confirm you have read the message? [y/N]”), answer s, «[AMS] Confermato.» (“[AMS] Confirmed.”)") + \
     note(c("ams-user") + " runs inside the user's prompt: it never ends with an error that would disrupt the "
          "shell, and any problem it meets (unreadable mailbox, no terminal) turns into doing nothing.")
 
@@ -104,7 +112,8 @@ ASK = seq([("User", "keyboard", "dark"), ("chiedi", "poll 1 s on /dev/tty", "blu
     ("sep", "meanwhile: user confirms on desktop".ljust(37)),
     (1, 2, "acks/ID exists"),
     (1, 0, "result 2: “confirmed elsewhere”", True),
-], "«FIG» — The question notices what happens elsewhere", "A question that checks every second")
+], "«FIG» — The question notices what happens elsewhere; «[AMS] Confermi di aver letto…? [s/N]» is “[AMS] Do you "
+   "confirm you have read…? [y/N]”", "A question that checks every second")
 
 S4 = p(c("chiedi") + " waits for the answer on " + c("/dev/tty") + " with " + c("poll") + ", one second at a time, "
        "then reads it with " + c("read") + ". At every second without an answer it checks the mailbox: if the "

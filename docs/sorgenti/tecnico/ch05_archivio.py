@@ -41,7 +41,9 @@ date: 1790714288
 title: Manutenzione
 expires: 1790800688
 
-Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg") + table(["Field", "Contents"], [
+Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg: the title «Manutenzione» (“Maintenance”) and "
+    "the text «Sabato dalle 8 alle 12 il server sarà spento.» (“On Saturday from 8 to 12 the server will be switched "
+    "off.”)") + table(["Field", "Contents"], [
     [c("format"), "format version: 1. Readers ignore the keys they do not know; a different format must be read "
      "by an implementation that knows it"],
     [c("id"), "sequential number, from " + c("prossimo_id")],
@@ -52,7 +54,7 @@ Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg") + tabl
     [c("expires"), "seconds since the Unix epoch; empty: no expiry"],
 ], "«TAB» — The header of a message") + table(["Function (src/testo.c)", "What it does"], [
     [c("msg_formatta"), "writes the header in the order shown in the figure, then the text"],
-    [c("msg_da_testo"), "reads line by line up to the first empty line; also accepts " + c("chiave:")
+    [c("msg_da_testo"), "reads line by line up to the first empty line; also accepts " + c("chiave:") + " (“key:”)"
      + " without a value; what follows is the text"],
     [c("msg_leggi"), "reads a regular file, without following links, at most " + c("AMS_MAX_MSG")
      + " bytes (65536 + 8192), then " + c("msg_da_testo")],

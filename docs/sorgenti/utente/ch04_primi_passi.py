@@ -21,21 +21,22 @@ S1 = p("This path leads from a freshly installed AMS to the first confirmation, 
 S2 = p("The simplest way is the TUI. Here the message goes to Mario; to try it on yourself, just type your own "
        "name.", lead=True) + steps([
         "Open a terminal and type " + c("ams") + ". When prompted, enter your password: " + c("ams")
-        + " always asks for it, because it works as administrator." + term(
+        + " always asks for it, because it works as administrator («password di admin»: “admin's password”)." + term(
             "admin@server:~$ ams\n[sudo] password di admin:"),
         "In the list of messages press " + key("n") + ": the " + ui("Nuovo messaggio") + " (“New message”) screen opens.",
         "In the " + ui("A") + " (“To”) field type " + c("mario") + " and press " + key("Tab") + ": on the right "
         + ui("1 destinatario") + " (“1 recipient”) appears.",
         "In the " + ui("Titolo") + " (“Title”) field type " + c("Manutenzione") + "; leave " + ui("Scadenza")
         + " (“Expires”) empty and move to " + ui("Testo") + " (“Text”) with " + key("Tab") + ".",
-        "Type the text: " + c("Sabato dalle 8 alle 12 il server sarà spento.") + " Start a new line with "
+        "Type the text: " + c("Sabato dalle 8 alle 12 il server sarà spento.") + " (“On Saturday from 8 to 12 the "
+        "server will be switched off.”) Start a new line with "
         + key("Enter") + ".",
         "Press " + key("Ctrl", "S") + ". The summary " + ui("Inviare il messaggio?") + " (“Send the message?”) "
         "appears: press " + key("s") + " to confirm.",
         "The " + ui("Messaggio inviato") + " (“Message sent”) window reports the answer of AMS, for example «Messaggio "
         "1 inviato a 1 utente.» (“Message 1 sent to 1 user.”). Any key takes you back to the list, where the message "
         "is at the top.",
-    ]) + p("The same message, with a single command:") + term(
+    ]) + p("The same message, with a single command (same text, same reply: “Message 1 sent to 1 user.”):") + term(
         'admin@server:~$ ams send --to mario --title Manutenzione "Sabato dalle 8 alle 12 il server sarà spento."\n'
         "Messaggio 1 inviato a 1 utente.") + \
     tip("the message number (here " + c("1") + ") is needed for the commands " + c("status") + ", " + c("log") + ", "
@@ -46,8 +47,13 @@ S3 = p("If Mario is logged in, the message reaches him at once, in all his sessi
        "dialog appears, above the other windows:", lead=True) + \
     dialog("AMS · Messaggio dall'amministratore", "Manutenzione · 30/09 16:55",
            "Sabato dalle 8 alle 12 il server sarà spento.",
-           "«FIG» — The confirmation dialog on Mario's desktop") + \
-    p("In terminal windows the text appears at once; at the next prompt AMS asks for the confirmation:") + term(
+           "«FIG» — The confirmation dialog on Mario's desktop: «AMS · Messaggio dall'amministratore» (“AMS · Message "
+           "from the administrator”), the title and the text, and the buttons «Più tardi» (“Later”) and «Ho letto» "
+           "(“I have read it”)") + \
+    p("In terminal windows the text appears at once, under the heading «AMS · Messaggio dall'amministratore» (“AMS · "
+      "Message from the administrator”); at the next prompt AMS asks for the confirmation, «[AMS] Confermi di aver letto "
+      "il messaggio? [s/N]» (“[AMS] Do you confirm you have read the message? [y/N]”), and after the answer «s» "
+      "(“y”) replies «[AMS] Confermato.» (“[AMS] Confirmed.”):") + term(
         "── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
         "Sabato dalle 8 alle 12 il server sarà spento.\n"
         "────────────────────────────────────────\n"
@@ -67,7 +73,9 @@ S4 = p("In the list the message shows its recipients in the three states: before
     "  │ Sabato dalle 8 alle 12 il server sarà spento.\n"
     "\n"
     "UTENTE           STATO\n"
-    "mario            confermato il 30/09 16:56 (desktop)", "The same, with a command") + \
+    "mario            confermato il 30/09 16:56 (desktop)",
+    "The same, with a command: «da admin» (“from admin”), UTENTE (USER), STATO (STATE), «confermato il 30/09 16:56 "
+    "(desktop)» (“confirmed on 30/09 16:56 (desktop)”)") + \
     table(["If the state is…", "It means", "What to do"], [
         [CONSEGNATO, "Mario has the copy but has not confirmed yet", "wait, or remind him (" + rif(7, 2) + ")"],
         [CONFERMATO + " (desktop)", "he pressed " + ui("Ho letto") + " (“I have read it”) in the dialog", "nothing: it is done"],

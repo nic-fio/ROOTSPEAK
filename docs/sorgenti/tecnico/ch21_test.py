@@ -37,14 +37,14 @@ S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on 
          "temporary file, the question comes back and then succeeds); confirmation already present (the first one "
          "is kept); confirmation recorded but not moved"],
         ["2. delivery", "normal sending to two recipients; copy not writable for one of them (error, the other one "
-         "receives it, “sent, not delivered”, incomplete-sending marker); fault fixed and recovery; simulated "
+         "receives it, «inviato, non consegnato» (“sent, not delivered”), incomplete-sending marker); fault fixed and recovery; simulated "
          "interruption halfway; recovery that does not bring back a confirmed message; unsaved sending cancelled; "
          "sending in progress (lock held) left alone, then completed without duplicates; sending just started not "
          "cancelled"],
         ["3. states", c("--level") + " rejected; delivered after sending; no level in the message; postponement "
          "shown as a detail and not asked again at once; confirmed at the next login; " + c("ams list")
-         + " with the recipients in the three states and no invented state; expired shown as “delivered, not "
-         "confirmed”"],
+         + " with the recipients in the three states and no invented state; expired shown as «consegnato, non "
+         "confermato (scaduto)» (“delivered, not confirmed (expired)”)"],
         ["4. expiry", "the question stops if the message expires while it is open, no confirmation recorded; a "
          "confirmation timed after the expiry of the reference copy is not valid and is not counted"],
         ["5. configuration", "the file is not executed as code; valid values read, invalid, unknown, zero and "
@@ -115,13 +115,13 @@ S3 = p(c("tests/container/esegui.sh") + " tests AMS <b>for real</b> in an isolat
         ["I2 · «Ho letto» (“I have read it”) closes the dialog and records the confirmation (desktop)", "passed"],
         ["I3, I4 · «Più tardi» (“Later”), then the dialog comes back (test postponement: 1 minute)",
          "comes back after 60.23 s"],
-        ["I11 · " + c("ams remind") + " after «Più tardi»: the dialog comes back at once", "0.37 s"],
+        ["I11 · " + c("ams remind") + " after «Più tardi» (“Later”): the dialog comes back at once", "0.37 s"],
         ["I5 · confirmation from a terminal with the dialog open", "the dialog closes in 0.65 s"],
         ["I6 · revocation with the dialog open", "the dialog closes in 0.67 s"],
         ["I7 · two messages, one dialog after the other, oldest first", "passed"],
         ["I8 · agent not running: " + c("ams send") + " starts it", "dialog in 0.53 s"],
         ["I9 · message while the desktop is closed, then graphical login", "dialog 2.64 s after the login restarts"],
-        ["I10 · «Ho letto» and logout from the session after 0.1 s", "confirmation recorded"],
+        ["I10 · «Ho letto» (“I have read it”) and logout from the session after 0.1 s", "confirmation recorded"],
     ], "«TAB» — The desktop scenarios in the VM") + ul([
     "The test desktop is in Italian; " + c("AMS_PROVA_LINGUA=en") + " switches it to English, "
     + c("AMS_PROVA_SOLO=i_desktop") + " runs only the desktop scenarios.",
@@ -132,22 +132,22 @@ S3 = p(c("tests/container/esegui.sh") + " tests AMS <b>for real</b> in an isolat
 S4 = p("The two full-screen interfaces are tested on a pseudo-terminal, pressing keys as a person would and checking "
        "the last screen drawn after each one.", lead=True) + table(["Test", "Check"], [
     ["opening", "list with bar and sentence, correct size; no invented state"],
-    [c("Invio") + ", " + c("Tab"), "detail with the recipients and the state from " + c("ams status") + "; history "
+    [c("Invio") + " (Enter), " + c("Tab"), "detail with the recipients and the state from " + c("ams status") + "; history "
      "from the log"],
     [c("n") + ", " + c("Ctrl+E") + ", " + c("Ctrl+S"), "form, preview of the recipients, text on two lines; the "
      "text goes through the editor and comes back; confirmation with recipients, title and expiry; sending result "
      "in a single dialog; the message is in the message store and at the top of the list"],
     [c("s") + ", " + c("r"), "reminder carried out; confirmation before revoking, revocation cancelled with "
-     + c("n") + ", then carried out: «[ritirato]» in the list and in the message store"],
+     + c("n") + ", then carried out: «[ritirato]» (“[revoked]”) in the list and in the message store"],
     [c("/"), "the search shows only the messages containing the text"],
     ["80 × 24", "bar and “confirmed/total” instead of the sentence"],
     [c("q"), "clean exit"],
     ["60 × 15, pipe", "no TUI: the help"],
 ], "«TAB» — The tests of tests/tui.py") + table(["Test", "Check"], [
     ["opening at 100 × 30", "alternate screen, frame, Info tab"],
-    [c("→"), "Commands tab"],
-    [c("3"), "Options tab"],
-    [c("4") + " " + c("G"), "end of the Examples tab"],
+    [c("→"), "Comandi (Commands) tab"],
+    [c("3"), "Opzioni (Options) tab"],
+    [c("4") + " " + c("G"), "end of the Esempi (Examples) tab"],
     [c("PgUp") + " " + c("g"), "start of the tab"],
     ["resize to 70 × 20", "20 lines of 70 columns"],
     [c("q"), "back to the main screen, exit with code 0"],
@@ -199,7 +199,7 @@ S7 = p("A root program in C that reads user data must have no memory errors. Bes
      + " (fixed); 3 false alarms remain about the copies of the standard descriptors in a child that exits at once"],
     ["fuzzing with libFuzzer, in a container with clang, of: text cleaning, message format, output of the mailbox "
      "reading, process environment, configuration, " + c(".mo") + " catalogs",
-     c("tests/fuzz/esegui.sh SECONDI"), "a function that assumed an already zeroed structure (fixed); then "
+     c("tests/fuzz/esegui.sh SECONDI") + " (SECONDI: “SECONDS”)", "a function that assumed an already zeroed structure (fixed); then "
      "30 minutes without defects"],
     ["comparison with the prototype: text cleaning in C and in bash on 2000 random texts", "(before removing the "
      "prototype)", "identical results"],

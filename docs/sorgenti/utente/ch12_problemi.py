@@ -10,53 +10,55 @@ S1 = p("When a command fails, " + c("ams") + " prints a line in red that starts 
        "dialog. The messages below are shown as an Italian session prints them; an English session prints the "
        "English text given after each one.", lead=True) + term(
     'admin@server:~$ ams send --to mrio "Riunione alle 11."\n'
-    "ams: utente inesistente: mrio", "A typical error") + \
+    "ams: utente inesistente: mrio", "A typical error: “ams: no such user: mrio” (the text means “Meeting at 11.”)") + \
     table(["Message", "What it means", "What to do"], [
         [c("manca --to") + " (“missing --to”)", "no recipient", "add " + c("--to") + " (" + rif(5, 1) + ")"],
         [c("manca il valore di --to") + " (“missing value for --to”)", "an option without its value (the same "
          "applies to " + c("--title") + ", " + c("--expires") + ", " + c("--file") + ")",
          "write the value after the option"],
-        [c("utente inesistente: NOME") + " (“no such user”)", "the name is not a user of the machine",
+        [c("utente inesistente: NOME") + " (“no such user: NAME”)", "the name is not a user of the machine",
          "check the name"],
-        [c("gruppo inesistente: NOME") + " (“no such group”)", "the group after " + c("@") + " does not exist",
+        [c("gruppo inesistente: NOME") + " (“no such group: NAME”)", "the group after " + c("@") + " does not exist",
          "check the group name"],
         [c("nessun destinatario") + " (“no recipients”)", "the recipients given are empty, for example "
          + c("online") + " when nobody is logged in", "choose other recipients"],
         [c("messaggio vuoto") + " (“empty message”)", "the text is missing, or contains only spaces",
          "write the text"],
-        [c("messaggio troppo lungo: N byte (al massimo 65536)") + " (“message too long”)", "the text exceeds 64 KB",
+        [c("messaggio troppo lungo: N byte (al massimo 65536)") + " (“message too long: N bytes (at most 65536)”)", "the text exceeds 64 KB",
          "shorten it, or put the full text in a shared file and send the message with its path"],
-        [c("scadenza non valida: X") + " (“invalid expiry”)", "the expiry was not understood", "use " + c("2h")
+        [c("scadenza non valida: X") + " (“invalid expiry: X”)", "the expiry was not understood", "use " + c("2h")
          + " or " + c('"2026-10-04 12:00"') + " (" + rif(5, 3) + ")"],
         [c("la scadenza è già passata") + " (“the expiry is already in the past”)", "the date given is in the past",
          "correct the date"],
-        [c("opzione sconosciuta: X") + " (“unknown option”)", "misspelt option", c("ams --help")],
-        [c("comando sconosciuto: X (ams --help per la guida)") + " (“unknown command”)", "misspelt command",
+        [c("opzione sconosciuta: X") + " (“unknown option: X”)", "misspelt option", c("ams --help")],
+        [c("comando sconosciuto: X (ams --help per la guida)") + " (“unknown command: X (ams --help for the guide)”)", "misspelt command",
          c("ams --help")],
         [c("manca l'ID del messaggio") + " (“missing message ID”)", c("status") + ", " + c("revoke") + ", "
          + c("remind") + " or " + c("log") + " without a number", "add the number, taken from " + c("ams list")],
-        [c("messaggio inesistente: ID") + " (“no such message”)", "no message with that number (or already "
+        [c("messaggio inesistente: ID") + " (“no such message: ID”)", "no message with that number (or already "
          "deleted)", "check with " + c("ams list")],
         [c("manca la durata, per esempio 90d") + "<br>" + c("durata non valida: X (per esempio 90d, 12h, 30m)")
-         + " (“missing duration”, “invalid duration”)",
+         + " (“missing duration, for example 90d”, “invalid duration: X (for example 90d, 12h, 30m)”)",
          c("ams purge") + " without a duration or with a misspelt duration", "write a number followed by "
          + c("d") + ", " + c("h") + " or " + c("m")],
         [c("il messaggio N è stato ritirato: nessuno da sollecitare") + "<br>" + c("il messaggio N è scaduto: nessuno "
-           "da sollecitare") + " (“has been revoked / has expired: nobody to remind”)", "reminder for a message "
+           "da sollecitare") + " (“message N has been revoked: nobody to remind”, “message N has expired: nobody to "
+         "remind”)", "reminder for a message "
          "that is no longer shown", "nothing; to ask again, send a new message"],
         [c("messaggio N non consegnato a: … (vedi il registro; il prossimo comando ams riproverà)")
-         + " (“not delivered to”)", "the copy could not be written for those users; the others received it",
+         + " (“message N not delivered to: … (see the log; the next ams command will retry)”)", "the copy could not be written for those users; the others received it",
          "fix the cause, often a full disk (" + rif(12, 4) + ")"],
         [c("messaggio N ritirato, ma alcune copie non si sono potute togliere dalle caselle: il prossimo comando ams "
-           "riproverà") + " (“revoked, but some copies could not be removed”)", "during the revocation a user's "
+           "riproverà") + " (“message N revoked, but some copies could not be removed from the mailboxes: the next ams "
+         "command will retry”)", "during the revocation a user's "
          "mailbox could not be reached", "nothing: AMS retries"],
         [c("FILE: …"), "with " + c("--file") + ": the file does not exist or cannot be read; the explanation is the "
          "system's own, in English (for example " + c("No such file or directory") + ")", "check the path"],
     ], "«TAB» — The error messages")
 
 S2 = table(["Problem", "Likely cause", "Remedy"], [
-    [c("ams: comando non trovato"), "AMS is not installed", "run " + c("./install.sh") + " (" + rif(2, 2) + ")"],
-    [c("Permesso negato"), "whoever runs it is not an administrator", "this is intended (" + rif(11, 1) + ")"],
+    [c("ams: comando non trovato") + " (“ams: command not found”)", "AMS is not installed", "run " + c("./install.sh") + " (" + rif(2, 2) + ")"],
+    [c("Permesso negato") + " (“Permission denied”)", "whoever runs it is not an administrator", "this is intended (" + rif(11, 1) + ")"],
     [c("ams") + " on its own shows the help instead of the TUI", "the terminal is smaller than 80 columns or 20 "
      "rows, or the output is not a terminal", "enlarge the window, or use the commands"],
     ["the TUI closed by itself", "the window was shrunk below 80 × 20", "enlarge it and reopen " + c("ams")],
@@ -125,17 +127,17 @@ S4 = p("If a sending is interrupted halfway (the disk fills up, " + c("ams") + "
        "AMS does not lose the message: the next time it is used, it resumes from where it stopped.", lead=True) + \
     RECUPERO + \
     table(["Notice", "What it means", "What to do"], [
-        [c("ams: completata la consegna del messaggio N a K destinatari") + " (“completed delivery of message N to "
+        [c("ams: completata la consegna del messaggio N a K destinatari") + " (“ams: completed delivery of message N to "
          "K recipients”)", "the missing copies have been written: those recipients are now " + CONSEGNATO,
          "nothing"],
-        [c("ams: messaggio N ancora non consegnato a K destinatari (vedi ams status N)") + " (“still not "
-         "delivered”)", "for someone the copy still cannot be written", "fix the cause, usually disk space; then "
+        [c("ams: messaggio N ancora non consegnato a K destinatari (vedi ams status N)") + " (“ams: message N still not "
+         "delivered to K recipients (see ams status N)”)", "for someone the copy still cannot be written", "fix the cause, usually disk space; then "
          "use " + c("ams") + " again"],
-        [c("ams: il messaggio N era stato interrotto prima di essere salvato ed è stato annullato") + " (“was "
-         "interrupted before being saved and has been cancelled”)", "the sending stopped before the message was "
+        [c("ams: il messaggio N era stato interrotto prima di essere salvato ed è stato annullato") + " (“ams: message "
+         "N was interrupted before being saved and has been cancelled”)", "the sending stopped before the message was "
          "even saved: nobody received it", "send it again"],
-        [c("[invio annullato: interrotto prima del salvataggio]") + " in " + c("ams list"), "the same case, "
-         "in the list (“[send cancelled: interrupted before it was saved]”)", "send it again"],
+        [c("[invio annullato: interrotto prima del salvataggio]") + " (“[send cancelled: interrupted before it was "
+         "saved]”) in " + c("ams list"), "the same case, in the list", "send it again"],
     ], "«TAB» — The recovery notices") + \
     note("recovery starts at the beginning of " + c("ams send") + ", " + c("list") + ", " + c("status") + ", "
          + c("revoke") + ", " + c("remind") + ", " + c("log") + " and when the TUI opens. Nothing is needed "

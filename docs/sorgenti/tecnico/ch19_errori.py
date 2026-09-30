@@ -39,31 +39,42 @@ S1 = p("AMS distinguishes three families of errors. Those that can be detected b
 ])
 
 S2 = table(["Message (Italian)", "When", "What remains"], [
-    ["comando sconosciuto: X (ams --help per la guida)", "first argument not recognised", "nothing"],
-    ["manca --to · manca il valore di --title · opzione sconosciuta: --level", "options of " + c("send"), "nothing"],
-    ["scadenza non valida: X · la scadenza è già passata", c("--expires") + " cannot be interpreted, or is in the past",
+    ["comando sconosciuto: X (ams --help per la guida) (“unknown command: X (ams --help for the guide)”)", "first argument not recognised", "nothing"],
+    ["manca --to · manca il valore di --title · opzione sconosciuta: --level (“missing --to · missing value for "
+     "--title · unknown option: --level”)", "options of " + c("send"), "nothing"],
+    ["scadenza non valida: X · la scadenza è già passata (“invalid expiry: X · the expiry is already in the past”)",
+     c("--expires") + " cannot be interpreted, or is in the past",
      "nothing"],
-    ["FILE: seguito dalla spiegazione del sistema", c("--file") + " not readable", "nothing"],
-    ["messaggio vuoto · messaggio troppo lungo: N byte (al massimo 65536)", "text after cleaning", "nothing"],
-    ["utente inesistente: X · gruppo inesistente: X · nessun destinatario", c("--to"), "nothing"],
+    ["FILE: seguito dalla spiegazione del sistema (“FILE: followed by the system's explanation”)", c("--file") + " not readable", "nothing"],
+    ["messaggio vuoto · messaggio troppo lungo: N byte (al massimo 65536) (“empty message · message too long: N bytes "
+     "(at most 65536)”)", "text after cleaning", "nothing"],
+    ["utente inesistente: X · gruppo inesistente: X · nessun destinatario (“no such user: X · no such group: X · no "
+     "recipients”)", c("--to"), "nothing"],
     ["Messaggio N consegnato a K destinatari su M. · messaggio N non consegnato a: … (vedi il registro; il prossimo "
-     "comando ams riproverà)", "some copies not written", c("incomplete") + ": recovery retries"],
-    ["manca l'ID del messaggio · messaggio inesistente: X", c("status") + ", " + c("revoke") + ", " + c("remind")
+     "comando ams riproverà) (“Message N delivered to K of M recipients. · message N not delivered to: … (see the log; "
+     "the next ams command will retry)”)", "some copies not written", c("incomplete") + ": recovery retries"],
+    ["manca l'ID del messaggio · messaggio inesistente: X (“missing message ID · no such message: X”)", c("status") + ", " + c("revoke") + ", " + c("remind")
      + ", " + c("log"), "nothing"],
-    ["il messaggio N è stato annullato: l'invio si era interrotto prima del salvataggio", c("status")
+    ["il messaggio N è stato annullato: l'invio si era interrotto prima del salvataggio (“message N was cancelled: "
+     "sending was interrupted before it was saved”)", c("status")
      + " of a cancelled sending", "—"],
     ["messaggio N ritirato, ma alcune copie non si sono potute togliere dalle caselle: il prossimo comando ams "
-     "riproverà", c("revoke"), c("revoked") + " and " + c("ritiro") + ": recovery retries"],
-    ["il messaggio N è stato ritirato: nessuno da sollecitare · il messaggio N è scaduto: nessuno da sollecitare",
+     "riproverà (“message N revoked, but some copies could not be removed from the mailboxes: the next ams command "
+     "will retry”)", c("revoke"), c("revoked") + " and " + c("ritiro") + ": recovery retries"],
+    ["il messaggio N è stato ritirato: nessuno da sollecitare · il messaggio N è scaduto: nessuno da sollecitare "
+     "(“message N has been revoked: nobody to remind · message N has expired: nobody to remind”)",
      c("remind"), "nothing"],
-    ["manca la durata, per esempio 90d · durata non valida: X (per esempio 90d, 12h, 30m)", c("purge"), "nothing"],
+    ["manca la durata, per esempio 90d · durata non valida: X (per esempio 90d, 12h, 30m) (“missing duration, for "
+     "example 90d · invalid duration: X (for example 90d, 12h, 30m)”)", c("purge"), "nothing"],
     [c("/var/lib/ams: …") + " · " + c("…/sent/.seq.lock: …") + " · " + c("sudo: …"), "the message store cannot be "
      "created, the lock cannot be taken, sudo does not start (system messages)", "nothing, or a skipped number"],
 ], "«TAB» — The errors of ams") + term("admin@server:~$ sudo ams send --to pippo \"Prova\"\n"
                                        "ams: utente inesistente: pippo\n"
                                        "admin@server:~$ sudo ams purge 7x\n"
                                        "ams: durata non valida: 7x (per esempio 90d, 12h, 30m)",
-                                       "Two errors, and nothing was written")
+                                       "Two errors, and nothing was written: “ams: no such user: pippo” (the text "
+                                       "«Prova» means “Test”) and “ams: invalid duration: 7x (for example 90d, 12h, "
+                                       "30m)”")
 
 S3 = p("Inside AMS the functions talk to each other through numeric results. They are the contract between the "
        "parts, and the chapters that describe them use them with these values.", lead=True) + table(["Function", "Results"], [
@@ -86,10 +97,13 @@ S3 = p("Inside AMS the functions talk to each other through numeric results. The
          + c("come_utente") + " treats it as a failure even if " + c("fn") + " could have returned it.")
 
 S4 = table(["Warning (stderr)", "What happened", "Event"], [
-    ["completata la consegna del messaggio N a K destinatari", "an interrupted sending has been completed", c("RECUPERATO")],
-    ["messaggio N ancora non consegnato a K destinatari (vedi ams status N)", "recovery could not "
+    ["completata la consegna del messaggio N a K destinatari (“completed delivery of message N to K recipients”)",
+     "an interrupted sending has been completed", c("RECUPERATO")],
+    ["messaggio N ancora non consegnato a K destinatari (vedi ams status N) (“message N still not delivered to K "
+     "recipients (see ams status N)”)", "recovery could not "
      "write some copies; it will retry", "—"],
-    ["il messaggio N era stato interrotto prima di essere salvato ed è stato annullato", "a sending without "
+    ["il messaggio N era stato interrotto prima di essere salvato ed è stato annullato (“message N was interrupted "
+     "before being saved and has been cancelled”)", "a sending without "
      + c("msg") + " or " + c("recipients") + " has been closed with " + c("failed"), c("ANNULLATO")],
 ], "«TAB» — Recovery warnings") + \
     p("The warnings appear at the start of any command that runs recovery, even one that has nothing to do with "

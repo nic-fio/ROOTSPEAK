@@ -36,7 +36,7 @@ S1 = MAPPA + dl([
      "their statement, not proof that they really read it."),
     ("delivered (consegnato)", "Second state: the copy of the message is in the user's mailbox, and the user has "
      "not confirmed yet. Whoever postpones stays delivered."),
-    ("recipients", "The users who receive a message: names, " + c("@gruppo") + ", " + c("all") + ", "
+    ("recipients", "The users who receive a message: names, " + c("@gruppo") + " (“@group”), " + c("all") + ", "
      + c("online") + "."),
     ("event", "A fact in the history of a message (sending, delivery, postponement, reminder, confirmation, "
      "revocation, deletion), written to the system log."),

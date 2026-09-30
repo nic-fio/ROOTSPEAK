@@ -33,14 +33,15 @@ S1 = p(c("ams revoke ID") + " revokes a message: whoever has not seen it yet wil
         ["4", "for each recipient, as the user: removes " + c("inbox/ID") + ", " + c("state/ID.term") + ", "
          + c("state/ID.gui"), "copies already read or confirmed (" + c("read/") + ", " + c("acks/")
          + ") stay: they are the history"],
-        ["5", "all removed: " + c("ritiro") + " removed; «Messaggio N ritirato.»", "otherwise " + c("die")
-         + ": «alcune copie non si sono potute togliere…», and recovery retries"],
+        ["5", "all removed: " + c("ritiro") + " removed; «Messaggio N ritirato.» (“Message N revoked.”)", "otherwise "
+         + c("die") + ": «alcune copie non si sono potute togliere…» (“some copies could not be removed…”), and "
+         "recovery retries"],
     ], "«TAB» — The steps of a revocation") + ul([
     "Serialising revocation with sending comes from the second review: before, a copy could arrive after the "
     "revocation. " + c("tests/engine.sh") + " (group 9) checks that " + c("ams revoke") + " waits for a lock held "
     "for 2 seconds; scenario F7 revokes a send to many users while it is in progress, and no copy is left behind.",
     "If the revocation arrives during the send, " + c("ams send") + " ends with «Messaggio N ritirato durante l'invio: "
-    "consegna interrotta.»: the recipients not yet reached stay «sent».",
+    "consegna interrotta.» (“Message N revoked while sending: delivery stopped.”): the recipients not yet reached stay «sent».",
     "The question in the terminal and the dialog check " + c("inbox/ID") + " every second and close (scenarios "
     "E3 and I6); a confirmation that arrives between their last check and the revocation does not count, because its "
     "date is later than " + c("revoked") + " (" + cap(13, 1) + ").",
@@ -63,16 +64,18 @@ SOLL = fig(
 S2 = p(c("ams remind ID") + " brings the question back at once to those who have not confirmed yet, even if they "
        "had postponed it. It rewrites nothing: it removes the postponements and wakes the agent.", lead=True) + SOLL + ul([
     "A revoked or expired message cannot be reminded: «il messaggio N è stato ritirato: nessuno da sollecitare» "
-    "(" + c("tests/engine.sh") + ", group 10).",
+    "(“message N has been revoked: nobody to remind”; " + c("tests/engine.sh") + ", group 10).",
     "The recipients' state comes from " + c("destinatari") + ", the same function used by " + c("ams status")
     + ": the reminder goes to those who are <b>delivered</b>. Those who are sent do not have the copy (recovery will "
-    "complete it), those who have confirmed must not be disturbed («sollecitati 0 destinatari»).",
+    "complete it), those who have confirmed must not be disturbed («sollecitati 0 destinatari», “0 recipients "
+    "reminded”).",
     "For each of them, as the user, " + c("state/ID.term") + " and " + c("state/ID.gui") + " are removed; then "
     + c("sveglia_agente") + ". The question comes back at the next prompt (scenario D5); the dialog reappears at once "
     "(scenario I11: 0.37 s in the last recorded run).",
     "The reminder takes no lock: if a confirmation arrives in the meantime, removing the postponements of someone "
     "who has confirmed has no effect (" + cap(20, 4) + ").",
-]) + term("admin@server:~$ sudo ams remind 12\nMessaggio 12: sollecitati 3 destinatari.", "A reminder") + \
+]) + term("admin@server:~$ sudo ams remind 12\nMessaggio 12: sollecitati 3 destinatari.",
+          "A reminder: “Message 12: 3 recipients reminded.”") + \
     note("before the reminder existed, the test VM found an edge case: an " + c("ams remind") + " arriving within "
          "a second of «Più tardi» (“Later”) was lost, because the agent recorded the postponement on its next round. "
          "Now the agent records the answer as soon as zenity closes (" + cap(12, 3) + ").")
@@ -82,11 +85,11 @@ PURGE = flow([("Duration", "90d, 12h, 30m", "dark"), ("Older?", "date of sending
               ("Mailboxes", "as each user", "blue"), ("Folder", "files and rmdir", "green")],
              "«FIG» — ams purge: the message disappears with a rename, then the mailboxes are cleaned")
 
-S3 = p(c("ams purge DURATA") + " deletes the messages sent more than " + c("DURATA") + " ago, together with the "
+S3 = p(c("ams purge DURATA") + " (DURATA: “DURATION”) deletes the messages sent more than " + c("DURATA") + " ago, together with the "
        "copies, confirmations and postponements in the mailboxes. The events stay in the journal.", lead=True) + PURGE + table(
     ["Step", "What"], [
         ["duration", "a number followed by " + c("m") + ", " + c("h") + " or " + c("d") + "; otherwise «durata non "
-         "valida: 7x (per esempio 90d, 12h, 30m)»"],
+         "valida: 7x (per esempio 90d, 12h, 30m)» (“invalid duration: 7x (for example 90d, 12h, 30m)”)"],
         ["selection", "for each message: the sending date from " + c("msg") + " (or, if the file cannot be read, the "
          "modification date of the folder); a message with " + c("incomplete") + " is skipped"],
         ["lock", "non-blocking " + c("flock") + " on " + c("sent/ID/lock") + ": a send in progress is skipped"],
@@ -102,7 +105,8 @@ S3 = p(c("ams purge DURATA") + " deletes the messages sent more than " + c("DURA
     "A deletion interrupted after the rename is completed by the recovery of the next command ("
     + c("tests/engine.sh") + ", group 9).",
     c("ams purge") + " does not run recovery before itself: it skips incomplete sends anyway.",
-]) + term("admin@server:~$ sudo ams purge 90d\nCancellati 4 messaggi più vecchi di 90d.", "A purge") + \
+]) + term("admin@server:~$ sudo ams purge 90d\nCancellati 4 messaggi più vecchi di 90d.",
+          "A purge: “Deleted 4 messages older than 90d.”") + \
     warn("after the deletion message numbers are not reused (the " + c(".seq") + " sequence stays), but "
          + c("ams log") + " of a deleted number no longer finds the message: its history can then be read "
          "only with " + c("journalctl AMS_MESSAGGIO=ID") + ".")

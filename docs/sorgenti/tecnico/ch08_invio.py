@@ -8,38 +8,40 @@ def cap(n, s=None):
 S1 = p(c("cmd_send") + " in " + c("src/ams.c") + " checks everything it can check <b>before</b> "
        "writing to the message store: options, text, expiry, recipients. An error at this stage ends with "
        + c("die") + " and leaves nothing behind.", lead=True) + table(["Option", "Value", "Check"], [
-    [c("--to DEST"), "recipients separated by commas", "mandatory («manca --to»); resolved after the text ("
+    [c("--to DEST"), "recipients separated by commas", "mandatory («manca --to», “missing --to”); resolved after the text ("
      + cap(6, 1) + ")"],
-    [c("--title TITOLO"), "one line", "cleaned like the text; newlines and tabs become spaces"],
-    [c("--expires DURATA"), c("30m") + ", " + c("2h") + ", " + c("3d") + " or a date", "computed at once; it must "
-     "be in the future («la scadenza è già passata»)"],
+    [c("--title TITOLO") + " (TITOLO: “TITLE”)", "one line", "cleaned like the text; newlines and tabs become spaces"],
+    [c("--expires DURATA") + " (DURATA: “DURATION”)", c("30m") + ", " + c("2h") + ", " + c("3d") + " or a date",
+     "computed at once; it must be in the future («la scadenza è già passata», “the expiry is already in the past”)"],
     [c("--file FILE"), "the text from a file", "read up to 64 MiB; it counts only if there is no text on the command "
      "line"],
     [c("--"), "—", "end of options: whatever follows is text even if it starts with " + c("-")],
 ], "«TAB» — The options of ams send") + ul([
     "Options end at the first argument that is not an option: from there on the arguments, joined by a "
     "space, are the text. Without text and without " + c("--file") + " the text is read from stdin (at most 64 MiB).",
-    "An unknown option («opzione sconosciuta: --level») or one without a value («manca il valore di --to») ends "
+    "An unknown option («opzione sconosciuta: --level», “unknown option: --level”) or one without a value («manca il "
+    "valore di --to», “missing value for --to”) ends "
     "at once. " + c("--level") + " belonged to version 0.1.0 and is rejected (" + c("tests/engine.sh")
     + ", group 3).",
     "A duration is a number followed by " + c("m") + ", " + c("h") + " or " + c("d") + "; everything else is "
     "interpreted by " + c("date -d … +%s") + " in a child process (for example " + c("\"2026-10-04 12:00\"") + "). "
     "Dates in words are those understood by " + c("date") + ", in English.",
     "Trailing newlines are removed from the text, which is then cleaned (" + cap(8, 7) + "). A text made only of "
-    "spaces is «messaggio vuoto»; beyond 65536 bytes, after cleaning, it is «messaggio troppo lungo»: the desktop "
+    "spaces is «messaggio vuoto» (“empty message”); beyond 65536 bytes, after cleaning, it is «messaggio troppo lungo» "
+    "(“message too long”): the desktop "
     "dialog receives the text as an argument to zenity, and Linux does not accept an argument larger than 128 KiB.",
 ])
 
 INVIO = fig(
     box(20, 40, 150, 56, "prepara_archivio", "var, users, sent", "dark", 12)
-    + box(190, 40, 130, 56, "prossimo_id", "flock su .seq.lock", "dark", 12)
+    + box(190, 40, 130, 56, "prossimo_id", "flock on .seq.lock", "dark", 12)
     + box(340, 40, 130, 56, "lock + marker", "lock, incomplete", "navy", 12)
     + box(490, 40, 180, 56, "msg, recipients", "scrivi_atomico, sync", "navy", 12)
     + box(690, 40, 190, 56, "for each recipient", "in alphabetical order", "blue", 12)
     + diamond(785, 150, 170, 60, "revoked?", "amber")
     + box(560, 204, 170, 56, "consegna_copia", "as U, verified", "blue", 12)
     + box(370, 204, 170, 56, "terminals", "text, at most 3 s each", "blue", 12)
-    + box(180, 204, 170, 56, "sveglia_agente", "SIGUSR1 o systemd-run", "blue", 12)
+    + box(180, 204, 170, 56, "sveglia_agente", "SIGUSR1 or systemd-run", "blue", 12)
     + box(20, 204, 140, 56, "delivery", "user date n", "green", 12)
     + box(20, 300, 250, 56, "INVIATO event", "list of recipients, author", "soft", 12)
     + diamond(420, 328, 180, 60, "missing copies?", "amber")
@@ -73,14 +75,18 @@ S2 = p("After the checks, sending is a fixed sequence. The order is chosen so th
      "line in " + c("delivery") + ", event " + c("CONSEGNATO"), "a revocation stops the send at the next recipient"],
     ["6", "event " + c("INVIATO") + " with the list of recipients and the author", "after the deliveries: in the log "
      "the send appears last"],
-    ["7a", "missing copies: «Messaggio N consegnato a X destinatari su Y.», then " + c("die") + " with the names",
+    ["7a", "missing copies: «Messaggio N consegnato a X destinatari su Y.» (“Message N delivered to X of Y "
+     "recipients.”), then " + c("die") + " with the names",
      c("incomplete") + " stays; the lock is released on exit; the next command retries"],
     ["7b", "everything delivered: " + c("syncfs") + " of " + c("users/") + ", " + c("fsync") + " of " + c("sent/ID/")
      + ", " + c("incomplete") + " removed, " + c("fsync") + " again", "when the marker disappears, copies and "
      "deliveries are on disk"],
 ], "«TAB» — The steps of sending") + term(
     "admin@server:~$ sudo ams send --to @sviluppo --title Manutenzione --expires 2d \"Sabato dalle 8 alle 12 il server sarà spento.\"\n"
-    "Messaggio 12 inviato a 2 utenti.", "A successful send")
+    "Messaggio 12 inviato a 2 utenti.",
+    "A successful send: title «Manutenzione» (“Maintenance”), text «Sabato dalle 8 alle 12 il server sarà spento.» (“On "
+    "Saturday from 8 to 12 the server will be switched off.”); «Messaggio 12 inviato a 2 utenti.» (“Message 12 sent to "
+    "2 users.”)")
 
 CONS = fig(
     box(20, 70, 170, 56, "prepara_casella", "root: users/U 700, lchown", "navy", 12)
@@ -114,7 +120,9 @@ S4 = p("For each terminal from " + c("terminali_utente") + " (" + cap(6, 3) + ")
        "as confirmation: the question comes at the next prompt.", lead=True) + term(
     "\n── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
     "Sabato dalle 8 alle 12 il server sarà spento.\n"
-    "────────────────────────────────────────", "The text written to the terminal of an Italian-speaking user") + \
+    "────────────────────────────────────────",
+    "The text written to the terminal of an Italian-speaking user: «AMS · Messaggio dall'amministratore» (“AMS · Message "
+    "from the administrator”), then title, date and text") + \
     table(["Step", "What", "Why"], [
         [c("lingua_terminale"), "looks in " + c("/proc") + " for the first process with that terminal (usually the "
          "shell) and reads its environment; if root cannot (a container without " + c("CAP_SYS_PTRACE") + "), the "
@@ -128,7 +136,7 @@ S4 = p("For each terminal from " + c("terminali_utente") + " (" + cap(6, 3) + ")
         ["writing", "in pieces, with a " + c("poll") + " of 100 ms between attempts, for at most 3 seconds",
          "a blocked terminal (Ctrl+S, slow network) does not stop the send"],
         ["count", "the terminals written in full end up in the " + c("delivery") + " line", "«scritto su 2 "
-         "terminali» in " + c("ams status")],
+         "terminali» (“written to 2 terminals”) in " + c("ams status")],
     ], "«TAB» — Writing to the terminals") + \
     note("in test mode the only «terminal» is the file " + c("AMS_TEST_TTY") + ", and the check on the file type "
          "is skipped; the one on the owner remains: " + c("tests/engine.sh") + " (group 9) checks that "
@@ -181,7 +189,8 @@ S6 = p(c("recupera") + " runs at the start of almost every command (" + cap(4, 1
        "changes nothing.", lead=True) + RECOVER + table(["Finds", "Condition", "Does"], [
     [c("sent/ID/incomplete"), "lock free, but " + c("msg") + " or " + c("recipients") + " missing or unreadable",
      "writes " + c("failed") + " with the date, removes " + c("incomplete") + ", event " + c("ANNULLATO")
-     + ", warning «il messaggio N era stato interrotto prima di essere salvato ed è stato annullato»"],
+     + ", warning «il messaggio N era stato interrotto prima di essere salvato ed è stato annullato» (“message N was "
+     "interrupted before being saved and has been cancelled”)"],
     [c("sent/ID/incomplete"), "lock free, message revoked or expired", "removes the marker without delivering"],
     [c("sent/ID/incomplete"), "lock free, valid message", "for each recipient " + c("consegna_copia")
      + ", <b>including those already recorded</b>; for the new ones: line in " + c("delivery") + " with 0 terminals, "
@@ -200,7 +209,8 @@ S6 = p(c("recupera") + " runs at the start of almost every command (" + cap(4, 1
     "In the last recorded run on the test machine (scenario F3), an " + c("ams send") + " killed with "
     + c("SIGKILL") + " after 4 deliveries out of 68 was completed by the next command in less than a second.",
 ]) + warn("recovering a send in which some copy still cannot be written leaves " + c("incomplete")
-          + " and warns: «messaggio N ancora non consegnato a K destinatari (vedi ams status N)». Every following "
+          + " and warns: «messaggio N ancora non consegnato a K destinatari (vedi ams status N)» (“message N still not "
+          "delivered to K recipients (see ams status N)”). Every following "
           "command retries.")
 
 S7 = p("A message's text and title come from an administrator but end up in the users' terminals: "
@@ -209,7 +219,7 @@ S7 = p("A message's text and title come from an administrator but end up in the 
        "interpret as a command.", lead=True) + table(["Pass", "Removed", "Example", "Why"], [
     ["1, per line", "CSI sequences: " + c("ESC [") + ", digits, " + c(";") + " or " + c("?") + ", a final character",
      c("ESC [ 31 m"), "colours, cursor movements, erasures"],
-    ["1, per line", "OSC sequences: " + c("ESC ]") + " … " + c("BEL"), c("ESC ] 0 ; titolo BEL"),
+    ["1, per line", "OSC sequences: " + c("ESC ]") + " … " + c("BEL"), c("ESC ] 0 ; titolo BEL") + " (titolo: “title”)",
      "window title, hyperlinks, clipboard"],
     ["2", "C0 control characters, except tab and newline; " + c("DEL"), c("0x01") + ", " + c("\\r") + ", "
      + c("0x7F"), "bell, carriage return, leftover lone escapes"],

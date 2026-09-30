@@ -29,11 +29,11 @@ S1 = MAPPA + dl([
     ("author (it. autore)", "the administrator who ran " + c("ams") + " (" + c("SUDO_USER") + "): the sender of the "
      "messages and the author of the events."),
     ("channel (it. canale)", "where a confirmation comes from: " + c("desktop") + " or " + c("terminale pts/N")
-     + "; it is saved without a language and translated when shown."),
+     + " (“terminal pts/N”); it is saved without a language and translated when shown."),
     ("mailbox (it. casella)", "a user's folder " + c("/var/lib/ams/users/U") + ", owned by the user, with "
      "permissions " + c("700") + "."),
     ("catalog (it. catalogo)", "the " + c(".mo") + " file with the translations of a language, compiled from "
-     + c("po/LINGUA.po") + " (" + cap(16, 3) + ")."),
+     + c("po/LINGUA.po") + " (LINGUA: “LANGUAGE”; " + cap(16, 3) + ")."),
     ("come_utente", "the function in " + c("src/utente.c") + " that runs an operation in a child process with a "
      "user's identity, with a time limit (" + cap(7) + ")."),
     ("confirmation (it. conferma)", "the user's statement of having read the message, in " + c("acks/ID")

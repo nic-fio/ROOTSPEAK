@@ -17,7 +17,8 @@ LINGUE = fig(
     + arrow(232, 77, 328, 185) + arrow(232, 157, 328, 192) + arrow(232, 237, 328, 204) + arrow(232, 317, 328, 216)
     + arrow(532, 188, 638, 110, "#0050C0", False, "if present", 590, 138) + arrow(532, 200, 638, 198, "#475569", False,
                                                                            "otherwise", 590, 190),
-    900, 362, "«FIG» — Where the reader's language comes from, and where the texts are", "Everyone in their own language")
+    900, 362, "«FIG» — Where the reader's language comes from, and where the texts are (LINGUA: “LANGUAGE”)",
+    "Everyone in their own language")
 
 S1 = p("Everyone reads AMS in their own language: the administrator the commands, each user the question, the "
        "dialog and the buttons. The text of the messages is never translated. Today AMS has Italian and English; "
@@ -35,7 +36,8 @@ S1 = p("Everyone reads AMS in their own language: the administrator the commands
     [c("ams log") + ", TUI history", "the reader's", "rewritten from the " + c("AMS_*") + " fields (" + cap(18, 4)
      + ")"],
 ], "«TAB» — Who reads in which language") + ul([
-    "What is saved stays <b>language-neutral</b>: the channel of a confirmation is " + c("terminale pts/N") + " or "
+    "What is saved stays <b>language-neutral</b>: the channel of a confirmation is " + c("terminale pts/N")
+    + " (“terminal pts/N”) or "
     + c("desktop") + " and is translated only when shown (" + c("canale_testo") + "); events are rewritten from "
     "their fields. An administrator using English reads «confirmed on 30/09 17:10 (terminal pts/19)» for the same "
     "confirmation that one using Italian reads as «confermato il … (terminale pts/19)» (scenario L3).",
@@ -91,10 +93,11 @@ S3 = p("The catalogs are in the gettext format (" + c(".mo") + "), but they are 
      "that the two tables fit in the file; otherwise no catalog"],
     [c("catalogo_cerca"), "binary search among the originals; every entry must fit in the file and end with a zero; "
      "an empty translation means “not translated”"],
-    [c("catalogo(lingua)"), "reads " + c("LOCALEDIR/LINGUA/LC_MESSAGES/ams.mo") + " (at most 4 MiB) the first time, "
+    [c("catalogo(lingua)") + " (“catalog(language)”)", "reads " + c("LOCALEDIR/LINGUA/LC_MESSAGES/ams.mo")
+     + " (LINGUA: “LANGUAGE”; at most 4 MiB) the first time, "
      "then keeps it in memory (up to 8 languages per process)"],
-    [c("T(testo)") + ", " + c("TC(contesto, testo)"), "the translation in the language of whoever uses the process"],
-    [c("tl(lingua, testo)") + ", " + c("tlc(…)"), "the translation in a given language: this is how " + c("ams send")
+    [c("T(testo)") + ", " + c("TC(contesto, testo)") + " (testo: “text”, contesto: “context”)", "the translation in the language of whoever uses the process"],
+    [c("tl(lingua, testo)") + " (lingua: “language”), " + c("tlc(…)"), "the translation in a given language: this is how " + c("ams send")
      + " writes to every terminal in its own language"],
 ], "«TAB» — The catalog reader") + \
     note("the catalogs are root's files, but the reader treats them as arbitrary data: fuzzing also tries "
@@ -107,7 +110,7 @@ S4 = flow([("src/*.c", "T(\"…\"), TC, tl, tlc", "dark"), ("make pot", "xgettex
     + ", " + c("tl(lingua, \"…\")") + " for a given language; " + c("N_(…)") + " for texts translated later). "
     "Names, comments and developer notes are in Italian.",
     c("make pot") + " extracts them into " + c("po/ams.pot") + " with " + c("xgettext") + " (with the "
-    + c("TRADUTTORI") + " comments) and updates the " + c(".po") + " files with " + c("msgmerge") + "; " + c("make") + " compiles them "
+    + c("TRADUTTORI") + " (“TRANSLATORS”) comments) and updates the " + c(".po") + " files with " + c("msgmerge") + "; " + c("make") + " compiles them "
     "with " + c("msgfmt --check") + ", which also checks that every translation has the same " + c("%s") + ".",
     c("tools/check-docs.py") + " fails if a catalog does not pass " + c("msgfmt --check") + ", has translations to "
     "review, or does not contain all the texts of the code.",

@@ -64,7 +64,8 @@ S3 = p("The same guide has three forms, and " + c("ams") + " picks the right one
          "       --expires DURATA\n"
          "              Scadenza, dopo la quale il messaggio non viene più mostrato: 30m,\n"
          "              2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole",
-         "Searching the built-in help with grep") + \
+         "Searching the built-in help with grep: «Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, "
+         "3d oppure data e ora» (“Expiry, after which the message is no longer shown: 30m, 2h, 3d or a date and time”)") + \
     note("" + c("ams") + " on its own, too, in a pipe or in a terminal smaller than 80 columns or 20 lines, "
          "shows the built-in help instead of the TUI.", "And ams on its own?")
 

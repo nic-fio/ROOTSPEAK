@@ -36,7 +36,7 @@ S1 = p("The " + ui("A") + " (“To”) field of the TUI and the " + c("--to") + 
         ["a combination", "the union of all of them", c("mario,@sviluppo")],
     ], "«TAB» — How to specify the recipients") + INSIEMI + \
     note("a group given with " + c("@") + " includes all its members, even the accounts that " + c("all") + " leaves out. "
-         "In the TUI, when you move from the " + ui("A") + " field to the next one, the number of recipients appears on "
+         "In the TUI, when you move from the " + ui("A") + " (“To”) field to the next one, the number of recipients appears on "
          "the right, or an error if a name does not exist: this is checked before sending.", "Good to know.") + \
     warn(c("online") + " is evaluated at the moment of sending: someone who logs in a minute later does not receive "
          "the message. For a notice that must reach everyone sooner or later, use " + c("all") + ".",
@@ -47,7 +47,8 @@ S2 = p("The <b>title</b> is optional and fits on one line: it appears at the top
     table(["How", "Where", "Example"], [
         ["typed in the TUI", "the " + ui("Testo") + " (“Text”) field; " + key("Enter") + " starts a new line", "—"],
         ["typed in your own editor", "TUI, " + key("Ctrl", "E") + " (" + rif(5, 5) + ")", "—"],
-        ["in quotes, at the end of the command", c("ams send"), c('ams send --to mario "Testo del messaggio"')],
+        ["in quotes, at the end of the command", c("ams send"), c('ams send --to mario "Testo del messaggio"')
+         + " (“Message text”)"],
         ["from a file", c("ams send --file"), c("ams send --to @sviluppo --file avviso.txt")],
         ["from another command", c("ams send") + ", with no text and no " + c("--file"), c("df -h | ams send --to anna")],
         ["typed on the spot", c("ams send") + " in a terminal: type the text, then " + key("Ctrl", "D"),
@@ -55,7 +56,11 @@ S2 = p("The <b>title</b> is optional and fits on one line: it appears at the top
     ], "«TAB» — The ways to supply the text") + \
     code("Da lunedì 15 ottobre le password scadono ogni 90 giorni.\n"
          "Al primo accesso dopo la scadenza il sistema chiederà di cambiarla.\n"
-         "Per problemi: ufficio IT, interno 214.", "text", "avviso.txt") + \
+         "Per problemi: ufficio IT, interno 214.", "text",
+         "avviso.txt: “From Monday 15 October passwords expire every 90 days. At the first login after the expiry the "
+         "system will ask you to change it. For problems: IT office, extension 214.” Sent below with the title «Nuova "
+         "regola per le password» (“New rule for passwords”); AMS answers «Messaggio 3 inviato a 24 utenti.» (“Message "
+         "3 sent to 24 users.”)") + \
     term('admin@server:~$ ams send --to all --title "Nuova regola per le password" --file avviso.txt\n'
          "Messaggio 3 inviato a 24 utenti.") + \
     table(["Rule", "Why"], [
@@ -83,14 +88,16 @@ URGENTE = fig(
 S3 = p("Every message asks for confirmation. For notices that are only valid for a short time, such as “the service "
        "restarts in 5 minutes”, you add an <b>expiry</b>: once that moment has passed the message is no longer shown "
        "or asked again, and whoever has not seen it in time will never see it.", lead=True) + URGENTE + \
-    table(["You write (the " + ui("Scadenza") + " field or " + c("--expires") + ")", "The message expires"], [
+    table(["You write (the " + ui("Scadenza") + " (“Expires”) field or " + c("--expires") + ")", "The message expires"], [
         [c("30m"), "in 30 minutes"],
         [c("2h"), "in 2 hours"],
         [c("3d"), "in 3 days"],
         [c("2026-10-04 12:00"), "Saturday 4 October 2026 at 12:00 (in the command, in quotes: "
          + c('--expires "2026-10-04 12:00"') + ")"],
         [c("tomorrow 18:00"), "tomorrow at 18:00: dates in words must be written in English"],
-    ], "«TAB» — How to specify the expiry") + \
+    ], "«TAB» — How to specify the expiry. In the example below, «Il servizio web riparte alle 13:00.» (“The web "
+       "service restarts at 13:00.”) expires after 15 minutes; AMS answers «Messaggio 2 inviato a 3 utenti.» (“Message 2 "
+       "sent to 3 users.”)") + \
     term('admin@server:~$ ams send --to online --expires 15m "Il servizio web riparte alle 13:00."\n'
          "Messaggio 2 inviato a 3 utenti.") + ul([
         "On expiry, a dialog that is still open closes by itself, and a question waiting in the terminal is "
@@ -108,10 +115,10 @@ S4 = p("In the TUI the " + key("n") + " key opens the " + ui("Nuovo messaggio") 
        "on one line and the text box.", lead=True) + \
     schermata("nuovo", "«FIG» — The New message screen (real screenshot)") + \
     table(["Field", "What to write", "Required"], [
-        [ui("A"), "the recipients, as in " + rif(5, 1) + "; on the right, when you leave the field, how many there are", "yes"],
-        [ui("Titolo"), "one line", "no"],
-        [ui("Scadenza"), c("30m") + ", " + c("2h") + ", " + c("3d") + " or a date, as in " + rif(5, 3), "no"],
-        [ui("Testo"), "the message, on several lines; below it, the count «85 di 65536 byte» (“85 of 65536 bytes”)", "yes"],
+        [ui("A") + " (“To”)", "the recipients, as in " + rif(5, 1) + "; on the right, when you leave the field, how many there are", "yes"],
+        [ui("Titolo") + " (“Title”)", "one line", "no"],
+        [ui("Scadenza") + " (“Expires”)", c("30m") + ", " + c("2h") + ", " + c("3d") + " or a date, as in " + rif(5, 3), "no"],
+        [ui("Testo") + " (“Text”)", "the message, on several lines; below it, the count «85 di 65536 byte» (“85 of 65536 bytes”)", "yes"],
     ], "«TAB» — The fields of a new message") + \
     table(["Keys", "What they do"], [
         [key("Tab") + " / " + key("Shift", "Tab"), "next / previous field, including the text"],
@@ -133,7 +140,7 @@ S4 = p("In the TUI the " + key("n") + " key opens the " + ui("Nuovo messaggio") 
         "If sending succeeds, " + ui("Messaggio inviato") + " (“Message sent”) appears with the reply from AMS; any key "
         "returns to the list.",
         "If something goes wrong, " + ui("Esito dell'invio") + " (“Sending result”) appears with the reason: a wrong "
-        "recipient (for example «ams: utente inesistente: mrio», “no such user”) stops the sending, and any key returns "
+        "recipient (for example «ams: utente inesistente: mrio», “ams: no such user: mrio”) stops the sending, and any key returns "
         "to the message so it can be corrected; a copy that could not be written is listed, and AMS retries by itself "
         "at the next command.",
     ])
@@ -165,17 +172,20 @@ INVIO = seq([("Administrator", "Ctrl+S or ams send", "dark"), ("AMS", "message s
     (1, 0, "«Messaggio 3 inviato a 1 utente.»", True),
     ("sep", "later, at the next prompt or at login".ljust(40)),
     (2, 3, "confirmation question, until confirmed"),
-], "«FIG» — What happens when a message is sent to Mario", "Sending step by step")
+], "«FIG» — What happens when a message is sent to Mario; the reply «Messaggio 3 inviato a 1 utente.» means “Message 3 "
+   "sent to 1 user.”", "Sending step by step")
 
 S6 = p("When a message is sent, AMS saves it, puts a copy in each recipient's mailbox and makes it appear at once "
        "wherever the user is logged in. It all happens in a few moments.", lead=True) + INVIO + \
     table(["Reply from AMS", "What it means"], [
-        [c("Messaggio 3 inviato a 24 utenti."), "All the copies are in the mailboxes: every recipient is "
+        [c("Messaggio 3 inviato a 24 utenti.") + " (“Message 3 sent to 24 users.”)", "All the copies are in the mailboxes: every recipient is "
          + CONSEGNATO + "."],
-        [c("Messaggio 3 consegnato a 23 destinatari su 24.") + "<br>" + c("ams: messaggio 3 non consegnato a: sara "
-         "(vedi il registro; il prossimo comando ams riproverà)"), "A copy could not be written, usually because "
+        [c("Messaggio 3 consegnato a 23 destinatari su 24.") + " (“Message 3 delivered to 23 of 24 recipients.”)<br>"
+         + c("ams: messaggio 3 non consegnato a: sara (vedi il registro; il prossimo comando ams riproverà)")
+         + " (“ams: message 3 not delivered to: sara (see the log; the next ams command will retry)”)", "A copy could not be written, usually because "
          "the disk is full: Sara is " + INVIATO + ". AMS retries by itself (" + rif(12, 4) + ")."],
-        [c("Messaggio 3 ritirato durante l'invio: consegna interrotta."), "Another administrator revoked it "
+        [c("Messaggio 3 ritirato durante l'invio: consegna interrotta.") + " (“Message 3 revoked while sending: "
+         "delivery stopped.”)", "Another administrator revoked it "
          "while it was being sent."],
         [c("ams: …"), "An error: the message was not sent (" + rif(12, 1) + ")."],
     ], "«TAB» — The replies when sending") + \
@@ -184,13 +194,18 @@ S6 = p("When a message is sent, AMS saves it, puts a copy in each recipient's ma
       "command halfway.")
 
 S7 = table(["I want to…", "Command"], [
-    ["notify a user and know whether they have read it", c('ams send --to anna "Il tuo account scade venerdì."')],
+    ["notify a user and know whether they have read it", c('ams send --to anna "Il tuo account scade venerdì."')
+     + " (“Your account expires on Friday.”)"],
     ["warn whoever is logged in that I am about to reboot",
-     c('ams send --to online --expires 15m "Riavvio alle 13:00: salvate il lavoro."')],
+     c('ams send --to online --expires 15m "Riavvio alle 13:00: salvate il lavoro."')
+     + " (“Reboot at 13:00: save your work.”)"],
     ["tell everyone about a new rule", c('ams send --to all --title "Password" --file regola.txt')],
-    ["write to a work group", c('ams send --to @sviluppo --expires 2d "Consegna entro giovedì alle 18."')],
-    ["write to two people and a group", c('ams send --to mario,anna,@stagisti "Riunione alle 11."')],
-    ["send the output of a command", c("df -h /home | ams send --to anna --title \"Spazio disco\"")],
+    ["write to a work group", c('ams send --to @sviluppo --expires 2d "Consegna entro giovedì alle 18."')
+     + " (“Deadline Thursday at 18:00.”)"],
+    ["write to two people and a group", c('ams send --to mario,anna,@stagisti "Riunione alle 11."')
+     + " (“Meeting at 11.”)"],
+    ["send the output of a command", c("df -h /home | ams send --to anna --title \"Spazio disco\"")
+     + " (“Disk space”)"],
     ["send a notice from cron, every Monday at 8:00", c("0 8 * * 1  /usr/local/bin/ams send --to all --file /etc/avviso-settimanale.txt")],
 ], "«TAB» — Ready-made commands for the most common cases") + \
     tip("in cron (root's crontab, " + c("sudo crontab -e") + ") " + c("ams") + " is already root and does not ask for "
