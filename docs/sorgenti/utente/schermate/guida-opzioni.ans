@@ -1,0 +1,22 @@
+[2m┌[0m[1;36m─ ams — guida [0m[2m──────────────────────────────────────────────────────────────┐[0m
+[2m│[0m [2m Info [0m[2m Comandi [0m[7;1m Opzioni [0m[2m Esempi [0m[2m File [0m                                     [2m│[0m
+[2m├────────────────────────────────────────────────────────────────────────────┤[0m
+[2m│[0m [1;33mOpzioni di send[0m                                                            [2m│[0m
+[2m│[0m                                                                            [2m│[0m
+[2m│[0m [1;32m --to DEST[0m                                                                 [2m│[0m
+[2m│[0m     Destinatari, separati da virgole senza spazi: un utente (mario), un    [2m│[0m
+[2m│[0m     gruppo Unix (@sviluppo), all (tutti gli utenti umani) oppure online    [2m│[0m
+[2m│[0m     (solo quelli collegati adesso).                                        [2m│[0m
+[2m│[0m                                                                            [2m│[0m
+[2m│[0m [1;32m --title TITOLO[0m                                                            [2m│[0m
+[2m│[0m     Titolo mostrato nell'intestazione del messaggio e nella finestra del   [2m│[0m
+[2m│[0m     desktop.                                                               [2m│[0m
+[2m│[0m                                                                            [2m│[0m
+[2m│[0m [1;32m --expires DURATA[0m                                                          [2m│[0m
+[2m│[0m     Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h,  [2m│[0m
+[2m│[0m     3d oppure data e ora ("2026-10-04 12:00"; le date a parole vanno in    [2m│[0m
+[2m│[0m     inglese).                                                              [2m│[0m
+[2m│[0m                                                                            [2m│[0m
+[2m├────────────────────────────────────────────────────────────────────────────┤[0m
+[2m│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci           righe 1-16/18 │[0m
+[2m└────────────────────────────────────────────────────────────────────────────┘[0m

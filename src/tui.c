@@ -497,8 +497,8 @@ static void finestra(schermo_t *s, const char *titolo, const strv_t *testo, cons
 	buf_t riga = {0};
 
 	for (size_t i = 0; i < testo->n; i++)
-		if (visibili(testo->v[i]) + 4 > w)
-			w = visibili(testo->v[i]) + 4;
+		if (visibili(testo->v[i]) + 6 > w)
+			w = visibili(testo->v[i]) + 6;
 	if (w > TW - 8)
 		w = TW - 8;
 	x = (TW - 4 - w) / 2;
@@ -525,8 +525,8 @@ static void finestra(schermo_t *s, const char *titolo, const strv_t *testo, cons
 			const char *c = i >= 2 && i - 2 < (int)testo->n ? testo->v[i - 2] : i == h - 2 ? pulsanti : "";
 
 			buf_printf(&riga, "%s│%s  ", B_, R_);
-			colonna(&riga, c, w - 4);
-			buf_printf(&riga, "%s│%s", B_, R_);
+			colonna(&riga, c, w - 6);
+			buf_printf(&riga, "  %s│%s", B_, R_);
 		}
 		free(r->v[y + i]);
 		r->v[y + i] = xstrdup(riga.s);
@@ -718,7 +718,7 @@ static void tasti_lista(schermo_t *s)
 {
 	s->tasti = xasprintf("%sInvio%s %s   %sn%s %s   %sr%s %s   %ss%s %s   %sp%s %s   %s/%s %s   %s?%s %s   %sq%s %s",
 			     G_, R_, T("open"), G_, R_, T("new"), G_, R_, T("revoke"), G_, R_, T("remind"), G_, R_, T("purge"),
-			     G_, R_, T("search"), G_, R_, T("help"), G_, R_, T("quit"));
+			     G_, R_, T("search"), G_, R_, T("keys"), G_, R_, T("quit"));
 }
 
 static void righe_lista(schermo_t *s, const elenco_t *e, size_t sel, size_t primo, const char *filtro)
@@ -1222,7 +1222,7 @@ static bool invia(schermo_t *s, modulo_t *m, long long *nuovo)
 	argv[argc] = NULL;
 	l = (lancio_t){.argc = argc, .argv = argv};
 	r = esegui(&l, &testo, &out);
-	esito(s, r == 0 ? T("Message sent") : T("Message not sent"), &out);
+	esito(s, r == 0 ? T("Message sent") : T("Sending result"), &out);
 	if (r == 0) {
 		strv_t ids = {0};
 

@@ -935,6 +935,11 @@ static void cmd_list(void)
 	}
 	free(sd);
 	elenco_messaggi(&ids);
+	if (!ids.n) {
+		puts(T("No messages sent."));
+		strv_free(&ids);
+		return;
+	}
 	printf("%-5s %-12s ", T("ID"), T("DATE"));
 	colonna(T("TEXT"), strlen(T("TEXT")), 40);
 	printf("  %s\n", T("RECIPIENTS"));
@@ -1254,7 +1259,9 @@ void cmd_purge(const char *dur)
 		free(p);
 		free(nuovo);
 	}
-	if (tolti == 1)
+	if (tolti == 0)
+		printf(T("No messages older than %s."), dur);
+	else if (tolti == 1)
 		printf(T("Deleted 1 message older than %s."), dur);
 	else
 		printf(T("Deleted %d messages older than %s."), tolti, dur);

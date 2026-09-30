@@ -39,11 +39,15 @@ bool evento_testo(const char *lingua, const char *ev, long long id, const char *
 		buf_printf(out, tl(lingua, "message %lld: ERROR, copy for %s not written"), id, utente);
 	else if (!strcmp(ev, "ANNULLATO"))
 		buf_printf(out, tl(lingua, "message %lld: sending interrupted before it was saved, cancelled"), id);
+	else if (!strcmp(ev, "RECUPERATO") && !strcmp(dettagli, "1"))
+		buf_printf(out, tl(lingua, "message %lld: delivery completed for 1 recipient after an interruption"), id);
 	else if (!strcmp(ev, "RECUPERATO"))
 		buf_printf(out, tl(lingua, "message %lld: delivery completed for %s recipients after an interruption"), id,
 			   dettagli);
 	else if (!strcmp(ev, "CANCELLATO"))
 		buf_printf(out, tl(lingua, "message %lld deleted by %s (older than %s)"), id, autore, dettagli);
+	else if (!strcmp(ev, "SOLLECITATO") && !strcmp(dettagli, "1"))
+		buf_printf(out, tl(lingua, "message %lld: 1 recipient reminded by %s"), id, autore);
 	else if (!strcmp(ev, "SOLLECITATO"))
 		buf_printf(out, tl(lingua, "message %lld: %s recipients reminded by %s"), id, dettagli, autore);
 	else if (!strcmp(ev, "RITIRATO"))

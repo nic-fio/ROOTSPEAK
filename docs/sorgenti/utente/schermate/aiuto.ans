@@ -1,0 +1,30 @@
+[2m┌[0m[1;36m─ AMS · messaggi inviati [0m[2m──────────────────────────────────────────────────────────────[0m[90m aggiornato alle 20:58:46 ─┐[2m
+[0m[2m│[0m [0m                                                                                                                 [2m│[0m
+[2m│[0m  [1;33m ID  DATA         MESSAGGIO[0m                            DESTINATARI[0m[0m                                              [2m│[0m
+[2m│[0m [7;1m>  3  30/09 20:58  Il tuo account scade venerdì: passa  ▒▒▒▒▒▒▒▒▒▒▒▒  1 consegnato[0m                              [0m [2m│[0m
+[2m│[0m    2  30/09 20:58  [1mManutenzione[0m · Sabato dalle 8 alle [0m  [32m██████[33m▒▒▒▒▒▒[31m[0m  [32m1 confermato[0m · [33m1 consegnato[0m[0m                [2m│[0m
+[2m│[0m    1  30/09 20:58  [1mAggiornamento del server[0m · Stanotte[0m  [32m████████████[33m[31m[0m  [32mtutti confermato (2)[0m[0m                       [2m│[0m
+[2m│[0m                          [1m┌─ Tasti ───────────────────────────────────────────────────┐[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [0m                                                         [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32m↑ ↓ PgUp PgDn[0m   [0mscorre la lista[0m                          [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32mInvio[0m           [0mapre il messaggio: destinatari e storia[0m  [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32mn[0m               [0mscrive e invia un messaggio nuovo[0m        [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32mr[0m               [0mritira il messaggio scelto[0m               [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32ms[0m               [0msollecita chi non ha confermato[0m          [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32mp[0m               [0mcancella i messaggi vecchi[0m               [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32m/[0m               [0mcerca i messaggi per testo o titolo[0m      [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [1;32mq[0m               [0mesci[0m                                     [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [0m                                                         [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  La lista si aggiorna da sola ogni 3 secondi.[0m             [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  La guida completa: ams --help.[0m                           [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  [0m                                                         [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m│[0m  un tasto per continuare[0m                                  [1m│[0m[0m                           [2m│[0m
+[2m│[0m                          [1m└───────────────────────────────────────────────────────────┘[0m[0m                           [2m│[0m
+[2m│[0m [0m                                                                                                                 [2m│[0m
+[2m│[0m [0m                                                                                                                 [2m│[0m
+[2m│[0m [0m                                                                                                                 [2m│[0m
+[2m│[0m [0m                                                                                                                 [2m│[0m
+[2m│[0m [32m█[0m confermato   [33m▒[0m consegnato   [31m░[0m inviato[0m                                                                          [2m│[0m
+[2m├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤[0m
+[2m│[0m un tasto per continuare[0m                                                                                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘[0m

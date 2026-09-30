@@ -470,13 +470,8 @@ def help_reference(name, kind):
 
 # ── Copertina ──────────────────────────────────────────────────────────
 LOGO = """<div class="cover-logo"><svg viewBox="0 0 520 100" width="270" height="52" xmlns="http://www.w3.org/2000/svg" aria-label="AMS">
-<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb6ff"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
-<rect x="8" y="22" width="92" height="62" rx="10" fill="url(#lg)"/>
-<path d="M12 28 L54 58 L96 28" fill="none" stroke="#0050C0" stroke-width="6" stroke-linejoin="round"/>
-<path d="M66 72 l9 9 l16 -18" fill="none" stroke="#0050C0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M80 72 l9 9 l16 -18" fill="none" stroke="#cfe0ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="124" y="78" font-size="70" font-weight="800" fill="#ffffff">AMS</text>
-<text x="290" y="78" font-size="38" font-weight="500" fill="#cfe0ff">Messaging</text></svg></div>"""
+<text x="8" y="78" font-size="70" font-weight="800" fill="#ffffff">AMS</text>
+<text x="176" y="78" font-size="38" font-weight="500" fill="#cfe0ff">Messaging System</text></svg></div>"""
 
 
 # ── Assemblaggio ─────────────────────────────────────────────────────────
@@ -536,7 +531,7 @@ def build(kind, outdir):
     <div class="cover-meta">
       <div><span>Versione</span><b>{VERSION}</b></div>
       <div><span>Data</span><b>{DATE}</b></div>
-      <div><span>Stato</span><b>Prototipo · Riservato</b></div>
+      <div><span>Stato</span><b>Riservato</b></div>
     </div>
     <div class="cover-swoosh"></div>
   </section>
