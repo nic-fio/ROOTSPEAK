@@ -89,7 +89,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 ### Configurazione e distribuzione
 - [1] `/etc/ams/ams.conf`: livello predefinito, intervallo dei solleciti
 - [1] Script di installazione
-- [1] Manuale utente in HTML (`docs/user-manual.html`), con lo stile dei manuali di NESH
+- [1] Manuale utente in HTML (`docs/manuale-utente.html`), con lo stile dei manuali di NESH
 - [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
@@ -105,12 +105,14 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
   se servirà far inviare messaggi a chi non è amministratore.
 - **Comandi per l'utente** (`ams read`, `ams ack`, `ams history`): la ricezione è automatica e il comando resta riservato a root.
 
-## Architettura (bozza)
+## Architettura
 
-Nessun demone: ogni pezzo usa strumenti già presenti nel sistema.
+Nessun demone: ogni pezzo usa strumenti già presenti nel sistema. I dettagli sono nel
+[manuale tecnico](docs/manuale-tecnico.html).
 
-- `ams send` gira come root: salva il messaggio e lo consegna subito alle sessioni attive
-  (scrittura sui terminali; finestra sul desktop tramite `systemd-run --user`).
+- `ams` gira sempre come root (si rilancia con sudo): salva il messaggio e lo consegna subito alle
+  sessioni attive, scrivendo sui terminali e svegliando l'agente del desktop con un segnale
+  (se l'agente manca, lo avvia con `systemd-run --user`).
 - `/usr/local/lib/ams/ams-user`: helper interno, fuori dal PATH e non documentato come comando.
   Gira come utente e lo usano solo l'hook e l'agente per mostrare i messaggi e registrare la conferma.
 - L'hook in `/etc/profile.d` mostra i messaggi in sospeso e i promemoria nel terminale.
@@ -141,11 +143,20 @@ compilato si valuterà solo se emergono limiti concreti.
 | `/etc/profile.d/ams.sh` | Hook della shell (richiamato anche da `/etc/bash.bashrc`) |
 | `/etc/xdg/autostart/ams-agent.desktop` | Avvio automatico dell'agente del desktop |
 | `/var/lib/ams/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
-| `/usr/local/share/doc/ams/` | Manuale utente |
+| `/usr/local/share/doc/ams/` | Manuale utente e manuale tecnico |
 
-Il manuale completo è in [`docs/user-manual.html`](docs/user-manual.html): va aperto in un browser
-(GitHub mostra i file HTML come codice sorgente). Dopo l'installazione è anche in
-`/usr/local/share/doc/ams/user-manual.html`.
+## Documentazione
+
+| Documento | Per chi |
+|---|---|
+| [`docs/manuale-utente.html`](docs/manuale-utente.html) | Gli amministratori che usano AMS |
+| [`docs/manuale-tecnico.html`](docs/manuale-tecnico.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test |
+| [`docs/decisioni-e-storia.md`](docs/decisioni-e-storia.md) | Perché AMS è fatto così |
+| [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
+| `ams --help` | La guida integrata, a schede |
+
+I manuali HTML vanno aperti in un browser (GitHub mostra i file HTML come codice sorgente);
+dopo l'installazione sono anche in `/usr/local/share/doc/ams/`.
 
 Esempi:
 

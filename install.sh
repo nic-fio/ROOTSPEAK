@@ -46,7 +46,8 @@ do_install() {
 	chmod 750 "$BINDIR/ams"
 	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
 	install -d -m 755 "$DOCDIR/assets"
-	install -m 644 "$SRC/docs/user-manual.html" "$DOCDIR/user-manual.html"
+	rm -f "$DOCDIR/user-manual.html"   # nome usato fino alla 0.1.0 di sviluppo
+	install -m 644 "$SRC/docs/manuale-utente.html" "$SRC/docs/manuale-tecnico.html" "$DOCDIR/"
 	install -m 644 "$SRC/docs/assets/docs.css" "$SRC/docs/assets/docs.js" "$DOCDIR/assets/"
 	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
 	subst "$SRC/etc/xdg/autostart/ams-agent.desktop" >/etc/xdg/autostart/ams-agent.desktop
@@ -66,7 +67,7 @@ do_install() {
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 
 	echo "AMS installato. Comando: $BINDIR/ams (utilizzabile dal gruppo $group)."
-	echo "Manuale: $DOCDIR/user-manual.html"
+	echo "Manuale: $DOCDIR/manuale-utente.html"
 	echo "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda"
 	echo "di conferma dalla prossima shell o dal prossimo login."
 }
