@@ -7,6 +7,13 @@ S1 = p("Quando un comando non va a buon fine, " + c("ams") + " stampa una riga c
     [c("gruppo inesistente: NOME"), "il gruppo dopo " + c("@") + " non esiste", "controllare il nome del gruppo"],
     [c("nessun destinatario"), "i destinatari indicati sono vuoti, per esempio " + c("online") + " quando nessuno è collegato", "scegliere altri destinatari"],
     [c("messaggio vuoto"), "manca il testo, o contiene solo spazi", "scrivere il testo"],
+    [c("messaggio troppo lungo: N byte (al massimo 65536)"), "il testo supera i 64 KB", "accorciarlo, o mettere il "
+     "testo completo in un file condiviso e mandare il messaggio con il percorso"],
+    [c("… alcune copie non si sono potute togliere dalle caselle"), "durante " + c("ams revoke") + " la casella di un "
+     "utente non era raggiungibile", "nulla: il prossimo comando " + c("ams") + " riprova"],
+    [c("[non attendibile: scritto da UID N]") + " in " + c("ams log"), "un evento del registro è stato scritto da un "
+     "utente diverso da quello che avrebbe dovuto scriverlo, per esempio una conferma falsa", "non considerarlo; "
+     "lo stato vero è quello di " + c("ams status")],
     [c("scadenza non valida: X"), "la scadenza non è stata capita", "usare " + c("2h") + " o " + c('"2026-10-04 12:00"') + " (capitolo 4.4)"],
     [c("la scadenza è già passata"), "la data indicata è nel passato", "correggere la data"],
     [c("messaggio inesistente: ID"), "nessun messaggio con quel numero", "controllare con " + c("ams list")],

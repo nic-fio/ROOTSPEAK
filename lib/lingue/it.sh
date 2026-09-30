@@ -13,6 +13,7 @@ declare -gA AMS_T_it=(
 	[err_value]="manca il valore di %s"
 	[err_no_to]="manca --to"
 	[err_empty]="messaggio vuoto"
+	[err_too_long]="messaggio troppo lungo: %s byte (al massimo %s)"
 	[err_no_recipients]="nessun destinatario"
 	[err_no_id]="manca l'ID del messaggio"
 	[err_no_duration]="manca la durata, per esempio 90d"
@@ -54,6 +55,9 @@ declare -gA AMS_T_it=(
 	[purge_n]="Cancellati %s messaggi più vecchi di %s."
 	[log_head]="Messaggio %s · %s"
 	[revoke_ok]="Messaggio %s ritirato."
+	[revoke_partial]="messaggio %s ritirato, ma alcune copie non si sono potute togliere dalle caselle: il prossimo comando ams riproverà"
+	[send_revoked]="Messaggio %s ritirato durante l'invio: consegna interrotta."
+	[log_untrusted]="[non attendibile: scritto da UID %s] "
 	[channel_term]="terminale"
 	[channel_desktop]="desktop"
 

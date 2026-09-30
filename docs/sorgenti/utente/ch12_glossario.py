@@ -3,7 +3,8 @@ from build import c, dl
 S1 = dl([
     ("agente del desktop", "La parte di AMS che, nella sessione grafica dell'utente, mostra le finestre di conferma."),
     ("casella", "Lo spazio in cui AMS tiene i messaggi di un utente finché non li ha confermati."),
-    ("confermato", "Terzo e ultimo stato di un destinatario: ha dichiarato di aver letto il messaggio."),
+    ("confermato", "Terzo e ultimo stato di un destinatario: ha dichiarato di aver letto il messaggio. È la sua "
+     "dichiarazione, non una prova che l'abbia letto davvero."),
     ("consegnato", "Secondo stato: la copia del messaggio è nella casella dell'utente."),
     ("conferma", "La dichiarazione dell'utente di aver letto un messaggio: un clic su «Ho letto» o la risposta «s»."),
     ("destinatari", "Gli utenti che ricevono un messaggio: nomi, gruppi, " + c("online") + ", " + c("all") + "."),

@@ -70,7 +70,9 @@ S4 = p(c("ams revoke") + " ritira un messaggio mandato per errore o non più val
         "Chi non l'ha ancora visto non lo vedrà più.",
         "Una finestra di conferma ancora aperta si chiude da sola; una domanda in attesa nel terminale si interrompe "
         "con «L'amministratore ha ritirato il messaggio».",
-        "Le conferme già arrivate restano, e " + c("ams status") + " le mostra con l'indicazione RITIRATO.",
+        "Le conferme già arrivate restano, e " + c("ams status") + " le mostra con l'indicazione RITIRATO. Una "
+        "conferma arrivata dopo il ritiro non vale.",
+        "Se il messaggio si sta ancora inviando, l'invio si ferma e le copie già consegnate vengono tolte.",
     ]) + warn("il testo già comparso nei terminali al momento dell'invio non si può cancellare: è già sullo schermo "
               "dell'utente.")
 

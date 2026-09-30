@@ -13,7 +13,9 @@ Fallisce se:
   - la versione di lib/ams-common.sh non compare nei due manuali;
   - un link interno #ancora di uno dei due manuali non porta a nessun id;
   - le lingue in lib/lingue/ non hanno le stesse chiavi, con gli stessi %s,
-    o le guide nelle varie lingue non hanno lo stesso numero di voci.
+    o le guide nelle varie lingue non hanno lo stesso numero di voci;
+  - l'ultima esecuzione di tests/engine.sh non ha l'impronta del codice
+    attuale (tools/impronta.sh) o ha controlli falliti.
 """
 import html
 import importlib.util
@@ -118,6 +120,14 @@ for lang in langs:
                 errors.append(f"lingue: {fname}, chiave {k}: {cat[k]} %s invece di {ref[k]}")
     if (LINGUE / f"aiuto-{lang}.sh").exists() and help_counts(LINGUE / f"aiuto-{lang}.sh") != counts:
         errors.append(f"lingue: aiuto-{lang}.sh non ha le stesse voci della guida italiana")
+
+# ---- prove ----
+import json
+eng = ROOT / "tests" / "risultati" / "engine.json"
+if not eng.exists() or json.loads(eng.read_text()).get("impronta") != build.impronta_attuale():
+    errors.append("prove: tests/engine.sh non è stato eseguito sul codice attuale (impronta diversa): lanciarlo")
+elif json.loads(eng.read_text()).get("no"):
+    errors.append("prove: l'ultima esecuzione di tests/engine.sh ha controlli falliti")
 
 if errors:
     print("\n".join(errors))

@@ -13,21 +13,26 @@ S1 = p(c("ack ID CANALE") + " scrive la conferma in un file temporaneo e la pubb
     """ack() {
 	local tmp=$D/acks/.$1.$$ err
 	if [ -e "$D/acks/$1" ]; then mark_read "$1"; return 0; fi
+	[ -e "$D/inbox/$1" ] || return 3          # ritirato: niente conferma
+	if ams_msg_expired "$D/inbox/$1"; then mark_read "$1"; return 2; fi
 	if ! err=$({ printf '%s %s\\n' "$(date +%s)" "$2" >"$tmp" && ln "$tmp" "$D/acks/$1"; } 2>&1); then
 		rm -f "$tmp"
 		if [ -e "$D/acks/$1" ]; then mark_read "$1"; return 0; fi
-		ams_log "utente $U: ERRORE, conferma del messaggio $1 non registrata ($2): $err"
+		ams_event CONFERMA_FALLITA "$1" "$U" "$2" "$err"
 		return 1
 	fi
 	rm -f "$tmp"
+	sync "$D/acks/$1" "$D/acks"               # su disco prima di «Confermato»
 	mark_read "$1"
-	ams_log "utente $U: confermata la lettura del messaggio $1 ($2)"
-}""", "bash", "lib/ams-user") + table(["Caso", "Esito", "Messaggio"], [
+	ams_event CONFERMATO "$1" "$U" "$2"
+}""", "bash", "lib/ams-user (in breve)") + table(["Caso", "Esito", "Messaggio"], [
         ["conferma scritta", "0", "passa in " + c("read/") + "; evento nel registro"],
         [c("acks/ID") + " già presente", "0", "passa in " + c("read/") + "; resta la prima conferma"],
         ["scrittura fallita (disco pieno, permessi)", "1", "<b>resta in " + c("inbox/")
          + "</b>; l'utente è avvisato, l'errore va nel registro, la domanda o la finestra tornano"],
         ["messaggio scaduto", "2", "passa in " + c("read/") + " senza conferma: una conferma dopo la scadenza non vale"],
+        ["copia sparita (messaggio ritirato)", "3", "nessuna conferma; se il ritiro arriva fra il controllo e "
+         + c("ln") + ", " + c("ams status") + " non conta la conferma perché la sua data è successiva al ritiro"],
     ], "«TAB» — Gli esiti di ack") + RACE + \
     p("Due conferme quasi contemporanee, dalla finestra e da un terminale, producono una sola registrazione. Il canale è "
       + c("desktop") + " oppure " + c("terminale pts/N") + " (" + c("terminale tty3") + " per una console).")

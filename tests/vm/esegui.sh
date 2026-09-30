@@ -60,7 +60,7 @@ v "systemctl restart gdm; for i in \$(seq 1 90); do
 
 rm -rf "$QUI/risultati" && mkdir -p "$QUI/risultati/catture"
 x "rm -f $DIR/vm/catture/*"
-v "LANG=it_IT.UTF-8 AMS_PROVA_SOLO=${AMS_PROVA_SOLO:-} AMS_PROVA_DESKTOP=$DESK python3 -u /opt/ams-src/tests/container/scenari.py /opt/risultati" |
+v "LANG=it_IT.UTF-8 AMS_PROVA_COMMIT=$("$ROOT/tools/impronta.sh" --commit) AMS_PROVA_IMPRONTA=$("$ROOT/tools/impronta.sh") AMS_PROVA_SOLO=${AMS_PROVA_SOLO:-} AMS_PROVA_DESKTOP=$DESK python3 -u /opt/ams-src/tests/container/scenari.py /opt/risultati" |
 	while IFS= read -r riga; do
 		case $riga in
 		"@@CATTURA "*) x "python3 $DIR/src/tests/vm/cattura.py $DIR/vm/monitor.sock $DIR/vm/catture/${riga#@@CATTURA }.ppm" ;;

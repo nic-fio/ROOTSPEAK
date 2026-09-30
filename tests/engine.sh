@@ -292,6 +292,92 @@ check "guida in inglese" '[[ $out == *"SYNOPSIS"* && $out == *"SEND OPTIONS"* ]]
 out=$("$ROOT/bin/ams" --help </dev/null | cat)
 check "guida in italiano" '[[ $out == *"SINTASSI"* && $out == *"OPZIONI DI SEND"* ]]'
 
+# ---- 9. seconda revisione: ritiro, terminali, interruzioni, caselle anomale ----
+
+echo "9. seconda revisione"
+S=$AMS_VAR
+fresh rit-attesa
+send "lungo invio"
+( flock "$AMS_VAR/sent/1/lock" sleep 2 ) &
+sleep 0.3
+t0=$(date +%s%N)
+"$ROOT/bin/ams" revoke 1 >/dev/null
+dt=$((($(date +%s%N) - t0) / 1000000))
+wait
+check "ams revoke aspetta un invio in corso (lock), poi toglie la copia" '[ $dt -ge 1200 ] && [ ! -e "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/ritiro" ]'
+
+fresh rit-conferma
+send "ritirato"
+"$ROOT/bin/ams" revoke 1 >/dev/null
+rev=$(cat "$AMS_VAR/sent/1/revoked")
+echo "$((rev + 5)) terminale pts/9" >"$D/acks/1"
+check "conferma con ora successiva al ritiro: non vale" '[[ "$(state_of 1 "$U")" == "consegnato, non confermato (ritirato)" ]]'
+echo "$rev terminale pts/9" >"$D/acks/1"
+check "conferma dello stesso secondo del ritiro: vale" '[[ "$(state_of 1 "$U")" == confermato* ]]'
+
+fresh rit-ack
+send "ritirato prima della risposta"
+cp "$D/inbox/1" "$BASE/copia"
+out=$(printf 's\n' | script -qec "bash -c '$ROOT/lib/ams-user prompt & sleep 0.5; rm -f $D/inbox/1; wait'" /dev/null 2>&1)
+check "copia tolta mentre l'utente risponde: nessuna conferma scritta" '[ ! -e "$D/acks/1" ]'
+
+fresh term-altro
+AMS_TEST_TTY=/dev/null "$ROOT/bin/ams" send --to "$U" "terminale d'altri" >/dev/null
+check "terminale di un altro utente (qui /dev/null, di root): non si scrive" '[ "$(state_of 1 "$U")" = consegnato ]'
+: >"$BASE/tty-mio"
+AMS_TEST_TTY=$BASE/tty-mio "$ROOT/bin/ams" send --to "$U" "terminale mio" >/dev/null
+check "terminale dell'utente: si scrive" 'grep -q "terminale mio" "$BASE/tty-mio"'
+
+fresh corrente
+send "persa dopo un'interruzione di corrente"
+rm -f "$D/inbox/1"
+: >"$AMS_VAR/sent/1/incomplete"
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "copia annotata ma sparita (invio incompleto): il recupero la riscrive" '[ -s "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 1 ]'
+
+fresh rit-meta
+send "ritiro interrotto"
+date +%s >"$AMS_VAR/sent/1/revoked"
+: >"$AMS_VAR/sent/1/ritiro"
+"$ROOT/bin/ams" list >/dev/null 2>&1
+check "ritiro interrotto: il comando successivo toglie la copia" '[ ! -e "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/ritiro" ]'
+
+fresh canc-meta
+send "cancellazione interrotta"
+mv "$AMS_VAR/sent/1" "$AMS_VAR/sent/.cancella-1"
+out=$("$ROOT/bin/ams" list 2>&1)
+check "cancellazione interrotta: ams list non la mostra e il recupero la completa" \
+	'[[ $out != *"cancellazione interrotta"* ]] && [ ! -e "$AMS_VAR/sent/.cancella-1" ] && [ ! -e "$D/inbox/1" ]'
+
+fresh molti-acks
+send "uno"
+(cd "$D/acks" && seq 1000 6000 | xargs touch)
+t0=$(date +%s%N)
+"$ROOT/bin/ams" list >/dev/null
+dt=$((($(date +%s%N) - t0) / 1000000))
+[ -n "$VERBOSE" ] && echo "       ams list con 5000 file finti in acks/: $dt ms"
+check "5000 file finti in acks/: ams list non rallenta (meno di 1 s)" '[ $dt -lt 1000 ]'
+
+fresh fifo
+send "uno"
+mkfifo "$D/acks/1"
+check "acks/ID è una pipe: ams status non si blocca" 'timeout 5 "$ROOT/bin/ams" status 1 >/dev/null'
+
+fresh lungo
+out=$(head -c 70000 /dev/zero | tr '\0' a | "$ROOT/bin/ams" send --to "$U" 2>&1)
+check "testo oltre 65536 byte: rifiutato con un errore chiaro" '[[ $out == *"messaggio troppo lungo: 70000 byte"* ]] && [ ! -e "$AMS_VAR/sent/1" ]'
+out=$(head -c 65536 /dev/zero | tr '\0' a | "$ROOT/bin/ams" send --to "$U" 2>&1)
+check "testo di 65536 byte: accettato" '[ -e "$AMS_VAR/sent/1/msg" ]'
+
+printf 'AMS_REMIND_MINUTES=45 # minuti di rinvio\n  AMS_AGENT_POLL = 20  \n' >"$BASE/conf"
+out=$(AMS_CONF=$BASE/conf bash -c '. "$AMS_LIB/ams-common.sh"; echo "$AMS_REMIND_MINUTES $AMS_AGENT_POLL"')
+check "ams.conf: commento a fine riga e spazi" '[ "$out" = "45 20" ]'
+
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi
+# risultato, con commit e impronta del codice provato (letti dal manuale tecnico, capitolo 11)
+mkdir -p "$ROOT/tests/risultati"
+printf '{"data": "%s", "commit": "%s", "impronta": "%s", "ok": %d, "no": %d, "totale": %d}\n' \
+	"$(date '+%Y-%m-%d %H:%M:%S %Z')" "$("$ROOT/tools/impronta.sh" --commit)" "$("$ROOT/tools/impronta.sh")" \
+	$((total - fails)) "$fails" "$total" >"$ROOT/tests/risultati/engine.json"
 [ $fails -eq 0 ]

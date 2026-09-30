@@ -384,6 +384,20 @@ def f_guasti():
     st = stato(mid, "luca")
     registra("F6", "Guasti", "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
              "consegnato", r.returncode == 0 and st == "consegnato", f"{st}; {r.stderr.strip()[:120]}")
+
+    # ritiro mentre l'invio a molti utenti è in corso: nessuna copia deve restare o ricomparire
+    p = subprocess.Popen([AMS, "send", "--to", "all", "Da ritirare"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    time.sleep(0.8)
+    mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
+    t0 = time.time()
+    rv = ams(f"revoke {mid}")
+    dt = time.time() - t0
+    out_send = p.communicate()[0]
+    copie = [u for u in os.listdir(f"{VAR}/users") if os.path.exists(f"{VAR}/users/{u}/inbox/{mid}")]
+    registra("F7", "Guasti", "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
+             "nessuna copia nelle caselle, invio interrotto", rv.returncode == 0 and not copie
+             and not os.path.exists(f"{VAR}/sent/{mid}/ritiro"),
+             f"copie rimaste: {len(copie)}; {out_send.strip()[:80]}", secondi_attesa_revoke=round(dt, 2))
     # invio in corso e, nello stesso momento, altri comandi ams che fanno il recupero
     azzera()
     p = subprocess.Popen([AMS, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -552,8 +566,20 @@ def j_registro():
              not mancanti, "mancano: " + ", ".join(mancanti) if mancanti else f"{len(out.splitlines()) - 1} eventi")
     uid = pwd.getpwnam("mario").pw_uid
     ev = sh(f"journalctl -q -o cat --output-fields=_UID AMS_MESSAGGIO=1 AMS_EVENTO=CONFERMATO AMS_UTENTE=mario").stdout.split()
-    registra("J2", "Registro", "la conferma nel journal porta l'utente vero (_UID), non falsificabile",
+    registra("J2", "Registro", "la conferma nel journal porta l'utente che l'ha scritta (_UID)",
              f"_UID {uid}", str(uid) in ev, " ".join(ev))
+    # un utente scrive nel journal una conferma falsa a nome di un altro
+    sh("runuser -u luca -- sh -c 'printf \"MESSAGE=falso\\nSYSLOG_IDENTIFIER=ams\\nAMS_EVENTO=CONFERMATO\\n"
+       "AMS_MESSAGGIO=1\\nAMS_UTENTE=anna\\nAMS_CANALE=desktop\\n\" | logger --journald'")
+    time.sleep(1)
+    out = ams("log 1").stdout
+    luca = pwd.getpwnam("luca").pw_uid
+    falsa = [r for r in out.splitlines() if "utente anna: confermata" in r]
+    registra("J3", "Registro", "un evento scritto da un utente a nome di un altro: ams log lo segnala",
+             f"«non attendibile: scritto da UID {luca}»",
+             bool(falsa) and all(f"non attendibile: scritto da UID {luca}" in r for r in falsa)
+             and not any("non attendibile" in r for r in out.splitlines() if r not in falsa),
+             " / ".join(falsa)[:160])
 
 
 # ---- H. prestazioni ----
@@ -792,11 +818,15 @@ def rapporto():
                 sistema=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
                 + (f", VM con GNOME, desktop di {DESK}" if DESK else ", container con systemd"),
                 ok=sum(r["esito"] == "OK" for r in risultati), no=sum(r["esito"] == "NO" for r in risultati),
-                non_provati=sum(r["esito"] == "NON PROVATO" for r in risultati), totale=len(risultati))
+                non_provati=sum(r["esito"] == "NON PROVATO" for r in risultati), totale=len(risultati),
+                commit=os.environ.get("AMS_PROVA_COMMIT", "sconosciuto"),
+                impronta=os.environ.get("AMS_PROVA_IMPRONTA", "sconosciuta"),
+                solo=os.environ.get("AMS_PROVA_SOLO", ""))
     with open(f"{OUT}/risultati.json", "w") as f:
         json.dump(dict(meta=meta, risultati=risultati), f, ensure_ascii=False, indent=1)
     righe = [f"# Prove di AMS {'nella VM con desktop' if DESK else 'nella macchina di prova'}\n",
              f"- Data: {meta['data']}", f"- {meta['versione']}", f"- Sistema: {meta['sistema']}",
+             f"- Codice: commit {meta['commit']}, impronta {meta['impronta']}",
              f"- Esito: **{meta['ok']} riusciti, {meta['no']} falliti, {meta['non_provati']} non provati** "
              f"su {meta['totale']} scenari\n",
              "| Codice | Area | Scenario | Atteso | Esito | Misure / dettagli |", "|---|---|---|---|---|---|"]

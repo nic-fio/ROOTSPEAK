@@ -363,6 +363,41 @@ def file_map(rows, cap):
     return table(["File", "Righe", "Ruolo"], out, cap, "file-map")
 
 
+# ── I risultati delle prove, letti dai file che le prove scrivono ────────
+def impronta_attuale():
+    import subprocess
+    return subprocess.run([str(ROOT / "tools/impronta.sh")], capture_output=True, text=True).stdout.strip()
+
+
+def risultati_prove():
+    """Una riga per suite: esito, data, commit, impronta e se l'impronta è quella del codice attuale."""
+    import json
+    attuale = impronta_attuale()
+    righe = []
+    for nome, f, unita in (("tests/engine.sh", "tests/risultati/engine.json", "controlli"),
+                           ("tests/container/esegui.sh", "tests/container/risultati/risultati.json", "scenari"),
+                           ("tests/vm/esegui.sh", "tests/vm/risultati/risultati.json", "scenari")):
+        path = ROOT / f
+        if not path.exists():
+            righe.append([c(nome), "mai eseguita", "", "", "", ""])
+            continue
+        d = json.loads(path.read_text())
+        m = d.get("meta", d)
+        esito = f"{m['ok']} riusciti su {m['totale']} {unita}"
+        if m.get("no"):
+            esito += f", <b>{m['no']} falliti</b>"
+        if m.get("non_provati"):
+            esito += f", {m['non_provati']} non provati"
+        if m.get("solo"):
+            esito += f" (solo {m['solo']})"
+        imp = m.get("impronta", "sconosciuta")
+        righe.append([c(nome), esito, m.get("data", ""), c(m.get("commit", "sconosciuto")), c(imp),
+                      "sì" if imp == attuale else "<b>no</b>: codice cambiato dopo la prova"])
+    return table(["Suite", "Esito", "Data", "Commit", "Impronta", "Vale per il codice attuale"], righe,
+                 "«TAB» — L'ultima esecuzione di ogni suite (" + c("tests/*/risultati/") + "); impronta del codice "
+                 "attuale: " + c(attuale))
+
+
 # ── La guida integrata come fonte del riferimento ───────────────────────
 def help_items(name):
     """Le voci «etichetta¦descrizione» di un array della guida in italiano (lib/lingue/aiuto-it.sh)."""

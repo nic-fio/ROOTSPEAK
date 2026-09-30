@@ -115,6 +115,23 @@ term_lang() {
 	_LINGUA=$AMS_LINGUA_SISTEMA
 }
 
+# Scrive su stdin nel terminale T solo se, una volta aperto, appartiene ancora a
+# U. Il nome /dev/pts/N non identifica una sessione: fra la ricerca dei
+# terminali e la scrittura quello di U può chiudersi e lo stesso numero
+# passare a un altro utente. Si apre il terminale e si controlla il
+# proprietario del terminale aperto (/dev/fd/5), non del nome: se il numero
+# viene riassegnato dopo l'apertura, la scrittura va al terminale vecchio, già
+# chiuso, e fallisce.
+write_term() {
+	local t=$1 u=$2
+	(
+		exec 5>"$t" || exit 1
+		[ -c /dev/fd/5 ] || [ -n "${AMS_TEST:-}" ] || exit 1
+		[ "$(stat -L -c %U /dev/fd/5)" = "$u" ] || exit 1
+		timeout 3 cat >&5
+	) 2>/dev/null
+}
+
 has_graphical_session() {
 	user_sessions "$1" | awk '$2 == "x11" || $2 == "wayland" { found = 1 } END { exit !found }'
 }
@@ -222,7 +239,12 @@ recover() {
 		fi
 		miss=0 n=0
 		for u in $(cat "$dir/recipients"); do
-			delivered "$u" "$id" && continue
+			# Già annotata: dopo un'interruzione di corrente la copia potrebbe
+			# non essere arrivata su disco, quindi si riscrive se manca.
+			if delivered "$u" "$id"; then
+				deliver_copy "$u" "$id" || miss=$((miss + 1))
+				continue
+			fi
 			if deliver_copy "$u" "$id"; then
 				echo "$u $(date +%s) 0" >>"$dir/delivery"
 				ams_event CONSEGNATO "$id" "$u" ""
@@ -232,7 +254,10 @@ recover() {
 				miss=$((miss + 1))
 			fi
 		done
-		if [ $miss -eq 0 ]; then rm -f "$f"; fi
+		if [ $miss -eq 0 ]; then
+			sync -f "$AMS_VAR/users" "$dir"
+			rm -f "$f"
+		fi
 		if [ $n -gt 0 ]; then
 			ams_event RECUPERATO "$id" "" "" "$n"
 			echo "ams: $(t recover_done "$id" "$n")" >&2
@@ -242,6 +267,47 @@ recover() {
 		fi
 		exec 6>&-
 	done
+	# ritiri rimasti a metà (sent/ID/ritiro) e cancellazioni rimaste a metà (sent/.cancella-ID)
+	for f in "$AMS_VAR"/sent/*/ritiro; do
+		[ -e "$f" ] || continue
+		dir=${f%/ritiro}
+		exec 6>"$dir/lock"
+		if flock -n 6; then withdraw_copies "${dir##*/}" || true; fi
+		exec 6>&-
+	done
+	for dir in "$AMS_VAR"/sent/.cancella-*; do
+		[ -d "$dir" ] || continue
+		purge_dir "$dir"
+	done
+}
+
+# Toglie dalle caselle le copie del messaggio ID e i rinvii, come ciascun
+# utente. Il segno sent/ID/ritiro resta finché qualche copia non si è potuta
+# togliere: il comando ams successivo riprova. Esito 1 se ne manca qualcuna.
+withdraw_copies() {
+	local id=$1 dir=$AMS_VAR/sent/$1 u miss=0
+	for u in $(cat "$dir/recipients" 2>/dev/null); do
+		[ -d "$AMS_VAR/users/$u" ] || continue
+		as_user "$u" sh -c 'rm -f "$1/inbox/$2" "$1/state/$2".* && [ ! -e "$1/inbox/$2" ]' \
+			_ "$AMS_VAR/users/$u" "$id" 2>/dev/null || miss=$((miss + 1))
+	done
+	if [ $miss -eq 0 ]; then
+		rm -f "$dir/ritiro"
+		return 0
+	fi
+	return 1
+}
+
+# Toglie dalle caselle copie, conferme e rinvii di un messaggio già spostato in
+# sent/.cancella-ID, poi la sua cartella. Si può ripetere dopo un'interruzione.
+purge_dir() {
+	local dir=$1 id=${1##*/.cancella-} u
+	for u in $(cat "$dir/recipients" 2>/dev/null); do
+		[ -d "$AMS_VAR/users/$u" ] || continue
+		as_user "$u" sh -c 'rm -f "$1/inbox/$2" "$1/read/$2" "$1/acks/$2" "$1/state/$2.term" "$1/state/$2.gui"' \
+			_ "$AMS_VAR/users/$u" "$id" 2>/dev/null || true
+	done
+	rm -rf "$dir"
 }
 
 sent_msg() {
@@ -293,6 +359,10 @@ cmd_send() {
 	text=$(ams_sanitize <<<"$text")
 	title=$(printf '%s' "$title" | ams_sanitize | tr '\n\t' '  ')
 	[ -n "${text//[[:space:]]/}" ] || ams_die "$(t err_empty)"
+	# La finestra del desktop riceve il testo come argomento di zenity, e Linux
+	# non accetta un argomento oltre 128 KiB: il limite lascia margine.
+	[ "$(printf '%s' "$text" | wc -c)" -le "$AMS_MAX_BYTES" ] ||
+		ams_die "$(t err_too_long "$(printf '%s' "$text" | wc -c)" "$AMS_MAX_BYTES")"
 
 	users=$(resolve_recipients "$to")
 	[ -n "$users" ] || ams_die "$(t err_no_recipients)"
@@ -322,9 +392,14 @@ cmd_send() {
 	mv "$msg.tmp" "$msg"
 	echo "$users" >"$dir/recipients.tmp"
 	mv "$dir/recipients.tmp" "$dir/recipients"
+	# Messaggio, destinatari e segno di invio incompleto sono su disco prima di
+	# ogni consegna: dopo un'interruzione di corrente il recupero li ritrova.
+	sync "$dir/msg" "$dir/recipients" "$dir/incomplete" "$dir" "$AMS_VAR/sent"
 
 	failed=''
 	for u in $users; do
+		# ritirato durante l'invio (ams revoke aspetta il lock): non si consegna altro
+		[ ! -e "$dir/revoked" ] || break
 		if ! deliver_copy "$u" "$id"; then
 			failed+=" $u"
 			ams_event NON_CONSEGNATO "$id" "$u" ""
@@ -335,7 +410,7 @@ cmd_send() {
 		for t in $(user_terminals "$u"); do
 			# nella lingua di chi usa quel terminale
 			term_lang "$t" "$u"
-			if ams_msg_term "$msg" "$_LINGUA" | sed 's/$/\r/' | timeout 3 tee "$t" >/dev/null 2>&1; then
+			if ams_msg_term "$msg" "$_LINGUA" | sed 's/$/\r/' | write_term "$t" "$u"; then
 				nterm=$((nterm + 1))
 			fi
 		done
@@ -350,7 +425,12 @@ cmd_send() {
 		t send_partial "$id" "$((n - $(wc -w <<<"$failed")))" "$n"; echo
 		ams_die "$(t send_failed "$id" "$failed")"
 	fi
+	# Le copie e le consegne vanno su disco prima di togliere il segno: finché
+	# c'è, il recupero ricontrolla ogni copia (anche quelle già annotate).
+	sync -f "$AMS_VAR/users" "$dir"
 	rm -f "$dir/incomplete"
+	sync "$dir"
+	if [ -e "$dir/revoked" ]; then t send_revoked "$id"; echo; return 0; fi
 	if [ "$n" -eq 1 ]; then t send_ok_1 "$id"; else t send_ok_n "$id" "$n"; fi
 	echo
 }
@@ -359,12 +439,16 @@ cmd_send() {
 # runuser restituisce tutte le conferme (prima riga, al massimo 200 byte) e le
 # date dei rinvii, poi ripulite e controllate qui. Le consegne di un messaggio
 # si leggono una volta. Tutto resta in memoria per il resto del comando.
-declare -A _ACK=() _SNZ=() _UTENTE_LETTO=() _DEL=() _DEL_LETTO=()
+declare -A _ACK=() _SNZ=() _UTENTE_LETTO=() _DEL=() _DEL_LETTO=() _REV=()
 
 load_user() {
 	local u=$1 riga tipo id resto
 	[ -n "${_UTENTE_LETTO[$u]:-}" ] && return
 	_UTENTE_LETTO[$u]=1
+	# Si cercano solo i messaggi che esistono in sent/, non tutto ciò che c'è
+	# nella casella: migliaia di file finti in acks/ non rallentano root. Il
+	# tempo è comunque limitato: una casella anomala non blocca ams.
+	[ -n "${_IDS+x}" ] || _IDS=$(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*' -printf '%f\n' 2>/dev/null)
 	while IFS= read -r riga; do
 		tipo=${riga%% *}
 		resto=${riga#* }
@@ -376,13 +460,13 @@ load_user() {
 		A) _ACK[$u:$id]=$resto ;;
 		S) if [[ $resto =~ ^[0-9]+$ ]] && [ "$resto" -gt "${_SNZ[$u:$id]:-0}" ]; then _SNZ[$u:$id]=$resto; fi ;;
 		esac
-	done < <(as_user "$u" sh -c '
+	done < <(printf '%s\n' "$_IDS" | as_user "$u" timeout 20 sh -c '
 		cd "$1" 2>/dev/null || exit 0
-		for f in acks/[0-9]*; do
-			[ -f "$f" ] && printf "A %s %s\n" "${f#acks/}" "$(head -c 200 "$f" | head -n 1)"
-		done
-		for f in state/[0-9]*.term state/[0-9]*.gui; do
-			[ -f "$f" ] && { n=${f#state/}; printf "S %s %s\n" "${n%%.*}" "$(stat -c %Y "$f")"; }
+		while read -r id; do
+			[ -f "acks/$id" ] && printf "A %s %s\n" "$id" "$(head -c 200 "acks/$id" | head -n 1)"
+			for f in "state/$id.term" "state/$id.gui"; do
+				[ -f "$f" ] && printf "S %s %s\n" "$id" "$(stat -c %Y "$f")"
+			done
 		done
 		exit 0' _ "$AMS_VAR/users/$u" 2>/dev/null | ams_sanitize)
 }
@@ -391,6 +475,9 @@ load_delivery() {
 	local id=$1 u _resto
 	[ -n "${_DEL_LETTO[$id]:-}" ] && return
 	_DEL_LETTO[$id]=1
+	if [ -f "$AMS_VAR/sent/$id/revoked" ]; then
+		read -r _REV[$id] <"$AMS_VAR/sent/$id/revoked" 2>/dev/null || true
+	fi
 	[ -f "$AMS_VAR/sent/$id/delivery" ] || return 0
 	while read -r u _resto; do
 		_DEL[$id:$u]=1
@@ -423,16 +510,22 @@ recipient_state() {
 		RSTATE="consegnato tardiva"
 		return
 	fi
+	# Lo stesso per il ritiro: vale la data di sent/ID/revoked; una conferma
+	# dello stesso secondo o precedente resta valida, una successiva no.
+	if [[ ${_REV[$id]:-} =~ ^[0-9]+$ ]] && [ "$epoch" -gt "${_REV[$id]}" ]; then
+		RSTATE=consegnato
+		return
+	fi
 	RSTATE="confermato $epoch ${channel:-?}"
 }
 
 cmd_list() {
-	local dir id msg n tot state flag u nd _REVOKED _EXPIRED
+	local dir id msg n tot state flag u nd _REVOKED _EXPIRED dest data primo
 	tv _REVOKED list_revoked
 	tv _EXPIRED list_expired
 	[ -d "$AMS_VAR/sent" ] || { t list_none; echo; return; }
 	printf '%-5s %-12s %-9s %s\n' "$(t col_id)" "$(t col_date)" "$(t col_acks)" "$(t col_text)"
-	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -n); do
+	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*' -printf '%f\n' | sort -n); do
 		msg=$AMS_VAR/sent/$dir/msg
 		id=$dir
 		n=0 tot=0 nd=0
@@ -440,7 +533,13 @@ cmd_list() {
 			printf '%-5s %-12s %-9s %s\n' "$id" "-" "-" "$(t list_cancelled)"
 			continue
 		fi
-		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
+		# Tutto ciò che serve si legge prima: un messaggio cancellato nel
+		# frattempo da ams purge sparisce dall'elenco invece di uscire a metà.
+		dest=$(cat "$AMS_VAR/sent/$id/recipients" 2>/dev/null) || continue
+		data=$(ams_msg_get "$msg" date 2>/dev/null) || continue
+		[[ $data =~ ^[0-9]+$ ]] || continue
+		primo=$(ams_msg_body "$msg" 2>/dev/null | head -1 | cut -c1-50)
+		for u in $dest; do
 			tot=$((tot + 1))
 			recipient_state "$u" "$id"
 			state=$RSTATE
@@ -452,9 +551,8 @@ cmd_list() {
 		flag=''
 		[ $nd -gt 0 ] && tv flag list_undelivered "$nd"
 		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag+=$_REVOKED
-		ams_msg_expired "$msg" && flag+=$_EXPIRED
-		printf '%-5s %-12s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
-			"$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
+		ams_msg_expired "$msg" 2>/dev/null && flag+=$_EXPIRED
+		printf '%-5s %-12s %-9s %s\n' "$id" "$(date -d "@$data" '+%d/%m %H:%M')" "$n/$tot" "$flag$primo"
 	done
 }
 
@@ -527,14 +625,14 @@ cmd_purge() {
 			exec 5>&-
 			continue
 		fi
-		for u in $(cat "$dir/recipients" 2>/dev/null); do
-			[ -d "$AMS_VAR/users/$u" ] || continue
-			as_user "$u" sh -c 'rm -f "$1/inbox/$2" "$1/read/$2" "$1/acks/$2" "$1/state/$2.term" "$1/state/$2.gui"' \
-				_ "$AMS_VAR/users/$u" "$id" 2>/dev/null || true
-		done
-		rm -rf "$dir"
+		# Il messaggio sparisce in un colpo solo (rinomina): gli altri comandi
+		# lo vedono intero o non lo vedono. La pulizia delle caselle segue, e
+		# se si interrompe la completa il comando ams successivo.
+		mv "$dir" "$AMS_VAR/sent/.cancella-$id"
+		sync "$AMS_VAR/sent"
 		exec 5>&-
 		ams_event CANCELLATO "$id" "" "" "$dur" "${SUDO_USER:-$(id -un)}"
+		purge_dir "$AMS_VAR/sent/.cancella-$id"
 		tolti=$((tolti + 1))
 	done
 	if [ $tolti -eq 1 ]; then t purge_1 "$dur"; else t purge_n "$tolti" "$dur"; fi
@@ -546,22 +644,33 @@ cmd_purge() {
 # evento si riscrive dai campi AMS_* nella lingua di chi legge; un evento che
 # non si sa riscrivere mostra il suo testo originale.
 cmd_log() {
-	local id=${1:-} msg dal riga k v quando ev u ch det aut testo
+	local id=${1:-} msg dal riga k v quando ev u ch det aut testo uid atteso radm
 	[ -n "$id" ] || ams_die "$(t err_no_id)"
 	msg=$(sent_msg "$id")
 	dal=$(( $(ams_msg_get "$msg" date) - 1 ))
 	t log_head "$id" "$(ams_msg_heading "$msg")"; echo
+	# Chi può scrivere un evento: root per quelli dell'amministratore, l'utente
+	# destinatario per rinvii e conferme. Il journal registra _UID, l'utente che
+	# ha scritto davvero: chiunque può scrivere nel journal un evento con i
+	# campi AMS_*, e uno scritto dall'utente sbagliato viene segnalato.
+	radm=0
+	[ -z "${AMS_TEST:-}" ] || radm=$(id -u)
 	evento() {
 		[ -n "$quando" ] || return 0
-		local riscritto
+		local riscritto avviso=''
+		case $ev in
+		RINVIATO | CONFERMATO | CONFERMA_FALLITA) atteso=$(id -u "$u" 2>/dev/null) || atteso=x ;;
+		*) atteso=$radm ;;
+		esac
+		[ "$uid" = "$atteso" ] || tv avviso log_untrusted "${uid:-?}"
 		riscritto=$(ams_event_text "$AMS_LINGUA" "$ev" "$id" "$u" "$ch" "$det" "$aut") || riscritto=$testo
-		printf '%(%Y-%m-%d %H:%M:%S)T  %s\n' "$((quando / 1000000))" "$riscritto" | ams_sanitize
+		printf '%(%Y-%m-%d %H:%M:%S)T  %s%s\n' "$((quando / 1000000))" "$avviso" "$riscritto" | ams_sanitize
 	}
-	quando='' ev='' u='' ch='' det='' aut='' testo=''
+	quando='' ev='' u='' ch='' det='' aut='' testo='' uid=''
 	while IFS= read -r riga; do
 		if [ -z "$riga" ]; then
 			evento
-			quando='' ev='' u='' ch='' det='' aut='' testo=''
+			quando='' ev='' u='' ch='' det='' aut='' testo='' uid=''
 			continue
 		fi
 		k=${riga%%=*} v=${riga#*=}
@@ -573,25 +682,40 @@ cmd_log() {
 		AMS_DETTAGLI) det=$v ;;
 		AMS_AUTORE) aut=$v ;;
 		MESSAGE) testo=$v ;;
+		_UID) uid=$v ;;
 		esac
 	# solo i campi di testo che servono: i campi binari del formato export
 	# (per esempio _SELINUX_CONTEXT) spezzerebbero la lettura per righe
 	done < <(journalctl --no-pager -q -o export --since "@$dal" \
-		--output-fields=MESSAGE,AMS_EVENTO,AMS_UTENTE,AMS_CANALE,AMS_DETTAGLI,AMS_AUTORE \
+		--output-fields=MESSAGE,AMS_EVENTO,AMS_UTENTE,AMS_CANALE,AMS_DETTAGLI,AMS_AUTORE,_UID \
 		SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO="$id" 2>/dev/null)
 	evento
 }
 
+# Il ritiro avviene quando compare sent/ID/revoked (su disco): da lì nessuna
+# nuova consegna e nessuna conferma successiva vale. Poi si aspetta l'invio
+# eventualmente in corso (lock), che si ferma al destinatario successivo, e si
+# tolgono le copie; sent/ID/ritiro resta finché non sono tolte tutte.
 cmd_revoke() {
-	local id=${1:-} u
+	local id=${1:-} dir
 	[ -n "$id" ] || ams_die "$(t err_no_id)"
 	sent_msg "$id" >/dev/null
-	date +%s >"$AMS_VAR/sent/$id/revoked"
-	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
-		as_user "$u" rm -f "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/state/$id".* 2>/dev/null || true
-	done
-	ams_event RITIRATO "$id" "" "" "" "${SUDO_USER:-$(id -un)}"
-	t revoke_ok "$id"; echo
+	dir=$AMS_VAR/sent/$id
+	: >"$dir/ritiro"
+	if [ ! -e "$dir/revoked" ]; then
+		date +%s >"$dir/revoked.tmp"
+		mv "$dir/revoked.tmp" "$dir/revoked"
+		sync "$dir/revoked" "$dir/ritiro" "$dir"
+		ams_event RITIRATO "$id" "" "" "" "${SUDO_USER:-$(id -un)}"
+	fi
+	exec 5>"$dir/lock"
+	flock 5
+	if withdraw_copies "$id"; then
+		t revoke_ok "$id"; echo
+	else
+		ams_die "$(t revoke_partial "$id")"
+	fi
+	exec 5>&-
 }
 
 case ${1:-} in

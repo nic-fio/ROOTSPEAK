@@ -32,7 +32,8 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
     ("tests/vm/cattura.py", "Cattura lo schermo della VM dal monitor di QEMU."),
     ("tests/vm/desktop.py", "Legge e preme i pulsanti delle finestre di AMS attraverso l'accessibilità di GNOME."),
     ("tests/help-tui.py", "Prova della guida integrata su un terminale virtuale."),
-    ("tools/check-docs.py", "Controlli di coerenza tra codice, guida e manuali."),
+    ("tools/check-docs.py", "Controlli di coerenza tra codice, guida, manuali e prove."),
+    ("tools/impronta.sh", "Impronta del codice (SHA-256 di bin, lib, etc, install.sh) e commit, registrati con i risultati delle prove."),
     ("docs/sorgenti/build.py", "Generatore dei due manuali."),
     ("docs/sorgenti/stile.css", "Lo stile dei manuali, quello di IR_Service."),
 ], "«TAB» — Mappa dei file") + \

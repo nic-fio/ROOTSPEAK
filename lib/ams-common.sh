@@ -4,6 +4,8 @@
 AMS_VERSION=0.1.0
 
 AMS_CONF=${AMS_CONF:-/etc/ams/ams.conf}
+# Lunghezza massima del testo di un messaggio, in byte (vedi cmd_send).
+AMS_MAX_BYTES=65536
 
 # La configurazione è un file di dati, non uno script: righe CHIAVE=valore,
 # commenti con #. Si accettano solo le chiavi note, con valori interi

@@ -21,8 +21,9 @@ S1 = p("Ogni shell ha il suo aggancio, installato dove quella shell lo legge. Tu
     + c("__ams_hook") + ").",
     "Aggiunge " + c("__ams_prompt") + " a " + c("PROMPT_COMMAND") + ": come elemento se è un array (bash 5.1 e "
     "successive), in testa se è una stringa.",
-    c("__ams_prompt") + " conserva " + c("$?") + " e controlla la casella con " + c("compgen -G") + ", senza lanciare "
-    "processi: con la casella vuota il prompt non costa nulla.",
+    c("__ams_prompt") + " conserva " + c("$?") + " e controlla la casella con " + c("compgen -G \"$__AMS_INBOX/[0-9]*\"")
+    + ", un comando interno di bash che non lancia processi e fallisce se non c'è nessun file: con la casella vuota "
+    "il prompt non lancia nulla.",
     "In una shell di login chiama subito " + c("ams-user prompt --login") + ", così il messaggio compare prima del primo "
     "prompt.",
     "zsh e fish controllano la casella allo stesso modo senza lanciare processi: zsh con il glob " + c("(N)")

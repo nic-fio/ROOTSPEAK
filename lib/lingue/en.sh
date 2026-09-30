@@ -13,6 +13,7 @@ declare -gA AMS_T_en=(
 	[err_value]="missing value for %s"
 	[err_no_to]="missing --to"
 	[err_empty]="empty message"
+	[err_too_long]="message too long: %s bytes (at most %s)"
 	[err_no_recipients]="no recipients"
 	[err_no_id]="missing message ID"
 	[err_no_duration]="missing duration, for example 90d"
@@ -54,6 +55,9 @@ declare -gA AMS_T_en=(
 	[purge_n]="Deleted %s messages older than %s."
 	[log_head]="Message %s · %s"
 	[revoke_ok]="Message %s revoked."
+	[revoke_partial]="message %s revoked, but some copies could not be removed from the mailboxes: the next ams command will retry"
+	[send_revoked]="Message %s revoked while sending: delivery stopped."
+	[log_untrusted]="[not trustworthy: written by UID %s] "
 	[channel_term]="terminal"
 	[channel_desktop]="desktop"
 

@@ -50,8 +50,8 @@ Stato: **aperto**, **fatto**, **non accolto**.
 
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
-| 16 | Test automatici del motore: `tests/engine.sh` (46 controlli in 7 gruppi) più le suite dal vero (container 44 scenari, VM 54). Coperti concorrenza, gare, interruzioni, file e caselle alterati, strumenti che falliscono, sicurezza. | A 20 | fatto |
-| 17 | Ambiente riproducibile per le prove dal vivo. (La VM ha poi trovato un terzo difetto: un'uscita dalla sessione subito dopo «Ho letto» poteva perdere la conferma; scenario I10.) Fatto in due forme: un container Debian 13 con systemd (`tests/container/esegui.sh`, 42 scenari) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/esegui.sh`, 51 scenari compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
+| 16 | Test automatici del motore: `tests/engine.sh` più le suite dal vero nel container e nella VM (i numeri aggiornati sono nel manuale tecnico, capitolo 11, letti dai risultati). Coperti concorrenza, gare, interruzioni, file e caselle alterati, strumenti che falliscono, sicurezza. | A 20 | fatto |
+| 17 | Ambiente riproducibile per le prove dal vivo. (La VM ha poi trovato un terzo difetto: un'uscita dalla sessione subito dopo «Ho letto» poteva perdere la conferma; scenario I10.) Fatto in due forme: un container Debian 13 con systemd (`tests/container/esegui.sh`) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/esegui.sh` compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
 
 ## E. Critiche non accolte
 
@@ -63,3 +63,37 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | Solo bash. | A 10; B 4.2 | Decisione dell'utente del 30 settembre: la domanda di conferma va portata in tutte le shell (bash, zsh, fish a ogni prompt; al login per le shell che leggono `/etc/profile`). Fatto: agganci per bash, zsh, fish e sh; scenari K nella macchina di prova. |
 | Riscrivere subito in un linguaggio compilato. | B 3 | Si segue la revisione A: prima la specifica, poi un'eventuale riscrittura. |
 | `ams` sempre root. | B 5.1 | Decisione esplicita dell'utente. |
+
+# Seconda revisione (30 settembre 2026)
+
+Due revisori hanno esaminato il manuale tecnico con la nota di accompagnamento
+(senza il codice): **revisione C** (12 rilievi, G-01…L-03) e **revisione D**
+(7 rilievi più 2 note di chiarezza). Ogni rilievo è stato verificato sul codice
+o con una prova prima di essere accolto; per ogni correzione c'è una prova che
+fallisce con il codice precedente (gruppo 9 di `tests/engine.sh`, scenari F7 e
+J3), salvo dove indicato.
+
+| # | Rilievo | Fonte | Verifica | Stato |
+|---|---|---|---|---|
+| 18 | `ams revoke` non aspettava un `ams send` in corso: una copia poteva arrivare dopo il ritiro. Ora il ritiro scrive `revoked` (su disco), attende il lock dell'invio, che si ferma al destinatario successivo, poi toglie le copie; `sent/ID/ritiro` resta finché non sono tolte tutte e il comando successivo completa. | C G-01, C M-03 | fondato (codice) | fatto |
+| 19 | Conferma e ritiro senza un ordine: una conferma poteva nascere dopo il ritiro. Ora `ack` non conferma senza copia nella casella (esito 3) e `ams status` non conta una conferma con data successiva a `sent/ID/revoked` (stesso secondo: vale). La prova sulla domanda interrotta passa anche con il codice precedente, che se ne accorgeva già: la correzione riguarda la finestra fra controllo e `ln`, provata con la regola della data. | C G-02 | fondato (codice) | fatto |
+| 20 | Terminale riassegnato fra la ricerca e la scrittura: il testo poteva finire sul terminale di un altro utente. Ora `write_term` apre il terminale e controlla il proprietario del terminale aperto (`/dev/fd/5`), non del nome. | C G-03 | fondato (gara reale, finestra breve) | fatto |
+| 21 | Nessuna garanzia dopo un'interruzione di corrente. Ora `sync` di messaggio, destinatari e segno prima delle consegne, `syncfs` prima di togliere `incomplete`, conferma su disco prima di «Confermato», ritiro su disco prima di toccare le caselle; il recupero ricontrolla anche le copie già annotate. Un'interruzione di corrente vera non è provata; la copia sparita è simulata. | C G-04, C L-03 | fondato | fatto |
+| 22 | Numeri delle prove nel manuale vecchi e non collegati al codice. Ora ogni suite registra commit e impronta del codice (`tools/impronta.sh`); il capitolo 11 legge i risultati e dice se valgono per il codice attuale; `tools/check-docs.py` fallisce se `tests/engine.sh` non è stato eseguito sul codice attuale. | C M-01, C L-01 | fondato | fatto |
+| 23 | Perimetro «supportato» confuso con «verificato». Ora la specifica li separa. | C M-02 | fondato (documento) | fatto |
+| 24 | `_UID` presentato come «non falsificabile»: dice chi ha scritto un evento, non che sia vero. Testo corretto; `ams log` segnala come non attendibile un evento scritto dall'utente sbagliato (scenario J3). | C M-04 | fondato | fatto |
+| 25 | «Confermato» va letto come dichiarazione dell'utente, anche negli audit: scritto nella specifica e nel glossario. | C M-05 | fondato (documento) | fatto |
+| 26 | Punti di linearizzazione non definiti: nuovo paragrafo «Operazioni concorrenti» nella specifica. | C L-02 | fondato (documento) | fatto |
+| 27 | `ams purge` insieme a `ams list`: un messaggio poteva sparire a metà lettura. Ora `purge` rinomina `sent/ID` in `sent/.cancella-ID` (un colpo solo) e `list` legge prima ciò che gli serve; una cancellazione interrotta la completa il comando successivo. | D 1.2, C M-03 | fondato | fatto |
+| 28 | Migliaia di file finti in `acks/` rallentavano `ams list` (5000 file: 3,9 s). Ora si leggono solo i messaggi esistenti in `sent/`, con un tempo massimo: 25 ms. | D 1.4 | fondato (misurato) | fatto |
+| 29 | Testi oltre 128 KiB: zenity non può riceverli come argomento. Ora `ams send` rifiuta oltre 65536 byte. | D 1.6 | fondato | fatto |
+| 30 | Messaggio che scade durante l'invio: comportamento scritto nella specifica (le copie successive si consegnano, nessuno le vede). | D 1.7 | fondato (documento) | fatto |
+| 31 | Chiarezza: costo del controllo al prompt (capitolo 6.1) e formato dei campi dell'archivio (capitolo 14). | D, note | fondato | fatto |
+
+**Non accolti**
+
+| Rilievo | Fonte | Perché |
+|---|---|---|
+| Una pipe al posto di `acks/ID` blocca `ams status` | D 1.1 | Inesatto: si leggono solo file normali; provato, `ams status` risponde in 0,03 s. Resta una prova nel gruppo 9. |
+| Un commento a fine riga in `ams.conf` invalida il valore | D 1.5 | Inesatto: commenti e spazi sono gestiti; provato, resta una prova nel gruppo 9. |
+| Collegamento simbolico `/var/lib/ams` creato prima dell'installazione | D 1.3 | Fuori dal modello: in `/var/lib` scrive solo root, che è già fidato. |

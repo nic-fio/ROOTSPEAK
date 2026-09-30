@@ -84,7 +84,11 @@ SD = p("L'invio è una sequenza di passi; se si interrompe a metà, il comando "
 
 S4 = p("Per ogni terminale di " + c("user_terminals") + ", " + c("ams_msg_term") + " formatta il messaggio, " + c("sed")
        + " aggiunge un ritorno a capo " + c("\\r") + " a fine riga (il terminale può essere in modo grezzo, per esempio "
-       "dentro un editor) e " + c("timeout 3 tee") + " lo scrive: un terminale bloccato non ferma l'invio. Il numero di "
+       "dentro un editor) e " + c("write_term") + " lo scrive: apre il terminale, controlla che il terminale "
+       "<b>aperto</b> (" + c("/dev/fd/5") + ") sia un dispositivo a caratteri del destinatario, e scrive con "
+       + c("timeout 3") + ". Il controllo sul terminale aperto, e non sul nome " + c("/dev/pts/N") + ", chiude la gara "
+       "in cui fra la ricerca e la scrittura quel numero passa a un altro utente; un terminale bloccato non ferma "
+       "l'invio. Prima di ogni consegna l'invio controlla " + c("sent/ID/revoked") + ": un ritiro lo ferma. Il numero di "
        "terminali scritti finisce in " + c("sent/ID/delivery") + ". Scrivere su un terminale non vale come conferma: il "
        "messaggio resta nella casella, e la domanda arriva al prompt successivo.", lead=True)
 
@@ -149,11 +153,19 @@ S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e 
        + " per ogni destinatario. Le caselle si leggono <b>una volta per utente</b>: un solo " + c("runuser")
        + " restituisce tutte le conferme e le date dei rinvii (" + c("load_user") + "), ripulite con " + c("ams_sanitize")
        + " e controllate lato root; le consegne si leggono una volta per messaggio (" + c("load_delivery") + "). Con 10 "
-       "messaggi a 54 destinatari " + c("ams list") + " è passato da circa 6 s a circa 0,7 s. " + c("ams revoke") + " scrive " + c("sent/ID/revoked") + " e toglie " + c("inbox/ID")
-       + " e i rinvii da ogni casella, come l'utente: finestre e domande aperte se ne accorgono entro un secondo "
-       "(capitoli 6.3 e 7.2). " + c("ams purge DURATA") + " cancella i messaggi inviati prima di quel tempo: la cartella in "
-       + c("sent/") + " e, con l'identità di ogni destinatario, copie, conferme e rinvii nella sua casella; salta "
-       "gli invii incompleti o con il lock occupato.", lead=True)
+       "messaggi a 54 destinatari " + c("ams list") + " è passato da circa 6 s a circa 0,7 s. " + c("load_user")
+       + " cerca solo i messaggi che esistono in " + c("sent/") + " (non tutto ciò che c'è nella casella: migliaia di "
+       "file finti in " + c("acks/") + " non rallentano) e ha un tempo massimo di 20 s. " + c("ams list")
+       + " legge ciò che gli serve di ogni messaggio prima di usarlo e salta un messaggio sparito nel frattempo. "
+       + c("ams revoke") + " scrive " + c("sent/ID/ritiro") + " e " + c("sent/ID/revoked") + " (su disco), attende "
+       "il lock di un invio in corso, poi toglie " + c("inbox/ID") + " e i rinvii da ogni casella, come l'utente, e "
+       "infine " + c("ritiro") + ": finestre e domande aperte se ne accorgono entro un secondo (capitoli 6.3 e 7.2); "
+       "se una casella non si raggiunge, " + c("ritiro") + " resta e il comando successivo riprova. "
+       + c("ams purge DURATA") + " cancella i messaggi inviati prima di quel tempo: rinomina " + c("sent/ID")
+       + " in " + c("sent/.cancella-ID") + " (da lì il messaggio non esiste più per nessun comando), poi, con "
+       "l'identità di ogni destinatario, toglie copie, conferme e rinvii e infine la cartella; salta gli invii "
+       "incompleti o con il lock occupato, e una cancellazione interrotta la completa il comando successivo. "
+       "I dettagli di concorrenza e interruzioni sono nella specifica (capitolo 14).", lead=True)
 
 CHAPTER = ("L'invio: ams", [
     ("Avvio e rilancio con sudo", S1),

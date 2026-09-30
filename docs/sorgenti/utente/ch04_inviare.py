@@ -51,7 +51,8 @@ S3 = p("Il testo si può scrivere in tre modi. Per messaggi lunghi conviene prep
         ["scritto al momento: si preme Invio e alla fine " + '<span class="key">Ctrl</span>+<span class="key">D</span>',
          c("ams send --to mario")],
     ], "«TAB» — Tre modi di dare il testo") + \
-    p("Il testo può avere più righe. " + c("--title") + " aggiunge un titolo, che compare in testa al messaggio e nella "
+    p("Il testo può avere più righe, fino a 64 KB (65536 caratteri senza accenti, circa 30 pagine): oltre, la finestra "
+      "del desktop non potrebbe mostrarlo e " + c("ams send") + " lo rifiuta. " + c("--title") + " aggiunge un titolo, che compare in testa al messaggio e nella "
       "finestra del desktop.") + \
     code("Da lunedì 15 ottobre le password scadono ogni 90 giorni.\n"
          "Al primo accesso dopo la scadenza il sistema chiederà di cambiarla.\n"

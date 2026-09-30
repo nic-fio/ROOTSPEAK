@@ -1,12 +1,15 @@
 {
  "meta": {
-  "data": "2026-09-30 10:52:42 UTC",
+  "data": "2026-09-30 12:10:15 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
   "sistema": "Debian GNU/Linux 13 (trixie), container con systemd",
-  "ok": 66,
+  "ok": 68,
   "no": 0,
   "non_provati": 1,
-  "totale": 67
+  "totale": 69,
+  "commit": "c3eed4f872-modificato",
+  "impronta": "0aff1a9e1aa5",
+  "solo": ""
  },
  "risultati": [
   {
@@ -26,7 +29,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.119
+    "secondi": 0.132
    }
   },
   {
@@ -127,7 +130,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.344
+    "secondi_dal_login": 0.347
    }
   },
   {
@@ -136,7 +139,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 12:08 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +150,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.167,
-    "secondi_al_terminale": 0.217
+    "secondi_invio": 0.157,
+    "secondi_al_terminale": 0.207
    }
   },
   {
@@ -168,7 +171,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.078
+    "secondi": 0.073
    }
   },
   {
@@ -197,7 +200,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.908
+    "secondi": 0.907
    }
   },
   {
@@ -206,7 +209,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 10:51",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 12:08",
    "misure": {}
   },
   {
@@ -215,7 +218,7 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@e6686c1bc66f:~$ ",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@1b89efb04cc8:~$ ",
    "misure": {}
   },
   {
@@ -233,7 +236,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790765480 terminale pts/7",
+   "dettagli": "1790770135 terminale pts/7",
    "misure": {}
   },
   {
@@ -262,7 +265,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.002
+    "secondi": 1.001
    }
   },
   {
@@ -307,11 +310,11 @@
    "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 13/68, dopo 68/68; ams: completata la consegna del messaggio 2 a 55 destinatari",
+   "dettagli": "consegnati prima 14/68, dopo 68/68; ams: completata la consegna del messaggio 2 a 54 destinatari",
    "misure": {
-    "consegnati_al_kill": 13,
+    "consegnati_al_kill": 14,
     "destinatari": 68,
-    "secondi_recupero": 3.41
+    "secondi_recupero": 3.466
    }
   },
   {
@@ -324,6 +327,17 @@
    "misure": {}
   },
   {
+   "codice": "F7",
+   "area": "Guasti",
+   "descrizione": "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
+   "atteso": "nessuna copia nelle caselle, invio interrotto",
+   "esito": "OK",
+   "dettagli": "copie rimaste: 0; Messaggio 4 ritirato durante l'invio: consegna interrotta.",
+   "misure": {
+    "secondi_attesa_revoke": 0.54
+   }
+  },
+  {
    "codice": "F5",
    "area": "Guasti",
    "descrizione": "ams list ripetuto mentre ams send consegna: il recupero non interferisce",
@@ -331,7 +345,7 @@
    "esito": "OK",
    "dettagli": "68 consegne annotate per 68 destinatari, 68 distinte",
    "misure": {
-    "ams_list_durante_invio": 24
+    "ams_list_durante_invio": 22
    }
   },
   {
@@ -391,10 +405,19 @@
   {
    "codice": "J2",
    "area": "Registro",
-   "descrizione": "la conferma nel journal porta l'utente vero (_UID), non falsificabile",
+   "descrizione": "la conferma nel journal porta l'utente che l'ha scritta (_UID)",
    "atteso": "_UID 1001",
    "esito": "OK",
    "dettagli": "1001 1001",
+   "misure": {}
+  },
+  {
+   "codice": "J3",
+   "area": "Registro",
+   "descrizione": "un evento scritto da un utente a nome di un altro: ams log lo segnala",
+   "atteso": "«non attendibile: scritto da UID 1003»",
+   "esito": "OK",
+   "dettagli": "2026-09-30 12:09:20  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
    "misure": {}
   },
   {
@@ -412,7 +435,7 @@
    "descrizione": "zsh: conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/14)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/14)",
    "misure": {}
   },
   {
@@ -432,7 +455,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.096
+    "secondi": 0.085
    }
   },
   {
@@ -441,7 +464,7 @@
    "descrizione": "zsh: conferma al prompt",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/14)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/14)",
    "misure": {}
   },
   {
@@ -459,7 +482,7 @@
    "descrizione": "fish: conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/15)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/15)",
    "misure": {}
   },
   {
@@ -479,7 +502,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.086
+    "secondi": 0.08
    }
   },
   {
@@ -488,7 +511,7 @@
    "descrizione": "fish: conferma al prompt",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/15)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/15)",
    "misure": {}
   },
   {
@@ -506,7 +529,7 @@
    "descrizione": "ksh: conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/16)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/16)",
    "misure": {}
   },
   {
@@ -542,7 +565,7 @@
    "descrizione": "dash: conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:51 (terminale pts/17)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/17)",
    "misure": {}
   },
   {
@@ -578,7 +601,7 @@
    "descrizione": "la domanda e la conferma nella lingua dell'utente",
    "atteso": "domanda in inglese, «y» conferma",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:52 (terminale pts/18)",
+   "dettagli": "confermato il 30/09 12:09 (terminale pts/18)",
    "misure": {}
   },
   {
@@ -587,7 +610,7 @@
    "descrizione": "un amministratore in inglese legge ams status in inglese",
    "atteso": "USER STATE, confirmed on … (terminal …)",
    "esito": "OK",
-   "dettagli": "luca             confirmed on 30/09 10:52 (terminal pts/18) / mario            delivered, written to 1 terminal",
+   "dettagli": "luca             confirmed on 30/09 12:09 (terminal pts/18) / mario            delivered, written to 1 terminal",
    "misure": {}
   },
   {
@@ -596,7 +619,7 @@
    "descrizione": "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
    "atteso": "journal in italiano; ams log in inglese e in italiano",
    "esito": "OK",
-   "dettagli": "2026-09-30 10:52:00  user luca: confirmed reading message 1 (terminal pts/18)",
+   "dettagli": "2026-09-30 12:09:36  user luca: confirmed reading message 1 (terminal pts/18)",
    "misure": {}
   },
   {
@@ -607,8 +630,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 3.32,
-    "ms_per_destinatario": 57.3
+    "secondi": 3.11,
+    "ms_per_destinatario": 53.7
    }
   },
   {
@@ -619,7 +642,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.77
+    "secondi": 0.71
    }
   },
   {
@@ -630,7 +653,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.81
+    "secondi": 0.88
    }
   },
   {
