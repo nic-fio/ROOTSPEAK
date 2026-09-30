@@ -33,7 +33,7 @@ avvisi che valgono solo per poco si usa `--expires`.
 
 | Ruolo | Interfaccia |
 |---|---|
-| Amministratore | CLI `ams` (solo gruppo admin); TUI in futuro |
+| Amministratore | `ams`: comandi e, da solo in un terminale, la TUI (solo gruppo admin) |
 | Utente nel terminale | Nessun comando: messaggio e domanda di conferma automatici |
 | Utente nel desktop | Finestra minima con il pulsante "Ho letto" |
 
@@ -54,9 +54,9 @@ Legenda: **[1]** prima versione · **[2]** seconda versione · **[?]** da decide
 - [1] `ams list`: messaggi inviati con il conteggio delle conferme
 - [1] `ams status <id>`: stato per utente (consegnato / confermato, data e ora, tipo di sessione)
 - [1] `ams revoke <id>`: ritiro di un messaggio
-- [2] `ams remind <id>`: sollecito manuale a chi non ha confermato
+- [1] `ams remind <id>`: sollecito a chi non ha confermato (la domanda e la finestra tornano subito)
 - [2] Esportazione in CSV o JSON per audit
-- [2] TUI per l'amministratore
+- [1] TUI per l'amministratore: `ams` da solo apre la lista dei messaggi con i destinatari nei tre stati, dettaglio e storia, scrittura e invio, ritiro, sollecito e pulizia con conferma, aggiornamento automatico
 
 ### Consegna
 - [1] Terminale: scrittura su tutte le tty e pts attive, individuate tramite logind (non utmp)

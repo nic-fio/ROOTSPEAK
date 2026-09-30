@@ -20,6 +20,8 @@ S1 = p("Il repository contiene il codice in C, i cataloghi delle lingue, i file 
     ("src/lingua.h", "Interfaccia di lingua.c."),
     ("src/evento.c", "Eventi strutturati nel journal e il loro testo in ogni lingua."),
     ("src/evento.h", "Interfaccia di evento.c."),
+    ("src/ams.h", "Le parti di ams usate anche dalla TUI: riassunto dei messaggi, stati dei destinatari, comandi."),
+    ("src/tui.c", "La TUI per gli amministratori: lista, dettaglio, scrittura e invio, azioni con conferma."),
     ("src/guida.c", "La guida integrata: guida a schede, pagina in stile manuale, testo semplice."),
     ("src/guida.h", "Interfaccia di guida.c."),
     ("src/comune.c", "Utilità: ambiente, errori, memoria, testi che crescono, lettura e scrittura sicura dei file."),
@@ -49,6 +51,8 @@ S1 = p("Il repository contiene il codice in C, i cataloghi delle lingue, i file 
     ("tests/vm/cattura.py", "Cattura lo schermo della VM dal monitor di QEMU."),
     ("tests/vm/desktop.py", "Legge e preme i pulsanti delle finestre di AMS attraverso l'accessibilità di GNOME."),
     ("tests/help-tui.py", "Prova della guida integrata su un terminale virtuale."),
+    ("tests/tui.py", "Prova della TUI su un terminale virtuale: lista, dettaglio, invio, editor, sollecito, ritiro, ricerca."),
+    ("tools/schermate-tui.sh", "Schermate vere della TUI per i manuali, catturate nella macchina di prova."),
     ("tools/check-docs.py", "Controlli di coerenza tra codice, guida, traduzioni, manuali e prove."),
     ("tools/impronta.sh", "Impronta del codice (SHA-256 di src, po, Makefile, etc, install.sh) e commit, registrati con i risultati delle prove."),
     ("docs/sorgenti/build.py", "Generatore dei due manuali."),
@@ -108,7 +112,8 @@ S4 = steps([
     c("python3 docs/sorgenti/build.py") + ", poi " + c("tools/check-docs.py") + ": manuali generati aggiornati, "
     "riferimento allineato alla guida, cataloghi completi, mappa dei file completa, link interni validi, prove "
     "eseguite sul codice attuale (capitolo 11.5).",
-    c("tests/engine.sh") + " sempre; " + c("tests/help-tui.py") + " se è cambiata la guida; "
+    c("tests/engine.sh") + " sempre; " + c("tests/help-tui.py") + " se è cambiata la guida; " + c("tests/tui.py")
+    + " e " + c("tools/schermate-tui.sh") + " se è cambiata la TUI; "
     + c("make sanitizer") + " con " + c("AMS_BUILD=build-san tests/engine.sh") + ", " + c("make analizza") + " e "
     + c("tests/fuzz/esegui.sh") + " se è cambiato il codice che legge dati; " + c("tests/container/esegui.sh")
     + " se sono cambiati invio, consegna, conferme o permessi; " + c("tests/vm/esegui.sh") + " se è cambiato il desktop.",

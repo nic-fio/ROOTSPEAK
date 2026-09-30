@@ -38,6 +38,11 @@ MANUALS = {
 
 # Aggiunte allo stile di IR: procedure, etichette, terminali, finestre di esempio.
 EXTRA_CSS = """
+/* AMS: schermate vere della TUI, con i loro colori */
+.code.schermo{background:#111827;color:#e5e7eb;line-height:1.15;font-size:10.2px;overflow-x:auto;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
+.schermo .a-b{font-weight:700;color:#fff}.schermo .a-d{color:#6b7280}.schermo .a-v{background:#e5e7eb;color:#111827;font-weight:700}
+.schermo .a-32{color:#4ade80}.schermo .a-33{color:#facc15}.schermo .a-31{color:#f87171}.schermo .a-36{color:#22d3ee}
+.schermo .a-90{color:#9ca3af}.schermo .a-b.a-32{color:#86efac}.schermo .a-b.a-33{color:#fde047}.schermo .a-b.a-36{color:#67e8f9}
 /* AMS: etichette di finestre e pulsanti, procedure a passi */
 .ui{font-weight:600;color:#003a90;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:.02em .4em;font-size:.93em;white-space:nowrap}
 .key{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;font-weight:700;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:5px;padding:.05em .42em;white-space:nowrap}
@@ -280,6 +285,33 @@ def text(x, y, t, size=12, color="#334155", weight="400", anchor="middle", halo=
 def zone(x, y, w, h, title, color="#e8eef7"):
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="12" fill="{color}" stroke="#d5deea"/>'
             + text(x + 14, y + 20, title, 11.5, "#003a90", "700", "start", False))
+
+
+def schermata(nome, cap):
+    """Una schermata vera della TUI (docs/sorgenti/schermate/NOME.ans, catturata da
+    tools/schermate-tui.sh), con i suoi colori."""
+    raw = (HERE / "schermate" / f"{nome}.ans").read_bytes().decode("utf-8", "replace")
+    raw = re.sub(r"\x1b\[\?[0-9;]*[a-zA-Z]|\x1b\[[0-9]*;[0-9]*H|\x1b\[J|\r", "", raw)
+    stato, out = set(), []
+    for pezzo in re.split(r"(\x1b\[[0-9;]*m)", raw):
+        m = re.fullmatch(r"\x1b\[([0-9;]*)m", pezzo)
+        if m:
+            for cod in (m.group(1) or "0").split(";"):
+                if cod in ("0", ""):
+                    stato = set()
+                elif cod == "1":
+                    stato.add("a-b")
+                elif cod == "2":
+                    stato.add("a-d")
+                elif cod == "7":
+                    stato.add("a-v")
+                elif cod in ("31", "32", "33", "36", "90"):
+                    stato = {x for x in stato if not x.startswith("a-3") and x != "a-90"} | {f"a-{cod}"}
+            continue
+        if pezzo:
+            out.append(f'<span class="{" ".join(sorted(stato))}">{esc(pezzo)}</span>' if stato else esc(pezzo))
+    return (f'<figure class="fig"><pre class="code schermo"><code>{"".join(out)}</code></pre>'
+            f'<figcaption class="cap">{cap}</figcaption></figure>')
 
 
 def fig(body, width, height, cap, title=""):

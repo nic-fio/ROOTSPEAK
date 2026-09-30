@@ -32,7 +32,7 @@ all: $(B)/ams $(B)/ams-user $(MO)
 $(B)/%.o: src/%.c src/*.h | $(B)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(B)/ams: $(OGG) $(B)/ams.o $(B)/guida.o $(B)/archivio.o
+$(B)/ams: $(OGG) $(B)/ams.o $(B)/guida.o $(B)/archivio.o $(B)/tui.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(B)/ams-user: $(OGG) $(B)/ams-user.o

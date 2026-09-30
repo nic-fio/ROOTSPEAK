@@ -60,6 +60,8 @@ S2 = p("Ogni destinatario di un messaggio è in uno di tre stati; lo stato si de
     ["recupero", c("incomplete") + " presente e lock libero", "consegna delle copie mancanti e controllo di quelle "
      "già annotate", "INVIATO → CONSEGNATO", c("CONSEGNATO") + ", " + c("RECUPERATO")],
     ["recupero del ritiro", c("ritiro") + " presente e lock libero", "copie rimaste tolte", "—", "—"],
+    ["sollecito", "messaggio non ritirato né scaduto", "come ogni destinatario CONSEGNATO: rinvii tolti " + c("state/ID.*")
+     + ", agente svegliato", "resta CONSEGNATO; la domanda e la finestra tornano subito", c("SOLLECITATO")],
     ["cancellazione", "più vecchio della durata, lock libero, completo", c("sent/ID") + " rinominata in "
      + c("sent/.cancella-ID") + "; poi copie, conferme e rinvii tolti come l'utente; poi la cartella rimossa",
      "il messaggio non esiste più", c("CANCELLATO")],
@@ -87,7 +89,9 @@ S2B = p("Per ogni comando che cambia l'archivio: che lock tiene, in quale istant
         [c("purge"), c("sent/ID/lock") + " se libero, altrimenti salta", c("sent/ID") + " rinominata in "
          + c("sent/.cancella-ID"), "da quell'istante nessun comando vede il messaggio; " + c("list") + " legge ciò "
          "che le serve prima e salta un messaggio sparito nel frattempo"],
-        [c("list") + ", " + c("status") + ", " + c("log"), "nessuno (sola lettura)", "—",
+        [c("remind"), "nessuno", "ogni rinvio tolto", "con una conferma arrivata nel frattempo: quel destinatario "
+         "non è più CONSEGNATO e togliere i suoi rinvii non ha effetto"],
+        [c("list") + ", " + c("status") + ", " + c("log") + ", la TUI", "nessuno (sola lettura)", "—",
          "vedono lo stato di quel momento: durante un invio, i destinatari non ancora raggiunti sono INVIATO"],
     ], "«TAB» — Lock e punti di linearizzazione")
 

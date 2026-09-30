@@ -39,6 +39,12 @@ static void su_fine(int s)
 	fine = 1;
 }
 
+/* La fine di zenity interrompe l'attesa: la risposta si registra subito. */
+static void su_figlio(int s)
+{
+	(void)s;
+}
+
 static char *percorso(const char *sotto, long long id, const char *suffisso)
 {
 	return xasprintf("%s/%s/%lld%s", D, sotto, id, suffisso);
@@ -397,6 +403,7 @@ static void mostra_finestra(long long id)
 
 		sigemptyset(&vuoto);
 		sigprocmask(SIG_SETMASK, &vuoto, NULL);
+		signal(SIGCHLD, SIG_DFL);
 		signal(SIGUSR1, SIG_DFL);
 		signal(SIGTERM, SIG_DFL);
 		signal(SIGHUP, SIG_DFL);
@@ -482,12 +489,16 @@ static int cmd_agent(void)
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGHUP, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
+	sa.sa_handler = su_figlio;
+	sigaction(SIGCHLD, &sa, NULL);
 	sigemptyset(&blocca);
+	sigaddset(&blocca, SIGCHLD);
 	sigaddset(&blocca, SIGUSR1);
 	sigaddset(&blocca, SIGTERM);
 	sigaddset(&blocca, SIGHUP);
 	sigaddset(&blocca, SIGINT);
 	sigprocmask(SIG_BLOCK, &blocca, &attesa);
+	sigdelset(&attesa, SIGCHLD);
 	sigdelset(&attesa, SIGUSR1);
 	sigdelset(&attesa, SIGTERM);
 	sigdelset(&attesa, SIGHUP);

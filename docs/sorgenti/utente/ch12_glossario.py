@@ -13,6 +13,9 @@ S1 = dl([
     ("ritirare", "Togliere un messaggio con " + c("ams revoke") + ": chi non l'ha visto non lo vedrà più."),
     ("scadenza", "Il momento dopo il quale un messaggio non viene più mostrato (" + c("--expires") + ")."),
     ("sessione", "Un accesso di un utente alla macchina: il desktop, una console, una connessione ssh."),
+    ("sollecitare", "Chiedere di nuovo, subito, la conferma a chi non l'ha ancora data: " + c("ams remind") + " o il tasto "
+     + c("s") + " della TUI."),
+    ("TUI", "L'interfaccia a tutto schermo che si apre scrivendo " + c("ams") + " da solo in un terminale."),
 ], cls="gloss")
 
 CHAPTER = ("Glossario", [

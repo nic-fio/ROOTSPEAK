@@ -13,6 +13,8 @@
 bool consegna_copia(const utente_t *u, long long id, const buf_t *msg);
 /* Toglie copia e rinvii di un messaggio (ritiro); true se la copia non c'è più. */
 bool togli_copia(const utente_t *u, long long id);
+/* Toglie i rinvii (sollecito); true se non ne restano. */
+bool togli_rinvii(const utente_t *u, long long id);
 /* Toglie copia, lettura, conferma e rinvii (cancellazione). */
 void cancella_copie(const utente_t *u, long long id);
 

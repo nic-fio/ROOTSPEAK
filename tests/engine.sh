@@ -175,7 +175,8 @@ check "rimandato: al prompt successivo non viene richiesto subito" '[[ $(state_o
 prompt_login s >/dev/null
 check "confermato (nuovo login)" '[[ $(state_of 1 "$U") == "confermato il "* ]]'
 list=$("$AMS" list)
-check "ams list: colonne senza livello, conferme 1/1" '[[ $list == *"ID    DATA         CONFERME  TESTO"* ]] && [[ $list == *" 1/1 "* ]]'
+check "ams list: destinatari nei tre stati, a parole" '[[ $list == *"DESTINATARI"* ]] && [[ $list == *"tutti confermato (1)"* ]]'
+check "ams list: nessuno stato inventato" '! grep -qiE "in attesa|completo|annullato|incompleto" <<<"$list"'
 
 fresh expired
 send --expires 1m "prova"
@@ -201,7 +202,7 @@ sed -i "s/^expires: .*/expires: $exp/" "$AMS_VAR/sent/1/msg"
 echo "$(date +%s) desktop" >"$D/acks/1"
 check "conferma con ora dopo la scadenza (copia di riferimento): non vale" \
 	'[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)" ]'
-check "ams list non la conta" '[[ $("$AMS" list) == *" 0/1 "* ]]'
+check "ams list non la conta" '[[ $("$AMS" list) == *"[scaduto]"*"1 consegnato"* ]]'
 
 # ---- 5. configurazione e formato ----
 
@@ -380,6 +381,25 @@ check "testo di 65536 byte: accettato" '[ -e "$AMS_VAR/sent/1/msg" ]'
 printf 'AMS_REMIND_MINUTES=45 # minuti di rinvio\n  AMS_AGENT_POLL = 20  \n' >"$BASE/conf"
 out=$(leggi_conf "$BASE/conf")
 check "ams.conf: commento a fine riga e spazi" '[ "$out" = "45 20" ]'
+
+# ---- 10. sollecito ----
+
+echo "10. sollecito"
+fresh sollecito
+send "da confermare"
+prompt n >/dev/null
+out=$(prompt s)
+check "rimandato: al prompt la domanda non torna subito" '[[ $out != *"Confermi"* ]]'
+out=$("$AMS" remind 1)
+check "ams remind: sollecita chi non ha confermato" '[[ $out == "Messaggio 1: sollecitato 1 destinatario." ]] && [ ! -e "$D/state/1.term" ]'
+out=$(prompt s)
+check "dopo il sollecito la domanda torna al prompt successivo" '[[ $out == *"Confermi"* ]] && [[ "$(state_of 1 "$U")" == confermato* ]]'
+out=$("$AMS" remind 1)
+check "ams remind: chi ha confermato non viene sollecitato" '[[ $out == "Messaggio 1: sollecitati 0 destinatari." ]]'
+send "da ritirare"
+"$AMS" revoke 2 >/dev/null
+out=$("$AMS" remind 2 2>&1)
+check "ams remind di un messaggio ritirato: errore" '[[ $out == *"è stato ritirato: nessuno da sollecitare"* ]]'
 
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi

@@ -18,6 +18,7 @@
 #include <systemd/sd-journal.h>
 #include <unistd.h>
 
+#include "ams.h"
 #include "archivio.h"
 #include "evento.h"
 #include "guida.h"
@@ -249,7 +250,7 @@ static void cancella_cartella(const char *dir, long long id)
 
 /* ---- recupero: gira all'inizio di send, list, status, revoke, log ---- */
 
-static void recupera(void)
+void recupera(void)
 {
 	char *sd = sent_dir();
 	strv_t ids = {0};
@@ -522,7 +523,7 @@ static void testo_terminale(const msg_t *m, const char *lingua, buf_t *out)
 	buf_free(&h);
 }
 
-static void cmd_send(int argc, char **argv)
+void cmd_send(int argc, char **argv)
 {
 	const char *to = NULL, *titolo = "", *file = NULL;
 	long long scadenza = 0, id;
@@ -749,7 +750,18 @@ static const casella_t *casella_utente(const char *nome)
 	return &caselle[ncaselle++].c;
 }
 
-typedef enum { INVIATO, CONSEGNATO, CONFERMATO } stato_e;
+void caselle_svuota(void)
+{
+	for (size_t i = 0; i < ncaselle; i++) {
+		free(caselle[i].nome);
+		casella_libera(&caselle[i].c);
+	}
+	free(caselle);
+	caselle = NULL;
+	ncaselle = 0;
+	strv_free(&tutti_id);
+	tutti_id_letti = false;
+}
 
 typedef struct {
 	stato_e stato;
@@ -798,7 +810,7 @@ static void stato_destinatario(const char *u, long long id, const consegne_t *co
 	s->canale = xstrdup(sp && sp[1] ? sp + 1 : "?");
 }
 
-static long long data_ritiro(long long id)
+long long data_ritiro(long long id)
 {
 	char *p = in_msg(id, "revoked");
 	buf_t b = {0};
@@ -814,6 +826,103 @@ static long long data_ritiro(long long id)
 	return r;
 }
 
+void elenco_messaggi(strv_t *ids)
+{
+	char *sd = sent_dir();
+
+	elenca_numeri(sd, ids);
+	free(sd);
+}
+
+/* Tutto ciò che serve si legge prima: un messaggio cancellato nel frattempo
+ * da ams purge sparisce invece di uscire a metà. */
+bool riassumi(long long id, riassunto_t *r)
+{
+	char *p;
+	strv_t dest = {0};
+	consegne_t cons;
+	long long ritiro;
+
+	memset(r, 0, sizeof *r);
+	r->id = id;
+	if (segno(id, "failed"))
+		return false;
+	p = in_msg(id, "msg");
+	if (msg_leggi(p, &r->m) < 0) {
+		free(p);
+		return false;
+	}
+	free(p);
+	leggi_destinatari(id, &dest);
+	if (!dest.n) {
+		msg_libera(&r->m);
+		return false;
+	}
+	leggi_consegne(id, &cons);
+	ritiro = data_ritiro(id);
+	for (size_t k = 0; k < dest.n; k++) {
+		stato_t st;
+
+		stato_destinatario(dest.v[k], id, &cons, &r->m, ritiro, &st);
+		if (st.stato == CONFERMATO)
+			r->confermato++;
+		else if (st.stato == CONSEGNATO)
+			r->consegnato++;
+		else
+			r->inviato++;
+		free(st.canale);
+	}
+	r->ritirato = segno(id, "revoked");
+	r->scaduto = msg_scaduto(&r->m, adesso());
+	consegne_libera(&cons);
+	strv_free(&dest);
+	return true;
+}
+
+void riassunto_libera(riassunto_t *r)
+{
+	msg_libera(&r->m);
+}
+
+void riassunto_frase(const riassunto_t *r, buf_t *out)
+{
+	const char *sep = "";
+
+	if (!r->consegnato && !r->inviato) {
+		buf_printf(out, T("all confirmed (%d)"), r->confermato);
+		return;
+	}
+	if (r->confermato) {
+		buf_printf(out, T("%d confirmed"), r->confermato);
+		sep = " · ";
+	}
+	if (r->consegnato) {
+		buf_adds(out, sep);
+		buf_printf(out, T("%d delivered"), r->consegnato);
+		sep = " · ";
+	}
+	if (r->inviato) {
+		buf_adds(out, sep);
+		buf_printf(out, T("%d sent"), r->inviato);
+	}
+}
+
+/* Un messaggio per riga: il testo (con ritirato e scaduto davanti) e i
+ * destinatari nei tre stati (capitolo «Specifica»). */
+/* Scrive s in w caratteri (UTF-8), tagliando o riempiendo a destra. */
+static void colonna(const char *s, size_t n, int w)
+{
+	size_t c = 0, k = 0;
+
+	while (k < n && (int)c < w) {
+		k++;
+		while (k < n && ((unsigned char)s[k] & 0xc0) == 0x80)
+			k++;
+		c++;
+	}
+	printf("%.*s%*s", (int)k, s, (int)(w - (int)c), "");
+}
+
 static void cmd_list(void)
 {
 	char *sd = sent_dir();
@@ -824,80 +933,39 @@ static void cmd_list(void)
 		free(sd);
 		return;
 	}
-	elenca_numeri(sd, &ids);
-	printf("%-5s %-12s %-9s %s\n", T("ID"), T("DATE"), T("CONFIRMED"), T("TEXT"));
+	free(sd);
+	elenco_messaggi(&ids);
+	printf("%-5s %-12s ", T("ID"), T("DATE"));
+	colonna(T("TEXT"), strlen(T("TEXT")), 40);
+	printf("  %s\n", T("RECIPIENTS"));
 	for (size_t i = 0; i < ids.n; i++) {
 		long long id;
-		msg_t m;
-		strv_t dest = {0};
-		consegne_t cons;
-		int conf = 0, non = 0;
-		char *p, data[32];
-		buf_t flag = {0}, primo = {0};
-		long long ritiro;
+		riassunto_t r;
+		char data[32];
+		buf_t testo = {0}, frase = {0};
 
 		leggi_numero(ids.v[i], &id);
 		if (segno(id, "failed")) {
-			printf("%-5s %-12s %-9s %s\n", ids.v[i], "-", "-", T("[send cancelled: interrupted before it was saved]"));
+			printf("%-5s %-12s %s\n", ids.v[i], "-", T("[send cancelled: interrupted before it was saved]"));
 			continue;
 		}
-		/* Tutto ciò che serve si legge prima: un messaggio cancellato nel
-		 * frattempo da ams purge sparisce dall'elenco invece di uscire a metà. */
-		p = in_msg(id, "msg");
-		if (msg_leggi(p, &m) < 0) {
-			free(p);
+		if (!riassumi(id, &r))
 			continue;
-		}
-		free(p);
-		leggi_destinatari(id, &dest);
-		if (!dest.n) {
-			msg_libera(&m);
-			continue;
-		}
-		leggi_consegne(id, &cons);
-		ritiro = data_ritiro(id);
-		for (size_t k = 0; k < dest.n; k++) {
-			stato_t s;
-
-			stato_destinatario(dest.v[k], id, &cons, &m, ritiro, &s);
-			if (s.stato == CONFERMATO)
-				conf++;
-			else if (s.stato == INVIATO)
-				non++;
-			free(s.canale);
-		}
-		if (non)
-			buf_printf(&flag, T("[%d not delivered] "), non);
-		if (segno(id, "revoked"))
-			buf_adds(&flag, T("[revoked] "));
-		if (msg_scaduto(&m, adesso()))
-			buf_adds(&flag, T("[expired] "));
-		{
-			/* la prima riga, al più 50 caratteri */
-			size_t len = strcspn(m.body, "\n"), c = 0, k;
-
-			for (k = 0; k < len && c < 50; k++)
-				if (((unsigned char)m.body[k] & 0xc0) != 0x80 && ++c > 50)
-					break;
-			while (k < len && ((unsigned char)m.body[k] & 0xc0) == 0x80)
-				k++;
-			buf_add(&primo, m.body, k);
-		}
-		data_breve((time_t)m.date, data);
-		{
-			char conferme[48];
-
-			snprintf(conferme, sizeof conferme, "%d/%zu", conf, dest.n);
-			printf("%-5s %-12s %-9s %s%s\n", ids.v[i], data, conferme, flag.s ? flag.s : "", primo.s ? primo.s : "");
-		}
-		buf_free(&flag);
-		buf_free(&primo);
-		consegne_libera(&cons);
-		strv_free(&dest);
-		msg_libera(&m);
+		if (r.ritirato)
+			buf_adds(&testo, T("[revoked] "));
+		if (r.scaduto)
+			buf_adds(&testo, T("[expired] "));
+		buf_add(&testo, r.m.body, strcspn(r.m.body, "\n"));
+		riassunto_frase(&r, &frase);
+		data_breve((time_t)r.m.date, data);
+		printf("%-5s %-12s ", ids.v[i], data);
+		colonna(testo.s, testo.n, 40);
+		printf("  %s\n", frase.s);
+		buf_free(&testo);
+		buf_free(&frase);
+		riassunto_libera(&r);
 	}
 	strv_free(&ids);
-	free(sd);
 }
 
 static long long id_da(const char *s)
@@ -920,12 +988,81 @@ static void carica_msg(long long id, const char *arg, msg_t *m)
 	free(p);
 }
 
+/* La riga di stato di ogni destinatario, come in ams status. */
+void destinatari(long long id, const msg_t *m, destinatari_t *out)
+{
+	strv_t dest = {0};
+	consegne_t cons;
+	long long ritiro = data_ritiro(id);
+	bool ritirato = segno(id, "revoked"), incompleto = segno(id, "incomplete");
+	char data[32];
+
+	memset(out, 0, sizeof *out);
+	leggi_destinatari(id, &dest);
+	leggi_consegne(id, &cons);
+	out->v = xmalloc((dest.n ? dest.n : 1) * sizeof *out->v);
+	for (size_t k = 0; k < dest.n; k++) {
+		stato_t s;
+		buf_t riga = {0};
+
+		stato_destinatario(dest.v[k], id, &cons, m, ritiro, &s);
+		if (s.stato == CONFERMATO) {
+			buf_t ch = {0};
+
+			canale_testo(ams_lingua, s.canale, &ch);
+			data_breve((time_t)s.quando, data);
+			buf_printf(&riga, T("confirmed on %s (%s)"), data, ch.s ? ch.s : "");
+			buf_free(&ch);
+		} else if (s.stato == INVIATO) {
+			buf_adds(&riga, incompleto ? T("sent, not delivered: the copy could not be written (see the log; the next ams command will retry)")
+						   : T("sent, not delivered"));
+		} else {
+			buf_adds(&riga, T("delivered"));
+			if (ritirato)
+				buf_adds(&riga, T(", not confirmed (revoked)"));
+			else if (s.tardiva)
+				buf_adds(&riga, T(", not confirmed (expired; confirmation arrived after the expiry)"));
+			else if (msg_scaduto(m, adesso()))
+				buf_adds(&riga, T(", not confirmed (expired)"));
+			else {
+				const char *nt = consegnato_a(&cons, dest.v[k]);
+				const voce_casella_t *v = casella_voce(casella_utente(dest.v[k]), id);
+				long long n = 0;
+
+				if (nt && leggi_numero(nt, &n) && n == 1)
+					buf_adds(&riga, T(", written to 1 terminal"));
+				else if (n > 1)
+					buf_printf(&riga, T(", written to %lld terminals"), n);
+				if (v && v->rinvio) {
+					data_breve((time_t)v->rinvio, data);
+					buf_printf(&riga, T(", postponed on %s"), data);
+				}
+			}
+		}
+		out->v[out->n].utente = xstrdup(dest.v[k]);
+		out->v[out->n].stato = s.stato;
+		out->v[out->n++].riga = riga.s ? riga.s : xstrdup("");
+		free(s.canale);
+	}
+	consegne_libera(&cons);
+	strv_free(&dest);
+}
+
+void destinatari_libera(destinatari_t *d)
+{
+	for (size_t i = 0; i < d->n; i++) {
+		free(d->v[i].utente);
+		free(d->v[i].riga);
+	}
+	free(d->v);
+	memset(d, 0, sizeof *d);
+}
+
 static void cmd_status(const char *arg)
 {
 	long long id = id_da(arg), ritiro;
 	msg_t m;
-	strv_t dest = {0};
-	consegne_t cons;
+	destinatari_t d;
 	buf_t h = {0};
 	char data[32];
 
@@ -953,52 +1090,10 @@ static void cmd_status(const char *arg)
 	}
 	putchar('\n');
 	printf("%-16s %s\n", T("USER"), T("STATE"));
-	leggi_destinatari(id, &dest);
-	leggi_consegne(id, &cons);
-	for (size_t k = 0; k < dest.n; k++) {
-		stato_t s;
-		buf_t riga = {0};
-
-		stato_destinatario(dest.v[k], id, &cons, &m, ritiro, &s);
-		if (s.stato == CONFERMATO) {
-			buf_t ch = {0};
-
-			canale_testo(ams_lingua, s.canale, &ch);
-			data_breve((time_t)s.quando, data);
-			buf_printf(&riga, T("confirmed on %s (%s)"), data, ch.s ? ch.s : "");
-			buf_free(&ch);
-		} else if (s.stato == INVIATO) {
-			buf_adds(&riga, segno(id, "incomplete") ? T("sent, not delivered: the copy could not be written (see the log; the next ams command will retry)")
-								: T("sent, not delivered"));
-		} else {
-			buf_adds(&riga, T("delivered"));
-			if (segno(id, "revoked"))
-				buf_adds(&riga, T(", not confirmed (revoked)"));
-			else if (s.tardiva)
-				buf_adds(&riga, T(", not confirmed (expired; confirmation arrived after the expiry)"));
-			else if (msg_scaduto(&m, adesso()))
-				buf_adds(&riga, T(", not confirmed (expired)"));
-			else {
-				const char *nt = consegnato_a(&cons, dest.v[k]);
-				const voce_casella_t *v = casella_voce(casella_utente(dest.v[k]), id);
-				long long n = 0;
-
-				if (nt && leggi_numero(nt, &n) && n == 1)
-					buf_adds(&riga, T(", written to 1 terminal"));
-				else if (n > 1)
-					buf_printf(&riga, T(", written to %lld terminals"), n);
-				if (v && v->rinvio) {
-					data_breve((time_t)v->rinvio, data);
-					buf_printf(&riga, T(", postponed on %s"), data);
-				}
-			}
-		}
-		printf("%-16s %s\n", dest.v[k], riga.s);
-		buf_free(&riga);
-		free(s.canale);
-	}
-	consegne_libera(&cons);
-	strv_free(&dest);
+	destinatari(id, &m, &d);
+	for (size_t k = 0; k < d.n; k++)
+		printf("%-16s %s\n", d.v[k].utente, d.v[k].riga);
+	destinatari_libera(&d);
 	msg_libera(&m);
 	buf_free(&h);
 }
@@ -1009,7 +1104,7 @@ static void cmd_status(const char *arg)
  * nuova consegna e nessuna conferma successiva vale. Poi si aspetta l'invio
  * eventualmente in corso (lock), che si ferma al destinatario successivo, e
  * si tolgono le copie; sent/ID/ritiro resta finché non sono tolte tutte. */
-static void cmd_revoke(const char *arg)
+void cmd_revoke(const char *arg)
 {
 	long long id = id_da(arg);
 	msg_t m;
@@ -1042,9 +1137,59 @@ static void cmd_revoke(const char *arg)
 	free(rit);
 }
 
+/* ---- sollecito ---- */
+
+/* Chi non ha confermato viene sollecitato subito: si tolgono i suoi rinvii
+ * (la domanda torna al prompt successivo, la finestra al giro successivo) e
+ * si sveglia il suo agente del desktop. */
+void cmd_remind(const char *arg)
+{
+	long long id = id_da(arg);
+	msg_t m;
+	destinatari_t d;
+	int n = 0;
+	char det[24];
+
+	carica_msg(id, arg, &m);
+	if (segno(id, "revoked"))
+		die(T("message %lld has been revoked: nobody to remind"), id);
+	if (msg_scaduto(&m, adesso()))
+		die(T("message %lld has expired: nobody to remind"), id);
+	destinatari(id, &m, &d);
+	for (size_t k = 0; k < d.n; k++) {
+		utente_t u;
+
+		if (d.v[k].stato != CONSEGNATO || !utente_cerca(d.v[k].utente, &u))
+			continue;
+		if (togli_rinvii(&u, id)) {
+			sveglia_agente(&u);
+			n++;
+		}
+		utente_libera(&u);
+	}
+	destinatari_libera(&d);
+	snprintf(det, sizeof det, "%d", n);
+	evento("SOLLECITATO", id, "", "", det, autore());
+	if (n == 1)
+		printf(T("Message %lld: 1 recipient reminded."), id);
+	else
+		printf(T("Message %lld: %d recipients reminded."), id, n);
+	putchar('\n');
+	msg_libera(&m);
+}
+
+void cmd_conta_destinatari(const char *to)
+{
+	strv_t dest = {0};
+
+	risolvi_destinatari(to, &dest);
+	printf("%zu\n", dest.n);
+	strv_free(&dest);
+}
+
 /* ---- cancellazione ---- */
 
-static void cmd_purge(const char *dur)
+void cmd_purge(const char *dur)
 {
 	long long n, sec, limite;
 	char *sd = sent_dir();
@@ -1141,7 +1286,7 @@ static char *campo(sd_journal *j, const char *nome)
  * chi legge. Chiunque può scrivere nel journal un evento con quei campi: il
  * journal registra _UID, chi l'ha scritto davvero, e un evento scritto
  * dall'utente sbagliato viene segnalato. */
-static void cmd_log(const char *arg)
+void cmd_log(const char *arg)
 {
 	long long id = id_da(arg);
 	msg_t m;
@@ -1242,6 +1387,13 @@ int main(int argc, char **argv)
 		rilancia_con_sudo(argv);
 	umask(022);
 
+	/* ams da solo in un terminale apre la TUI; in una pipe, o con un
+	 * terminale troppo piccolo, la guida */
+	if (!*cmd && isatty(0) && isatty(1)) {
+		recupera();
+		if (ams_tui())
+			return 0;
+	}
 	if (!*cmd || !strcmp(cmd, "help") || !strcmp(cmd, "-h") || !strcmp(cmd, "--help")) {
 		ams_guida();
 		return 0;
@@ -1251,7 +1403,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	if (strcmp(cmd, "send") && strcmp(cmd, "list") && strcmp(cmd, "status") && strcmp(cmd, "revoke") &&
-	    strcmp(cmd, "log") && strcmp(cmd, "purge"))
+	    strcmp(cmd, "remind") && strcmp(cmd, "log") && strcmp(cmd, "purge"))
 		die(T("unknown command: %s (ams --help for the guide)"), cmd);
 	if (strcmp(cmd, "purge"))
 		recupera();
@@ -1263,6 +1415,8 @@ int main(int argc, char **argv)
 		cmd_status(argv[2]);
 	else if (!strcmp(cmd, "revoke"))
 		cmd_revoke(argv[2]);
+	else if (!strcmp(cmd, "remind"))
+		cmd_remind(argv[2]);
 	else if (!strcmp(cmd, "log"))
 		cmd_log(argv[2]);
 	else

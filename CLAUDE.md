@@ -104,8 +104,8 @@ Versione: `AMS_VERSION` in `src/comune.h`, e la stessa nei due manuali
 ## A che punto è
 
 Versione 0.2.0 in C (30 settembre 2026), che sostituisce il prototipo in bash 0.1.0.
-Suite (numeri aggiornati nel manuale tecnico, capitolo 11, letti dai risultati): `tests/engine.sh` 76 controlli, container 68 scenari
-(più il desktop, non provabile lì), VM con desktop in italiano 61 scenari, tutti riusciti (le shell si provano solo nel container; `AMS_PROVA_LINGUA=en` per il desktop in inglese, 11 su 11)
+Suite (numeri aggiornati nel manuale tecnico, capitolo 11, letti dai risultati): `tests/engine.sh` 82 controlli, `tests/tui.py`, container 72 scenari
+(più il desktop, non provabile lì), VM con desktop in italiano 66 scenari, tutti riusciti (le shell si provano solo nel container; `AMS_PROVA_LINGUA=en` per il desktop in inglese, 11 su 11)
 (30 settembre 2026), anche con AddressSanitizer e UBSan; fuzzing 30 minuti senza
 difetti. Il prototipo in bash è stato provato anche dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,

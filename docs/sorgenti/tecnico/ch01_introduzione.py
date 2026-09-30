@@ -48,7 +48,7 @@ S2 = table(["Principio", "Cosa comporta nel codice"], [
 ], "«TAB» — I principi del progetto")
 
 S3 = table(["Componente", "Chi lo esegue", "Quando"], [
-    [c("ams"), "root, rilanciato con sudo", "quando un amministratore lo invoca"],
+    [c("ams"), "root, rilanciato con sudo", "quando un amministratore lo invoca; da solo in un terminale apre la TUI"],
     [c("ams-user prompt"), "l'utente, nella sua shell (bash, zsh, fish; le altre al login)", "prima di ogni prompt, se la casella non è vuota; subito al login"],
     [c("ams-user agent"), "l'utente, nella sessione grafica", "dal login grafico alla fine della sessione; " + c("ams send")
      + " lo avvia se manca"],

@@ -1,19 +1,21 @@
 from build import arrow, box, c, fig, p, path, pill, table, term, text, ul, warn
 
-S1 = p(c("ams list") + " mostra tutti i messaggi mandati, dal più vecchio al più recente.", lead=True) + term(
+S1 = p(c("ams list") + " mostra tutti i messaggi mandati, dal più vecchio al più recente. La stessa lista, con i "
+       "colori e una barra, è la schermata principale della TUI (capitolo 7).", lead=True) + term(
     "admin@server:~$ ams list\n"
-    "ID    DATA         CONFERME  TESTO\n"
-    "1     03/10 18:30  1/1       Sabato dalle 8 alle 12 il server sarà spento.\n"
-    "2     03/10 18:42  3/3       [scaduto] Il servizio web riparte alle 13:00.\n"
-    "3     03/10 19:05  17/24     Da lunedì 15 ottobre le password scadono ogni 90 giorni.\n"
-    "4     04/10 09:10  0/5       [ritirato] Riunione spostata alle 11.\n"
-    "5     04/10 09:30  3/8       [scaduto] Consegna dei progetti entro giovedì alle 18.") + \
+    "ID    DATA         TESTO                                     DESTINATARI\n"
+    "1     03/10 18:30  Sabato dalle 8 alle 12 il server sarà sp  tutti confermato (1)\n"
+    "2     03/10 18:42  [scaduto] Il servizio web riparte alle 1  tutti confermato (3)\n"
+    "3     03/10 19:05  Da lunedì 15 ottobre le password scadono  17 confermato · 6 consegnato · 1 inviato\n"
+    "4     04/10 09:10  [ritirato] Riunione spostata alle 11.     5 consegnato\n"
+    "5     04/10 09:30  [scaduto] Consegna dei progetti entro gi  3 confermato · 5 consegnato") + \
     table(["Colonna", "Significato"], [
-        ["ID", "il numero del messaggio, da usare con " + c("ams status") + " e " + c("ams revoke")],
+        ["ID", "il numero del messaggio, da usare con " + c("ams status") + ", " + c("ams revoke") + " e " + c("ams remind")],
         ["DATA", "giorno e ora dell'invio"],
-        ["CONFERME", "chi ha confermato, sul totale dei destinatari"],
-        ["TESTO", "la prima riga; " + c("[ritirato]") + " e " + c("[scaduto]") + " segnalano i messaggi non più mostrati, "
-         + c("[2 non consegnati]") + " i destinatari la cui copia non è stata scritta"],
+        ["TESTO", "la prima riga; " + c("[ritirato]") + " e " + c("[scaduto]") + " segnalano i messaggi non più mostrati"],
+        ["DESTINATARI", "quanti destinatari sono in ciascuno dei tre stati: confermato, consegnato (hanno la copia ma "
+         "non hanno ancora confermato), inviato (la copia non è ancora arrivata); «tutti confermato» quando hanno "
+         "confermato tutti"],
     ], "«TAB» — Le colonne di ams list")
 
 S2 = p(c("ams status") + " seguito dal numero mostra il testo del messaggio e lo stato di ogni destinatario.",
@@ -76,6 +78,16 @@ S4 = p(c("ams revoke") + " ritira un messaggio mandato per errore o non più val
     ]) + warn("il testo già comparso nei terminali al momento dell'invio non si può cancellare: è già sullo schermo "
               "dell'utente.")
 
+SR = p(c("ams remind") + " sollecita chi non ha ancora confermato: la domanda torna al suo prompt successivo e la "
+       "finestra ricompare subito sul desktop, anche se l'aveva rimandata.", lead=True) + term(
+    "admin@server:~$ ams remind 3\n"
+    "Messaggio 3: sollecitati 6 destinatari.") + ul([
+        "Riguarda solo chi è «consegnato»: chi ha già confermato non viene disturbato, e chi è ancora «inviato» non "
+        "ha la copia (il prossimo comando " + c("ams") + " riprova a consegnarla).",
+        "Un messaggio ritirato o scaduto non si sollecita.",
+        "Il sollecito finisce nel registro di sistema, con chi l'ha chiesto.",
+    ])
+
 S5 = p("Ogni invio, conferma e ritiro viene scritto nel registro di sistema, con l'etichetta "
        + c("ams") + ". È la traccia da usare se qualcuno chiede «chi ha mandato cosa, e quando».", lead=True) + term(
     "admin@server:~$ sudo journalctl -t ams --since today\n"
@@ -115,6 +127,7 @@ CHAPTER = ("Controllare chi ha letto", [
     ("La situazione di ogni utente", S2),
     ("La vita di un messaggio", S3),
     ("Ritirare un messaggio", S4),
+    ("Sollecitare chi non ha confermato", SR),
     ("Il registro di sistema", S5),
     ("Fare pulizia", S6),
 ])

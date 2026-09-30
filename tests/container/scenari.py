@@ -314,6 +314,13 @@ def d_conferma():
     s.leggi_fino(r"\$ $", 5)
     registra("D2", "Conferma", "dopo il rinvio, al prompt solo un promemoria", "«Hai 1 messaggio…», nessuna domanda",
              "Hai 1 messaggio" in s.testo() and "Confermi" not in s.testo(), s.testo()[-160:])
+    r = ams("remind 1")
+    s.pulisci(); s.scrivi("\n")
+    ok = s.leggi_fino(r"Confermi", 5) is not None
+    registra("D5", "Conferma", "ams remind dopo un rinvio: la domanda torna al prompt successivo",
+             "«sollecitato 1 destinatario», domanda al prompt", ok and "sollecitato 1 destinatario" in r.stdout,
+             r.stdout.strip())
+    s.scrivi("n\n"); s.leggi_fino(r"riproposta tra", 5)
     s.chiudi()
     s = Sessione.__new__(Sessione)
     s.utente, s.buf = "luca", ""
@@ -567,6 +574,34 @@ def l_lingua():
              and "confermata la lettura" in grezzo, (log_en.splitlines() or [""])[-1][:120])
 
 
+# ---- T. la TUI degli amministratori ----
+
+def t_tui():
+    """ams senza argomenti, come root, in un terminale: la TUI sull'archivio vero."""
+    import fcntl, struct, termios
+    ams('send --to mario,anna --title Prova "Dalla TUI"')
+    s = Sessione.__new__(Sessione)
+    s.utente, s.buf = "root", ""
+    s.pid, s.fd = pty.fork()
+    if s.pid == 0:
+        os.execvpe(AMS, ["ams"], dict(os.environ, TERM="xterm-256color"))
+    fcntl.ioctl(s.fd, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
+    ok1 = s.leggi_fino(r"2 consegnato", 10) is not None and "AMS · messaggi inviati" in s.testo()
+    registra("T1", "TUI", "ams senza argomenti come root: la lista con i destinatari nei tre stati",
+             "«AMS · messaggi inviati», «2 consegnato»", ok1, s.testo()[-120:] if not ok1 else "")
+    s.pulisci(); s.scrivi("\r")
+    ok2 = s.leggi_fino(r"anna.*consegnato", 10) is not None and "mario" in s.testo()
+    s.pulisci(); s.scrivi("\t")
+    ok3 = s.leggi_fino(r"inviato da root", 10) is not None
+    registra("T2", "TUI", "dettaglio: destinatari e storia dal registro", "anna, mario; «inviato da root»", ok2 and ok3)
+    s.scrivi("\x1b"); time.sleep(0.5); s.scrivi("q")
+    try:
+        _, st = os.waitpid(s.pid, 0)
+    except ChildProcessError:
+        st = 1
+    registra("T3", "TUI", "q: la TUI esce e ridà il terminale", "uscita 0", os.WIFEXITED(st) and os.WEXITSTATUS(st) == 0)
+
+
 # ---- J. registro degli eventi ----
 
 def j_registro():
@@ -785,6 +820,19 @@ def i_desktop():
     dt = attendi_finestre(1, 120)
     registra("I4", "Desktop", "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
              "finestra di nuovo, dopo circa 60 s", dt is not None, secondi_alla_ricomparsa=dt)
+    desk("clicca", ETICHETTE["dlg_later"])
+    attendi_finestre(0, 10)
+    # il sollecito arriva dopo il rinvio, come quando lo chiede un amministratore
+    attendi_stato(2, DESK, lambda x: "rimandato" in x)
+    t0 = time.time()
+    ams("remind 2")
+    dt = attendi_finestre(1, 20)
+    diag = "" if dt is not None else " | ".join([
+        sh(f"{AMS} remind 2").stdout.strip(), stato(2, DESK) or "", sh(f"ls -la {VAR}/users/{DESK}/state {VAR}/users/{DESK}/inbox").stdout.replace("\n", " "),
+        sh(f"pgrep -a -u {DESK} ams-user").stdout.replace("\n", " "), sh(f"pgrep -a -u {DESK} zenity").stdout.replace("\n", " "),
+        sh(f"cat /run/user/$(id -u {DESK})/ams-agent.pronto").stdout.strip()])
+    registra("I11", "Desktop", "ams remind dopo «Più tardi»: la finestra ricompare subito", "finestra entro pochi secondi",
+             dt is not None, diag, secondi_alla_ricomparsa=round(time.time() - t0, 2) if dt is not None else None)
     desk("clicca", ETICHETTE["dlg_ok"])
     attendi_finestre(0, 10)
 
@@ -886,7 +934,7 @@ def rapporto():
 if __name__ == "__main__":
     solo = os.environ.get("AMS_PROVA_SOLO", "").split(",")   # per esempio i_desktop
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
-               j_registro, k_shell, l_lingua, h_prestazioni, i_desktop):
+               j_registro, t_tui, k_shell, l_lingua, h_prestazioni, i_desktop):
         if solo != [""] and fn.__name__ not in solo:
             continue
         print(fn.__name__)

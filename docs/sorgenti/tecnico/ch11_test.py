@@ -59,6 +59,7 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
         ["L. Lingua", "stesso messaggio a un utente in inglese e a uno in italiano; domanda, conferma, " + c("ams status")
          + " e " + c("ams log") + " nella lingua di chi legge"],
         ["H. Prestazioni", "invio a oltre 50 utenti; " + c("list") + " e " + c("status") + " con 10 messaggi"],
+        ["T. TUI", c("ams") + " da solo come root: lista con i destinatari nei tre stati, dettaglio e storia, uscita"],
         ["I. Desktop", "nel container non provato (nessuna sessione grafica); nella VM sì, capitolo 11.3"],
     ], "«TAB» — Gli scenari dal vero") + table(["Misura", "Valore (30 settembre 2026)"], [
         ["dall'invio al testo nel terminale di un utente collegato", "circa 0,2 s"],

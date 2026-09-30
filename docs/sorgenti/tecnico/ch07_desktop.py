@@ -47,7 +47,10 @@ DIALOG = seq([("mostra_finestra", "", "navy"), ("zenity", "--question --no-marku
 S2 = p(c("mostra_finestra") + " avvia " + c("zenity --question --no-markup") + " (il testo non è interpretato come "
        "markup; titolo e pulsanti nella lingua della sessione) e ne controlla la fine con " + c("waitpid") + " ogni "
        "secondo, così registra la risposta appena arriva. Nello stesso giro guarda la casella e chiude la finestra se il "
-       "messaggio è stato confermato altrove, ritirato o è scaduto. All'uscita dalla sessione aspetta la finestra al "
+       "messaggio è stato confermato altrove, ritirato o è scaduto. La fine di zenity interrompe subito l'attesa "
+       "(" + c("SIGCHLD") + "): la risposta si registra in pochi millisecondi, così un " + c("ams remind") + " che "
+       "arriva subito dopo un «Più tardi» trova il rinvio già scritto (con un controllo al secondo, la VM di prova ha "
+       "trovato il sollecito perso, scenario I11). All'uscita dalla sessione aspetta la finestra al "
        "più 2 secondi, poi la chiude: una conferma già data non va persa (scenario I10).", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
     ["codice 0 («Ho letto»)", c("conferma(ID, \"desktop\")") + "; se la scrittura fallisce, una notifica lo dice e la finestra torna al giro successivo"],
     ["codice 1 («Più tardi», finestra chiusa dall'utente)", c("rimanda(ID, \"gui\")") + ": tocca " + c("state/ID.gui")],

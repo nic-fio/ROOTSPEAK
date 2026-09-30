@@ -44,6 +44,8 @@ bool evento_testo(const char *lingua, const char *ev, long long id, const char *
 			   dettagli);
 	else if (!strcmp(ev, "CANCELLATO"))
 		buf_printf(out, tl(lingua, "message %lld deleted by %s (older than %s)"), id, autore, dettagli);
+	else if (!strcmp(ev, "SOLLECITATO"))
+		buf_printf(out, tl(lingua, "message %lld: %s recipients reminded by %s"), id, dettagli, autore);
 	else if (!strcmp(ev, "RITIRATO"))
 		buf_printf(out, tl(lingua, "message %lld revoked by %s"), id, autore);
 	else if (!strcmp(ev, "RINVIATO"))

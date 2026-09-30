@@ -151,6 +151,7 @@ EV = p("Ogni fatto rilevante diventa un <b>evento strutturato</b> nel journal ("
         [c("RECUPERATO") + ", " + c("ANNULLATO"), "ams (root)", "recupero di un invio interrotto"],
         [c("RITIRATO"), "ams (root)", c("ams revoke")],
         [c("CANCELLATO"), "ams (root)", c("ams purge") + ": messaggio tolto dall'archivio"],
+        [c("SOLLECITATO"), "ams (root)", c("ams remind") + ", con quanti destinatari e chi l'ha chiesto"],
         [c("RINVIATO"), "ams-user (utente)", "«Più tardi» o «no»"],
         [c("CONFERMATO") + ", " + c("CONFERMA_FALLITA"), "ams-user (utente)", "conferma registrata o non registrabile"],
     ], "«TAB» — Gli eventi nel journal") + \
@@ -179,6 +180,28 @@ S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e 
        "incompleti o con il lock occupato, e una cancellazione interrotta la completa il comando successivo. "
        "I dettagli di concorrenza e interruzioni sono nella specifica (capitolo 14).", lead=True)
 
+TUI = p(c("ams") + " senza argomenti, con stdin e stdout in un terminale di almeno 80 × 20, apre la TUI di "
+        + c("src/tui.c") + " (dopo il recupero); in una pipe, o in un terminale più piccolo, la guida. Il disegno è "
+        "quello della guida integrata, senza ncurses: modo non canonico senza " + c("IXON") + " (così " + c("Ctrl+S")
+        + " arriva), schermo alternativo, un solo " + c("write") + " per schermata.", lead=True) + ul([
+    "<b>Stesse funzioni per leggere</b>: la lista usa " + c("riassumi") + " (i destinatari contati nei tre stati, "
+    "ritirato e scaduto), il dettaglio " + c("destinatari") + " (la stessa riga di " + c("ams status") + "). Nessuno "
+    "stato proprio della TUI: la specifica, «Come si riassume un messaggio», vale per " + c("ams list") + " e per la TUI.",
+    "<b>Le azioni sono i comandi</b>: invio, ritiro, sollecito e pulizia girano in un processo figlio che chiama "
+    + c("cmd_send") + ", " + c("cmd_revoke") + ", " + c("cmd_remind") + ", " + c("cmd_purge") + " con l'uscita, "
+    "anche d'errore, raccolta e mostrata in una finestra. Un errore del comando (" + c("die") + ") chiude solo il "
+    "figlio. Anche l'anteprima dei destinatari e la storia (" + c("cmd_log") + ") vengono da un figlio.",
+    "<b>Aggiornamento</b>: lista e dettaglio si rileggono ogni 3 secondi e dopo ogni azione, dimenticando le "
+    "caselle lette (" + c("caselle_svuota") + ").",
+    "<b>Editor</b>: " + c("Ctrl+E") + " scrive il testo in un file temporaneo, lo cede all'amministratore di "
+    + c("SUDO_USER") + " e apre " + c("VISUAL") + ", " + c("EDITOR") + ", nano o vi <b>con la sua identità</b>, "
+    "non come root; poi rilegge il file (al più il doppio della lunghezza massima) e lo cancella.",
+    "<b>Conferme</b>: ogni azione chiede una conferma che la descrive; finestre e conferme si disegnano su una copia "
+    "dello schermo, così una non resta sotto l'altra.",
+    "Un difetto trovato scrivendo la prova automatica: il figlio che esegue l'invio ereditava anche il capo della "
+    "pipe da cui il padre scrive il testo, e non vedeva mai la fine del testo; ora lo chiude.",
+])
+
 CHAPTER = ("L'invio: ams", [
     ("Avvio e rilancio con sudo", S1),
     ("Destinatari e sessioni", S2),
@@ -189,4 +212,5 @@ CHAPTER = ("L'invio: ams", [
     ("Pulizia del testo", S6),
     ("Il registro degli eventi", EV),
     ("list, status, revoke", S7),
+    ("La TUI", TUI),
 ])

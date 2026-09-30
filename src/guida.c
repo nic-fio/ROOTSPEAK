@@ -27,14 +27,16 @@
 /* TRADUTTORI: ogni voce è «etichetta¦descrizione»; si traducono entrambe e il
  * carattere ¦ resta. */
 static const char *const COMANDI[] = {
+	NC_("guida-comandi", "(no command)¦In a terminal, opens the interactive interface: the messages with their recipients and history; write and send, revoke, remind, delete old messages. In a pipe, shows this guide."),
 	NC_("guida-comandi", "send [options] [TEXT]¦Sends a message to the recipients given with --to. Without TEXT or --file, the text is read from stdin."),
 	NC_("guida-comandi", "list¦Lists the messages sent, with how many recipients have confirmed each one."),
 	NC_("guida-comandi", "status ID¦Shows the text of the message and the state of each recipient: sent, delivered (in their mailbox) or confirmed, with date, time and channel."),
 	NC_("guida-comandi", "revoke ID¦Revokes a message: whoever has not seen it yet will not see it, and dialogs and questions still open close by themselves."),
+	NC_("guida-comandi", "remind ID¦Reminds whoever has not confirmed yet: the question comes back at their next prompt and the dialog reappears on the desktop, even if they had postponed it."),
 	NC_("guida-comandi", "log ID¦Shows the history of the message from the system log: sending, deliveries, postponements, confirmations and revocation, with date and time."),
 	NC_("guida-comandi", "purge DURATION¦Deletes the messages sent more than DURATION ago (for example 90d), with the copies and confirmations in the users' mailboxes; the events stay in the system log."),
 	NC_("guida-comandi", "version¦Shows the AMS version."),
-	NC_("guida-comandi", "help, --help, -h¦Shows this guide. «ams» without arguments opens it too."),
+	NC_("guida-comandi", "help, --help, -h¦Shows this guide."),
 };
 
 static const char *const OPZIONI[] = {
@@ -54,6 +56,7 @@ static const char *const ESEMPI[] = {
 	NC_("guida-esempi", "ams log 12¦The history of message 12: sending, deliveries, postponements, confirmations."),
 	NC_("guida-esempi", "ams purge 90d¦Deletes the messages older than 90 days, with copies and confirmations."),
 	NC_("guida-esempi", "ams revoke 12¦Revokes message 12."),
+	NC_("guida-esempi", "ams remind 12¦Asks again, right now, whoever has not confirmed message 12."),
 };
 
 static const char *const FILES[] = {
@@ -67,7 +70,9 @@ static const char *const SINTASSI[] = {
 	NC_("guida-sintassi", "ams send --to DEST [options] [TEXT]"),
 	NC_("guida-sintassi", "ams list"),
 	NC_("guida-sintassi", "ams status ID"),
+	NC_("guida-sintassi", "ams"),
 	NC_("guida-sintassi", "ams revoke ID"),
+	NC_("guida-sintassi", "ams remind ID"),
 	NC_("guida-sintassi", "ams log ID"),
 	NC_("guida-sintassi", "ams purge DURATION"),
 	NC_("guida-sintassi", "ams version"),

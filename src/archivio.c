@@ -82,6 +82,20 @@ static int op_togli(void *arg)
 	return esiste(copia) ? 1 : 0;
 }
 
+static int op_togli_rinvii(void *arg)
+{
+	const op_t *o = arg;
+	char *t = in_casella(o, "state", ".term"), *g = in_casella(o, "state", ".gui");
+	int r;
+
+	unlink(t);
+	unlink(g);
+	r = esiste(t) || esiste(g) ? 1 : 0;
+	free(t);
+	free(g);
+	return r;
+}
+
 static int op_cancella(void *arg)
 {
 	const op_t *o = arg;
@@ -249,6 +263,16 @@ bool togli_copia(const utente_t *u, long long id)
 	char *d = casella_di(u);
 	op_t o = {d, id};
 	bool ok = !e_cartella(d) || come_utente(u, op_togli, &o, NULL, NULL, 0, 20) == 0;
+
+	free(d);
+	return ok;
+}
+
+bool togli_rinvii(const utente_t *u, long long id)
+{
+	char *d = casella_di(u);
+	op_t o = {d, id};
+	bool ok = e_cartella(d) && come_utente(u, op_togli_rinvii, &o, NULL, NULL, 0, 20) == 0;
 
 	free(d);
 	return ok;
