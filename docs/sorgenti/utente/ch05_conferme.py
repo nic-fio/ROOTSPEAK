@@ -98,10 +98,21 @@ S5 = p("Ogni invio, conferma e ritiro viene scritto nel registro di sistema, con
     "2026-10-03T19:07:02+0200  utente mario: rimandato il messaggio 3 (terminale)\n"
     "2026-10-03T19:20:02+0200  utente luca: confermata la lettura del messaggio 3 (terminale pts/2)")
 
+S6 = p("I messaggi e le conferme restano nell'archivio finché non vengono cancellati. " + c("ams purge")
+       + " toglie quelli più vecchi di un certo tempo, con le copie e le conferme nelle caselle degli utenti.", lead=True) + \
+    term("admin@server:~$ ams purge 90d\nCancellati 12 messaggi più vecchi di 90d.") + ul([
+        "La durata si scrive come per la scadenza: " + c("90d") + ", " + c("12h") + ", " + c("30m") + ".",
+        "Un messaggio cancellato sparisce da " + c("ams list") + " e da " + c("ams status") + "; se qualcuno non l'aveva "
+        "ancora confermato, non gli verrà più chiesto.",
+        "Un invio ancora in corso o rimasto a metà non viene toccato.",
+        "Nel registro di sistema restano gli eventi del messaggio e quello della cancellazione.",
+    ])
+
 CHAPTER = ("Controllare chi ha letto", [
     ("L'elenco dei messaggi", S1),
     ("La situazione di ogni utente", S2),
     ("La vita di un messaggio", S3),
     ("Ritirare un messaggio", S4),
     ("Il registro di sistema", S5),
+    ("Fare pulizia", S6),
 ])

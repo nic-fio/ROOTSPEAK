@@ -132,6 +132,7 @@ EV = p("Ogni fatto rilevante diventa un <b>evento strutturato</b> nel journal ("
         [c("NON_CONSEGNATO"), "ams (root)", "copia non scritta"],
         [c("RECUPERATO") + ", " + c("ANNULLATO"), "ams (root)", "recupero di un invio interrotto"],
         [c("RITIRATO"), "ams (root)", c("ams revoke")],
+        [c("CANCELLATO"), "ams (root)", c("ams purge") + ": messaggio tolto dall'archivio"],
         [c("RINVIATO"), "ams-user (utente)", "«Più tardi» o «no»"],
         [c("CONFERMATO") + ", " + c("CONFERMA_FALLITA"), "ams-user (utente)", "conferma registrata o non registrabile"],
     ], "«TAB» — Gli eventi nel journal") + \
@@ -145,7 +146,9 @@ S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e 
        + " e controllate lato root; le consegne si leggono una volta per messaggio (" + c("load_delivery") + "). Con 10 "
        "messaggi a 54 destinatari " + c("ams list") + " è passato da circa 6 s a circa 0,7 s. " + c("ams revoke") + " scrive " + c("sent/ID/revoked") + " e toglie " + c("inbox/ID")
        + " e i rinvii da ogni casella, come l'utente: finestre e domande aperte se ne accorgono entro un secondo "
-       "(capitoli 6.3 e 7.2).", lead=True)
+       "(capitoli 6.3 e 7.2). " + c("ams purge DURATA") + " cancella i messaggi inviati prima di quel tempo: la cartella in "
+       + c("sent/") + " e, con l'identità di ogni destinatario, copie, conferme e rinvii nella sua casella; salta "
+       "gli invii incompleti o con il lock occupato.", lead=True)
 
 CHAPTER = ("L'invio: ams", [
     ("Avvio e rilancio con sudo", S1),

@@ -12,12 +12,14 @@ S0 = p(c("tests/engine.sh") + " prova il motore in modalità di prova, senza roo
          "conferma con ora dopo la scadenza della copia di riferimento non vale e non è contata"],
         ["configurazione", "il file non viene eseguito come codice; valori validi letti, non validi, sconosciuti, zero e "
          "negativi ignorati; il messaggio dichiara " + c("format: 1")],
+        ["pulizia", c("ams purge 7d") + " cancella un messaggio di 10 giorni fa con copie e conferme, lascia quello "
+         "recente e gli invii incompleti o in corso, rifiuta una durata non valida"],
         ["agente", "PID scritto in " + c("ams-agent.pronto") + " quando è pronto; la sveglia a quel PID non lo uccide; "
          "il file sparisce all'uscita (solo con una sessione grafica)"],
         ["stati", c("--level") + " rifiutato; consegnato dopo l'invio; nessun livello nel messaggio; rinvio mostrato come "
          "dettaglio e non richiesto subito; confermato al login successivo; " + c("ams list") + " senza colonna del livello; "
          "scaduto come «consegnato, non confermato»"],
-    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n3. stati\n4. scadenza\n5. configurazione\n6. agente\n\nOK: 40 controlli")
+    ], "«TAB» — I controlli di tests/engine.sh") + term("nicfio@server:~/AMS$ tests/engine.sh\n1. conferme\n2. consegna\n3. stati\n4. scadenza\n5. configurazione\n6. pulizia\n7. agente\n\nOK: 45 controlli")
 
 SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macchina di prova isolata: un container "
        "Debian 13 con systemd acceso (logind, sshd), senza root sul sistema che lo ospita. AMS vi è installato con "

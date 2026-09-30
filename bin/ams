@@ -480,6 +480,46 @@ cmd_status() {
 	done
 }
 
+# Cancella i messaggi inviati da più di DURATA, con copie, conferme e rinvii
+# nelle caselle (tolti con l'identità dell'utente). Salta gli invii in corso o
+# interrotti. Nel journal restano gli eventi e l'evento CANCELLATO.
+cmd_purge() {
+	local dur=${1:?manca la durata, per esempio 90d} sec n dir id quando u
+	n=${dur%[mhd]}
+	case $dur in
+	*[0-9]m) sec=$((n * 60)) ;;
+	*[0-9]h) sec=$((n * 3600)) ;;
+	*[0-9]d) sec=$((n * 86400)) ;;
+	*) ams_die "durata non valida: $dur (per esempio 90d, 12h, 30m)" ;;
+	esac
+	local limite=$(($(date +%s) - sec)) tolti=0
+	for dir in "$AMS_VAR"/sent/*/; do
+		dir=${dir%/}
+		id=${dir##*/}
+		[[ $id =~ ^[0-9]+$ ]] || continue
+		[ -e "$dir/incomplete" ] && continue
+		quando=$(ams_msg_get "$dir/msg" date 2>/dev/null)
+		[[ $quando =~ ^[0-9]+$ ]] || quando=$(stat -c %Y "$dir")
+		[ "$quando" -lt "$limite" ] || continue
+		exec 5>"$dir/lock"
+		if ! flock -n 5; then
+			exec 5>&-
+			continue
+		fi
+		for u in $(cat "$dir/recipients" 2>/dev/null); do
+			[ -d "$AMS_VAR/users/$u" ] || continue
+			as_user "$u" sh -c 'rm -f "$1/inbox/$2" "$1/read/$2" "$1/acks/$2" "$1/state/$2.term" "$1/state/$2.gui"' \
+				_ "$AMS_VAR/users/$u" "$id" 2>/dev/null || true
+		done
+		rm -rf "$dir"
+		exec 5>&-
+		ams_event CANCELLATO "$id" "" "" "messaggio $id cancellato da ${SUDO_USER:-$(id -un)} (più vecchio di $dur)"
+		tolti=$((tolti + 1))
+	done
+	if [ $tolti -eq 1 ]; then echo "Cancellato 1 messaggio più vecchio di $dur."
+	else echo "Cancellati $tolti messaggi più vecchi di $dur."; fi
+}
+
 # La storia di un messaggio dal journal: gli eventi con AMS_MESSAGGIO=ID dalla
 # data dell'invio (un archivio azzerato riusa i numeri, il journal no).
 cmd_log() {
@@ -512,5 +552,6 @@ list) shift; cmd_list ;;
 status) shift; cmd_status "$@" ;;
 revoke) shift; cmd_revoke "$@" ;;
 log) shift; cmd_log "$@" ;;
+purge) shift; cmd_purge "$@" ;;
 *) ams_die "comando sconosciuto: $1 (ams --help per la guida)" ;;
 esac

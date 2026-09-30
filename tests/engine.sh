@@ -198,11 +198,33 @@ fresh format
 send "prova"
 check "il messaggio dichiara la versione del formato" '[ "$(head -1 "$AMS_VAR/sent/1/msg")" = "format: 1" ]'
 
-# ---- 6. agente del desktop: sveglia solo quando è pronto ----
+# ---- 6. pulizia ----
+
+echo "6. pulizia"
+fresh purge
+send "vecchio"; send "recente"
+sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$AMS_VAR/sent/1/msg"
+prompt_login s >/dev/null
+out=$("$ROOT/bin/ams" purge 7d)
+check "ams purge 7d: cancella il messaggio di 10 giorni fa" '[[ $out == "Cancellato 1 messaggio"* ]] && [ ! -d "$AMS_VAR/sent/1" ]'
+check "ams purge: copie e conferme nella casella tolte" \
+	'[ ! -e "$D/inbox/1" ] && [ ! -e "$D/read/1" ] && [ ! -e "$D/acks/1" ]'
+check "ams purge: il messaggio recente resta" '[ -d "$AMS_VAR/sent/2" ] && [ -e "$D/inbox/2" -o -e "$D/read/2" ]'
+: >"$AMS_VAR/sent/2/incomplete"
+sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$AMS_VAR/sent/2/msg"
+flock "$AMS_VAR/sent/2/lock" sleep 1 &
+sleep 0.2
+"$ROOT/bin/ams" purge 7d >/dev/null 2>&1
+check "ams purge: un invio incompleto o in corso non viene toccato" '[ -d "$AMS_VAR/sent/2" ]'
+wait
+out=$("$ROOT/bin/ams" purge 7x 2>&1)
+check "ams purge: durata non valida rifiutata" '[[ $out == *"durata non valida"* ]]'
+
+# ---- 7. agente del desktop: sveglia solo quando è pronto ----
 # Richiede una sessione grafica dell'utente che esegue i test (l'agente esce
 # subito senza); altrimenti il gruppo è saltato.
 
-echo "6. agente"
+echo "7. agente"
 if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
 	fresh agent
 	mkdir -p "$AMS_VAR/users" "$BASE/run-agent"
