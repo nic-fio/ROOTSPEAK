@@ -6,7 +6,6 @@ S1 = table(["Limite", "Conseguenza"], [
     [c("ams list") + " usa un " + c("runuser") + " per destinatario e messaggio", "lento: circa 6 s per 10 messaggi a 54 "
      "destinatari (misura della suite dal vero)"],
     ["le caselle crescono", "i messaggi letti restano in " + c("read/")],
-    ["l'agente legge " + c("ams.conf") + " solo all'avvio", "le modifiche valgono sul desktop dal login successivo"],
     [c("su") + " non cambia il proprietario del terminale", c("ams send") + " non scrive in quel terminale all'invio"],
     ["se l'agente del desktop muore, la sua finestra resta aperta", "l'agente che lo sostituisce apre una seconda "
      "finestra per lo stesso messaggio; la prima non registra più nulla"],

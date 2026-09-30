@@ -24,7 +24,8 @@ S2 = table(["Rischio", "Contromisura"], [
     ["sequenze di escape nei messaggi", c("ams_sanitize") + " su testo e titolo; " + c("--no-markup") + " in zenity"],
     ["conferme fabbricate", "lette come l'utente, al massimo 200 byte, ripulite (capitolo 8.2)"],
     ["segnali a processi sbagliati", c("pkill") + " eseguito come l'utente, sulla riga di comando esatta dell'agente"],
-    ["configurazione alterata", c("ams.conf") + " è letto come script da root e dagli utenti: deve restare " + c("644 root")],
+    ["configurazione come codice", c("ams.conf") + " è un file di dati: " + c("ams_load_conf") + " accetta solo le chiavi "
+     "note con valori interi positivi e non esegue nulla (prima era letto come script da root e dagli utenti)"],
     ["messaggi letti da altri utenti", "caselle " + c("700") + "; " + c("sent/ 700 root")],
     ["un terminale bloccato ferma l'invio", c("timeout 3") + " su ogni scrittura"],
     [c("AMS_TEST") + " usata per aggirare sudo", "non concede nulla: senza root, un utente resta con i suoi permessi; sudo toglie la variabile"],

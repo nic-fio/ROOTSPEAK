@@ -22,13 +22,16 @@ S1 = p("L'archivio è fatto di file e cartelle. Una parte appartiene a root, una
 ], "«FIG» — L'archivio, con il messaggio 12 ancora da confermare e l'11 confermato")
 
 S2 = p("Un messaggio è un file di testo: un'intestazione " + c("chiave: valore") + ", una riga vuota, il testo.",
-       lead=True) + code("""id: 12
+       lead=True) + code("""format: 1
+id: 12
 from: admin
 date: 1790714288
 title: Manutenzione
 expires: 1790800688
 
 Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg") + table(["Campo", "Contenuto"], [
+    [c("format"), "versione del formato: 1. Chi legge ignora le chiavi che non conosce; un formato diverso "
+     "va letto con un'implementazione che lo conosce"],
     [c("id"), "numero progressivo, da " + c("next_id")],
     [c("from"), c("SUDO_USER") + ": l'amministratore che ha lanciato " + c("ams")],
     [c("date"), "secondi dall'epoca Unix"],

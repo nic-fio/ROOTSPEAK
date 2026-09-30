@@ -291,6 +291,7 @@ cmd_send() {
 	: >"$dir/incomplete"
 	msg=$dir/msg
 	{
+		echo "format: 1"
 		echo "id: $id"
 		echo "from: ${SUDO_USER:-$(id -un)}"
 		echo "date: $(date +%s)"

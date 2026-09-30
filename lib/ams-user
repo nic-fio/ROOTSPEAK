@@ -185,6 +185,8 @@ cmd_agent() {
 	trap 'rm -f "$run/ams-agent.pronto"' EXIT
 	echo $$ >"$run/ams-agent.pronto"
 	while graphical_session; do
+		# la configurazione si rilegge a ogni giro: una modifica vale subito anche qui
+		ams_load_conf
 		for id in $(pending); do
 			f=$D/inbox/$id
 			[ -f "$f" ] || continue

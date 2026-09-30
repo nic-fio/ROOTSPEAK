@@ -20,6 +20,7 @@ S1 = p("L'agente, " + c("ams-user agent") + ", parte con l'avvio automatico del 
     + "): altrimenti, se l'agente muore, un suo " + c("sleep") + " o una sua finestra rimasti orfani terrebbero il lock "
     "fino a 60 secondi, e l'agente avviato al suo posto da " + c("ams send") + " uscirebbe subito (difetto trovato "
     "dalla VM di prova).",
+    "<b>Configurazione sempre attuale</b>: " + c("ams_load_conf") + " a ogni giro.",
     "<b>Vive quanto la sessione</b>: il ciclo continua finché " + c("loginctl show-user U -p Display")
     + " indica una sessione grafica.",
     "<b>Una finestra alla volta</b>: i messaggi non rimandati, dal più vecchio.",

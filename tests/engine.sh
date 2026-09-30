@@ -183,11 +183,26 @@ check "conferma con ora dopo la scadenza (copia di riferimento): non vale" \
 	'[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)" ]'
 check "ams list non la conta" '[[ $("$ROOT/bin/ams" list) == *" 0/1 "* ]]'
 
-# ---- 5. agente del desktop: sveglia solo quando è pronto ----
+# ---- 5. configurazione e formato ----
+
+echo "5. configurazione"
+conf=$BASE/ams.conf
+leggi() { (AMS_CONF=$conf; . "$ROOT/lib/ams-common.sh"; echo "$AMS_REMIND_MINUTES $AMS_AGENT_POLL"); }
+printf 'AMS_REMIND_MINUTES=$(touch %s/eseguito)\nAMS_AGENT_POLL=`touch %s/eseguito`\n' "$BASE" "$BASE" >"$conf"
+check "la configurazione non viene eseguita come codice" '[ "$(leggi)" = "30 60" ] && [ ! -e "$BASE/eseguito" ]'
+printf '# commento\n AMS_REMIND_MINUTES = 15  # a destra\nAMS_AGENT_POLL=abc\nAMS_DEFAULT_LEVEL=info\nALTRO=5\n' >"$conf"
+check "valori validi letti, non validi e sconosciuti ignorati" '[ "$(leggi)" = "15 60" ]'
+printf 'AMS_REMIND_MINUTES=0\nAMS_AGENT_POLL=-3\n' >"$conf"
+check "zero e negativi ignorati" '[ "$(leggi)" = "30 60" ]'
+fresh format
+send "prova"
+check "il messaggio dichiara la versione del formato" '[ "$(head -1 "$AMS_VAR/sent/1/msg")" = "format: 1" ]'
+
+# ---- 6. agente del desktop: sveglia solo quando è pronto ----
 # Richiede una sessione grafica dell'utente che esegue i test (l'agente esce
 # subito senza); altrimenti il gruppo è saltato.
 
-echo "5. agente"
+echo "6. agente"
 if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
 	fresh agent
 	mkdir -p "$AMS_VAR/users" "$BASE/run-agent"

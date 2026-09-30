@@ -3,10 +3,31 @@
 
 AMS_VERSION=0.1.0
 
-AMS_REMIND_MINUTES=30
-AMS_AGENT_POLL=60
 AMS_CONF=${AMS_CONF:-/etc/ams/ams.conf}
-[ -r "$AMS_CONF" ] && . "$AMS_CONF"
+
+# La configurazione è un file di dati, non uno script: righe CHIAVE=valore,
+# commenti con #. Si accettano solo le chiavi note, con valori interi
+# positivi; il resto è ignorato e i valori mancanti restano quelli predefiniti.
+ams_load_conf() {
+	local riga k v
+	AMS_REMIND_MINUTES=30
+	AMS_AGENT_POLL=60
+	[ -r "$AMS_CONF" ] || return 0
+	while IFS= read -r riga || [ -n "$riga" ]; do
+		riga=${riga%%#*}
+		riga=${riga//[[:space:]]/}
+		[ -n "$riga" ] || continue
+		k=${riga%%=*}
+		v=${riga#*=}
+		[[ $v =~ ^[0-9]{1,6}$ ]] && [ "$v" -gt 0 ] || continue
+		case $k in
+		AMS_REMIND_MINUTES) AMS_REMIND_MINUTES=$v ;;
+		AMS_AGENT_POLL) AMS_AGENT_POLL=$v ;;
+		esac
+	done <"$AMS_CONF"
+	return 0
+}
+ams_load_conf
 AMS_VAR=${AMS_VAR:-/var/lib/ams}
 
 ams_die() { printf 'ams: %s\n' "$*" >&2; exit 1; }

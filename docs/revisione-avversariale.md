@@ -32,14 +32,14 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | 7 | Registro degli eventi per messaggio (il journal registra già l'UID di chi scrive, non falsificabile). | A 5 | aperto |
 | 8 | Dichiarare che la casella dell'utente non è la fonte autorevole. | A 7 | aperto |
 | 9 | Semantica rigorosa di ritiro, scadenza e orologio. | A 14, 15, 16 | aperto |
-| 10 | Versione del formato dei messaggi (`format: 1`). | B 3.3 | aperto |
+| 10 | Versione del formato dei messaggi: ogni messaggio inizia con `format: 1`. Test: `tests/engine.sh`, gruppo 5. | B 3.3 | fatto |
 
 ## C. Robustezza e configurazione
 
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
-| 11 | Configurazione come dati, con un parser che accetta solo le chiavi note, invece di uno script. | A 18 | aperto |
-| 12 | L'agente rilegge la configurazione a ogni giro. | A 19 | aperto |
+| 11 | Configurazione come dati: `ams_load_conf` accetta solo le chiavi note con interi positivi e non esegue nulla. Test: gruppo 5 (un file con `$(…)` non viene eseguito). | A 18 | fatto |
+| 12 | L'agente rilegge la configurazione a ogni giro. | A 19 | fatto |
 | 13 | Perimetro supportato dichiarato. | A 9 | aperto |
 | 14 | Pulizia delle caselle (i messaggi letti si accumulano). | B 2 | aperto |
 | 15 | `list` e `status` lenti: misurare, poi copiare lato root le conferme lette. Misurato: `list` circa 6 s per 10 messaggi a 54 destinatari, `status` circa 1,3 s (scenari H). | A 8 | aperto |
