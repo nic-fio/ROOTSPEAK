@@ -8,6 +8,8 @@ S1 = table(["Limite", "Conseguenza"], [
     ["le caselle crescono", "i messaggi letti restano in " + c("read/")],
     ["l'agente legge " + c("ams.conf") + " solo all'avvio", "le modifiche valgono sul desktop dal login successivo"],
     [c("su") + " non cambia il proprietario del terminale", c("ams send") + " non scrive in quel terminale all'invio"],
+    ["se l'agente del desktop muore, la sua finestra resta aperta", "l'agente che lo sostituisce apre una seconda "
+     "finestra per lo stesso messaggio; la prima non registra più nulla"],
 ], "«TAB» — Limiti noti")
 
 S2 = table(["Punto", "Stato"], [

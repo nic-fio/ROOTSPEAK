@@ -131,13 +131,13 @@ show_dialog() {
 	zenity --question --no-markup --width=460 \
 		--title="AMS · Messaggio dall'amministratore" \
 		--text="$(ams_msg_heading "$f")"$'\n\n'"$(ams_msg_body "$f")" \
-		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null &
+		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null 9>&- &
 	pid=$!
 	# La finestra si chiude da sola se l'utente conferma da un terminale o se
 	# l'amministratore ritira il messaggio.
 	while kill -0 "$pid" 2>/dev/null; do
 		if [ -e "$D/acks/$id" ] || [ ! -e "$f" ]; then kill "$pid" 2>/dev/null; fi
-		sleep 1
+		sleep 1 9>&-
 	done
 	wait "$pid"
 	rc=$?
@@ -147,12 +147,15 @@ show_dialog() {
 	elif ! ack "$id" desktop; then
 		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
 		command -v notify-send >/dev/null && notify-send -a AMS "AMS · Conferma non registrata" \
-			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null
+			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null 9>&-
 	fi
 }
 
 cmd_agent() {
 	local id f
+	# Il lock (fd 9) non passa ai processi figli (9>&-): se l'agente muore, un
+	# suo sleep o una sua finestra rimasti orfani non devono impedire a un nuovo
+	# agente di partire.
 	exec 9>"${XDG_RUNTIME_DIR:-/tmp}/ams-agent.lock"
 	flock -n 9 || exit 0
 	# `ams send` manda SIGUSR1 per svegliare l'agente appena arriva un messaggio.
@@ -164,7 +167,7 @@ cmd_agent() {
 			if ! snoozed "$id" gui; then show_dialog "$id"; fi
 		done
 		# Attesa interrompibile: il segnale di `ams send` la termina subito.
-		sleep "$AMS_AGENT_POLL" &
+		sleep "$AMS_AGENT_POLL" 9>&- &
 		wait $!
 		kill $! 2>/dev/null
 	done

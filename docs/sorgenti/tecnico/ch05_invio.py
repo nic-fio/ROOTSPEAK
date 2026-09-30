@@ -13,7 +13,9 @@ S2 = table(["Funzione", "Cosa restituisce"], [
      "inesistente è un errore"],
     [c("human_users"), "gli utenti con UID fra " + c("UID_MIN") + " e " + c("UID_MAX") + " di " + c("/etc/login.defs")
      + " (predefiniti 1000 e 60000) e una shell che non finisce con " + c("nologin") + " o " + c("false")],
-    [c("online_users"), "gli utenti con almeno una sessione logind di classe " + c("user")],
+    [c("online_users"), "gli utenti di " + c("human_users") + " con almeno una sessione logind di classe " + c("user")
+     + ": root e gli account di sistema restano esclusi anche se collegati (difetto trovato dalla VM di prova, "
+     "scenario B5)"],
     [c("group_members G"), "i membri elencati nel gruppo più gli utenti che hanno G come gruppo principale"],
     [c("user_sessions U"), "le sessioni " + c("user") + " di U, con tipo e terminale da " + c("loginctl show-session")],
     [c("user_terminals U"), "gli pseudo-terminali in " + c("/dev/pts") + " di proprietà di U, più le console delle sue "

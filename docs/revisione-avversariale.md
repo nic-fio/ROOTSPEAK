@@ -49,7 +49,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
 | 16 | Test automatici del motore: concorrenza, gare, file corrotti, Unicode, testi grandi, strumenti che falliscono. Avviata con `tests/engine.sh`; ogni correzione aggiunge i suoi casi. | A 20 | in corso |
-| 17 | Ambiente riproducibile per le prove dal vivo. Fatto con un container Debian 13 con systemd (`tests/container/esegui.sh`): 42 scenari come root, con utenti e sessioni ssh vere, esiti e misure registrati in `tests/container/risultati/`. Resta fuori la finestra sul desktop. | A 21 | fatto |
+| 17 | Ambiente riproducibile per le prove dal vivo. Fatto in due forme: un container Debian 13 con systemd (`tests/container/esegui.sh`, 42 scenari) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/esegui.sh`, 51 scenari compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
 
 ## E. Critiche non accolte
 
@@ -57,7 +57,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 |---|---|---|
 | L'aggancio della shell si aggira; la conferma non prova la lettura. | B 4.2 | Conseguenza voluta della decisione «mai bloccare»: la conferma è dichiaratamente una dichiarazione dell'utente. |
 | Se il terminale è bloccato il messaggio non arriva. | B 4.1 | Inesatto: la casella fa da coda, il messaggio arriva al prompt successivo o al login. |
-| Lock rimasti bloccati. | B 4.3 | `flock` è rilasciato dal kernel alla morte del processo. |
+| Lock rimasti bloccati. | B 4.3 | **Respinta per errore, poi accolta.** Il kernel rilascia il lock alla morte del processo, ma la VM di prova ha mostrato che il lock dell'agente passava ai suoi figli (`sleep`, `zenity`): un figlio orfano lo teneva fino a 60 s e il nuovo agente usciva subito. Corretto (`9>&-`). |
 | Solo bash. | A 10; B 4.2 | Vincolo dichiarato; un aggancio per zsh è una voce separata, da decidere. |
 | Riscrivere subito in un linguaggio compilato. | B 3 | Si segue la revisione A: prima la specifica, poi un'eventuale riscrittura. |
 | `ams` sempre root. | B 5.1 | Decisione esplicita dell'utente. |

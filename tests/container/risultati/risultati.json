@@ -1,8 +1,8 @@
 {
  "meta": {
-  "data": "2026-09-30 08:00:52",
+  "data": "2026-09-30 09:13:14 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
-  "sistema": "Debian GNU/Linux 13 (trixie)",
+  "sistema": "Debian GNU/Linux 13 (trixie), container con systemd",
   "ok": 41,
   "no": 0,
   "non_provati": 1,
@@ -26,7 +26,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.087
+    "secondi": 0.124
    }
   },
   {
@@ -127,7 +127,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.326
+    "secondi_dal_login": 0.347
    }
   },
   {
@@ -136,7 +136,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 07:59 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 09:12 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +147,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.113,
-    "secondi_al_terminale": 0.164
+    "secondi_invio": 0.146,
+    "secondi_al_terminale": 0.197
    }
   },
   {
@@ -168,7 +168,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.065
+    "secondi": 0.063
    }
   },
   {
@@ -197,7 +197,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.953
+    "secondi": 0.905
    }
   },
   {
@@ -206,7 +206,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 07:59",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:12",
    "misure": {}
   },
   {
@@ -215,7 +215,7 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@18299d71b3c9:~$ ",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@40c13cd8572e:~$ ",
    "misure": {}
   },
   {
@@ -233,7 +233,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790755198 terminale pts/7",
+   "dettagli": "1790759537 terminale pts/7",
    "misure": {}
   },
   {
@@ -307,11 +307,11 @@
    "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 16/64, dopo 64/64; ams: completata la consegna del messaggio 2 a 48 destinatari",
+   "dettagli": "consegnati prima 15/64, dopo 64/64; ams: completata la consegna del messaggio 2 a 49 destinatari",
    "misure": {
-    "consegnati_al_kill": 16,
+    "consegnati_al_kill": 15,
     "destinatari": 64,
-    "secondi_recupero": 2.534
+    "secondi_recupero": 2.591
    }
   },
   {
@@ -378,8 +378,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 2.52,
-    "ms_per_destinatario": 46.7
+    "secondi": 2.47,
+    "ms_per_destinatario": 45.8
    }
   },
   {
@@ -390,7 +390,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 5.37
+    "secondi": 5.48
    }
   },
   {
@@ -401,7 +401,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.22
+    "secondi": 1.24
    }
   },
   {
@@ -410,7 +410,7 @@
    "descrizione": "finestra di conferma nella sessione grafica",
    "atteso": "finestra «Ho letto»",
    "esito": "NON PROVATO",
-   "dettagli": "il container non ha una sessione grafica: la finestra si prova su una VM con desktop o dal vivo",
+   "dettagli": "il container non ha una sessione grafica: la finestra si prova nella VM (tests/vm)",
    "misure": {}
   }
  ]

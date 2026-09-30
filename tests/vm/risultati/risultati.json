@@ -1,0 +1,510 @@
+{
+ "meta": {
+  "data": "2026-09-30 09:19:56 UTC",
+  "versione": "AMS - Advanced Messaging System for linux 0.1.0",
+  "sistema": "Debian GNU/Linux 13 (trixie), VM con GNOME, desktop di sara",
+  "ok": 51,
+  "no": 0,
+  "non_provati": 0,
+  "totale": 51
+ },
+ "risultati": [
+  {
+   "codice": "A1",
+   "area": "Accesso",
+   "descrizione": "root invia un messaggio",
+   "atteso": "invio riuscito",
+   "esito": "OK",
+   "dettagli": "Messaggio 1 inviato a 1 utente.",
+   "misure": {}
+  },
+  {
+   "codice": "A2",
+   "area": "Accesso",
+   "descrizione": "un amministratore (gruppo sudo) invia: ams si rilancia con sudo",
+   "atteso": "invio riuscito, mittente admin",
+   "esito": "OK",
+   "dettagli": "from: admin",
+   "misure": {
+    "secondi": 0.121
+   }
+  },
+  {
+   "codice": "A3",
+   "area": "Accesso",
+   "descrizione": "un utente normale non può eseguire ams",
+   "atteso": "permesso negato, nessun messaggio",
+   "esito": "OK",
+   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permission denied",
+   "misure": {}
+  },
+  {
+   "codice": "A4",
+   "area": "Accesso",
+   "descrizione": "un utente normale non può aprire nemmeno la guida",
+   "atteso": "permesso negato",
+   "esito": "OK",
+   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permission denied",
+   "misure": {}
+  },
+  {
+   "codice": "B1",
+   "area": "Destinatari",
+   "descrizione": "un utente",
+   "atteso": "mario",
+   "esito": "OK",
+   "dettagli": "['mario']",
+   "misure": {}
+  },
+  {
+   "codice": "B2",
+   "area": "Destinatari",
+   "descrizione": "lista con un doppione",
+   "atteso": "anna, mario (una volta)",
+   "esito": "OK",
+   "dettagli": "['anna', 'mario']",
+   "misure": {}
+  },
+  {
+   "codice": "B3",
+   "area": "Destinatari",
+   "descrizione": "gruppo @sviluppo",
+   "atteso": "anna, mario",
+   "esito": "OK",
+   "dettagli": "['anna', 'mario']",
+   "misure": {}
+  },
+  {
+   "codice": "B4",
+   "area": "Destinatari",
+   "descrizione": "all: utenti umani, esclusi root e chi ha nologin",
+   "atteso": "admin, anna, luca, mario, sara",
+   "esito": "OK",
+   "dettagli": "['admin', 'anna', 'luca', 'mario', 'sara']",
+   "misure": {}
+  },
+  {
+   "codice": "B5",
+   "area": "Destinatari",
+   "descrizione": "online: solo chi ha una sessione aperta",
+   "atteso": "luca, sara",
+   "esito": "OK",
+   "dettagli": "['luca', 'sara']",
+   "misure": {}
+  },
+  {
+   "codice": "B6",
+   "area": "Destinatari",
+   "descrizione": "utente inesistente",
+   "atteso": "errore, nessun messaggio creato",
+   "esito": "OK",
+   "dettagli": "ams: utente inesistente: pippo",
+   "misure": {}
+  },
+  {
+   "codice": "B7",
+   "area": "Destinatari",
+   "descrizione": "gruppo senza membri",
+   "atteso": "errore «nessun destinatario»",
+   "esito": "OK",
+   "dettagli": "ams: nessun destinatario",
+   "misure": {}
+  },
+  {
+   "codice": "C1a",
+   "area": "Consegna",
+   "descrizione": "utente scollegato: la copia aspetta nella casella",
+   "atteso": "consegnato",
+   "esito": "OK",
+   "dettagli": "consegnato",
+   "misure": {}
+  },
+  {
+   "codice": "C1b",
+   "area": "Consegna",
+   "descrizione": "al login il messaggio e la domanda compaiono prima del primo prompt",
+   "atteso": "testo e domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_dal_login": 0.327
+   }
+  },
+  {
+   "codice": "C1c",
+   "area": "Consegna",
+   "descrizione": "conferma al login",
+   "atteso": "confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 09:16 (terminale pts/2)",
+   "misure": {}
+  },
+  {
+   "codice": "C2a",
+   "area": "Consegna",
+   "descrizione": "utente collegato: il testo compare nel suo terminale",
+   "atteso": "testo nel terminale",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_invio": 0.103,
+    "secondi_al_terminale": 0.153
+   }
+  },
+  {
+   "codice": "C2b",
+   "area": "Consegna",
+   "descrizione": "stato dopo la scrittura nel terminale",
+   "atteso": "consegnato, scritto su 1 terminale",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 1 terminale",
+   "misure": {}
+  },
+  {
+   "codice": "C2c",
+   "area": "Consegna",
+   "descrizione": "premendo Invio compare la domanda",
+   "atteso": "domanda al prompt successivo",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 0.064
+   }
+  },
+  {
+   "codice": "C3",
+   "area": "Consegna",
+   "descrizione": "sessione ssh senza terminale: non viene toccata, la copia va nella casella",
+   "atteso": "invio riuscito, consegnato, nessun terminale scritto",
+   "esito": "OK",
+   "dettagli": "consegnato",
+   "misure": {}
+  },
+  {
+   "codice": "C4a",
+   "area": "Consegna",
+   "descrizione": "due sessioni aperte: il testo compare in entrambe",
+   "atteso": "testo in 2 terminali",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 2 terminali",
+   "misure": {}
+  },
+  {
+   "codice": "C4b",
+   "area": "Consegna",
+   "descrizione": "confermando in una sessione, la domanda nell'altra si ferma",
+   "atteso": "«già confermato altrove» nell'altra",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 0.955
+   }
+  },
+  {
+   "codice": "D1",
+   "area": "Conferma",
+   "descrizione": "l'utente rimanda",
+   "atteso": "consegnato, rimandato il …",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:16",
+   "misure": {}
+  },
+  {
+   "codice": "D2",
+   "area": "Conferma",
+   "descrizione": "dopo il rinvio, al prompt solo un promemoria",
+   "atteso": "«Hai 1 messaggio…», nessuna domanda",
+   "esito": "OK",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@ams-desktop:~$ ",
+   "misure": {}
+  },
+  {
+   "codice": "D3",
+   "area": "Conferma",
+   "descrizione": "al login successivo il rinvio non vale: la domanda torna",
+   "atteso": "domanda al login",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "D4",
+   "area": "Conferma",
+   "descrizione": "conferma registrata con data e canale",
+   "atteso": "«EPOCH terminale pts/N»",
+   "esito": "OK",
+   "dettagli": "1790759813 terminale pts/7",
+   "misure": {}
+  },
+  {
+   "codice": "E1",
+   "area": "Scadenza",
+   "descrizione": "un messaggio scaduto non viene mostrato al login",
+   "atteso": "nessun testo",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "E2",
+   "area": "Scadenza",
+   "descrizione": "stato di un messaggio scaduto",
+   "atteso": "consegnato, non confermato (scaduto)",
+   "esito": "OK",
+   "dettagli": "consegnato, non confermato (scaduto)",
+   "misure": {}
+  },
+  {
+   "codice": "E3",
+   "area": "Ritiro",
+   "descrizione": "ritiro con la domanda in attesa: la domanda si interrompe",
+   "atteso": "«L'amministratore ha ritirato il messaggio»",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 1.003
+   }
+  },
+  {
+   "codice": "E4",
+   "area": "Ritiro",
+   "descrizione": "stato dopo il ritiro",
+   "atteso": "consegnato, non confermato (ritirato)",
+   "esito": "OK",
+   "dettagli": "consegnato, non confermato (ritirato)",
+   "misure": {}
+  },
+  {
+   "codice": "E5",
+   "area": "Ritiro",
+   "descrizione": "un messaggio ritirato prima del login non viene mostrato",
+   "atteso": "nessun testo",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "F1",
+   "area": "Guasti",
+   "descrizione": "la copia per un utente non si può scrivere: gli altri la ricevono",
+   "atteso": "errore, anna «inviato, non consegnato», mario consegnato",
+   "esito": "OK",
+   "dettagli": "ams: messaggio 1 non consegnato a: anna (vedi il registro; il prossimo comando ams riproverà) | anna: inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)",
+   "misure": {}
+  },
+  {
+   "codice": "F2",
+   "area": "Guasti",
+   "descrizione": "guasto risolto: il comando successivo completa la consegna",
+   "atteso": "anna consegnato",
+   "esito": "OK",
+   "dettagli": "ams: completata la consegna del messaggio 1 a 1 destinatari",
+   "misure": {}
+  },
+  {
+   "codice": "F3",
+   "area": "Guasti",
+   "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
+   "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
+   "esito": "OK",
+   "dettagli": "consegnati prima 28/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 37 destinatari",
+   "misure": {
+    "consegnati_al_kill": 28,
+    "destinatari": 65,
+    "secondi_recupero": 1.226
+   }
+  },
+  {
+   "codice": "F5",
+   "area": "Guasti",
+   "descrizione": "ams list ripetuto mentre ams send consegna: il recupero non interferisce",
+   "atteso": "una consegna per destinatario, nessun doppione, invio completo",
+   "esito": "OK",
+   "dettagli": "65 consegne annotate per 65 destinatari, 65 distinte",
+   "misure": {
+    "ams_list_durante_invio": 13
+   }
+  },
+  {
+   "codice": "F4",
+   "area": "Guasti",
+   "descrizione": "la conferma non si può scrivere: il messaggio resta e l'utente è avvisato",
+   "atteso": "avviso; stato consegnato; messaggio ancora nella casella",
+   "esito": "OK",
+   "dettagli": "consegnato, scritto su 1 terminale",
+   "misure": {}
+  },
+  {
+   "codice": "G1",
+   "area": "Sicurezza",
+   "descrizione": "la casella è un collegamento a /etc: root non ci scrive",
+   "atteso": "nessun file 2 in /etc; mario «inviato, non consegnato»",
+   "esito": "OK",
+   "dettagli": "ams: messaggio 2 non consegnato a: mario (vedi il registro; il prossimo comando ams riproverà)",
+   "misure": {}
+  },
+  {
+   "codice": "G2",
+   "area": "Sicurezza",
+   "descrizione": "sequenze di escape nel testo: non arrivano al terminale",
+   "atteso": "nessun ESC nel testo ricevuto",
+   "esito": "OK",
+   "dettagli": "'Testo rosso   fine\\r\\r\\n───────────────────'",
+   "misure": {}
+  },
+  {
+   "codice": "G3",
+   "area": "Sicurezza",
+   "descrizione": "conferma fabbricata con escape e 500 byte: ams status resta pulito",
+   "atteso": "nessun ESC nell'uscita, al massimo 200 byte letti",
+   "esito": "OK",
+   "dettagli": "luca             confermato il 01/01 00:00 (finto00000000000000000000000000000000000000000000000000000000000000000000000",
+   "misure": {}
+  },
+  {
+   "codice": "G4",
+   "area": "Sicurezza",
+   "descrizione": "un utente normale con AMS_TEST=1 non ottiene nulla",
+   "atteso": "permesso negato",
+   "esito": "OK",
+   "dettagli": "env: ‘/usr/local/bin/ams’: Permission denied",
+   "misure": {}
+  },
+  {
+   "codice": "H1",
+   "area": "Prestazioni",
+   "descrizione": "invio a tutti (55 destinatari)",
+   "atteso": "misura",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 4.81,
+    "ms_per_destinatario": 87.5
+   }
+  },
+  {
+   "codice": "H2",
+   "area": "Prestazioni",
+   "descrizione": "ams list con 10 messaggi × 55 destinatari",
+   "atteso": "misura (punto 15 della revisione)",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 3.33
+   }
+  },
+  {
+   "codice": "H3",
+   "area": "Prestazioni",
+   "descrizione": "ams status di un messaggio con 55 destinatari",
+   "atteso": "misura",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi": 0.72
+   }
+  },
+  {
+   "codice": "I0",
+   "area": "Desktop",
+   "descrizione": "sara ha una sessione grafica con l'agente di AMS attivo (l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
+   "atteso": "sessione grafica, agente attivo",
+   "esito": "OK",
+   "dettagli": "sessione 7",
+   "misure": {}
+  },
+  {
+   "codice": "I1",
+   "area": "Desktop",
+   "descrizione": "la finestra compare da sola dopo l'invio",
+   "atteso": "finestra con titolo e testo",
+   "esito": "OK",
+   "dettagli": "AMS · Messaggio dall'amministratore | Manutenzione · 30/09 09:18\n\nServer spento sabato dalle 8 alle 12. | Più tardi | Ho",
+   "misure": {
+    "secondi_alla_finestra": 0.56
+   }
+  },
+  {
+   "codice": "I2",
+   "area": "Desktop",
+   "descrizione": "«Ho letto»: la finestra si chiude e la conferma è registrata",
+   "atteso": "confermato (desktop)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 09:18 (desktop)",
+   "misure": {}
+  },
+  {
+   "codice": "I8",
+   "area": "Desktop",
+   "descrizione": "agente assente: ams send lo avvia (systemd-run) e la finestra compare",
+   "atteso": "agente attivo, finestra",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_alla_finestra": 0.53
+   }
+  },
+  {
+   "codice": "I3",
+   "area": "Desktop",
+   "descrizione": "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
+   "atteso": "consegnato, rimandato il …",
+   "esito": "OK",
+   "dettagli": "consegnato, rimandato il 30/09 09:18",
+   "misure": {}
+  },
+  {
+   "codice": "I4",
+   "area": "Desktop",
+   "descrizione": "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
+   "atteso": "finestra di nuovo, dopo circa 60 s",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_alla_ricomparsa": 60.47
+   }
+  },
+  {
+   "codice": "I5",
+   "area": "Desktop",
+   "descrizione": "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
+   "atteso": "finestra chiusa, confermato (terminale)",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 09:19 (terminale pts/12)",
+   "misure": {
+    "secondi_alla_chiusura": 0.77
+   }
+  },
+  {
+   "codice": "I6",
+   "area": "Desktop",
+   "descrizione": "ritiro con la finestra aperta: la finestra si chiude da sola",
+   "atteso": "finestra chiusa",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_alla_chiusura": 0.96
+   }
+  },
+  {
+   "codice": "I7",
+   "area": "Desktop",
+   "descrizione": "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
+   "atteso": "«Primo di due», poi «Secondo di due»",
+   "esito": "OK",
+   "dettagli": "AMS · Messaggio dall'amministratore | 30 → AMS · Messaggio dall'amministratore | 30",
+   "misure": {}
+  },
+  {
+   "codice": "I9",
+   "area": "Desktop",
+   "descrizione": "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
+   "atteso": "finestra dopo il login automatico",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {
+    "secondi_dal_riavvio_del_login": 2.71
+   }
+  }
+ ]
+}

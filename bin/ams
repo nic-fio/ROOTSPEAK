@@ -46,8 +46,12 @@ human_users() {
 		'$3 >= min && $3 <= max && $7 !~ /(nologin|false)$/ { print $1 }'
 }
 
+# Gli utenti di human_users con almeno una sessione aperta: root e gli account
+# di sistema restano esclusi anche quando sono collegati.
 online_users() {
-	loginctl list-sessions --no-legend | awk '$6 == "user" { print $3 }'
+	local umani
+	umani=$(human_users)
+	loginctl list-sessions --no-legend | awk '$6 == "user" { print $3 }' | sort -u | grep -Fx -f <(echo "$umani") || true
 }
 
 group_members() {

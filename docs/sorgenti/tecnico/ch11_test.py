@@ -33,7 +33,7 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
         ["G. Sicurezza", "casella trasformata in collegamento a " + c("/etc") + "; sequenze di escape; conferma "
          "fabbricata; " + c("AMS_TEST") + " da utente normale"],
         ["H. Prestazioni", "invio a oltre 50 utenti; " + c("list") + " e " + c("status") + " con 10 messaggi"],
-        ["I. Desktop", "non provato: il container non ha una sessione grafica"],
+        ["I. Desktop", "nel container non provato (nessuna sessione grafica); nella VM sì, capitolo 11.3"],
     ], "«TAB» — Gli scenari dal vero") + table(["Misura", "Valore (30 settembre 2026)"], [
         ["dall'invio al testo nel terminale di un utente collegato", "circa 0,2 s"],
         ["dal login alla domanda di conferma", "circa 0,3 s"],
@@ -42,6 +42,24 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
         [c("ams status") + " di un messaggio con 54 destinatari", "circa 1,3 s"],
     ], "«TAB» — Le misure della prima esecuzione") + term(
         "nicfio@server:~/AMS$ tests/container/esegui.sh\n…\n41 riusciti, 0 falliti, 1 non provati su 42; risultati in /opt/risultati")
+
+SV = p(c("tests/vm/esegui.sh") + " esegue gli stessi scenari in una <b>macchina virtuale con desktop</b>, sul server "
+       "delle prove (QEMU con KVM, senza root né libvirt), per coprire anche la finestra di conferma. La VM è Debian 13 "
+       "con GNOME su Wayland e zenity 4.1.90; " + c("sara") + " entra da sola nel desktop. Ogni esecuzione parte da una "
+       "copia pulita di un disco base preparato una volta (" + c("prepara.sh") + ", cloud-init). I pulsanti della "
+       "finestra si premono attraverso l'accessibilità di GNOME (" + c("desktop.py") + ", AT-SPI), come farebbe una "
+       "persona, e le schermate arrivano dal monitor di QEMU.", lead=True) + table(["Scenario", "Esito e misura (30 settembre 2026)"], [
+        ["I1 · la finestra compare dopo l'invio", "circa 0,5 s"],
+        ["I2 · «Ho letto» chiude la finestra e registra la conferma (desktop)", "riuscito"],
+        ["I3, I4 · «Più tardi», poi la finestra ricompare (rinvio di prova: 1 minuto)", "ricompare dopo circa 60,5 s"],
+        ["I5 · conferma da un terminale con la finestra aperta", "la finestra si chiude in circa 0,8 s"],
+        ["I6 · ritiro con la finestra aperta", "la finestra si chiude in circa 1 s"],
+        ["I7 · due messaggi, una finestra dopo l'altra", "riuscito"],
+        ["I8 · agente assente: ams send lo avvia", "finestra in circa 0,5 s"],
+        ["I9 · messaggio a desktop chiuso, poi login grafico", "finestra circa 2,7 s dopo il riavvio del login"],
+    ], "«TAB» — Gli scenari del desktop nella VM") + p("Esito complessivo nella VM: <b>51 scenari su 51</b>, compresi "
+      "quelli del container. La VM ha trovato due difetti di AMS, entrambi corretti: " + c("online") + " includeva root "
+      "e gli account di sistema collegati (capitolo 5.2), e il lock dell'agente passava ai processi figli (capitolo 7.1).")
 
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \
@@ -67,8 +85,8 @@ S2 = table(["Controllo", "Fallisce se"], [
     "nicfio@server:~/AMS$ tools/check-docs.py\n"
     "documentazione allineata: 2 manuali, 11 voci della guida, 13 file nella mappa, versione 0.1.0")
 
-S3 = p("La finestra sul desktop è l'unica parte che la suite dal vero non copre. Nella versione 0.1.0 AMS è stato "
-       "provato anche dal vivo su Debian 13 con GNOME 48 su Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
+S3 = p("Oltre alle suite, nella versione 0.1.0 AMS è stato provato anche dal vivo su Debian 13 con GNOME 48 su "
+       "Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
     ["finestra immediata a un utente collegato", "dal vivo"],
     ["finestra al login di un utente non collegato", "dal vivo, con un secondo account"],
     ["testo e domanda nel terminale, anche via ssh", "dal vivo, con " + c("ssh user@localhost")],
@@ -80,6 +98,7 @@ S3 = p("La finestra sul desktop è l'unica parte che la suite dal vero non copre
 CHAPTER = ("Test e controlli", [
     ("Il motore: tests/engine.sh", S0),
     ("Dal vero: tests/container", SC),
+    ("Col desktop: tests/vm", SV),
     ("La guida integrata: tests/help-tui.py", S1),
     ("La documentazione: tools/check-docs.py", S2),
     ("Prove dal vivo", S3),

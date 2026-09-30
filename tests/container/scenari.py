@@ -13,6 +13,8 @@ un rapporto leggibile (Markdown).
 import json
 import os
 import pty
+import pwd
+import shlex
 import re
 import select
 import signal
@@ -23,6 +25,7 @@ import time
 OUT = sys.argv[1] if len(sys.argv) > 1 else "/opt/risultati"
 VAR = "/var/lib/ams"
 AMS = "/usr/local/bin/ams"
+DESK = os.environ.get("AMS_PROVA_DESKTOP")   # utente con sessione grafica (solo nella VM)
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\r")
 risultati = []
 
@@ -43,11 +46,20 @@ def ams(args, come="root"):
 
 
 def azzera():
-    """Chiude le sessioni degli utenti e svuota l'archivio."""
+    """Chiude le sessioni degli utenti, le finestre di AMS rimaste sul desktop e svuota l'archivio.
+    Le finestre vanno chiuse prima: l'archivio ricomincia dal messaggio 1, e una finestra vecchia
+    ritroverebbe un messaggio nuovo con il suo stesso numero."""
     for u in ("mario", "anna", "luca", "admin"):
         sh(f"loginctl terminate-user {u}")
+    if DESK:
+        # l'agente si ferma con le sue finestre, e riparte dopo, ad archivio vuoto
+        sh(f"pkill -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'; pkill -u {DESK} -x zenity")
+        time.sleep(1)
     time.sleep(0.5)
     sh(f"rm -rf {VAR}/sent/* {VAR}/sent/.seq* {VAR}/users/*")
+    if DESK and sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip():
+        sh(f"systemd-run --user --machine={DESK}@.host --collect --quiet /usr/local/lib/ams/ams-user agent")
+        time.sleep(1)
 
 
 def stato(mid, utente):
@@ -166,11 +178,13 @@ def b_destinatari():
     ams('send --to @sviluppo "gruppo"')
     registra("B3", "Destinatari", "gruppo @sviluppo", "anna, mario", dest(3) == ["anna", "mario"], str(dest(3)))
     ams('send --to all "tutti"')
+    tutti = sorted(["admin", "anna", "luca", "mario"] + ([DESK] if DESK else []))
     registra("B4", "Destinatari", "all: utenti umani, esclusi root e chi ha nologin",
-             "admin, anna, luca, mario", dest(4) == ["admin", "anna", "luca", "mario"], str(dest(4)))
+             ", ".join(tutti), dest(4) == tutti, str(dest(4)))
     s = Sessione("luca")
     ams('send --to online "collegati"')
-    registra("B5", "Destinatari", "online: solo chi ha una sessione aperta", "luca", dest(5) == ["luca"], str(dest(5)))
+    online = sorted(["luca"] + ([DESK] if DESK else []))
+    registra("B5", "Destinatari", "online: solo chi ha una sessione aperta", ", ".join(online), dest(5) == online, str(dest(5)))
     s.chiudi()
     r = ams('send --to pippo "x"')
     registra("B6", "Destinatari", "utente inesistente", "errore, nessun messaggio creato",
@@ -445,9 +459,172 @@ def h_prestazioni():
 
 # ---- I. desktop ----
 
+def desk(*args):
+    """Guarda o usa le finestre di AMS nella sessione grafica di DESK (tests/vm/desktop.py)."""
+    uid = pwd.getpwnam(DESK).pw_uid
+    env = f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus XDG_RUNTIME_DIR=/run/user/{uid}"
+    return sh(f"runuser -u {DESK} -- env {env} python3 /opt/ams-src/tests/vm/desktop.py "
+              + " ".join(shlex.quote(a) for a in args)).stdout.strip()
+
+
+def n_finestre():
+    try:
+        return int(desk("finestre") or 0)
+    except ValueError:
+        return 0
+
+
+def attendi_finestre(n, tempo):
+    """Attende che le finestre di AMS aperte siano n; restituisce i secondi, o None."""
+    t0 = time.time()
+    while time.time() - t0 < tempo:
+        if n_finestre() == n:
+            return round(time.time() - t0, 2)
+        time.sleep(0.2)
+    return None
+
+
+def testo_finestra(tempo=6):
+    """Il testo della prima finestra di AMS; subito dopo un login l'accessibilità di
+    GNOME può esporre la finestra prima del suo contenuto, quindi si riprova."""
+    t0 = time.time()
+    t = ""
+    while time.time() - t0 < tempo:
+        t = desk("testo")
+        if "|" in t:
+            break
+        time.sleep(0.3)
+    return t
+
+
+def attendi_stato(mid, utente, prova, tempo=8):
+    """Attende che lo stato del destinatario soddisfi prova(stato): l'agente registra
+    conferme e rinvii un istante dopo la chiusura della finestra."""
+    t0 = time.time()
+    st = ""
+    while time.time() - t0 < tempo:
+        st = stato(mid, utente) or ""
+        if prova(st):
+            break
+        time.sleep(0.2)
+    return st
+
+
+def cattura(nome):
+    """Chiede a esegui.sh (fuori dalla VM) una schermata, e lascia il tempo di farla."""
+    print(f"@@CATTURA {nome}", flush=True)
+    time.sleep(2.5)
+
+
+def agente_attivo():
+    return sh(f"pgrep -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'").returncode == 0
+
+
+def apri(utente):
+    """Una sessione ssh con terminale, senza attendere il prompt (al login può esserci la domanda)."""
+    s = Sessione.__new__(Sessione)
+    s.utente, s.buf = utente, ""
+    s.pid, s.fd = pty.fork()
+    if s.pid == 0:
+        os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
+    return s
+
+
 def i_desktop():
-    registra("I1", "Desktop", "finestra di conferma nella sessione grafica", "finestra «Ho letto»",
-             None, "il container non ha una sessione grafica: la finestra si prova su una VM con desktop o dal vivo")
+    if not DESK:
+        registra("I1", "Desktop", "finestra di conferma nella sessione grafica", "finestra «Ho letto»",
+                 None, "il container non ha una sessione grafica: la finestra si prova nella VM (tests/vm)")
+        return
+    grafica = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
+    registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di AMS attivo "
+             "(l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
+             "sessione grafica, agente attivo", bool(grafica) and agente_attivo(), f"sessione {grafica}")
+
+    t0 = time.time()
+    ams(f'send --to {DESK} --title Manutenzione "Server spento sabato dalle 8 alle 12."')
+    dt = attendi_finestre(1, 20)
+    testo = testo_finestra()
+    registra("I1", "Desktop", "la finestra compare da sola dopo l'invio", "finestra con titolo e testo",
+             dt is not None and "Server spento sabato" in testo, testo[:120],
+             secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
+    cattura("I1-finestra")
+    desk("clicca", "Ho letto")
+    chiusa = attendi_finestre(0, 10)
+    st = attendi_stato(1, DESK, lambda x: x.startswith("confermato"))
+    registra("I2", "Desktop", "«Ho letto»: la finestra si chiude e la conferma è registrata",
+             "confermato (desktop)", chiusa is not None and st.startswith("confermato") and st.endswith("(desktop)"), st)
+
+    # solleciti rapidi per la prova; l'agente riparte e rilegge la configurazione
+    sh("printf 'AMS_REMIND_MINUTES=1\nAMS_AGENT_POLL=5\n' > /etc/ams/ams.conf")
+    sh(f"pkill -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'")
+    time.sleep(1)
+    t0 = time.time()
+    ams(f'send --to {DESK} "Secondo messaggio"')
+    dt = attendi_finestre(1, 30)
+    registra("I8", "Desktop", "agente assente: ams send lo avvia (systemd-run) e la finestra compare",
+             "agente attivo, finestra", dt is not None and agente_attivo(),
+             secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
+    desk("clicca", "Più tardi")
+    attendi_finestre(0, 10)
+    st = attendi_stato(2, DESK, lambda x: "rimandato" in x)
+    registra("I3", "Desktop", "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
+             "consegnato, rimandato il …", st.startswith("consegnato") and "rimandato" in st, st)
+    t0 = time.time()
+    dt = attendi_finestre(1, 120)
+    registra("I4", "Desktop", "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
+             "finestra di nuovo, dopo circa 60 s", dt is not None, secondi_alla_ricomparsa=dt)
+    desk("clicca", "Ho letto")
+    attendi_finestre(0, 10)
+
+    ams(f'send --to {DESK} "Confermato dal terminale"')
+    attendi_finestre(1, 20)
+    s = apri(DESK)
+    s.leggi_fino(r"Confermi", 15)
+    t0 = time.time()
+    s.scrivi("s\n")
+    dt = attendi_finestre(0, 10)
+    st = attendi_stato(3, DESK, lambda x: x.startswith("confermato"))
+    registra("I5", "Desktop", "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
+             "finestra chiusa, confermato (terminale)", dt is not None and "(terminale" in st, st,
+             secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
+    s.chiudi()
+
+    ams(f'send --to {DESK} "Da ritirare"')
+    attendi_finestre(1, 20)
+    t0 = time.time()
+    ams("revoke 4")
+    dt = attendi_finestre(0, 10)
+    registra("I6", "Desktop", "ritiro con la finestra aperta: la finestra si chiude da sola", "finestra chiusa",
+             dt is not None, secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
+
+    ams(f'send --to {DESK} "Primo di due"')
+    ams(f'send --to {DESK} "Secondo di due"')
+    attendi_finestre(1, 20)
+    t1 = testo_finestra()
+    desk("clicca", "Ho letto")
+    time.sleep(1)
+    dt = attendi_finestre(1, 15)
+    t2 = testo_finestra()
+    registra("I7", "Desktop", "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
+             "«Primo di due», poi «Secondo di due»", "Primo di due" in t1 and dt is not None and "Secondo di due" in t2,
+             f"{t1[:40]} → {t2[:40]}")
+    desk("clicca", "Ho letto")
+    attendi_finestre(0, 10)
+
+    # messaggio in attesa, poi login grafico
+    sh(f"loginctl terminate-user {DESK}")
+    time.sleep(3)
+    ams(f'send --to {DESK} "In attesa del login"')
+    t0 = time.time()
+    sh("systemctl restart gdm")
+    dt = attendi_finestre(1, 90)
+    registra("I9", "Desktop", "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
+             "finestra dopo il login automatico", dt is not None and "In attesa del login" in testo_finestra(),
+             secondi_dal_riavvio_del_login=round(time.time() - t0, 2) if dt is not None else None)
+    cattura("I9-login")
+    desk("clicca", "Ho letto")
+    attendi_finestre(0, 10)
+    sh("printf 'AMS_REMIND_MINUTES=30\nAMS_AGENT_POLL=60\n' > /etc/ams/ams.conf")
 
 
 # ---- rapporto ----
@@ -455,13 +632,14 @@ def i_desktop():
 def rapporto():
     os.makedirs(OUT, exist_ok=True)
     meta = dict(data=time.strftime("%Y-%m-%d %H:%M:%S %Z"), versione=sh(f"{AMS} version").stdout.strip(),
-                sistema=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip(),
+                sistema=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
+                + (f", VM con GNOME, desktop di {DESK}" if DESK else ", container con systemd"),
                 ok=sum(r["esito"] == "OK" for r in risultati), no=sum(r["esito"] == "NO" for r in risultati),
                 non_provati=sum(r["esito"] == "NON PROVATO" for r in risultati), totale=len(risultati))
     with open(f"{OUT}/risultati.json", "w") as f:
         json.dump(dict(meta=meta, risultati=risultati), f, ensure_ascii=False, indent=1)
-    righe = [f"# Prove di AMS nella macchina di prova\n",
-             f"- Data: {meta['data']}", f"- {meta['versione']}", f"- Sistema: {meta['sistema']} (container con systemd)",
+    righe = [f"# Prove di AMS {'nella VM con desktop' if DESK else 'nella macchina di prova'}\n",
+             f"- Data: {meta['data']}", f"- {meta['versione']}", f"- Sistema: {meta['sistema']}",
              f"- Esito: **{meta['ok']} riusciti, {meta['no']} falliti, {meta['non_provati']} non provati** "
              f"su {meta['totale']} scenari\n",
              "| Codice | Area | Scenario | Atteso | Esito | Misure / dettagli |", "|---|---|---|---|---|---|"]

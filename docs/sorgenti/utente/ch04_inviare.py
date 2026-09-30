@@ -22,7 +22,8 @@ S1 = p("L'opzione " + c("--to") + " dice chi riceve il messaggio. Si possono ind
         ["un nome", "quell'utente", c("--to mario")],
         ["più nomi", "ognuno di loro", c("--to mario,anna,luca")],
         [c("@gruppo"), "i membri di un gruppo del sistema", c("--to @sviluppo")],
-        [c("online"), "chi è collegato in questo momento, in qualunque modo", c("--to online")],
+        [c("online"), "fra gli utenti di " + c("all") + ", chi è collegato in questo momento, in qualunque modo",
+         c("--to online")],
         [c("all"), "tutti gli utenti della macchina, collegati o no", c("--to all")],
     ], "«TAB» — Come indicare i destinatari") + SETS + \
     note("le opzioni vanno scritte <b>prima</b> del testo: tutto quello che viene dopo il testo è considerato parte "

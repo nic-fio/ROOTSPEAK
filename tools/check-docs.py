@@ -66,7 +66,8 @@ fmap = fmap[:fmap.index("</table>")]
 rows = set(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>\d+</td>", fmap))
 code_files = {"bin/ams", "install.sh", "docs/sorgenti/build.py", "docs/sorgenti/stile.css"}
 code_files |= {str(p.relative_to(ROOT)) for d in ("lib", "etc", "tests", "tools")
-               for p in (ROOT / d).rglob("*") if p.is_file() and "risultati" not in p.parts}
+               for p in (ROOT / d).rglob("*") if p.is_file() and "risultati" not in p.parts
+               and "__pycache__" not in p.parts}
 for f in sorted(code_files - rows):
     errors.append(f"manuale tecnico: {f} manca dalla mappa dei file")
 for f in sorted(rows - code_files):

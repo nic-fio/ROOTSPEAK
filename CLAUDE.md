@@ -58,7 +58,13 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
 | `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
 | `docs/sorgenti/` | `build.py` (generatore e funzioni per figure e tabelle), `stile.css`, capitoli in `utente/` e `tecnico/`. |
-| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero, con i risultati in `container/risultati/`. |
+| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero; `vm/`: la VM con desktop sul server delle prove. Risultati in `*/risultati/`. |
+
+**Server delle prove** (192.168.0.2, accesso ssh con chiave): la VM vive in
+`/media/AMS` sull'SSD (il `/` del server è in RAM). QEMU con KVM come utente
+normale, senza libvirt né sudo. Il disco base si prepara una volta
+(`tests/vm/esegui.sh --prepara`, circa 10 minuti); ogni esecuzione parte da una
+copia pulita e spegne la VM alla fine.
 | `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali. |
 
 ## Prima di registrare una modifica
@@ -71,8 +77,9 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
    **Fallisce se i manuali non sono aggiornati.**
 3. `tests/engine.sh` sempre; `tests/help-tui.py` se è cambiata la guida;
    `tests/container/esegui.sh` (prove dal vero come root in un container) se
-   sono cambiati invio, consegna, conferme o permessi. I risultati vanno
-   registrati insieme alla modifica.
+   sono cambiati invio, consegna, conferme o permessi; `tests/vm/esegui.sh`
+   (VM con GNOME sul server delle prove, 192.168.0.2) se è cambiato il desktop.
+   I risultati vanno registrati insieme alla modifica.
 4. Prova del flusso toccato in modalità di prova; per desktop, sudo e altri
    utenti, prova dal vivo dopo `./install.sh`, fatta dall'utente.
 5. I commit usano l'identità locale del repository (nome `nic-fio`, indirizzo
