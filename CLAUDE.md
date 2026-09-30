@@ -76,7 +76,7 @@ documenti resta nella sua lingua.
 | `docs/sources/` | `build.py` (generatore e funzioni per figure e tabelle), `style.css`, capitoli in `user/` e `technical/` (in inglese), schermate vere della TUI in `screens/` e `user/screens/`. Il riferimento dei comandi del manuale utente viene dai testi di partenza inglesi di `po/ams.pot`. |
 | `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero; `vm/`: la VM con desktop sul server delle prove; `unit-tests.c`: le parti interne (`make prove`). Risultati in `results/` e `*/results/`. |
 | `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali; `fingerprint.sh`: impronta del codice registrata con i risultati; `tui-screenshots.sh`: schermate vere della TUI per i manuali; `setup-dev.sh`: cosa manca per lavorare su una copia appena clonata; `backup.sh`: tutto il repository in un git bundle. |
-| `logos/` | Il logo del progetto (`ams-logo.jpg`, fornito dal proprietario): non va nei manuali né in `docs/index.html`. |
+| `logos/` | Il logo del progetto (`ams-logo.png`, PNG 2172×724 fornito dal proprietario): non va nei manuali né in `docs/index.html`. |
 | `NOTICE.md` | Copyright e componenti di terzi (nessuno incorporato). |
 | `.github/workflows/ci.yml` | Su GitHub a ogni push: `make`, `make prove`, `tests/engine.sh`, `make docs-check` (niente container né VM). |
 

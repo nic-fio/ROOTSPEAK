@@ -162,7 +162,7 @@ make                      # compila in build/
 | [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test (in inglese) |
 | [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Perché AMS è fatto così |
 | [`NOTICE.md`](NOTICE.md) | Copyright e componenti di terzi |
-| [`logos/ams-logo.jpg`](logos/ams-logo.jpg) | Il logo di AMS (i file di logo stanno in `logos/`) |
+| [`logos/ams-logo.png`](logos/ams-logo.png) | Il logo di AMS (i file di logo stanno in `logos/`) |
 | [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
 | `ams --help` | La guida integrata, a schede |
 
