@@ -63,6 +63,9 @@ affidabile è **logind**, non utmp.
 | **Prototipo in bash** | Per validare il flusso con gli strumenti del sistema. Una riscrittura in un linguaggio compilato si farà solo se emergeranno limiti concreti. |
 | **Guida integrata come quella di MTERM, niente man page** | «Non voglio un sistema man, ma un sistema molto più evoluto»: guida a schede in un terminale, pagina in stile manuale con un pager se il terminale è piccolo, testo semplice in una pipe. Un controllo (`tools/check-docs.py`) tiene allineati guida e manuale. |
 | **Manuali sul modello di IR_Service** | Una prima versione copiata dai manuali di NESH è stata bocciata dall'utente su tutto (grafici, aspetto, testi, apertura): «Ancora una volta i manuali html fanno schifo». Il riferimento indicato è il Manuale Tecnico di IR_Service: i manuali sono generati da sorgenti Python (un file per capitolo) in due file HTML autosufficienti, con copertina, indice laterale, schemi SVG e tabelle numerate, senza script. Il riferimento dei comandi è generato dai testi della guida integrata. |
+| **Domanda di conferma in tutte le shell** | Decisione dell'utente (30 settembre): «sì, per tutte le shell». Proposta accolta in pratica: domanda a ogni prompt per bash, zsh e fish; al login per ogni shell che legge `/etc/profile`; testo all'invio per qualunque shell (alcune shell, come `dash` e `tcsh`, non hanno un aggancio prima del prompt). Da realizzare. |
+| **Gli utenti non rispondono** | Decisione dell'utente (30 settembre): «non è previsto al momento» che gli utenti rispondano ai messaggi. |
+| **Lingua dell'utente** | Decisione dell'utente (30 settembre): domanda, finestra, pulsanti e avvisi nella lingua di ciascun destinatario (`LANG`); i comandi dell'amministratore nella sua lingua; il testo del messaggio resta com'è. Da realizzare; da decidere la lingua di ripiego. |
 | **Nessuna licenza** | Repository privato, copyright nic-fio. |
 
 ## 5. Scelte tecniche nate dalle prove

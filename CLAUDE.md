@@ -103,7 +103,9 @@ testo e domanda nel terminale anche via ssh, conferma unica fra
 i canali, `list` e `status`. `revoke`, scadenze, errori e pulizia del testo
 provati in modalità di prova. La revisione avversariale del 30 settembre 2026
 ([docs/revisione-avversariale.md](docs/revisione-avversariale.md)) è chiusa:
-restano solo due decisioni dell'utente (aggancio per zsh, risposta
-dell'utente all'amministratore). Le voci [2] del README erano congelate fino
+le due decisioni rimaste sono state prese il 30 settembre: domanda di
+conferma in tutte le shell (bash, zsh, fish a ogni prompt; al login per le
+shell che leggono `/etc/profile`), nessuna risposta degli utenti, interfaccia
+nella lingua di ciascun utente. Le prime due e la lingua sono da realizzare. Le voci [2] del README erano congelate fino
 alla chiusura della revisione; ripartire da lì solo su indicazione
-dell'utente. Da trattare a parte: la lingua dell'interfaccia.
+dell'utente.
