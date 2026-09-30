@@ -1,7 +1,8 @@
 from build import c, p, steps, table, term, tip, warn
 
-S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debian 13 con GNOME su Wayland; "
-       "funziona allo stesso modo con X11 e con gli altri desktop.", lead=True) + \
+S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debian 13 con GNOME su Wayland, dal vivo e "
+       "con prove automatiche in un container e in una macchina virtuale. Con X11, altri desktop e altre distribuzioni "
+       "dovrebbe funzionare allo stesso modo, ma non è stato provato; senza systemd non funziona.", lead=True) + \
     table(["Serve", "A cosa", "Pacchetto su Debian e Ubuntu"], [
         ["systemd", "trovare chi è collegato e dove", "già presente"],
         ["sudo e un gruppo di amministratori", "decidere chi può usare AMS", c("sudo") + " (gruppo " + c("sudo") + "; " + c("wheel") + " su Fedora)"],

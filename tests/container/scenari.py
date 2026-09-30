@@ -630,21 +630,34 @@ def i_desktop():
     time.sleep(1)
     dt = attendi_finestre(1, 15)
     t2 = testo_finestra()
-    registra("I7", "Desktop", "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
-             "«Primo di due», poi «Secondo di due»", "Primo di due" in t1 and dt is not None and "Secondo di due" in t2,
-             f"{t1[:40]} → {t2[:40]}")
     desk("clicca", "Ho letto")
+    st = attendi_stato(6, DESK, lambda x: x.startswith("confermato"))
+    registra("I7", "Desktop", "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
+             "«Primo di due», poi «Secondo di due», entrambi confermati",
+             "Primo di due" in t1 and dt is not None and "Secondo di due" in t2 and st.startswith("confermato"),
+             f"{t1[-30:]} → {t2[-30:]}; {st}")
     attendi_finestre(0, 10)
 
-    # messaggio in attesa, poi login grafico
+    # «Ho letto» e uscita immediata dalla sessione: la conferma non deve perdersi
+    ams(f'send --to {DESK} "Clic e via"')
+    attendi_finestre(1, 20)
+    desk("clicca", "Ho letto")
+    time.sleep(0.1)
     sh(f"loginctl terminate-user {DESK}")
-    time.sleep(3)
+    time.sleep(2)
+    st = stato(7, DESK) or ""
+    registra("I10", "Desktop", "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
+             "confermato (desktop)", st.startswith("confermato"), st)
+
+    # messaggio in attesa, poi login grafico
+    time.sleep(1)
     ams(f'send --to {DESK} "In attesa del login"')
     t0 = time.time()
     sh("systemctl restart gdm")
     dt = attendi_finestre(1, 90)
+    t9 = testo_finestra()
     registra("I9", "Desktop", "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
-             "finestra dopo il login automatico", dt is not None and "In attesa del login" in testo_finestra(),
+             "finestra dopo il login automatico", dt is not None and "In attesa del login" in t9, t9[-60:],
              secondi_dal_riavvio_del_login=round(time.time() - t0, 2) if dt is not None else None)
     cattura("I9-login")
     desk("clicca", "Ho letto")

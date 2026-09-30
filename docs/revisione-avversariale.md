@@ -14,6 +14,8 @@ gruppi A–D non sono chiusi (revisione A, punto 23).
 
 Stato: **aperto**, **fatto**, **non accolto**.
 
+**Al 30 settembre 2026 tutti i punti accolti sono fatti, tranne l'aggancio per zsh e la risposta dell'utente all'amministratore, che restano decisioni dell'utente.** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
+
 ## A. Difetti reali, verificati nel codice
 
 | # | Punto | Fonte | Stato |
@@ -27,11 +29,11 @@ Stato: **aperto**, **fatto**, **non accolto**.
 
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
-| 5 | Macchina a stati formale, invarianti, comportamento dopo un crash, formato dell'archivio. | A 2, 4, 13, 22; B 3.4 | aperto |
+| 5 | Macchina a stati formale, invarianti, comportamento dopo un crash, formato dell'archivio: capitolo «Specifica» del manuale tecnico (stati e transizioni con precondizioni, operazioni atomiche ed eventi; 11 invarianti; tabella delle interruzioni e delle riparazioni; formato 1 dell'archivio). Scrivendola è emerso e si è corretto un caso: conferma scritta ma messaggio non ancora spostato, che veniva ripresentato. | A 2, 4, 13, 22; B 3.4 | fatto |
 | 6 | Distinguere consegnato, mostrato e confermato. Risolto semplificando, per decisione dell'utente: ogni messaggio chiede la conferma e ogni destinatario ha tre stati, inviato, consegnato (copia nella casella), confermato; lo stato «mostrato» e il livello `info` spariscono. Test: `tests/engine.sh`, gruppo 3. | A 3; B 4.1 | fatto |
 | 7 | Registro degli eventi per messaggio: eventi strutturati nel journal (`AMS_EVENTO`, `AMS_MESSAGGIO`, `AMS_UTENTE`, `AMS_CANALE`, più `_UID` messo dal journal) per invio, consegna, mancata consegna, recupero, annullamento, rinvio, conferma, conferma fallita, ritiro; nuovo comando `ams log ID`. Scenari J1 e J2. | A 5 | fatto |
-| 8 | Dichiarare che la casella dell'utente non è la fonte autorevole. | A 7 | aperto |
-| 9 | Semantica rigorosa di ritiro, scadenza e orologio. | A 14, 15, 16 | aperto |
+| 8 | La casella dell'utente non è la fonte autorevole: specifica, «Fonti autorevoli»; applicato anche alla scadenza (punto 4). | A 7 | fatto |
+| 9 | Semantica di ritiro, scadenza e orologio: specifica, «Tempo, ritiro e scadenza». | A 14, 15, 16 | fatto |
 | 10 | Versione del formato dei messaggi: ogni messaggio inizia con `format: 1`. Test: `tests/engine.sh`, gruppo 5. | B 3.3 | fatto |
 
 ## C. Robustezza e configurazione
@@ -40,7 +42,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 |---|---|---|---|
 | 11 | Configurazione come dati: `ams_load_conf` accetta solo le chiavi note con interi positivi e non esegue nulla. Test: gruppo 5 (un file con `$(…)` non viene eseguito). | A 18 | fatto |
 | 12 | L'agente rilegge la configurazione a ogni giro. | A 19 | fatto |
-| 13 | Perimetro supportato dichiarato. | A 9 | aperto |
+| 13 | Perimetro supportato: specifica, «Perimetro supportato», e manuale utente, «Cosa serve». | A 9 | fatto |
 | 14 | Pulizia: nuovo comando `ams purge DURATA`, che cancella i messaggi più vecchi con copie, conferme e rinvii nelle caselle (come l'utente) e lascia l'evento nel registro; salta gli invii incompleti o in corso. Test: `tests/engine.sh`, gruppo 6. | B 2 | fatto |
 | 15 | `list` e `status` lenti. Misurato (scenari H), poi corretto leggendo ogni casella una volta sola per utente (un solo `runuser` per tutte le sue conferme e i suoi rinvii) e le consegne una volta per messaggio: `list` da circa 6 s a circa 0,7 s per 10 messaggi a 54 destinatari, `status` da circa 1,3 s a circa 0,7 s. Non è servito copiare le conferme lato root. | A 8 | fatto |
 
@@ -48,8 +50,8 @@ Stato: **aperto**, **fatto**, **non accolto**.
 
 | # | Punto | Fonte | Stato |
 |---|---|---|---|
-| 16 | Test automatici del motore: concorrenza, gare, file corrotti, Unicode, testi grandi, strumenti che falliscono. Avviata con `tests/engine.sh`; ogni correzione aggiunge i suoi casi. | A 20 | in corso |
-| 17 | Ambiente riproducibile per le prove dal vivo. Fatto in due forme: un container Debian 13 con systemd (`tests/container/esegui.sh`, 42 scenari) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/esegui.sh`, 51 scenari compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
+| 16 | Test automatici del motore: `tests/engine.sh` (46 controlli in 7 gruppi) più le suite dal vero (container 44 scenari, VM 54). Coperti concorrenza, gare, interruzioni, file e caselle alterati, strumenti che falliscono, sicurezza. | A 20 | fatto |
+| 17 | Ambiente riproducibile per le prove dal vivo. (La VM ha poi trovato un terzo difetto: un'uscita dalla sessione subito dopo «Ho letto» poteva perdere la conferma; scenario I10.) Fatto in due forme: un container Debian 13 con systemd (`tests/container/esegui.sh`, 42 scenari) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/esegui.sh`, 51 scenari compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
 
 ## E. Critiche non accolte
 

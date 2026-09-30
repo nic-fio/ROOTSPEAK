@@ -22,6 +22,12 @@ pending() {
 		[ -f "$f" ] || continue
 		id=${f##*/}
 		[[ $id =~ ^[0-9]+$ ]] || continue
+		# già confermato (per esempio un'interruzione tra la conferma e lo
+		# spostamento in read/): si completa lo spostamento, senza chiedere
+		if [ -e "$D/acks/$id" ]; then
+			mark_read "$id"
+			continue
+		fi
 		if ams_msg_expired "$f"; then
 			mv -f "$f" "$D/read/$id"
 			continue
@@ -154,14 +160,21 @@ show_dialog() {
 		--text="$(ams_msg_heading "$f")"$'\n\n'"$(ams_msg_body "$f")" \
 		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null 9>&- &
 	pid=$!
-	# La finestra si chiude da sola se l'utente conferma da un terminale o se
-	# l'amministratore ritira il messaggio.
-	while kill -0 "$pid" 2>/dev/null; do
-		if [ -e "$D/acks/$id" ] || [ ! -e "$f" ] || ams_msg_expired "$f"; then kill "$pid" 2>/dev/null; fi
-		sleep 1 9>&-
-	done
+	# Un controllore separato chiude la finestra se l'utente conferma da un
+	# terminale, se l'amministratore ritira il messaggio o se scade. L'agente
+	# invece attende direttamente la finestra, così registra la risposta appena
+	# arriva: con un controllo ogni secondo, un'uscita dalla sessione subito dopo
+	# «Ho letto» poteva perdere la conferma.
+	(
+		while kill -0 "$pid" 2>/dev/null; do
+			if [ -e "$D/acks/$id" ] || [ ! -e "$f" ] || ams_msg_expired "$f"; then kill "$pid" 2>/dev/null; fi
+			sleep 1
+		done
+	) 9>&- &
+	local controllore=$!
 	wait "$pid"
 	rc=$?
+	kill "$controllore" 2>/dev/null
 	[ -e "$D/acks/$id" ] || [ ! -e "$f" ] && return
 	if ams_msg_expired "$f"; then
 		mark_read "$id"

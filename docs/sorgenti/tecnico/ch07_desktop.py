@@ -40,9 +40,11 @@ DIALOG = seq([("show_dialog", "", "navy"), ("zenity", "--question --no-markup", 
     (0, 1, "confermato altrove o ritirato → kill", True),
 ], "«FIG» — La finestra di conferma", "")
 
-S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in background: il testo non è interpretato "
-       "come markup. Poi controlla ogni secondo la casella e chiude la finestra se il messaggio è stato confermato "
-       "altrove, ritirato o è scaduto.", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
+S2 = p(c("show_dialog") + " apre " + c("zenity --question --no-markup") + " in background (il testo non è interpretato "
+       "come markup) e ne <b>attende direttamente</b> la chiusura, così registra la risposta appena arriva. Un "
+       "controllore separato guarda la casella ogni secondo e chiude la finestra se il messaggio è stato confermato "
+       "altrove, ritirato o è scaduto. Prima era l'agente stesso a controllare ogni secondo: un'uscita dalla sessione "
+       "subito dopo «Ho letto» poteva perdere la conferma (trovato dalla VM di prova, scenario I10).", lead=True) + DIALOG + table(["Uscita di zenity", "Effetto"], [
     ["codice 0 («Ho letto»)", c("ack ID desktop") + "; se la scrittura fallisce, una notifica lo dice e la finestra torna al giro successivo"],
     ["altro codice («Più tardi», finestra chiusa)", c("snooze ID gui") + ": tocca " + c("state/ID.gui")],
     ["processo chiuso da show_dialog", "nulla: la conferma o il ritiro sono già avvenuti"],

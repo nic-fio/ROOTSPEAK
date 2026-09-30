@@ -86,12 +86,18 @@ copia pulita e spegne la VM alla fine.
    noreply di GitHub), che tiene fuori l'indirizzo personale. Messaggi in
    italiano. Mai `git add -A` senza guardare `git status`.
 
+Il capitolo **«Specifica»** del manuale tecnico è il contratto di AMS (fonti
+autorevoli, stati, invarianti, interruzioni, tempo, formato dell'archivio):
+ogni modifica lo rispetta o lo aggiorna esplicitamente.
+
 Versione: `AMS_VERSION` in `lib/ams-common.sh`, e la stessa nei due manuali
 (controllata da `tools/check-docs.py`).
 
 ## A che punto è
 
-Prototipo 0.1.0 installato e provato dal vivo su Debian 13 con GNOME 48 su
+Prototipo 0.1.0. Suite: `tests/engine.sh` 46 controlli, container 43 scenari
+(più il desktop, non provabile lì), VM con desktop 54 scenari, tutti riusciti
+(30 settembre 2026). Provato anche dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
 testo e domanda nel terminale anche via ssh, conferma unica fra
 i canali, `list` e `status`. `revoke`, scadenze, errori e pulizia del testo

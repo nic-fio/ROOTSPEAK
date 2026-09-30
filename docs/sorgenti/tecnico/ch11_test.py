@@ -67,9 +67,11 @@ SV = p(c("tests/vm/esegui.sh") + " esegue gli stessi scenari in una <b>macchina 
         ["I7 · due messaggi, una finestra dopo l'altra", "riuscito"],
         ["I8 · agente assente: ams send lo avvia", "finestra in circa 0,5 s"],
         ["I9 · messaggio a desktop chiuso, poi login grafico", "finestra circa 2,7 s dopo il riavvio del login"],
-    ], "«TAB» — Gli scenari del desktop nella VM") + p("Esito complessivo nella VM: <b>51 scenari su 51</b>, compresi "
-      "quelli del container. La VM ha trovato due difetti di AMS, entrambi corretti: " + c("online") + " includeva root "
-      "e gli account di sistema collegati (capitolo 5.2), e il lock dell'agente passava ai processi figli (capitolo 7.1).")
+        ["I10 · «Ho letto» e uscita dalla sessione dopo 0,1 s", "conferma registrata"],
+    ], "«TAB» — Gli scenari del desktop nella VM") + p("Esito complessivo nella VM: <b>54 scenari su 54</b>, compresi "
+      "quelli del container. La VM ha trovato tre difetti di AMS, tutti corretti: " + c("online") + " includeva root "
+      "e gli account di sistema collegati (capitolo 5.2); il lock dell'agente passava ai processi figli (capitolo 7.1); "
+      "un'uscita dalla sessione subito dopo «Ho letto» poteva perdere la conferma (capitolo 7.2).")
 
 S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \

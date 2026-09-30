@@ -67,6 +67,13 @@ echo "1000 desktop" >"$D/acks/1"
 (source <(sed -e "s|^AMS_LIB=.*|AMS_LIB=$ROOT/lib|" -e '/^case \${1:-} in/,$d' "$ROOT/lib/ams-user"); ack 1 "terminale pts/9")
 check "conferma già presente: resta la prima" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
 
+fresh ack-no-move
+send "prova"
+echo "$(date +%s) desktop" >"$D/acks/1"
+out=$(prompt s)
+check "conferma registrata ma non spostata (interruzione): non viene richiesta di nuovo" \
+	'[[ $out != *"Confermi"* ]] && [ -e "$D/read/1" ] && [ ! -e "$D/inbox/1" ]'
+
 # ---- 2. consegna: tracciata per destinatario, completata dopo un'interruzione ----
 # Il secondo destinatario è root: in modalità di prova la sua casella è una
 # cartella qualunque dell'archivio di prova.
