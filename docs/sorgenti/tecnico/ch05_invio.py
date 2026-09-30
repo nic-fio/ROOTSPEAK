@@ -122,6 +122,23 @@ S6 = table(["Tolto", "Esempio", "Perché"], [
     p(c("ams_sanitize") + " si applica a testo e titolo prima di salvarli, e alle conferme che " + c("ams status")
       + " legge dalle caselle.")
 
+EV = p("Ogni fatto rilevante diventa un <b>evento strutturato</b> nel journal (" + c("ams_event") + ", con "
+       + c("logger --journald") + "): il testo leggibile per " + c("journalctl -t ams") + " più i campi "
+       + c("AMS_EVENTO") + ", " + c("AMS_MESSAGGIO") + ", " + c("AMS_UTENTE") + ", " + c("AMS_CANALE")
+       + ". Il journal aggiunge da sé " + c("_UID") + ": un evento scritto da un utente porta il suo UID vero.", lead=True) + \
+    table(["Evento", "Chi lo scrive", "Quando"], [
+        [c("INVIATO"), "ams (root)", "alla fine di " + c("ams send")],
+        [c("CONSEGNATO"), "ams (root)", "per ogni copia scritta e verificata, anche dal recupero"],
+        [c("NON_CONSEGNATO"), "ams (root)", "copia non scritta"],
+        [c("RECUPERATO") + ", " + c("ANNULLATO"), "ams (root)", "recupero di un invio interrotto"],
+        [c("RITIRATO"), "ams (root)", c("ams revoke")],
+        [c("RINVIATO"), "ams-user (utente)", "«Più tardi» o «no»"],
+        [c("CONFERMATO") + ", " + c("CONFERMA_FALLITA"), "ams-user (utente)", "conferma registrata o non registrabile"],
+    ], "«TAB» — Gli eventi nel journal") + \
+    p(c("ams log ID") + " mostra gli eventi di un messaggio dalla sua data di invio (un archivio azzerato riusa i "
+      "numeri, il journal no). Per un audit: " + c("journalctl AMS_MESSAGGIO=12 -o verbose") + " mostra tutti i "
+      "campi, " + c("_UID") + " compreso.")
+
 S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e chiamano " + c("recipient_state")
        + " per ogni destinatario. Le caselle si leggono <b>una volta per utente</b>: un solo " + c("runuser")
        + " restituisce tutte le conferme e le date dei rinvii (" + c("load_user") + "), ripulite con " + c("ams_sanitize")
@@ -138,5 +155,6 @@ CHAPTER = ("L'invio: ams", [
     ("Scrivere nei terminali", S4),
     ("Svegliare l'agente del desktop", S5),
     ("Pulizia del testo", S6),
+    ("Il registro degli eventi", EV),
     ("list, status, revoke", S7),
 ])

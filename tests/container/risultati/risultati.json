@@ -1,12 +1,12 @@
 {
  "meta": {
-  "data": "2026-09-30 09:44:19 UTC",
+  "data": "2026-09-30 09:48:29 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
   "sistema": "Debian GNU/Linux 13 (trixie), container con systemd",
-  "ok": 41,
+  "ok": 43,
   "no": 0,
   "non_provati": 1,
-  "totale": 42
+  "totale": 44
  },
  "risultati": [
   {
@@ -26,7 +26,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.101
+    "secondi": 0.106
    }
   },
   {
@@ -127,7 +127,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.367
+    "secondi_dal_login": 0.324
    }
   },
   {
@@ -136,7 +136,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 09:43 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 09:47 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +147,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.09,
-    "secondi_al_terminale": 0.14
+    "secondi_invio": 0.148,
+    "secondi_al_terminale": 0.199
    }
   },
   {
@@ -168,7 +168,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.063
+    "secondi": 0.068
    }
   },
   {
@@ -197,7 +197,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.905
+    "secondi": 0.903
    }
   },
   {
@@ -206,7 +206,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:43",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 09:47",
    "misure": {}
   },
   {
@@ -215,7 +215,7 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@e26a25679be4:~$ ",
+   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@3a4549f7baec:~$ ",
    "misure": {}
   },
   {
@@ -233,7 +233,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790761408 terminale pts/7",
+   "dettagli": "1790761656 terminale pts/7",
    "misure": {}
   },
   {
@@ -262,7 +262,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.002
+    "secondi": 1.001
    }
   },
   {
@@ -311,7 +311,7 @@
    "misure": {
     "consegnati_al_kill": 15,
     "destinatari": 64,
-    "secondi_recupero": 2.538
+    "secondi_recupero": 2.725
    }
   },
   {
@@ -371,6 +371,24 @@
    "misure": {}
   },
   {
+   "codice": "J1",
+   "area": "Registro",
+   "descrizione": "ams log: la storia del messaggio",
+   "atteso": "invio, consegne, rinvio, conferma, ritiro",
+   "esito": "OK",
+   "dettagli": "6 eventi",
+   "misure": {}
+  },
+  {
+   "codice": "J2",
+   "area": "Registro",
+   "descrizione": "la conferma nel journal porta l'utente vero (_UID), non falsificabile",
+   "atteso": "_UID 1001",
+   "esito": "OK",
+   "dettagli": "1001 1001",
+   "misure": {}
+  },
+  {
    "codice": "H1",
    "area": "Prestazioni",
    "descrizione": "invio a tutti (54 destinatari)",
@@ -378,8 +396,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 2.76,
-    "ms_per_destinatario": 51.1
+    "secondi": 2.72,
+    "ms_per_destinatario": 50.4
    }
   },
   {
@@ -390,7 +408,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.69
+    "secondi": 0.58
    }
   },
   {
@@ -401,7 +419,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.73
+    "secondi": 0.65
    }
   },
   {

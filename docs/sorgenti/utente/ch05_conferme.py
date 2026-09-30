@@ -82,10 +82,21 @@ S5 = p("Ogni invio, conferma e ritiro viene scritto nel registro di sistema, con
     "ott 03 19:20:02 server ams[22187]: utente luca: confermata la lettura del messaggio 3 (terminale pts/2)") + \
     table(["Riga del registro", "Quando compare"], [
         [c("messaggio N inviato da X a: …"), "a ogni " + c("ams send")],
+        [c("messaggio N consegnato a U (…)"), "per ogni copia scritta nella casella di un utente"],
+        [c("utente U: rimandato il messaggio N (canale)"), "quando l'utente preme «Più tardi» o risponde «no»"],
         [c("utente U: confermata la lettura del messaggio N (canale)"), "alla conferma"],
         [c("messaggio N: ERRORE, copia per U non scritta"), "quando una consegna fallisce"],
         [c("messaggio N ritirato da X"), "a ogni " + c("ams revoke")],
-    ], "«TAB» — Le righe che AMS scrive nel registro")
+    ], "«TAB» — Le righe che AMS scrive nel registro") + \
+    p("Per vedere la storia completa di un solo messaggio c'è " + c("ams log") + ":") + term(
+    "admin@server:~$ ams log 3\n"
+    "Messaggio 3 · Nuova regola per le password · 03/10 19:05\n"
+    "2026-10-03T19:05:12+0200  messaggio 3 inviato da admin a: anna luca mario paolo\n"
+    "2026-10-03T19:05:12+0200  messaggio 3 consegnato a anna (terminali scritti: 0)\n"
+    "2026-10-03T19:05:12+0200  messaggio 3 consegnato a luca (terminali scritti: 1)\n"
+    "2026-10-03T19:06:40+0200  utente anna: confermata la lettura del messaggio 3 (desktop)\n"
+    "2026-10-03T19:07:02+0200  utente mario: rimandato il messaggio 3 (terminale)\n"
+    "2026-10-03T19:20:02+0200  utente luca: confermata la lettura del messaggio 3 (terminale pts/2)")
 
 CHAPTER = ("Controllare chi ha letto", [
     ("L'elenco dei messaggi", S1),

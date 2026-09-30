@@ -195,7 +195,7 @@ recover() {
 		if [ ! -s "$dir/msg" ] || [ ! -s "$dir/recipients" ]; then
 			date +%s >"$dir/failed"
 			rm -f "$f"
-			ams_log "messaggio $id: invio interrotto prima del salvataggio, annullato"
+			ams_event ANNULLATO "$id" "" "" "messaggio $id: invio interrotto prima del salvataggio, annullato"
 			echo "ams: il messaggio $id era stato interrotto prima di essere salvato ed è stato annullato" >&2
 			exec 6>&-
 			continue
@@ -210,6 +210,7 @@ recover() {
 			delivered "$u" "$id" && continue
 			if deliver_copy "$u" "$id"; then
 				echo "$u $(date +%s) 0" >>"$dir/delivery"
+				ams_event CONSEGNATO "$id" "$u" "" "messaggio $id consegnato a $u (recupero)"
 				wake_agent "$u"
 				n=$((n + 1))
 			else
@@ -218,7 +219,7 @@ recover() {
 		done
 		if [ $miss -eq 0 ]; then rm -f "$f"; fi
 		if [ $n -gt 0 ]; then
-			ams_log "messaggio $id: consegna completata per $n destinatari dopo un'interruzione"
+			ams_event RECUPERATO "$id" "" "" "messaggio $id: consegna completata per $n destinatari dopo un'interruzione"
 			echo "ams: completata la consegna del messaggio $id a $n destinatari" >&2
 		fi
 		if [ $miss -gt 0 ]; then
@@ -308,7 +309,7 @@ cmd_send() {
 	for u in $users; do
 		if ! deliver_copy "$u" "$id"; then
 			failed+=" $u"
-			ams_log "messaggio $id: ERRORE, copia per $u non scritta"
+			ams_event NON_CONSEGNATO "$id" "$u" "" "messaggio $id: ERRORE, copia per $u non scritta"
 			continue
 		fi
 
@@ -320,9 +321,10 @@ cmd_send() {
 		done
 		wake_agent "$u"
 		echo "$u $(date +%s) $nterm" >>"$dir/delivery"
+		ams_event CONSEGNATO "$id" "$u" "" "messaggio $id consegnato a $u (terminali scritti: $nterm)"
 	done
 
-	ams_log "messaggio $id inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
+	ams_event INVIATO "$id" "" "" "messaggio $id inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
 	n=$(wc -w <<<"$users")
 	if [ -n "$failed" ]; then
 		echo "Messaggio $id consegnato a $((n - $(wc -w <<<"$failed"))) destinatari su $n."
@@ -478,6 +480,17 @@ cmd_status() {
 	done
 }
 
+# La storia di un messaggio dal journal: gli eventi con AMS_MESSAGGIO=ID dalla
+# data dell'invio (un archivio azzerato riusa i numeri, il journal no).
+cmd_log() {
+	local id=${1:?manca l\'ID del messaggio} msg dal
+	msg=$(sent_msg "$id")
+	dal=$(( $(ams_msg_get "$msg" date) - 1 ))
+	echo "Messaggio $id · $(ams_msg_heading "$msg")"
+	journalctl --no-pager -q -o short-iso --since "@$dal" SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO="$id" 2>/dev/null |
+		sed 's/^\([^ ]*\) [^ ]* ams\[[0-9]*\]: /\1  /'
+}
+
 cmd_revoke() {
 	local id=${1:?manca l\'ID del messaggio} u
 	sent_msg "$id" >/dev/null
@@ -485,12 +498,12 @@ cmd_revoke() {
 	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 		as_user "$u" rm -f "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/state/$id".* 2>/dev/null || true
 	done
-	ams_log "messaggio $id ritirato da ${SUDO_USER:-$(id -un)}"
+	ams_event RITIRATO "$id" "" "" "messaggio $id ritirato da ${SUDO_USER:-$(id -un)}"
 	echo "Messaggio $id ritirato."
 }
 
 case ${1:-} in
-send | list | status | revoke) recover ;;
+send | list | status | revoke | log) recover ;;
 esac
 
 case ${1:-} in
@@ -498,5 +511,6 @@ send) shift; cmd_send "$@" ;;
 list) shift; cmd_list ;;
 status) shift; cmd_status "$@" ;;
 revoke) shift; cmd_revoke "$@" ;;
+log) shift; cmd_log "$@" ;;
 *) ams_die "comando sconosciuto: $1 (ams --help per la guida)" ;;
 esac

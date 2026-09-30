@@ -429,6 +429,31 @@ def g_sicurezza():
              r.returncode != 0 and "Permission denied" in r.stderr, r.stderr.strip())
 
 
+# ---- J. registro degli eventi ----
+
+def j_registro():
+    s = Sessione("mario")
+    ams('send --to mario,anna "Storia"')
+    s.pulisci(); s.scrivi("\n"); s.leggi_fino(r"Confermi", 5)
+    s.scrivi("n\n"); s.leggi_fino(r"riproposta", 5)
+    s.chiudi()
+    s = apri("mario")
+    s.leggi_fino(r"Confermi", 10); s.scrivi("s\n"); s.leggi_fino(r"Confermato", 5)
+    s.chiudi()
+    ams("revoke 1")
+    time.sleep(1)
+    out = ams("log 1").stdout
+    attesi = ["inviato da root", "consegnato a anna", "consegnato a mario", "rimandato il messaggio 1 (terminale)",
+              "confermata la lettura del messaggio 1 (terminale", "ritirato da root"]
+    mancanti = [a for a in attesi if a not in out]
+    registra("J1", "Registro", "ams log: la storia del messaggio", "invio, consegne, rinvio, conferma, ritiro",
+             not mancanti, "mancano: " + ", ".join(mancanti) if mancanti else f"{len(out.splitlines()) - 1} eventi")
+    uid = pwd.getpwnam("mario").pw_uid
+    ev = sh(f"journalctl -q -o cat --output-fields=_UID AMS_MESSAGGIO=1 AMS_EVENTO=CONFERMATO AMS_UTENTE=mario").stdout.split()
+    registra("J2", "Registro", "la conferma nel journal porta l'utente vero (_UID), non falsificabile",
+             f"_UID {uid}", str(uid) in ev, " ".join(ev))
+
+
 # ---- H. prestazioni ----
 
 def h_prestazioni():
@@ -656,7 +681,7 @@ def rapporto():
 
 if __name__ == "__main__":
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
-               h_prestazioni, i_desktop):
+               j_registro, h_prestazioni, i_desktop):
         print(fn.__name__)
         scenario(fn)
     sys.exit(0 if rapporto() else 1)

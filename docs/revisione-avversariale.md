@@ -29,7 +29,7 @@ Stato: **aperto**, **fatto**, **non accolto**.
 |---|---|---|---|
 | 5 | Macchina a stati formale, invarianti, comportamento dopo un crash, formato dell'archivio. | A 2, 4, 13, 22; B 3.4 | aperto |
 | 6 | Distinguere consegnato, mostrato e confermato. Risolto semplificando, per decisione dell'utente: ogni messaggio chiede la conferma e ogni destinatario ha tre stati, inviato, consegnato (copia nella casella), confermato; lo stato «mostrato» e il livello `info` spariscono. Test: `tests/engine.sh`, gruppo 3. | A 3; B 4.1 | fatto |
-| 7 | Registro degli eventi per messaggio (il journal registra già l'UID di chi scrive, non falsificabile). | A 5 | aperto |
+| 7 | Registro degli eventi per messaggio: eventi strutturati nel journal (`AMS_EVENTO`, `AMS_MESSAGGIO`, `AMS_UTENTE`, `AMS_CANALE`, più `_UID` messo dal journal) per invio, consegna, mancata consegna, recupero, annullamento, rinvio, conferma, conferma fallita, ritiro; nuovo comando `ams log ID`. Scenari J1 e J2. | A 5 | fatto |
 | 8 | Dichiarare che la casella dell'utente non è la fonte autorevole. | A 7 | aperto |
 | 9 | Semantica rigorosa di ritiro, scadenza e orologio. | A 14, 15, 16 | aperto |
 | 10 | Versione del formato dei messaggi: ogni messaggio inizia con `format: 1`. Test: `tests/engine.sh`, gruppo 5. | B 3.3 | fatto |

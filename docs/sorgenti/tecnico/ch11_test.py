@@ -38,6 +38,8 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
          "concorrente con un invio in corso; conferma non scrivibile"],
         ["G. Sicurezza", "casella trasformata in collegamento a " + c("/etc") + "; sequenze di escape; conferma "
          "fabbricata; " + c("AMS_TEST") + " da utente normale"],
+        ["J. Registro", c("ams log") + " ricostruisce invio, consegne, rinvio, conferma e ritiro; la conferma nel journal "
+         "porta il " + c("_UID") + " vero"],
         ["H. Prestazioni", "invio a oltre 50 utenti; " + c("list") + " e " + c("status") + " con 10 messaggi"],
         ["I. Desktop", "nel container non provato (nessuna sessione grafica); nella VM sì, capitolo 11.3"],
     ], "«TAB» — Gli scenari dal vero") + table(["Misura", "Valore (30 settembre 2026)"], [
@@ -47,7 +49,7 @@ SC = p(c("tests/container/esegui.sh") + " prova AMS <b>dal vero</b>, in una macc
         [c("ams list") + " con 10 messaggi × 54 destinatari", "circa 0,7 s (circa 6 s prima della lettura per utente)"],
         [c("ams status") + " di un messaggio con 54 destinatari", "circa 0,7 s (circa 1,3 s prima)"],
     ], "«TAB» — Le misure della prima esecuzione") + term(
-        "nicfio@server:~/AMS$ tests/container/esegui.sh\n…\n41 riusciti, 0 falliti, 1 non provati su 42; risultati in /opt/risultati")
+        "nicfio@server:~/AMS$ tests/container/esegui.sh\n…\n43 riusciti, 0 falliti, 1 non provati su 44; risultati in /opt/risultati")
 
 SV = p(c("tests/vm/esegui.sh") + " esegue gli stessi scenari in una <b>macchina virtuale con desktop</b>, sul server "
        "delle prove (QEMU con KVM, senza root né libvirt), per coprire anche la finestra di conferma. La VM è Debian 13 "

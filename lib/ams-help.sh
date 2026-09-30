@@ -12,6 +12,7 @@ AMS_HELP_COMMANDS=(
 	"list¦Elenca i messaggi inviati, con quanti destinatari hanno confermato ciascun messaggio."
 	"status ID¦Mostra il testo del messaggio e lo stato di ogni destinatario: inviato, consegnato (nella sua casella) o confermato, con data, ora e canale."
 	"revoke ID¦Ritira un messaggio: chi non l'ha ancora visto non lo vedrà più, e finestre e domande ancora aperte si chiudono da sole."
+	"log ID¦Mostra la storia del messaggio dal registro di sistema: invio, consegne, rinvii, conferme e ritiro, con data e ora."
 	"version¦Mostra la versione di AMS."
 	"help, --help, -h¦Mostra questa guida. La apre anche «ams» senza argomenti."
 )
@@ -30,6 +31,7 @@ AMS_HELP_EXAMPLES=(
 	"ams send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli utenti; dopo tre giorni smette di essere mostrato."
 	"ams list¦Quali messaggi sono stati inviati e quante conferme hanno."
 	"ams status 12¦Chi ha confermato il messaggio 12, quando e da dove."
+	"ams log 12¦La storia del messaggio 12: invio, consegne, rinvii, conferme."
 	"ams revoke 12¦Ritira il messaggio 12."
 )
 
@@ -52,6 +54,7 @@ AMS_HELP_SYNOPSIS=(
 	"ams list"
 	"ams status ID"
 	"ams revoke ID"
+	"ams log ID"
 	"ams version"
 )
 

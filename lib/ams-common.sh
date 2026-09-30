@@ -34,6 +34,16 @@ ams_die() { printf 'ams: %s\n' "$*" >&2; exit 1; }
 
 ams_log() { logger -t ams -- "$*" 2>/dev/null || true; }
 
+# Evento strutturato nel journal: EVENTO MESSAGGIO UTENTE CANALE TESTO.
+# Il testo è quello leggibile (journalctl -t ams); i campi AMS_* permettono di
+# ricostruire la storia di un messaggio (journalctl AMS_MESSAGGIO=12). Il
+# journal aggiunge _UID, l'utente che ha scritto l'evento, non falsificabile.
+ams_event() {
+	local testo=${5//$'\n'/ }
+	printf 'MESSAGE=%s\nSYSLOG_IDENTIFIER=ams\nPRIORITY=6\nAMS_EVENTO=%s\nAMS_MESSAGGIO=%s\nAMS_UTENTE=%s\nAMS_CANALE=%s\n' \
+		"$testo" "$1" "$2" "$3" "$4" | logger --journald 2>/dev/null || ams_log "$testo"
+}
+
 # Toglie le sequenze di escape ANSI e i caratteri di controllo (C0 tranne tab e a capo, DEL, C1 in UTF-8),
 # così un messaggio non può iniettare sequenze di escape nei terminali.
 ams_sanitize() {
