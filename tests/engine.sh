@@ -9,6 +9,9 @@ VERBOSE=${1:-}
 BASE=$(mktemp -d)
 trap 'chmod -R u+w "$BASE" 2>/dev/null; rm -rf "$BASE"' EXIT
 export AMS_TEST=1 AMS_LIB=$ROOT/lib AMS_CONF=/dev/null AMS_TEST_TTY=
+# i test controllano i testi italiani; il gruppo 8 prova le altre lingue
+export LANG=it_IT.UTF-8
+unset LC_ALL LC_MESSAGES LANGUAGE
 U=$(id -un)
 fails=0 total=0
 
@@ -253,6 +256,41 @@ if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
 else
 	echo "  --   saltato: nessuna sessione grafica"
 fi
+
+# ---- 8. lingua: ognuno legge AMS nella sua ----
+
+echo "8. lingua"
+lingua() { # LANGUAGE LC_ALL LC_MESSAGES LANG → lingua scelta
+	bash -c '. "$AMS_LIB/ams-common.sh"; ams_pick_lang "$@"; echo "$_LINGUA"' _ "$@"
+}
+check "LANG=it_IT.UTF-8: italiano" '[ "$(lingua "" "" "" it_IT.UTF-8)" = it ]'
+check "LANG=en_GB.UTF-8: inglese" '[ "$(lingua "" "" "" en_GB.UTF-8)" = en ]'
+check "lingua senza traduzione (de_DE): inglese" '[ "$(lingua "" "" "" de_DE.UTF-8)" = en ]'
+check "LANG=C o assente: inglese" '[ "$(lingua "" "" "" C.UTF-8)" = en ] && [ "$(lingua "" "" "" "")" = en ]'
+check "LC_ALL=C vince su LANG=it: inglese" '[ "$(lingua "" C "" it_IT.UTF-8)" = en ]'
+check "LC_MESSAGES=it vince su LANG=en: italiano" '[ "$(lingua "" "" it_IT.UTF-8 en_US.UTF-8)" = it ]'
+check "LANGUAGE=de:it con LANG=en: italiano (primo noto dell'elenco)" '[ "$(lingua de:it "" "" en_US.UTF-8)" = it ]'
+check "LANGUAGE ignorata con LANG=C: inglese" '[ "$(lingua it "" "" C)" = en ]'
+check "valori strani (../, /): inglese, nessun file letto" '[ "$(lingua "../../tmp/x" "" "" "a/b")" = en ]'
+
+fresh lingua
+send "Testo non tradotto"
+out=$(printf 'y\n' | LANG=en_US.UTF-8 script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1)
+check "utente in inglese: intestazione, domanda e conferma in inglese, testo intatto" \
+	'[[ $out == *"Message from the administrator"* && $out == *"Do you confirm"* && $out == *"Confirmed."* && $out == *"Testo non tradotto"* ]] && [ -s "$D/acks/1" ]'
+send "Secondo"
+out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" status 2)
+check "amministratore in inglese: ams status" '[[ $out == *"USER"*"STATE"* && $out == *"delivered"* ]]'
+out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" status 1)
+check "conferma data da terminale, letta in inglese: canale tradotto" '[[ $out == *"confirmed on"*"(terminal "* ]]'
+out=$("$ROOT/bin/ams" status 1)
+check "la stessa conferma letta in italiano" '[[ $out == *"confermato il"*"(terminale "* ]]'
+out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" send "x" 2>&1)
+check "errore in inglese" '[[ $out == "ams: missing --to" ]]'
+out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" --help </dev/null | cat)
+check "guida in inglese" '[[ $out == *"SYNOPSIS"* && $out == *"SEND OPTIONS"* ]]'
+out=$("$ROOT/bin/ams" --help </dev/null | cat)
+check "guida in italiano" '[[ $out == *"SINTASSI"* && $out == *"OPZIONI DI SEND"* ]]'
 
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi

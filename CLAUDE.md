@@ -43,7 +43,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | **Nessun demone** | logind, sudo, aggancio della shell, avvio automatico del desktop. |
 | **Root non tocca le caselle come root** | Ogni accesso a `/var/lib/ams/users/U` passa da `as_user` (`runuser`). |
 | **zenity** per il desktop | Finestra «Ho letto» / «Più tardi»; `notify-send`, se c'è, solo per segnalare una conferma non registrata. |
-| **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi solo in `lib/ams-help.sh`. |
+| **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi in `lib/lingue/aiuto-XX.sh`, uno per lingua. |
 | **Manuali sul modello di IR_Service** | Generati da `docs/sorgenti/` (un file per capitolo) in due file HTML autosufficienti, con lo stile del Manuale Tecnico di IR_Service: copertina, indice laterale, figure SVG e tabelle numerate. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
 | **Prototipo in bash** | Riscrittura in un linguaggio compilato solo per limiti concreti. |
 | **Nessuna licenza** | Repository privato, copyright nic-fio. |
@@ -53,7 +53,7 @@ Il perché di ciascuna è in [docs/decisioni-e-storia.md](docs/decisioni-e-stori
 | Dove | Cosa |
 |---|---|
 | `bin/ams` | Il comando degli amministratori. |
-| `lib/` | `ams-common.sh` (comune), `ams-user` (aiutante come utente), `ams-help.sh` (guida integrata). |
+| `lib/` | `ams-common.sh` (comune), `ams-user` (aiutante come utente), `ams-help.sh` (guida integrata), `lingue/` (testi in italiano e inglese, guida compresa). |
 | `etc/` | Aggancio della shell, avvio automatico dell'agente, configurazione predefinita. |
 | `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
 | `docs/` | `AMS_Manuale_Utente.html` e `AMS_Manuale_Tecnico.html` (generati, mai a mano), `decisioni-e-storia.md`. |
@@ -95,7 +95,7 @@ Versione: `AMS_VERSION` in `lib/ams-common.sh`, e la stessa nei due manuali
 
 ## A che punto è
 
-Prototipo 0.1.0. Suite: `tests/engine.sh` 46 controlli, container 62 scenari (shell comprese)
+Prototipo 0.1.0. Suite: `tests/engine.sh` 62 controlli, container 66 scenari (shell e lingue comprese)
 (più il desktop, non provabile lì), VM con desktop 54 scenari, tutti riusciti
 (30 settembre 2026). Provato anche dal vivo su Debian 13 con GNOME 48 su
 Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
@@ -106,6 +106,6 @@ provati in modalità di prova. La revisione avversariale del 30 settembre 2026
 le due decisioni rimaste sono state prese il 30 settembre: domanda di
 conferma in tutte le shell (bash, zsh, fish a ogni prompt; al login per le
 shell che leggono `/etc/profile`), nessuna risposta degli utenti, interfaccia
-nella lingua di ciascun utente. Le shell sono fatte (scenari K); la lingua è da realizzare. Le voci [2] del README erano congelate fino
+nella lingua di ciascun utente. Shell e lingue sono fatte (scenari K ed L; `lib/lingue/`, inglese di ripiego). Le voci [2] del README erano congelate fino
 alla chiusura della revisione; ripartire da lì solo su indicazione
 dell'utente.

@@ -95,7 +95,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
 - [2] Pacchetti deb e rpm
-- [2] Interfaccia in italiano e inglese
+- [1] Ognuno nella sua lingua: interfaccia per utenti e amministratori in italiano e inglese (`lib/lingue/`), inglese di ripiego; il testo dei messaggi non si traduce
 
 ## Scelte escluse
 

@@ -25,4 +25,4 @@ for i in $(seq 1 30); do
 done
 echo "macchina di prova: $s"
 podman exec $NOME /opt/ams-src/install.sh 2>&1 | grep -v '^Attenzione: manca zenity' | head -1
-podman exec $NOME python3 /opt/ams-src/tests/container/scenari.py /opt/risultati
+podman exec -e LANG=it_IT.UTF-8 $NOME python3 /opt/ams-src/tests/container/scenari.py /opt/risultati

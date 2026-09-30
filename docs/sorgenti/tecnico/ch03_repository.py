@@ -8,7 +8,11 @@ S1 = p("Il repository contiene il codice, i file da installare nel sistema, i ma
     ("lib/ams-common.sh", "Libreria comune: configurazione, versione, pulizia del testo, lettura e formattazione dei messaggi."),
     ("lib/ams-user", "L'aiutante che gira come utente: " + c("prompt") + " (aggancio della shell) e " + c("agent")
                      + " (desktop), registrazione delle conferme."),
-    ("lib/ams-help.sh", "La guida integrata: testi, guida a schede, pagina in stile manuale."),
+    ("lib/ams-help.sh", "La guida integrata: guida a schede, pagina in stile manuale, testo semplice."),
+    ("lib/lingue/it.sh", "I testi in italiano per amministratori e utenti."),
+    ("lib/lingue/en.sh", "I testi in inglese, la lingua predefinita."),
+    ("lib/lingue/aiuto-it.sh", "La guida integrata in italiano: comandi, opzioni, esempi, file; fonte del riferimento del manuale utente."),
+    ("lib/lingue/aiuto-en.sh", "La guida integrata in inglese."),
     ("etc/profile.d/ams.sh", "L'aggancio delle shell che leggono " + c("/etc/profile") + ", in sh semplice: rimanda bash ad " + c("ams.bash") + ", alle altre chiede al login."),
     ("etc/ams.bash", "L'aggancio a bash: la domanda al login e a ogni prompt."),
     ("etc/ams.zsh", "L'aggancio a zsh, richiamato dallo zshrc di sistema."),
@@ -41,7 +45,7 @@ S2 = flow([("Gruppo admin", "sudo, wheel, admin", "dark"), ("File", "lib, bin, e
            ("Agenti", "chiusi e riavviati", "navy")], "«FIG» — Le tappe di install.sh") + steps([
     "Si rilancia con sudo se serve, e sceglie il gruppo degli amministratori: il primo esistente fra " + c("sudo") + ", "
     + c("wheel") + ", " + c("admin") + " (altrimenti " + c("root") + ").",
-    "Copia la libreria in " + c("$PREFIX/lib/ams") + "; installa " + c("$PREFIX/bin/ams") + " sostituendo la riga "
+    "Copia la libreria e le lingue in " + c("$PREFIX/lib/ams") + "; installa " + c("$PREFIX/bin/ams") + " sostituendo la riga "
     + c("AMS_LIB=") + ", con proprietario " + c("root:gruppo") + " e permessi " + c("750") + ". " + c("PREFIX")
     + " vale " + c("/usr/local") + ".",
     "Installa i manuali, la configurazione (solo se manca), gli agganci delle shell (bash, zsh, fish, sh) e "

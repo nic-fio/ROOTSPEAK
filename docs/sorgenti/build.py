@@ -365,8 +365,8 @@ def file_map(rows, cap):
 
 # ── La guida integrata come fonte del riferimento ───────────────────────
 def help_items(name):
-    """Le voci «etichetta¦descrizione» di un array di lib/ams-help.sh."""
-    src = (ROOT / "lib/ams-help.sh").read_text()
+    """Le voci «etichetta¦descrizione» di un array della guida in italiano (lib/lingue/aiuto-it.sh)."""
+    src = (ROOT / "lib/lingue/aiuto-it.sh").read_text()
     block = src[src.index(name + "=("):]
     block = block[:block.index("\n)")]
     items = []

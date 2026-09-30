@@ -5,13 +5,15 @@ Fallisce se:
   - i manuali in docs/ non coincidono con quelli rigenerati dai sorgenti
     (docs/sorgenti/build.py): i file HTML non si modificano a mano;
   - un comando o un'opzione della guida integrata (AMS_HELP_COMMANDS e
-    AMS_HELP_OPTIONS in lib/ams-help.sh) manca dal riferimento del manuale
+    AMS_HELP_OPTIONS in lib/lingue/aiuto-it.sh) manca dal riferimento del manuale
     utente (attributo data-help), vi ha una descrizione diversa, o il manuale
     documenta una voce che non esiste;
   - un file di codice manca dalla mappa dei file del manuale tecnico, o la
     mappa cita un file che non esiste;
   - la versione di lib/ams-common.sh non compare nei due manuali;
-  - un link interno #ancora di uno dei due manuali non porta a nessun id.
+  - un link interno #ancora di uno dei due manuali non porta a nessun id;
+  - le lingue in lib/lingue/ non hanno le stesse chiavi, con gli stessi %s,
+    o le guide nelle varie lingue non hanno lo stesso numero di voci.
 """
 import html
 import importlib.util
@@ -83,8 +85,42 @@ for where, text in (("manuale utente", user), ("manuale tecnico", tech)):
         if anchor not in ids:
             errors.append(f"{where}: il link #{anchor} non porta da nessuna parte")
 
+# ---- lingue ----
+def catalog(path):
+    """Chiave → testo delle righe «[chiave]="testo"» di un file di lingua."""
+    return dict(re.findall(r'^\t\[(\w+)\]="((?:[^"\\]|\\.)*)"$', path.read_text(), re.M))
+
+
+def help_counts(path):
+    src = path.read_text()
+    out = {}
+    for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS", "AMS_HELP_EXAMPLES", "AMS_HELP_FILES", "AMS_HELP_SYNOPSIS"):
+        block = src[src.index(name + "=("):]
+        out[name] = len(re.findall(r'^\t"', block[:block.index("\n)")], re.M))
+    return out
+
+
+LINGUE = ROOT / "lib" / "lingue"
+langs = sorted(p.stem for p in LINGUE.glob("*.sh") if not p.stem.startswith("aiuto-"))
+base = {k: v.count("%s") for k, v in catalog(LINGUE / "it.sh").items()}
+base_help = {k: v.count("%s") for k, v in catalog(LINGUE / "aiuto-it.sh").items()}
+counts = help_counts(LINGUE / "aiuto-it.sh")
+for lang in langs:
+    for fname, ref in ((f"{lang}.sh", base), (f"aiuto-{lang}.sh", base_help)):
+        if not (LINGUE / fname).exists():
+            errors.append(f"lingue: manca {fname}")
+            continue
+        cat = {k: v.count("%s") for k, v in catalog(LINGUE / fname).items()}
+        for k in sorted(set(ref) ^ set(cat)):
+            errors.append(f"lingue: la chiave {k} non è in tutte le lingue ({fname})")
+        for k in sorted(set(ref) & set(cat)):
+            if ref[k] != cat[k]:
+                errors.append(f"lingue: {fname}, chiave {k}: {cat[k]} %s invece di {ref[k]}")
+    if (LINGUE / f"aiuto-{lang}.sh").exists() and help_counts(LINGUE / f"aiuto-{lang}.sh") != counts:
+        errors.append(f"lingue: aiuto-{lang}.sh non ha le stesse voci della guida italiana")
+
 if errors:
     print("\n".join(errors))
     sys.exit(1)
 print(f"documentazione allineata: 2 manuali, {len(wanted)} voci della guida, {len(rows)} file nella mappa, "
-      f"versione {version}")
+      f"versione {version}, lingue {', '.join(langs)} ({len(base)} testi)")

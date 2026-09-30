@@ -47,6 +47,11 @@ def ams(args, come="root"):
     return sh(f"{pre}{AMS} {args}")
 
 
+def negato(err):
+    """Permesso negato, nella lingua del sistema di prova o in inglese."""
+    return "Permission denied" in err or "Permesso negato" in err
+
+
 def azzera():
     """Chiude le sessioni degli utenti, le finestre di AMS rimaste sul desktop e svuota l'archivio.
     Le finestre vanno chiuse prima: l'archivio ricomincia dal messaggio 1, e una finestra vecchia
@@ -76,12 +81,12 @@ def stato(mid, utente):
 class Sessione:
     """Una connessione ssh con terminale di un utente, come la aprirebbe una persona."""
 
-    def __init__(self, utente, prompt=r"\$ $"):
+    def __init__(self, utente, prompt=r"\$ $", comando=None):
         self.utente = utente
         self.buf = ""
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
-            os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
+            os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"] + ([comando] if comando else []))
         self.leggi_fino(prompt, 15)
 
     def leggi(self, tempo=0.3):
@@ -160,11 +165,11 @@ def a_accesso():
              "invio riuscito, mittente admin", r.returncode == 0 and frm == "from: admin", frm, secondi=round(dt, 3))
     r = ams('send --to anna "da mario"', "mario")
     registra("A3", "Accesso", "un utente normale non può eseguire ams", "permesso negato, nessun messaggio",
-             r.returncode != 0 and "Permission denied" in r.stderr and not os.path.exists(f"{VAR}/sent/3"),
+             r.returncode != 0 and negato(r.stderr) and not os.path.exists(f"{VAR}/sent/3"),
              r.stderr.strip())
     r = ams("--help", "mario")
     registra("A4", "Accesso", "un utente normale non può aprire nemmeno la guida", "permesso negato",
-             r.returncode != 0 and "Permission denied" in r.stderr, r.stderr.strip())
+             r.returncode != 0 and negato(r.stderr), r.stderr.strip())
 
 
 # ---- B. destinatari ----
@@ -180,7 +185,8 @@ def b_destinatari():
     ams('send --to @sviluppo "gruppo"')
     registra("B3", "Destinatari", "gruppo @sviluppo", "anna, mario", dest(3) == ["anna", "mario"], str(dest(3)))
     ams('send --to all "tutti"')
-    tutti = sorted(["admin", "anna", "luca", "mario", *SHELL_PROVA] + ([DESK] if DESK else []))
+    shell = [u for u in SHELL_PROVA if sh(f"getent passwd {u}").returncode == 0]   # solo nel container
+    tutti = sorted(["admin", "anna", "luca", "mario", *shell] + ([DESK] if DESK else []))
     registra("B4", "Destinatari", "all: utenti umani, esclusi root e chi ha nologin",
              ", ".join(tutti), dest(4) == tutti, str(dest(4)))
     s = Sessione("luca")
@@ -436,7 +442,7 @@ def g_sicurezza():
              "nessun ESC nell'uscita, al massimo 200 byte letti", "\x1b" not in out and len(out) < 1000, out.splitlines()[-1][:120])
     r = sh("runuser -u mario -- env AMS_TEST=1 /usr/local/bin/ams list")
     registra("G4", "Sicurezza", "un utente normale con AMS_TEST=1 non ottiene nulla", "permesso negato",
-             r.returncode != 0 and "Permission denied" in r.stderr, r.stderr.strip())
+             r.returncode != 0 and negato(r.stderr), r.stderr.strip())
 
 
 # ---- K. shell diverse da bash ----
@@ -488,6 +494,41 @@ def k_shell():
             registra(f"K4-{shell}", "Shell", f"{shell}: al prompt nessuna domanda (arriva al login successivo)",
                      "nessuna domanda, consegnato", "Confermi" not in s.testo() and st.startswith("consegnato"), st)
         s.chiudi()
+
+
+# ---- L. lingua: ognuno legge AMS nella sua ----
+
+def l_lingua():
+    """Il sistema è in italiano; luca lavora in inglese (la sua shell ha LANG=en_US.UTF-8)."""
+    luca = Sessione("luca", comando="LANG=en_US.UTF-8 exec bash -il")
+    mario = Sessione("mario")
+    luca.pulisci(); mario.pulisci()
+    ams('send --to luca,mario "Testo uguale per tutti"')
+    ok_en = luca.leggi_fino(r"Message from the administrator", 5) is not None
+    ok_it = mario.leggi_fino(r"Messaggio dall'amministratore", 5) is not None
+    registra("L1", "Lingua", "all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente",
+             "luca in inglese, mario in italiano, testo non tradotto",
+             ok_en and ok_it and "Testo uguale per tutti" in luca.testo(), luca.testo()[-100:] if not ok_en else "")
+    luca.pulisci()
+    luca.scrivi("\n")
+    ok = luca.leggi_fino(r"Do you confirm you have read the message\? \[y/N\]", 5) is not None
+    luca.scrivi("y\n")
+    ok = ok and luca.leggi_fino(r"Confirmed\.", 5) is not None
+    registra("L2", "Lingua", "la domanda e la conferma nella lingua dell'utente", "domanda in inglese, «y» conferma",
+             ok and (stato(1, "luca") or "").startswith("confermato"), stato(1, "luca") or "")
+    luca.chiudi(); mario.chiudi()
+    out = sh(f"LANG=en_US.UTF-8 {AMS} status 1").stdout
+    registra("L3", "Lingua", "un amministratore in inglese legge ams status in inglese", "USER STATE, confirmed on … (terminal …)",
+             "USER" in out and "confirmed on" in out and "(terminal pts/" in out, " / ".join(out.splitlines()[-2:]))
+    time.sleep(1)
+    log_en = sh(f"LANG=en_US.UTF-8 {AMS} log 1").stdout
+    log_it = ams("log 1").stdout
+    grezzo = sh("journalctl -q -o cat SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO=1 AMS_EVENTO=CONFERMATO").stdout
+    registra("L4", "Lingua", "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
+             "journal in italiano; ams log in inglese e in italiano",
+             "user luca: confirmed reading message 1 (terminal" in log_en
+             and "utente luca: confermata la lettura del messaggio 1 (terminale" in log_it
+             and "confermata la lettura" in grezzo, (log_en.splitlines() or [""])[-1][:120])
 
 
 # ---- J. registro degli eventi ----
@@ -616,12 +657,26 @@ def apri(utente):
     return s
 
 
+ETICHETTE = {}
+
+
+def testi(lingua):
+    """I testi di AMS nella lingua data, dal suo file in lib/lingue."""
+    src = open(f"/usr/local/lib/ams/lingue/{lingua}.sh").read()
+    return dict(re.findall(r'^\t\[(\w+)\]="((?:[^"\\]|\\.)*)"$', src, re.M))
+
+
 def i_desktop():
     if not DESK:
         registra("I1", "Desktop", "finestra di conferma nella sessione grafica", "finestra «Ho letto»",
                  None, "il container non ha una sessione grafica: la finestra si prova nella VM (tests/vm)")
         return
     grafica = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
+    # la finestra è nella lingua della sessione grafica, cioè dell'ambiente dell'agente
+    pid = sh(f"pgrep -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'").stdout.split()
+    lingua = sh(f"AMS_LIB=/usr/local/lib/ams bash -c '. $AMS_LIB/ams-common.sh; ams_env_lang </proc/{pid[0]}/environ; "
+                "echo $_LINGUA'").stdout.strip() if pid else "en"
+    ETICHETTE.update(testi(lingua))
     registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di AMS attivo "
              "(l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
              "sessione grafica, agente attivo", bool(grafica) and agente_attivo(), f"sessione {grafica}")
@@ -630,11 +685,14 @@ def i_desktop():
     ams(f'send --to {DESK} --title Manutenzione "Server spento sabato dalle 8 alle 12."')
     dt = attendi_finestre(1, 20)
     testo = testo_finestra()
-    registra("I1", "Desktop", "la finestra compare da sola dopo l'invio", "finestra con titolo e testo",
-             dt is not None and "Server spento sabato" in testo, testo[:120],
+    titolo = desk("titolo")
+    registra("I1", "Desktop", "la finestra compare da sola dopo l'invio, nella lingua della sessione",
+             f"finestra «{ETICHETTE['dlg_title']}» ({lingua}) con titolo e testo",
+             dt is not None and "Server spento sabato" in testo and titolo == ETICHETTE["dlg_title"],
+             f"{titolo} | {testo[:120]}",
              secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
     cattura("I1-finestra")
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     chiusa = attendi_finestre(0, 10)
     st = attendi_stato(1, DESK, lambda x: x.startswith("confermato"))
     registra("I2", "Desktop", "«Ho letto»: la finestra si chiude e la conferma è registrata",
@@ -650,7 +708,7 @@ def i_desktop():
     registra("I8", "Desktop", "agente assente: ams send lo avvia (systemd-run) e la finestra compare",
              "agente attivo, finestra", dt is not None and agente_attivo(),
              secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
-    desk("clicca", "Più tardi")
+    desk("clicca", ETICHETTE["dlg_later"])
     attendi_finestre(0, 10)
     st = attendi_stato(2, DESK, lambda x: "rimandato" in x)
     registra("I3", "Desktop", "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
@@ -659,7 +717,7 @@ def i_desktop():
     dt = attendi_finestre(1, 120)
     registra("I4", "Desktop", "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
              "finestra di nuovo, dopo circa 60 s", dt is not None, secondi_alla_ricomparsa=dt)
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     attendi_finestre(0, 10)
 
     ams(f'send --to {DESK} "Confermato dal terminale"')
@@ -687,11 +745,11 @@ def i_desktop():
     ams(f'send --to {DESK} "Secondo di due"')
     attendi_finestre(1, 20)
     t1 = testo_finestra()
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     time.sleep(1)
     dt = attendi_finestre(1, 15)
     t2 = testo_finestra()
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     st = attendi_stato(6, DESK, lambda x: x.startswith("confermato"))
     registra("I7", "Desktop", "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
              "«Primo di due», poi «Secondo di due», entrambi confermati",
@@ -702,7 +760,7 @@ def i_desktop():
     # «Ho letto» e uscita immediata dalla sessione: la conferma non deve perdersi
     ams(f'send --to {DESK} "Clic e via"')
     attendi_finestre(1, 20)
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     time.sleep(0.1)
     sh(f"loginctl terminate-user {DESK}")
     time.sleep(2)
@@ -721,7 +779,7 @@ def i_desktop():
              "finestra dopo il login automatico", dt is not None and "In attesa del login" in t9, t9[-60:],
              secondi_dal_riavvio_del_login=round(time.time() - t0, 2) if dt is not None else None)
     cattura("I9-login")
-    desk("clicca", "Ho letto")
+    desk("clicca", ETICHETTE["dlg_ok"])
     attendi_finestre(0, 10)
     sh("printf 'AMS_REMIND_MINUTES=30\nAMS_AGENT_POLL=60\n' > /etc/ams/ams.conf")
 
@@ -755,7 +813,7 @@ def rapporto():
 
 if __name__ == "__main__":
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
-               j_registro, k_shell, h_prestazioni, i_desktop):
+               j_registro, k_shell, l_lingua, h_prestazioni, i_desktop):
         print(fn.__name__)
         scenario(fn)
     sys.exit(0 if rapporto() else 1)

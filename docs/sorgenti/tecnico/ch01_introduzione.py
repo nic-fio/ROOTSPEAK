@@ -4,7 +4,7 @@ OVERVIEW = fig(
     zone(20, 44, 250, 250, "Amministratore · root")
     + box(44, 78, 202, 58, "ams", "bin/ams, via sudo", "navy")
     + box(44, 150, 202, 50, "ams-common.sh", "libreria comune", "soft")
-    + box(44, 214, 202, 50, "ams-help.sh", "guida integrata", "soft")
+    + box(44, 214, 202, 50, "ams-help.sh, lingue/", "guida e testi", "soft")
     + zone(318, 44, 240, 250, "Archivio · /var/lib/ams")
     + box(340, 78, 196, 58, "sent/", "copie di riferimento · root", "dark")
     + box(340, 172, 196, 58, "users/U/", "casella di ogni utente · U", "blue")

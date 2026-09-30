@@ -6,9 +6,11 @@ FROM docker.io/library/debian:trixie
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       systemd systemd-sysv dbus libpam-systemd openssh-server openssh-client sudo \
-      python3 procps util-linux bsdutils coreutils less zsh fish ksh dash \
+      python3 procps util-linux bsdutils coreutils less zsh fish ksh dash locales \
  && rm -rf /var/lib/apt/lists/* \
  && systemctl enable ssh \
+ && sed -i 's/^# *\(it_IT.UTF-8\|en_US.UTF-8\)/\1/' /etc/locale.gen && locale-gen >/dev/null \
+ && echo 'LANG=it_IT.UTF-8' > /etc/default/locale \
  && groupadd sviluppo \
  && useradd -m -s /bin/bash -G sudo admin \
  && useradd -m -s /bin/bash -G sviluppo mario \

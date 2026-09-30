@@ -46,7 +46,7 @@ snooze() {
 	local canale=desktop
 	[ "$2" = term ] && canale=terminale
 	touch "$D/state/$1.$2"
-	ams_event RINVIATO "$1" "$U" "$canale" "utente $U: rimandato il messaggio $1 ($canale)"
+	ams_event RINVIATO "$1" "$U" "$canale"
 }
 
 mark_read() { mv -f "$D/inbox/$1" "$D/read/$1" 2>/dev/null; rm -f "$D/state/$1".*; }
@@ -75,12 +75,12 @@ ack() {
 			mark_read "$1"
 			return 0
 		fi
-		ams_event CONFERMA_FALLITA "$1" "$U" "$2" "utente $U: ERRORE, conferma del messaggio $1 non registrata ($2): ${err:-errore sconosciuto}"
+		ams_event CONFERMA_FALLITA "$1" "$U" "$2" "$err"
 		return 1
 	fi
 	rm -f "$tmp"
 	mark_read "$1"
-	ams_event CONFERMATO "$1" "$U" "$2" "utente $U: confermata la lettura del messaggio $1 ($2)"
+	ams_event CONFERMATO "$1" "$U" "$2"
 }
 
 # ---- terminale: chiamato dall'hook della shell prima di ogni prompt ----
@@ -90,7 +90,7 @@ ack() {
 # 4 messaggio scaduto mentre la domanda era in attesa.
 ask() {
 	local ans='' rc
-	printf "[AMS] Confermi di aver letto il messaggio? [s/N] "
+	t ask
 	while true; do
 		read -r -t 1 ans </dev/tty && break
 		rc=$?
@@ -128,21 +128,22 @@ cmd_prompt() {
 		0)
 			ack "$id" "$where"
 			case $? in
-			0) echo "[AMS] Confermato." ;;
-			2) echo "[AMS] Il messaggio è scaduto: la conferma non è stata registrata." ;;
-			*) echo "[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta." ;;
+			0) t confirmed ;;
+			2) t ack_expired ;;
+			*) t ack_failed ;;
 			esac
 			;;
-		2) mark_read "$id"; echo "[AMS] Messaggio già confermato altrove (per esempio dal desktop)." ;;
-		3) echo "[AMS] L'amministratore ha ritirato il messaggio." ;;
-		4) mark_read "$id"; echo "[AMS] Il messaggio è scaduto." ;;
-		*) snooze "$id" term; echo "[AMS] La domanda verrà riproposta tra $AMS_REMIND_MINUTES minuti." ;;
+		2) mark_read "$id"; t elsewhere ;;
+		3) t revoked ;;
+		4) mark_read "$id"; t expired ;;
+		*) snooze "$id" term; t snoozed "$AMS_REMIND_MINUTES" ;;
 		esac
+		echo
 	done
 	if [ $later -eq 1 ]; then
-		echo "[AMS] Hai 1 messaggio dell'amministratore da confermare."
+		t pending_1; echo
 	elif [ $later -gt 1 ]; then
-		echo "[AMS] Hai $later messaggi dell'amministratore da confermare."
+		t pending_n "$later"; echo
 	fi
 }
 
@@ -156,9 +157,9 @@ graphical_session() {
 show_dialog() {
 	local id=$1 f=$D/inbox/$1 pid rc
 	zenity --question --no-markup --width=460 \
-		--title="AMS · Messaggio dall'amministratore" \
+		--title="$(t dlg_title)" \
 		--text="$(ams_msg_heading "$f")"$'\n\n'"$(ams_msg_body "$f")" \
-		--ok-label="Ho letto" --cancel-label="Più tardi" 2>/dev/null 9>&- &
+		--ok-label="$(t dlg_ok)" --cancel-label="$(t dlg_later)" 2>/dev/null 9>&- &
 	pid=$!
 	# Un controllore separato chiude la finestra se l'utente conferma da un
 	# terminale, se l'amministratore ritira il messaggio o se scade. L'agente
@@ -184,8 +185,7 @@ show_dialog() {
 		snooze "$id" gui
 	elif ! ack "$id" desktop && [ -e "$f" ]; then
 		# Il messaggio resta nella casella: la finestra ricompare al giro successivo.
-		command -v notify-send >/dev/null && notify-send -a AMS "AMS · Conferma non registrata" \
-			"Non è stato possibile registrare la conferma: il messaggio verrà riproposto." 2>/dev/null 9>&-
+		command -v notify-send >/dev/null && notify-send -a AMS "$(t notify_title)" "$(t notify_text)" 2>/dev/null 9>&-
 	fi
 }
 
@@ -220,5 +220,5 @@ cmd_agent() {
 case ${1:-} in
 prompt) cmd_prompt "${2:-}" ;;
 agent) cmd_agent ;;
-*) echo "ams-user: helper interno di AMS, non va usato direttamente" >&2; exit 1 ;;
+*) { t internal; echo; } >&2; exit 1 ;;
 esac

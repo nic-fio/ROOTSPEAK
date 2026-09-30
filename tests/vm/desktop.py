@@ -5,6 +5,7 @@ di sessione: guarda e usa le finestre di AMS attraverso l'accessibilità di GNOM
 (AT-SPI), come farebbe una persona, anche su Wayland.
 
     desktop.py finestre             numero di finestre di AMS aperte
+    desktop.py titolo               titolo della prima finestra
     desktop.py testo                testo della prima finestra
     desktop.py clicca ETICHETTA     preme il pulsante ETICHETTA nella prima finestra
 """
@@ -12,18 +13,19 @@ import sys
 
 import pyatspi
 
-TITOLO = "AMS · Messaggio dall'amministratore"
+# il titolo cambia con la lingua della sessione, ma comincia sempre così
+TITOLO = "AMS · "
 
 
 def finestre():
-    """Le finestre di dialogo di AMS: applicazioni zenity con il titolo di AMS."""
+    """Le finestre di dialogo di AMS: applicazioni zenity con il titolo di AMS (in ogni lingua)."""
     out = []
     desktop = pyatspi.Registry.getDesktop(0)
     for app in desktop:
         if app is None or (app.name or "").lower() != "zenity":
             continue
         for win in app:
-            if win is not None and TITOLO in (win.name or ""):
+            if win is not None and (win.name or "").startswith(TITOLO):
                 out.append(win)
     return out
 
@@ -55,6 +57,8 @@ if __name__ == "__main__":
     wins = finestre()
     if cmd == "finestre":
         print(len(wins))
+    elif cmd == "titolo":
+        print(wins[0].name if wins else "")
     elif cmd == "testo":
         print(" | ".join(testi(wins[0], [])) if wins else "")
     elif cmd == "clicca":

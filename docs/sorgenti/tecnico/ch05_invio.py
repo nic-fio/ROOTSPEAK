@@ -124,8 +124,11 @@ S6 = table(["Tolto", "Esempio", "Perché"], [
 
 EV = p("Ogni fatto rilevante diventa un <b>evento strutturato</b> nel journal (" + c("ams_event") + ", con "
        + c("logger --journald") + "): il testo leggibile per " + c("journalctl -t ams") + " più i campi "
-       + c("AMS_EVENTO") + ", " + c("AMS_MESSAGGIO") + ", " + c("AMS_UTENTE") + ", " + c("AMS_CANALE")
-       + ". Il journal aggiunge da sé " + c("_UID") + ": un evento scritto da un utente porta il suo UID vero.", lead=True) + \
+       + c("AMS_EVENTO") + ", " + c("AMS_MESSAGGIO") + ", " + c("AMS_UTENTE") + ", " + c("AMS_CANALE") + ", "
+       + c("AMS_DETTAGLI") + " (destinatari, terminali scritti, durata, errore) e " + c("AMS_AUTORE")
+       + " (l'amministratore). Il journal aggiunge da sé " + c("_UID") + ": un evento scritto da un utente porta il "
+       "suo UID vero. Il testo leggibile è nella lingua del sistema (" + c("/etc/default/locale") + " o "
+       + c("/etc/locale.conf") + "), uguale per tutti.", lead=True) + \
     table(["Evento", "Chi lo scrive", "Quando"], [
         [c("INVIATO"), "ams (root)", "alla fine di " + c("ams send")],
         [c("CONSEGNATO"), "ams (root)", "per ogni copia scritta e verificata, anche dal recupero"],
@@ -137,7 +140,9 @@ EV = p("Ogni fatto rilevante diventa un <b>evento strutturato</b> nel journal ("
         [c("CONFERMATO") + ", " + c("CONFERMA_FALLITA"), "ams-user (utente)", "conferma registrata o non registrabile"],
     ], "«TAB» — Gli eventi nel journal") + \
     p(c("ams log ID") + " mostra gli eventi di un messaggio dalla sua data di invio (un archivio azzerato riusa i "
-      "numeri, il journal no). Per un audit: " + c("journalctl AMS_MESSAGGIO=12 -o verbose") + " mostra tutti i "
+      "numeri, il journal no), riscritti dai campi " + c("AMS_*") + " nella lingua di chi lo lancia; legge solo quei "
+      "campi (" + c("--output-fields") + "), perché i campi binari del formato " + c("export") + " spezzerebbero "
+      "la lettura per righe. Per un audit: " + c("journalctl AMS_MESSAGGIO=12 -o verbose") + " mostra tutti i "
       "campi, " + c("_UID") + " compreso.")
 
 S7 = p(c("ams list") + " e " + c("ams status") + " leggono " + c("sent/") + " e chiamano " + c("recipient_state")

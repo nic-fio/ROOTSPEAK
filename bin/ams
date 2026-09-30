@@ -56,7 +56,7 @@ online_users() {
 
 group_members() {
 	local line gid
-	line=$(getent group "$1") || ams_die "gruppo inesistente: $1"
+	line=$(getent group "$1") || ams_die "$(t err_group "$1")"
 	gid=$(cut -d: -f3 <<<"$line")
 	cut -d: -f4 <<<"$line" | tr ',' '\n'
 	getent passwd | awk -F: -v gid="$gid" '$4 == gid { print $1 }'
@@ -72,7 +72,7 @@ resolve_recipients() {
 		online) online_users ;;
 		@*) group_members "${item#@}" ;;
 		'') ;;
-		*) getent passwd "$item" >/dev/null || ams_die "utente inesistente: $item"
+		*) getent passwd "$item" >/dev/null || ams_die "$(t err_user "$item")"
 		   echo "$item" ;;
 		esac
 	done | sed '/^$/d' | sort -u
@@ -98,6 +98,21 @@ user_terminals() {
 	while read -r s type tty; do
 		if [ "$type" = tty ] && [[ $tty == tty[0-9]* ]]; then echo "/dev/$tty"; fi
 	done < <(user_sessions "$1")
+}
+
+# Lingua di chi usa il terminale T dell'utente U, in _LINGUA: quella del primo
+# processo del terminale (di solito la shell). Se root non può leggerne
+# l'ambiente (per esempio senza CAP_SYS_PTRACE in un container), lo legge
+# l'utente stesso. Senza processi leggibili, quella del sistema.
+term_lang() {
+	local pid
+	if [ -n "${AMS_TEST:-}" ]; then _LINGUA=$AMS_LINGUA; return 0; fi
+	for pid in $(ps -o pid= -t "${1#/dev/}" 2>/dev/null); do
+		ams_env_lang <"/proc/$pid/environ" 2>/dev/null && return 0
+		ams_env_lang < <(as_user "$2" cat "/proc/$pid/environ" 2>/dev/null) && return 0
+	done
+	ams_sys_lang
+	_LINGUA=$AMS_LINGUA_SISTEMA
 }
 
 has_graphical_session() {
@@ -195,8 +210,8 @@ recover() {
 		if [ ! -s "$dir/msg" ] || [ ! -s "$dir/recipients" ]; then
 			date +%s >"$dir/failed"
 			rm -f "$f"
-			ams_event ANNULLATO "$id" "" "" "messaggio $id: invio interrotto prima del salvataggio, annullato"
-			echo "ams: il messaggio $id era stato interrotto prima di essere salvato ed è stato annullato" >&2
+			ams_event ANNULLATO "$id" "" ""
+			echo "ams: $(t recover_cancelled "$id")" >&2
 			exec 6>&-
 			continue
 		fi
@@ -210,7 +225,7 @@ recover() {
 			delivered "$u" "$id" && continue
 			if deliver_copy "$u" "$id"; then
 				echo "$u $(date +%s) 0" >>"$dir/delivery"
-				ams_event CONSEGNATO "$id" "$u" "" "messaggio $id consegnato a $u (recupero)"
+				ams_event CONSEGNATO "$id" "$u" ""
 				wake_agent "$u"
 				n=$((n + 1))
 			else
@@ -219,11 +234,11 @@ recover() {
 		done
 		if [ $miss -eq 0 ]; then rm -f "$f"; fi
 		if [ $n -gt 0 ]; then
-			ams_event RECUPERATO "$id" "" "" "messaggio $id: consegna completata per $n destinatari dopo un'interruzione"
-			echo "ams: completata la consegna del messaggio $id a $n destinatari" >&2
+			ams_event RECUPERATO "$id" "" "" "$n"
+			echo "ams: $(t recover_done "$id" "$n")" >&2
 		fi
 		if [ $miss -gt 0 ]; then
-			echo "ams: messaggio $id ancora non consegnato a $miss destinatari (vedi ams status $id)" >&2
+			echo "ams: $(t recover_missing "$id" "$miss" "$id")" >&2
 		fi
 		exec 6>&-
 	done
@@ -231,7 +246,7 @@ recover() {
 
 sent_msg() {
 	local f=$AMS_VAR/sent/$1/msg
-	[[ $1 =~ ^[0-9]+$ ]] && [ -f "$f" ] || ams_die "messaggio inesistente: $1"
+	[[ $1 =~ ^[0-9]+$ ]] && [ -f "$f" ] || ams_die "$(t err_msg "$1")"
 	echo "$f"
 }
 
@@ -241,12 +256,12 @@ parse_expires() {
 	*[0-9]m) echo $(($(date +%s) + n * 60)) ;;
 	*[0-9]h) echo $(($(date +%s) + n * 3600)) ;;
 	*[0-9]d) echo $(($(date +%s) + n * 86400)) ;;
-	*) date -d "$1" +%s 2>/dev/null || ams_die "scadenza non valida: $1" ;;
+	*) date -d "$1" +%s 2>/dev/null || ams_die "$(t err_expiry "$1")" ;;
 	esac
 }
 
 check_expires() {
-	[ "$1" -gt "$(date +%s)" ] || ams_die "la scadenza è già passata"
+	[ "$1" -gt "$(date +%s)" ] || ams_die "$(t err_expiry_past)"
 	echo "$1"
 }
 
@@ -257,16 +272,19 @@ cmd_send() {
 	local nterm users n failed
 	while [ $# -gt 0 ]; do
 		case $1 in
-		--to) to=${2:?}; shift 2 ;;
-		--title) title=${2:?}; shift 2 ;;
-		--expires) expires=$(parse_expires "${2:?}"); expires=$(check_expires "$expires"); shift 2 ;;
-		--file) file=${2:?}; shift 2 ;;
+		--to | --title | --expires | --file) [ -n "${2:-}" ] || ams_die "$(t err_value "$1")" ;;
+		esac
+		case $1 in
+		--to) to=$2; shift 2 ;;
+		--title) title=$2; shift 2 ;;
+		--expires) expires=$(parse_expires "$2"); expires=$(check_expires "$expires"); shift 2 ;;
+		--file) file=$2; shift 2 ;;
 		--) shift; break ;;
-		-*) ams_die "opzione sconosciuta: $1" ;;
+		-*) ams_die "$(t err_option "$1")" ;;
 		*) break ;;
 		esac
 	done
-	[ -n "$to" ] || ams_die "manca --to"
+	[ -n "$to" ] || ams_die "$(t err_no_to)"
 
 	if [ $# -gt 0 ]; then text="$*"
 	elif [ -n "$file" ]; then text=$(cat -- "$file")
@@ -274,10 +292,10 @@ cmd_send() {
 	fi
 	text=$(ams_sanitize <<<"$text")
 	title=$(printf '%s' "$title" | ams_sanitize | tr '\n\t' '  ')
-	[ -n "${text//[[:space:]]/}" ] || ams_die "messaggio vuoto"
+	[ -n "${text//[[:space:]]/}" ] || ams_die "$(t err_empty)"
 
 	users=$(resolve_recipients "$to")
-	[ -n "$users" ] || ams_die "nessun destinatario"
+	[ -n "$users" ] || ams_die "$(t err_no_recipients)"
 
 	init_var
 	id=$(next_id)
@@ -309,29 +327,32 @@ cmd_send() {
 	for u in $users; do
 		if ! deliver_copy "$u" "$id"; then
 			failed+=" $u"
-			ams_event NON_CONSEGNATO "$id" "$u" "" "messaggio $id: ERRORE, copia per $u non scritta"
+			ams_event NON_CONSEGNATO "$id" "$u" ""
 			continue
 		fi
 
 		nterm=0
 		for t in $(user_terminals "$u"); do
-			if ams_msg_term "$msg" | sed 's/$/\r/' | timeout 3 tee "$t" >/dev/null 2>&1; then
+			# nella lingua di chi usa quel terminale
+			term_lang "$t" "$u"
+			if ams_msg_term "$msg" "$_LINGUA" | sed 's/$/\r/' | timeout 3 tee "$t" >/dev/null 2>&1; then
 				nterm=$((nterm + 1))
 			fi
 		done
 		wake_agent "$u"
 		echo "$u $(date +%s) $nterm" >>"$dir/delivery"
-		ams_event CONSEGNATO "$id" "$u" "" "messaggio $id consegnato a $u (terminali scritti: $nterm)"
+		ams_event CONSEGNATO "$id" "$u" "" "$nterm"
 	done
 
-	ams_event INVIATO "$id" "" "" "messaggio $id inviato da ${SUDO_USER:-$(id -un)} a: $(echo $users)"
+	ams_event INVIATO "$id" "" "" "$(echo $users)" "${SUDO_USER:-$(id -un)}"
 	n=$(wc -w <<<"$users")
 	if [ -n "$failed" ]; then
-		echo "Messaggio $id consegnato a $((n - $(wc -w <<<"$failed"))) destinatari su $n."
-		ams_die "messaggio $id non consegnato a:$failed (vedi il registro; il prossimo comando ams riproverà)"
+		t send_partial "$id" "$((n - $(wc -w <<<"$failed")))" "$n"; echo
+		ams_die "$(t send_failed "$id" "$failed")"
 	fi
 	rm -f "$dir/incomplete"
-	if [ "$n" -eq 1 ]; then echo "Messaggio $id inviato a 1 utente."; else echo "Messaggio $id inviato a $n utenti."; fi
+	if [ "$n" -eq 1 ]; then t send_ok_1 "$id"; else t send_ok_n "$id" "$n"; fi
+	echo
 }
 
 # Per list e status le caselle si leggono una volta per utente: un solo
@@ -406,15 +427,17 @@ recipient_state() {
 }
 
 cmd_list() {
-	local dir id msg n tot state flag u nd
-	[ -d "$AMS_VAR/sent" ] || { echo "Nessun messaggio inviato."; return; }
-	printf '%-5s %-12s %-9s %s\n' ID DATA CONFERME TESTO
+	local dir id msg n tot state flag u nd _REVOKED _EXPIRED
+	tv _REVOKED list_revoked
+	tv _EXPIRED list_expired
+	[ -d "$AMS_VAR/sent" ] || { t list_none; echo; return; }
+	printf '%-5s %-12s %-9s %s\n' "$(t col_id)" "$(t col_date)" "$(t col_acks)" "$(t col_text)"
 	for dir in $(find "$AMS_VAR/sent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -n); do
 		msg=$AMS_VAR/sent/$dir/msg
 		id=$dir
 		n=0 tot=0 nd=0
 		if [ -e "$AMS_VAR/sent/$id/failed" ]; then
-			printf '%-5s %-12s %-9s %s\n' "$id" "-" "-" "[invio annullato: interrotto prima del salvataggio]"
+			printf '%-5s %-12s %-9s %s\n' "$id" "-" "-" "$(t list_cancelled)"
 			continue
 		fi
 		for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
@@ -427,42 +450,39 @@ cmd_list() {
 			esac
 		done
 		flag=''
-		[ $nd -gt 0 ] && flag="[$nd non consegnati] "
-		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag+='[ritirato] '
-		ams_msg_expired "$msg" && flag+='[scaduto] '
+		[ $nd -gt 0 ] && tv flag list_undelivered "$nd"
+		[ -e "$AMS_VAR/sent/$id/revoked" ] && flag+=$_REVOKED
+		ams_msg_expired "$msg" && flag+=$_EXPIRED
 		printf '%-5s %-12s %-9s %s\n' "$id" "$(date -d "@$(ams_msg_get "$msg" date)" '+%d/%m %H:%M')" \
 			"$n/$tot" "$flag$(ams_msg_body "$msg" | head -1 | cut -c1-50)"
 	done
 }
 
 cmd_status() {
-	local id=${1:?manca l\'ID del messaggio} msg u state epoch channel line when nterm
+	local id=${1:-} msg u state epoch channel line when nterm x
+	[ -n "$id" ] || ams_die "$(t err_no_id)"
 	msg=$(sent_msg "$id")
-	[ -e "$AMS_VAR/sent/$id/failed" ] && ams_die "il messaggio $id è stato annullato: l'invio si era interrotto prima del salvataggio"
-	echo "Messaggio $id · $(ams_msg_heading "$msg") · da $(ams_msg_get "$msg" from)"
-	[ -e "$AMS_VAR/sent/$id/revoked" ] && echo "RITIRATO il $(date -d "@$(cat "$AMS_VAR/sent/$id/revoked")" '+%d/%m %H:%M')"
-	ams_msg_expired "$msg" && echo "SCADUTO"
+	[ -e "$AMS_VAR/sent/$id/failed" ] && ams_die "$(t err_cancelled "$id")"
+	t status_head "$id" "$(ams_msg_heading "$msg")" "$(ams_msg_get "$msg" from)"; echo
+	[ -e "$AMS_VAR/sent/$id/revoked" ] && { t status_revoked "$(date -d "@$(cat "$AMS_VAR/sent/$id/revoked")" '+%d/%m %H:%M')"; echo; }
+	ams_msg_expired "$msg" && { t status_expired; echo; }
 	ams_msg_body "$msg" | sed 's/^/  │ /'
 	echo
-	printf '%-16s %s\n' UTENTE STATO
+	printf '%-16s %s\n' "$(t col_user)" "$(t col_state)"
 	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 		recipient_state "$u" "$id"
 		state=$RSTATE
 		case $state in
 		confermato*)
 			read -r _ epoch channel <<<"$state"
-			line="confermato il $(date -d "@$epoch" '+%d/%m %H:%M') ($channel)" ;;
+			tv line st_confirmed "$(date -d "@$epoch" '+%d/%m %H:%M')" "$(ams_channel "$AMS_LINGUA" "$channel")" ;;
 		inviato)
-			if [ -e "$AMS_VAR/sent/$id/incomplete" ]; then
-				line="inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)"
-			else
-				line="inviato, non consegnato"
-			fi ;;
+			if [ -e "$AMS_VAR/sent/$id/incomplete" ]; then tv line st_sent_failed; else tv line st_sent; fi ;;
 		*)
-			line="consegnato"
-			if [ -e "$AMS_VAR/sent/$id/revoked" ]; then line+=", non confermato (ritirato)"
-			elif [ "$state" = "consegnato tardiva" ]; then line+=", non confermato (scaduto; conferma arrivata dopo la scadenza)"
-			elif ams_msg_expired "$msg"; then line+=", non confermato (scaduto)"
+			tv line st_delivered
+			if [ -e "$AMS_VAR/sent/$id/revoked" ]; then tv x st_nc_revoked; line+=$x
+			elif [ "$state" = "consegnato tardiva" ]; then tv x st_nc_late; line+=$x
+			elif ams_msg_expired "$msg"; then tv x st_nc_expired; line+=$x
 			else
 				nterm=$(awk -v u="$u" '$1 == u { print $3 }' "$AMS_VAR/sent/$id/delivery" 2>/dev/null)
 				load_user "$u"
@@ -470,10 +490,10 @@ cmd_status() {
 				if [ -n "${_SNZ[$u:$id]:-}" ]; then when=$(date -d "@${_SNZ[$u:$id]}" '+%d/%m %H:%M'); fi
 				case ${nterm:-0} in
 				0) ;;
-				1) line+=", scritto su 1 terminale" ;;
-				*) line+=", scritto su $nterm terminali" ;;
+				1) tv x st_term_1; line+=$x ;;
+				*) tv x st_term_n "$nterm"; line+=$x ;;
 				esac
-				if [ -n "$when" ]; then line+=", rimandato il $when"; fi
+				if [ -n "$when" ]; then tv x st_snoozed "$when"; line+=$x; fi
 			fi ;;
 		esac
 		printf '%-16s %s\n' "$u" "$line"
@@ -484,13 +504,14 @@ cmd_status() {
 # nelle caselle (tolti con l'identità dell'utente). Salta gli invii in corso o
 # interrotti. Nel journal restano gli eventi e l'evento CANCELLATO.
 cmd_purge() {
-	local dur=${1:?manca la durata, per esempio 90d} sec n dir id quando u
+	local dur=${1:-} sec n dir id quando u
+	[ -n "$dur" ] || ams_die "$(t err_no_duration)"
 	n=${dur%[mhd]}
 	case $dur in
 	*[0-9]m) sec=$((n * 60)) ;;
 	*[0-9]h) sec=$((n * 3600)) ;;
 	*[0-9]d) sec=$((n * 86400)) ;;
-	*) ams_die "durata non valida: $dur (per esempio 90d, 12h, 30m)" ;;
+	*) ams_die "$(t err_duration "$dur")" ;;
 	esac
 	local limite=$(($(date +%s) - sec)) tolti=0
 	for dir in "$AMS_VAR"/sent/*/; do
@@ -513,33 +534,64 @@ cmd_purge() {
 		done
 		rm -rf "$dir"
 		exec 5>&-
-		ams_event CANCELLATO "$id" "" "" "messaggio $id cancellato da ${SUDO_USER:-$(id -un)} (più vecchio di $dur)"
+		ams_event CANCELLATO "$id" "" "" "$dur" "${SUDO_USER:-$(id -un)}"
 		tolti=$((tolti + 1))
 	done
-	if [ $tolti -eq 1 ]; then echo "Cancellato 1 messaggio più vecchio di $dur."
-	else echo "Cancellati $tolti messaggi più vecchi di $dur."; fi
+	if [ $tolti -eq 1 ]; then t purge_1 "$dur"; else t purge_n "$tolti" "$dur"; fi
+	echo
 }
 
 # La storia di un messaggio dal journal: gli eventi con AMS_MESSAGGIO=ID dalla
-# data dell'invio (un archivio azzerato riusa i numeri, il journal no).
+# data dell'invio (un archivio azzerato riusa i numeri, il journal no). Ogni
+# evento si riscrive dai campi AMS_* nella lingua di chi legge; un evento che
+# non si sa riscrivere mostra il suo testo originale.
 cmd_log() {
-	local id=${1:?manca l\'ID del messaggio} msg dal
+	local id=${1:-} msg dal riga k v quando ev u ch det aut testo
+	[ -n "$id" ] || ams_die "$(t err_no_id)"
 	msg=$(sent_msg "$id")
 	dal=$(( $(ams_msg_get "$msg" date) - 1 ))
-	echo "Messaggio $id · $(ams_msg_heading "$msg")"
-	journalctl --no-pager -q -o short-iso --since "@$dal" SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO="$id" 2>/dev/null |
-		sed 's/^\([^ ]*\) [^ ]* ams\[[0-9]*\]: /\1  /'
+	t log_head "$id" "$(ams_msg_heading "$msg")"; echo
+	evento() {
+		[ -n "$quando" ] || return 0
+		local riscritto
+		riscritto=$(ams_event_text "$AMS_LINGUA" "$ev" "$id" "$u" "$ch" "$det" "$aut") || riscritto=$testo
+		printf '%(%Y-%m-%d %H:%M:%S)T  %s\n' "$((quando / 1000000))" "$riscritto" | ams_sanitize
+	}
+	quando='' ev='' u='' ch='' det='' aut='' testo=''
+	while IFS= read -r riga; do
+		if [ -z "$riga" ]; then
+			evento
+			quando='' ev='' u='' ch='' det='' aut='' testo=''
+			continue
+		fi
+		k=${riga%%=*} v=${riga#*=}
+		case $k in
+		__REALTIME_TIMESTAMP) quando=$v ;;
+		AMS_EVENTO) ev=$v ;;
+		AMS_UTENTE) u=$v ;;
+		AMS_CANALE) ch=$v ;;
+		AMS_DETTAGLI) det=$v ;;
+		AMS_AUTORE) aut=$v ;;
+		MESSAGE) testo=$v ;;
+		esac
+	# solo i campi di testo che servono: i campi binari del formato export
+	# (per esempio _SELINUX_CONTEXT) spezzerebbero la lettura per righe
+	done < <(journalctl --no-pager -q -o export --since "@$dal" \
+		--output-fields=MESSAGE,AMS_EVENTO,AMS_UTENTE,AMS_CANALE,AMS_DETTAGLI,AMS_AUTORE \
+		SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO="$id" 2>/dev/null)
+	evento
 }
 
 cmd_revoke() {
-	local id=${1:?manca l\'ID del messaggio} u
+	local id=${1:-} u
+	[ -n "$id" ] || ams_die "$(t err_no_id)"
 	sent_msg "$id" >/dev/null
 	date +%s >"$AMS_VAR/sent/$id/revoked"
 	for u in $(cat "$AMS_VAR/sent/$id/recipients"); do
 		as_user "$u" rm -f "$AMS_VAR/users/$u/inbox/$id" "$AMS_VAR/users/$u/state/$id".* 2>/dev/null || true
 	done
-	ams_event RITIRATO "$id" "" "" "messaggio $id ritirato da ${SUDO_USER:-$(id -un)}"
-	echo "Messaggio $id ritirato."
+	ams_event RITIRATO "$id" "" "" "" "${SUDO_USER:-$(id -un)}"
+	t revoke_ok "$id"; echo
 }
 
 case ${1:-} in
@@ -553,5 +605,5 @@ status) shift; cmd_status "$@" ;;
 revoke) shift; cmd_revoke "$@" ;;
 log) shift; cmd_log "$@" ;;
 purge) shift; cmd_purge "$@" ;;
-*) ams_die "comando sconosciuto: $1 (ams --help per la guida)" ;;
+*) ams_die "$(t err_command "$1")" ;;
 esac

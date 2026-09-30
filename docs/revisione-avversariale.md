@@ -7,14 +7,14 @@ due modelli linguistici di frontiera sul manuale tecnico della versione 0.1.0:
 - **Revisione B** — «Relazione critica senza sconti — AMS v0.1.0» (file ricevuto
   troncato: si interrompe al punto 5.1).
 
-I punti sulla lingua dell'interfaccia sono esclusi da questo elenco: verranno
-trattati a parte. Ogni affermazione concreta è stata verificata sul codice
+I punti sulla lingua dell'interfaccia sono esclusi da questo elenco: sono stati
+trattati a parte (decisione del 30 settembre, fatta: italiano e inglese). Ogni affermazione concreta è stata verificata sul codice
 prima di essere accolta. Le voci [2] del README restano congelate finché i
 gruppi A–D non sono chiusi (revisione A, punto 23).
 
 Stato: **aperto**, **fatto**, **non accolto**.
 
-**Al 30 settembre 2026 tutti i punti accolti sono fatti, compreso l'aggancio per tutte le shell deciso il 30 settembre (la lingua dell'utente è in corso); la risposta dell'utente all'amministratore non è prevista (decisione dell'utente).** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
+**Al 30 settembre 2026 tutti i punti accolti sono fatti, compresi l'aggancio per tutte le shell e la lingua di ciascun utente decisi il 30 settembre; la risposta dell'utente all'amministratore non è prevista (decisione dell'utente).** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
 
 ## A. Difetti reali, verificati nel codice
 

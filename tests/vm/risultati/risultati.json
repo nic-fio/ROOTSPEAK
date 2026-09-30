@@ -1,12 +1,12 @@
 {
  "meta": {
-  "data": "2026-09-30 10:08:03 UTC",
+  "data": "2026-09-30 10:57:38 UTC",
   "versione": "AMS - Advanced Messaging System for linux 0.1.0",
   "sistema": "Debian GNU/Linux 13 (trixie), VM con GNOME, desktop di sara",
-  "ok": 54,
-  "no": 0,
-  "non_provati": 0,
-  "totale": 54
+  "ok": 58,
+  "no": 1,
+  "non_provati": 4,
+  "totale": 63
  },
  "risultati": [
   {
@@ -26,7 +26,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.262
+    "secondi": 0.091
    }
   },
   {
@@ -35,7 +35,7 @@
    "descrizione": "un utente normale non può eseguire ams",
    "atteso": "permesso negato, nessun messaggio",
    "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permission denied",
+   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permesso negato",
    "misure": {}
   },
   {
@@ -44,7 +44,7 @@
    "descrizione": "un utente normale non può aprire nemmeno la guida",
    "atteso": "permesso negato",
    "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permission denied",
+   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permesso negato",
    "misure": {}
   },
   {
@@ -78,8 +78,8 @@
    "codice": "B4",
    "area": "Destinatari",
    "descrizione": "all: utenti umani, esclusi root e chi ha nologin",
-   "atteso": "admin, anna, luca, mario, sara",
-   "esito": "OK",
+   "atteso": "admin, anna, dario, fabio, kora, luca, mario, sara, zeno",
+   "esito": "NO",
    "dettagli": "['admin', 'anna', 'luca', 'mario', 'sara']",
    "misure": {}
   },
@@ -127,7 +127,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.464
+    "secondi_dal_login": 0.335
    }
   },
   {
@@ -136,7 +136,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:04 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 10:54 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -147,8 +147,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.192,
-    "secondi_al_terminale": 0.243
+    "secondi_invio": 0.128,
+    "secondi_al_terminale": 0.178
    }
   },
   {
@@ -168,7 +168,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.096
+    "secondi": 0.061
    }
   },
   {
@@ -197,7 +197,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.909
+    "secondi": 0.904
    }
   },
   {
@@ -206,7 +206,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 10:04",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 10:54",
    "misure": {}
   },
   {
@@ -233,7 +233,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790762673 terminale pts/7",
+   "dettagli": "1790765669 terminale pts/7",
    "misure": {}
   },
   {
@@ -262,7 +262,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.003
+    "secondi": 1.004
    }
   },
   {
@@ -307,12 +307,21 @@
    "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 14/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 51 destinatari",
+   "dettagli": "consegnati prima 16/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 49 destinatari",
    "misure": {
-    "consegnati_al_kill": 14,
+    "consegnati_al_kill": 16,
     "destinatari": 65,
-    "secondi_recupero": 6.071
+    "secondi_recupero": 2.042
    }
+  },
+  {
+   "codice": "F6",
+   "area": "Guasti",
+   "descrizione": "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
+   "atteso": "consegnato",
+   "esito": "OK",
+   "dettagli": "consegnato; ",
+   "misure": {}
   },
   {
    "codice": "F5",
@@ -322,7 +331,7 @@
    "esito": "OK",
    "dettagli": "65 consegne annotate per 65 destinatari, 65 distinte",
    "misure": {
-    "ams_list_durante_invio": 27
+    "ams_list_durante_invio": 24
    }
   },
   {
@@ -367,7 +376,7 @@
    "descrizione": "un utente normale con AMS_TEST=1 non ottiene nulla",
    "atteso": "permesso negato",
    "esito": "OK",
-   "dettagli": "env: ‘/usr/local/bin/ams’: Permission denied",
+   "dettagli": "env: ‘/usr/local/bin/ams’: Permesso negato",
    "misure": {}
   },
   {
@@ -389,6 +398,78 @@
    "misure": {}
   },
   {
+   "codice": "K-zsh",
+   "area": "Shell",
+   "descrizione": "zsh: utente di prova zeno",
+   "atteso": "presente",
+   "esito": "NON PROVATO",
+   "dettagli": "utente assente",
+   "misure": {}
+  },
+  {
+   "codice": "K-fish",
+   "area": "Shell",
+   "descrizione": "fish: utente di prova fabio",
+   "atteso": "presente",
+   "esito": "NON PROVATO",
+   "dettagli": "utente assente",
+   "misure": {}
+  },
+  {
+   "codice": "K-ksh",
+   "area": "Shell",
+   "descrizione": "ksh: utente di prova kora",
+   "atteso": "presente",
+   "esito": "NON PROVATO",
+   "dettagli": "utente assente",
+   "misure": {}
+  },
+  {
+   "codice": "K-dash",
+   "area": "Shell",
+   "descrizione": "dash: utente di prova dario",
+   "atteso": "presente",
+   "esito": "NON PROVATO",
+   "dettagli": "utente assente",
+   "misure": {}
+  },
+  {
+   "codice": "L1",
+   "area": "Lingua",
+   "descrizione": "all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente",
+   "atteso": "luca in inglese, mario in italiano, testo non tradotto",
+   "esito": "OK",
+   "dettagli": "",
+   "misure": {}
+  },
+  {
+   "codice": "L2",
+   "area": "Lingua",
+   "descrizione": "la domanda e la conferma nella lingua dell'utente",
+   "atteso": "domanda in inglese, «y» conferma",
+   "esito": "OK",
+   "dettagli": "confermato il 30/09 10:55 (terminale pts/14)",
+   "misure": {}
+  },
+  {
+   "codice": "L3",
+   "area": "Lingua",
+   "descrizione": "un amministratore in inglese legge ams status in inglese",
+   "atteso": "USER STATE, confirmed on … (terminal …)",
+   "esito": "OK",
+   "dettagli": "luca             confirmed on 30/09 10:55 (terminal pts/14) / mario            delivered, written to 1 terminal",
+   "misure": {}
+  },
+  {
+   "codice": "L4",
+   "area": "Lingua",
+   "descrizione": "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
+   "atteso": "journal in italiano; ams log in inglese e in italiano",
+   "esito": "OK",
+   "dettagli": "2026-09-30 10:55:21  user luca: confirmed reading message 1 (terminal pts/14)",
+   "misure": {}
+  },
+  {
    "codice": "H1",
    "area": "Prestazioni",
    "descrizione": "invio a tutti (55 destinatari)",
@@ -396,8 +477,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 5.43,
-    "ms_per_destinatario": 98.8
+    "secondi": 2.58,
+    "ms_per_destinatario": 46.9
    }
   },
   {
@@ -408,7 +489,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.32
+    "secondi": 0.49
    }
   },
   {
@@ -419,7 +500,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.63
+    "secondi": 0.71
    }
   },
   {
@@ -428,18 +509,18 @@
    "descrizione": "sara ha una sessione grafica con l'agente di AMS attivo (l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
    "atteso": "sessione grafica, agente attivo",
    "esito": "OK",
-   "dettagli": "sessione 7",
+   "dettagli": "sessione 8",
    "misure": {}
   },
   {
    "codice": "I1",
    "area": "Desktop",
-   "descrizione": "la finestra compare da sola dopo l'invio",
-   "atteso": "finestra con titolo e testo",
+   "descrizione": "la finestra compare da sola dopo l'invio, nella lingua della sessione",
+   "atteso": "finestra «AMS · Message from the administrator» (en) con titolo e testo",
    "esito": "OK",
-   "dettagli": "AMS · Messaggio dall'amministratore | Manutenzione · 30/09 10:06\n\nServer spento sabato dalle 8 alle 12. | Più tardi | Ho",
+   "dettagli": "AMS · Message from the administrator | AMS · Message from the administrator | Manutenzione · 30/09 10:56\n\nServer spento sabato dalle 8 alle 12. | Later | I hav",
    "misure": {
-    "secondi_alla_finestra": 0.64
+    "secondi_alla_finestra": 0.72
    }
   },
   {
@@ -448,7 +529,7 @@
    "descrizione": "«Ho letto»: la finestra si chiude e la conferma è registrata",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:06 (desktop)",
+   "dettagli": "confermato il 30/09 10:56 (desktop)",
    "misure": {}
   },
   {
@@ -459,7 +540,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_finestra": 0.76
+    "secondi_alla_finestra": 0.58
    }
   },
   {
@@ -468,7 +549,7 @@
    "descrizione": "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, rimandato il 30/09 10:06",
+   "dettagli": "consegnato, rimandato il 30/09 10:56",
    "misure": {}
   },
   {
@@ -479,7 +560,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_ricomparsa": 60.44
+    "secondi_alla_ricomparsa": 60.42
    }
   },
   {
@@ -488,9 +569,9 @@
    "descrizione": "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
    "atteso": "finestra chiusa, confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:07 (terminale pts/14)",
+   "dettagli": "confermato il 30/09 10:57 (terminale pts/16)",
    "misure": {
-    "secondi_alla_chiusura": 0.4
+    "secondi_alla_chiusura": 0.49
    }
   },
   {
@@ -501,7 +582,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_chiusura": 0.66
+    "secondi_alla_chiusura": 0.77
    }
   },
   {
@@ -510,7 +591,7 @@
    "descrizione": "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
    "atteso": "«Primo di due», poi «Secondo di due», entrambi confermati",
    "esito": "OK",
-   "dettagli": " di due | Più tardi | Ho letto →  di due | Più tardi | Ho letto; confermato il 30/09 10:07 (desktop)",
+   "dettagli": "i due | Later | I have read it → i due | Later | I have read it; confermato il 30/09 10:57 (desktop)",
    "misure": {}
   },
   {
@@ -519,7 +600,7 @@
    "descrizione": "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 10:07 (desktop)",
+   "dettagli": "confermato il 30/09 10:57 (desktop)",
    "misure": {}
   },
   {
@@ -528,9 +609,9 @@
    "descrizione": "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
    "atteso": "finestra dopo il login automatico",
    "esito": "OK",
-   "dettagli": "re | 30/09 10:07\n\nIn attesa del login | Più tardi | Ho letto",
+   "dettagli": " | 30/09 10:57\n\nIn attesa del login | Later | I have read it",
    "misure": {
-    "secondi_dal_riavvio_del_login": 2.66
+    "secondi_dal_riavvio_del_login": 3.22
    }
   }
  ]

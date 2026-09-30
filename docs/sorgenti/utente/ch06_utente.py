@@ -88,10 +88,27 @@ S5 = p("AMS non blocca mai il lavoro: l'utente può sempre rimandare. Ma chi rim
     p("L'intervallo predefinito è di 30 minuti, uguale per la finestra e per il terminale; si cambia nelle impostazioni "
       "(capitolo 8). Intanto l'amministratore vede in " + c("ams status") + " chi non ha ancora confermato.")
 
+S6 = p("Ognuno vede AMS nella sua lingua: finestra, intestazione, domanda e avvisi seguono la lingua della sessione "
+       "dell'utente; " + c("ams") + " parla la lingua dell'amministratore che lo usa. Il testo del messaggio arriva "
+       "com'è stato scritto: non si traduce.", lead=True) + \
+    term("── AMS · Message from the administrator · Manutenzione · 03/10 18:30 ──\n"
+         "Sabato dalle 8 alle 12 il server sarà spento.\n"
+         "────────────────────────────────────────\n"
+         "[AMS] Do you confirm you have read the message? [y/N] y\n"
+         "[AMS] Confirmed.", "Lo stesso messaggio per un utente che lavora in inglese") + \
+    table(["Lingua della sessione", "AMS si mostra in"], [
+        ["italiano (" + c("LANG=it_IT.UTF-8") + ")", "italiano"],
+        ["inglese, o una lingua che AMS non ha ancora", "inglese"],
+        [c("C") + " o " + c("POSIX") + " (per esempio certi accessi di servizio)", "inglese"],
+    ], "«TAB» — Le lingue di AMS") + \
+    p("La domanda accetta " + key("s") + " e " + key("y") + " in ogni lingua. Il registro di sistema è nella lingua "
+      "della macchina; " + c("ams log") + " lo riscrive in quella di chi lo legge.")
+
 CHAPTER = ("Cosa vedono gli utenti", [
     ("Sul desktop", S1),
     ("Nel terminale", S2),
     ("Chi non è collegato", S3),
     ("Più sessioni, una conferma", S4),
     ("Rimandare e solleciti", S5),
+    ("In quale lingua", S6),
 ])

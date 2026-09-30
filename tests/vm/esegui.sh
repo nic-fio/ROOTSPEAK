@@ -38,6 +38,14 @@ tar --exclude=.git -cf - -C "$ROOT" . |
 # niente tour di benvenuto né avvisi degli aggiornamenti sul desktop di prova
 # (anche in user-data.tpl, per i dischi base preparati dopo)
 v "apt-get -qq -y purge gnome-tour gnome-software >/dev/null 2>&1; true"
+# lingue: il sistema in italiano (le sessioni ssh degli scenari), il desktop di
+# prova in inglese (AccountsService): la finestra deve seguire la sessione grafica
+v "dpkg -s locales >/dev/null 2>&1 || apt-get -qq -y install locales >/dev/null
+	sed -i 's/^# *\\(it_IT.UTF-8\\|en_US.UTF-8\\)/\\1/' /etc/locale.gen && locale-gen >/dev/null
+	echo LANG=it_IT.UTF-8 >/etc/default/locale
+	f=/var/lib/AccountsService/users/$DESK
+	if grep -q '^Language=' \$f 2>/dev/null; then sed -i 's/^Language=.*/Language=en_US.UTF-8/' \$f
+	else printf '[User]\\nLanguage=en_US.UTF-8\\n' >>\$f; fi" || exit 1
 # un nuovo login grafico, perché l'agente parta dall'avvio automatico come su un sistema vero
 v "systemctl restart gdm; for i in \$(seq 1 90); do
 	pgrep -u $DESK -f '^/bin/bash /usr/local/lib/ams/ams-user agent\$' >/dev/null && { echo \"desktop di $DESK pronto dopo \${i}s\"; exit 0; }
@@ -45,7 +53,7 @@ v "systemctl restart gdm; for i in \$(seq 1 90); do
 
 rm -rf "$QUI/risultati" && mkdir -p "$QUI/risultati/catture"
 x "rm -f $DIR/vm/catture/*"
-v "AMS_PROVA_DESKTOP=$DESK python3 -u /opt/ams-src/tests/container/scenari.py /opt/risultati" |
+v "LANG=it_IT.UTF-8 AMS_PROVA_DESKTOP=$DESK python3 -u /opt/ams-src/tests/container/scenari.py /opt/risultati" |
 	while IFS= read -r riga; do
 		case $riga in
 		"@@CATTURA "*) x "python3 $DIR/src/tests/vm/cattura.py $DIR/vm/monitor.sock $DIR/vm/catture/${riga#@@CATTURA }.ppm" ;;

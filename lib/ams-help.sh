@@ -3,63 +3,13 @@
 #   - in un terminale, guida interattiva a schede;
 #   - con un terminale più piccolo di 44x10, pagina in stile manuale con un pager;
 #   - se l'uscita non è un terminale, testo semplice.
-# I testi stanno solo qui: tools/check-docs.py controlla che il riferimento del
-# manuale utente riporti ogni voce di comandi e opzioni, con lo stesso testo.
 
-# Voci "etichetta¦descrizione".
-AMS_HELP_COMMANDS=(
-	"send [opzioni] [TESTO]¦Invia un messaggio ai destinatari indicati con --to. Senza TESTO né --file, il testo viene letto da stdin."
-	"list¦Elenca i messaggi inviati, con quanti destinatari hanno confermato ciascun messaggio."
-	"status ID¦Mostra il testo del messaggio e lo stato di ogni destinatario: inviato, consegnato (nella sua casella) o confermato, con data, ora e canale."
-	"revoke ID¦Ritira un messaggio: chi non l'ha ancora visto non lo vedrà più, e finestre e domande ancora aperte si chiudono da sole."
-	"log ID¦Mostra la storia del messaggio dal registro di sistema: invio, consegne, rinvii, conferme e ritiro, con data e ora."
-	"purge DURATA¦Cancella i messaggi inviati da più di DURATA (per esempio 90d), con le copie e le conferme nelle caselle degli utenti; gli eventi restano nel registro di sistema."
-	"version¦Mostra la versione di AMS."
-	"help, --help, -h¦Mostra questa guida. La apre anche «ams» senza argomenti."
-)
-
-AMS_HELP_OPTIONS=(
-	"--to DEST¦Destinatari, separati da virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti umani) oppure online (solo quelli collegati adesso)."
-	"--title TITOLO¦Titolo mostrato nell'intestazione del messaggio e nella finestra del desktop."
-	"--expires DURATA¦Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole vanno in inglese)."
-	"--file FILE¦Legge il testo del messaggio da FILE."
-)
-
-AMS_HELP_EXAMPLES=(
-	"ams send --to mario \"Il tuo account scade venerdì.\"¦Messaggio con conferma di lettura a un solo utente."
-	"ams send --to @sviluppo --title Manutenzione --file avviso.txt¦Testo preso da un file, con titolo, a tutti i membri del gruppo sviluppo."
-	"ams send --to online --expires 15m \"Riavvio alle 13:00.\"¦Avviso urgente a chi è collegato adesso; dopo 15 minuti non viene più mostrato né sollecitato."
-	"ams send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli utenti; dopo tre giorni smette di essere mostrato."
-	"ams list¦Quali messaggi sono stati inviati e quante conferme hanno."
-	"ams status 12¦Chi ha confermato il messaggio 12, quando e da dove."
-	"ams log 12¦La storia del messaggio 12: invio, consegne, rinvii, conferme."
-	"ams purge 90d¦Cancella i messaggi di più di 90 giorni fa, con copie e conferme."
-	"ams revoke 12¦Ritira il messaggio 12."
-)
-
-AMS_HELP_FILES=(
-	"/etc/ams/ams.conf¦Configurazione: minuti prima di riproporre un messaggio rimandato, intervallo di controllo dell'agente del desktop."
-	"/var/lib/ams/¦I messaggi: sent/ (copie di riferimento, solo root) e users/UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
-	"sudo journalctl -t ams¦Il registro di sistema: invii, consegne, conferme e ritiri."
-	"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦Il manuale utente completo, da aprire in un browser."
-)
-
-AMS_HELP_DESCRIPTION="AMS permette agli amministratori di mandare messaggi di testo agli utenti della \
-macchina e di sapere chi li ha letti. I messaggi compaiono nei terminali (console, ssh, terminali del \
-desktop, tmux) e sul desktop, in una finestra con i pulsanti «Ho letto» e «Più tardi»; chi non è \
-collegato li trova al login successivo. Ogni messaggio chiede la conferma di lettura e AMS la \
-ripropone finché l'utente non la dà, senza mai bloccare il lavoro. Il comando è riservato agli \
-amministratori (gruppo sudo o wheel) e si rilancia da solo con sudo."
-
-AMS_HELP_SYNOPSIS=(
-	"ams send --to DEST [opzioni] [TESTO]"
-	"ams list"
-	"ams status ID"
-	"ams revoke ID"
-	"ams log ID"
-	"ams purge DURATA"
-	"ams version"
-)
+# I testi stanno in lib/lingue/aiuto-LINGUA.sh, nella lingua dell'amministratore.
+if [ -r "$AMS_LIB/lingue/aiuto-$AMS_LINGUA.sh" ]; then
+	. "$AMS_LIB/lingue/aiuto-$AMS_LINGUA.sh"
+else
+	. "$AMS_LIB/lingue/aiuto-en.sh"
+fi
 
 # ---- testo ----
 
@@ -128,40 +78,40 @@ _help_page() { # colore, larghezza
 		done
 	}
 
-	three "AMS(1)" "Manuale di ams" "AMS(1)"
-	hdr NOME
-	para "ams — invia messaggi agli utenti della macchina e ne segue la conferma di lettura" 7
-	hdr SINTASSI
+	three "AMS(1)" "${AMS_HELP_L[title]}" "AMS(1)"
+	hdr "${AMS_HELP_L[h_name]}"
+	para "${AMS_HELP_L[name]}" 7
+	hdr "${AMS_HELP_L[h_synopsis]}"
 	for e in "${AMS_HELP_SYNOPSIS[@]}"; do printf '%s%s%s%s %s\n' "$ti" "$_B" "${e%% *}" "$_R" "${e#* }"; done
-	hdr DESCRIZIONE
+	hdr "${AMS_HELP_L[h_description]}"
 	para "$AMS_HELP_DESCRIPTION" 7
-	hdr COMANDI
+	hdr "${AMS_HELP_L[h_commands]}"
 	entries AMS_HELP_COMMANDS
-	hdr "OPZIONI DI SEND"
+	hdr "${AMS_HELP_L[h_options]}"
 	entries AMS_HELP_OPTIONS
-	hdr ESEMPI
+	hdr "${AMS_HELP_L[h_examples]}"
 	entries AMS_HELP_EXAMPLES
-	hdr FILE
+	hdr "${AMS_HELP_L[h_files]}"
 	entries AMS_HELP_FILES
-	hdr AMBIENTE
+	hdr "${AMS_HELP_L[h_environment]}"
 	printf '%s%sPAGER%s\n' "$ti" "$_G" "$_R"
-	para "Pager usato per impaginare questa guida quando il terminale è troppo piccolo per quella interattiva (predefinito: less). Come NO_COLOR, arriva ad ams solo se sudo la conserva (env_keep in sudoers)." "$di"
+	para "${AMS_HELP_L[pager]}" "$di"
 	printf '%s%sNO_COLOR%s\n' "$ti" "$_G" "$_R"
-	para "Se impostata, disabilita i colori." "$di"
-	hdr "STATO DI USCITA"
+	para "${AMS_HELP_L[no_color]}" "$di"
+	hdr "${AMS_HELP_L[h_exit]}"
 	printf '%s%s0%s\n' "$ti" "$_G" "$_R"
-	para "Completato con successo." "$di"
+	para "${AMS_HELP_L[exit0]}" "$di"
 	printf '%s%s1%s\n' "$ti" "$_G" "$_R"
-	para "Errore: il messaggio d'errore, che inizia con «ams:», dice quale." "$di"
-	hdr "VEDERE ANCHE"
-	para "wall(1), write(1), e il manuale utente in /usr/local/share/doc/ams/AMS_Manuale_Utente.html" 7
+	para "${AMS_HELP_L[exit1]}" "$di"
+	hdr "${AMS_HELP_L[h_see]}"
+	para "${AMS_HELP_L[see]}" 7
 	echo
 	three "ams $AMS_VERSION" "" "AMS(1)"
 }
 
 # ---- guida interattiva a schede ----
 
-_HELP_TABS=(Info Comandi Opzioni Esempi File)
+read -ra _HELP_TABS <<<"${AMS_HELP_L[tabs]}"
 
 # Righe della scheda $1 larga $2: tipo in _LT (H titolo, F voce, T testo), testo in _LS.
 _help_tab_lines() {
@@ -180,22 +130,23 @@ _help_tab_lines() {
 	}
 	case $tab in
 	0)
-		add H NOME
-		add T "   ams — messaggi agli utenti con conferma di lettura"
+		add H "${AMS_HELP_L[h_name]}"
+		add T "   ${AMS_HELP_L[short]}"
 		add T ''
-		add H SINTASSI
+		add H "${AMS_HELP_L[h_synopsis]}"
 		for e in "${AMS_HELP_SYNOPSIS[@]}"; do add T "   $e"; done
 		add T ''
-		add H DESCRIZIONE
+		add H "${AMS_HELP_L[h_description]}"
 		_help_wrap "$AMS_HELP_DESCRIPTION" "$inner" 3
 		for w in "${_W[@]}"; do add T "$w"; done
 		add T ''
-		add T "   AMS $AMS_VERSION · manuale completo: /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+		# shellcheck disable=SC2059
+		add T "   $(printf "${AMS_HELP_L[manual]}" "$AMS_VERSION")"
 		;;
-	1) add H Comandi; add T ''; items AMS_HELP_COMMANDS ;;
-	2) add H "Opzioni di send"; add T ''; items AMS_HELP_OPTIONS ;;
-	3) add H Esempi; add T ''; items AMS_HELP_EXAMPLES ;;
-	4) add H "File e registro"; add T ''; items AMS_HELP_FILES ;;
+	1) add H "${AMS_HELP_L[t_commands]}"; add T ''; items AMS_HELP_COMMANDS ;;
+	2) add H "${AMS_HELP_L[t_options]}"; add T ''; items AMS_HELP_OPTIONS ;;
+	3) add H "${AMS_HELP_L[t_examples]}"; add T ''; items AMS_HELP_EXAMPLES ;;
+	4) add H "${AMS_HELP_L[t_files]}"; add T ''; items AMS_HELP_FILES ;;
 	esac
 }
 
@@ -233,7 +184,7 @@ _help_draw() {
 	if [ "${_SCROLL[_TAB]}" -lt 0 ]; then _SCROLL[_TAB]=0; fi
 	off=${_SCROLL[_TAB]}
 
-	_help_border ┌ ┐ "ams — guida"; rows+=("$_ROW")
+	_help_border ┌ ┐ "${AMS_HELP_L[frame]}"; rows+=("$_ROW")
 	for i in "${!_HELP_TABS[@]}"; do
 		label=" ${_HELP_TABS[i]} "
 		if [ "$i" = "$_TAB" ]; then
@@ -258,8 +209,9 @@ _help_draw() {
 	_help_border ├ ┤ ''; rows+=("$_ROW")
 	bottom=$((off + ch))
 	if [ $bottom -gt $total ]; then bottom=$total; fi
-	pos="righe $((off + 1))-$bottom/$total"
-	hint="←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci"
+	# shellcheck disable=SC2059
+	printf -v pos "${AMS_HELP_L[lines]}" "$((off + 1))" "$bottom" "$total"
+	hint=${AMS_HELP_L[hint]}
 	status=$hint
 	if [ $((${#hint} + ${#pos} + 3)) -le $inner ]; then
 		printf -v gap '%*s' $((inner - ${#hint} - ${#pos})) ''

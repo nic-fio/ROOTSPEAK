@@ -41,6 +41,10 @@ do_install() {
 	install -m 644 "$SRC/lib/ams-common.sh" "$LIBDIR/ams-common.sh"
 	install -m 644 "$SRC/lib/ams-help.sh" "$LIBDIR/ams-help.sh"
 	install -m 755 "$SRC/lib/ams-user" "$LIBDIR/ams-user"
+	# le lingue: si tolgono quelle non più distribuite
+	rm -rf "$LIBDIR/lingue"
+	install -d -m 755 "$LIBDIR/lingue"
+	install -m 644 "$SRC"/lib/lingue/*.sh "$LIBDIR/lingue/"
 	# Le versioni precedenti installavano in sbin, che su Debian non è nel PATH degli utenti.
 	rm -f "$PREFIX/sbin/ams"
 	sed "s|^AMS_LIB=.*|AMS_LIB=$LIBDIR|" "$SRC/bin/ams" >"$BINDIR/ams"
