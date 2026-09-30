@@ -33,13 +33,16 @@ STATI = fig(
     + text(580, 212, "(non scaduto, non ritirato)", 11, "#166534", "600")
     + path([(365, 196), (365, 232), (445, 232), (445, 196)], "#d97706")
     + text(405, 252, "rinvio: state/ID.*", 11, "#92400e", "600")
-    + box(560, 20, 320, 48, "Proprietà del messaggio", "RITIRATO · SCADUTO · INCOMPLETO", "soft", 12)
-    + text(560, 90, "ANNULLATO: invio interrotto prima del salvataggio", 11, "#475569", "400", "start")
-    + text(560, 106, "CANCELLATO: ams purge", 11, "#475569", "400", "start"),
+    + box(560, 20, 320, 48, "Proprietà del messaggio", "RITIRATO · SCADUTO", "soft", 12)
+    + text(560, 90, "segni interni del recupero, non stati:", 11, "#475569", "400", "start")
+    + text(560, 106, "incomplete · failed · ritiro", 11, "#475569", "400", "start"),
     900, 272, "«FIG» — Gli stati di un destinatario e le proprietà di un messaggio", "La macchina a stati")
 
 S2 = p("Ogni destinatario di un messaggio è in uno di tre stati; lo stato si deduce dai file, secondo regole fisse. "
-       "Ritiro, scadenza e interruzione dell'invio sono proprietà del messaggio, non stati del destinatario.",
+       "Gli stati sono solo questi tre (decisione dell'utente): ritiro e scadenza sono proprietà del messaggio, non "
+       "stati; " + c("incomplete") + ", " + c("failed") + " e " + c("ritiro") + " sono segni interni con cui il recupero "
+       "completa o annulla un'operazione interrotta, e non si mostrano come stati. Un invio interrotto si vede da sé: "
+       "qualche destinatario resta INVIATO.",
        lead=True) + STATI + table(["Transizione", "Precondizione", "Operazione atomica", "Effetto", "Evento"], [
     ["invio", "destinatari risolti, testo pulito, al più 65536 byte", "ID con " + c("flock") + "; " + c("incomplete")
      + " e lock prima di tutto; " + c("msg") + " e " + c("recipients") + " scritti, rinominati e portati su disco ("
@@ -61,6 +64,10 @@ S2 = p("Ogni destinatario di un messaggio è in uno di tre stati; lo stato si de
      + c("sent/.cancella-ID") + "; poi copie, conferme e rinvii tolti come l'utente; poi la cartella rimossa",
      "il messaggio non esiste più", c("CANCELLATO")],
 ], "«TAB» — Le transizioni")
+
+SM = p("Nella lista dei messaggi (TUI e " + c("ams list") + ") un messaggio si riassume con i suoi destinatari: "
+       "quanti sono in ciascuno dei tre stati, a parole e con una barra (confermato, consegnato, inviato), più le "
+       "proprietà ritirato e scaduto. Nessun'altra parola descrive lo stato di un messaggio.", lead=True)
 
 S2B = p("Per ogni comando che cambia l'archivio: che lock tiene, in quale istante l'operazione si considera "
         "avvenuta (il <b>punto di linearizzazione</b>: prima di quell'istante non è avvenuta, dopo sì, per chiunque "
@@ -215,6 +222,7 @@ S7 = table(["", "Requisito"], [
 CHAPTER = ("Specifica", [
     ("Fonti autorevoli", S1),
     ("Stati e transizioni", S2),
+    ("Come si riassume un messaggio", SM),
     ("Operazioni concorrenti", S2B),
     ("Invarianti", S3),
     ("Interruzioni e recupero", S4),
