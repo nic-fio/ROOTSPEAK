@@ -1,0 +1,751 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the AMS package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: AMS 0.2.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-30 16:21+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/ams.c:290
+#, c-format
+msgid "message %lld was interrupted before being saved and has been cancelled"
+msgstr ""
+
+#: src/ams.c:333
+#, c-format
+msgid "completed delivery of message %lld to %d recipients"
+msgstr ""
+
+#: src/ams.c:336
+#, c-format
+msgid "message %lld still not delivered to %d recipients (see ams status %lld)"
+msgstr ""
+
+#: src/ams.c:385
+#, c-format
+msgid "no such group: %s"
+msgstr ""
+
+#: src/ams.c:388
+#, c-format
+msgid "no such user: %s"
+msgstr ""
+
+#: src/ams.c:425 src/ams.c:442 src/ams.c:445
+#, c-format
+msgid "invalid expiry: %s"
+msgstr ""
+
+#: src/ams.c:513 src/ams-user.c:223
+#, c-format
+msgid "── AMS · Message from the administrator · %s ──"
+msgstr ""
+
+#: src/ams.c:541
+#, c-format
+msgid "missing value for %s"
+msgstr ""
+
+#: src/ams.c:551
+msgid "the expiry is already in the past"
+msgstr ""
+
+#: src/ams.c:557
+#, c-format
+msgid "unknown option: %s"
+msgstr ""
+
+#: src/ams.c:563
+msgid "missing --to"
+msgstr ""
+
+#: src/ams.c:591
+msgid "empty message"
+msgstr ""
+
+#: src/ams.c:594
+#, c-format
+msgid "message too long: %zu bytes (at most %d)"
+msgstr ""
+
+#: src/ams.c:598
+msgid "no recipients"
+msgstr ""
+
+#: src/ams.c:687
+#, c-format
+msgid "Message %lld delivered to %zu of %zu recipients."
+msgstr ""
+
+#: src/ams.c:689
+#, c-format
+msgid ""
+"message %lld not delivered to:%s (see the log; the next ams command will "
+"retry)"
+msgstr ""
+
+#: src/ams.c:699
+#, c-format
+msgid "Message %lld revoked while sending: delivery stopped."
+msgstr ""
+
+#: src/ams.c:701
+#, c-format
+msgid "Message %lld sent to 1 user."
+msgstr ""
+
+#: src/ams.c:703
+#, c-format
+msgid "Message %lld sent to %zu users."
+msgstr ""
+
+#: src/ams.c:823
+msgid "No messages sent."
+msgstr ""
+
+#: src/ams.c:828
+msgid "ID"
+msgstr ""
+
+#: src/ams.c:828
+msgid "DATE"
+msgstr ""
+
+#: src/ams.c:828
+msgid "CONFIRMED"
+msgstr ""
+
+#: src/ams.c:828
+msgid "TEXT"
+msgstr ""
+
+#: src/ams.c:841
+msgid "[send cancelled: interrupted before it was saved]"
+msgstr ""
+
+#: src/ams.c:870
+#, c-format
+msgid "[%d not delivered] "
+msgstr ""
+
+#: src/ams.c:872
+msgid "[revoked] "
+msgstr ""
+
+#: src/ams.c:874
+msgid "[expired] "
+msgstr ""
+
+#: src/ams.c:908
+msgid "missing message ID"
+msgstr ""
+
+#: src/ams.c:910 src/ams.c:919
+#, c-format
+msgid "no such message: %s"
+msgstr ""
+
+#: src/ams.c:934
+#, c-format
+msgid "message %lld was cancelled: sending was interrupted before it was saved"
+msgstr ""
+
+#: src/ams.c:936
+#, c-format
+msgid "Message %lld · %s · from %s"
+msgstr ""
+
+#: src/ams.c:941
+#, c-format
+msgid "REVOKED on %s"
+msgstr ""
+
+#: src/ams.c:945
+msgid "EXPIRED"
+msgstr ""
+
+#: src/ams.c:955
+msgid "USER"
+msgstr ""
+
+#: src/ams.c:955
+msgid "STATE"
+msgstr ""
+
+#: src/ams.c:968
+#, c-format
+msgid "confirmed on %s (%s)"
+msgstr ""
+
+#: src/ams.c:971
+msgid ""
+"sent, not delivered: the copy could not be written (see the log; the next "
+"ams command will retry)"
+msgstr ""
+
+#: src/ams.c:972
+msgid "sent, not delivered"
+msgstr ""
+
+#: src/ams.c:974
+msgid "delivered"
+msgstr ""
+
+#: src/ams.c:976
+msgid ", not confirmed (revoked)"
+msgstr ""
+
+#: src/ams.c:978
+msgid ", not confirmed (expired; confirmation arrived after the expiry)"
+msgstr ""
+
+#: src/ams.c:980
+msgid ", not confirmed (expired)"
+msgstr ""
+
+#: src/ams.c:987
+msgid ", written to 1 terminal"
+msgstr ""
+
+#: src/ams.c:989
+#, c-format
+msgid ", written to %lld terminals"
+msgstr ""
+
+#: src/ams.c:992
+#, c-format
+msgid ", postponed on %s"
+msgstr ""
+
+#: src/ams.c:1034
+#, c-format
+msgid ""
+"message %lld revoked, but some copies could not be removed from the "
+"mailboxes: the next ams command will retry"
+msgstr ""
+
+#: src/ams.c:1036
+#, c-format
+msgid "Message %lld revoked."
+msgstr ""
+
+#: src/ams.c:1056
+msgid "missing duration, for example 90d"
+msgstr ""
+
+#: src/ams.c:1063
+#, c-format
+msgid "invalid duration: %s (for example 90d, 12h, 30m)"
+msgstr ""
+
+#: src/ams.c:1113
+#, c-format
+msgid "Deleted 1 message older than %s."
+msgstr ""
+
+#: src/ams.c:1115
+#, c-format
+msgid "Deleted %d messages older than %s."
+msgstr ""
+
+#: src/ams.c:1155
+#, c-format
+msgid "Message %lld · %s"
+msgstr ""
+
+#: src/ams.c:1187
+#, c-format
+msgid "[not trustworthy: written by UID %s] "
+msgstr ""
+
+#: src/ams.c:1255
+#, c-format
+msgid "unknown command: %s (ams --help for the guide)"
+msgstr ""
+
+#: src/ams-user.c:241
+msgid "[AMS] Do you confirm you have read the message? [y/N] "
+msgstr ""
+
+#: src/ams-user.c:300
+msgid "[AMS] Confirmed."
+msgstr ""
+
+#: src/ams-user.c:301
+msgid "[AMS] The message has expired: the confirmation was not recorded."
+msgstr ""
+
+#: src/ams-user.c:302 src/ams-user.c:311
+msgid "[AMS] The administrator has revoked the message."
+msgstr ""
+
+#: src/ams-user.c:303
+msgid "[AMS] The confirmation could not be recorded: you will be asked again."
+msgstr ""
+
+#: src/ams-user.c:308
+msgid "[AMS] Message already confirmed elsewhere (for example on the desktop)."
+msgstr ""
+
+#: src/ams-user.c:315
+msgid "[AMS] The message has expired."
+msgstr ""
+
+#: src/ams-user.c:319
+#, c-format
+msgid "[AMS] You will be asked again in %ld minutes."
+msgstr ""
+
+#: src/ams-user.c:325
+msgid "[AMS] You have 1 message from the administrator to confirm."
+msgstr ""
+
+#: src/ams-user.c:327
+#, c-format
+msgid "[AMS] You have %d messages from the administrator to confirm."
+msgstr ""
+
+#: src/ams-user.c:358
+msgid "AMS · Confirmation not recorded"
+msgstr ""
+
+#: src/ams-user.c:359
+msgid ""
+"The confirmation could not be recorded: the message will be shown again."
+msgstr ""
+
+#: src/ams-user.c:391
+msgid "AMS · Message from the administrator"
+msgstr ""
+
+#: src/ams-user.c:393
+msgid "I have read it"
+msgstr ""
+
+#: src/ams-user.c:394
+msgid "Later"
+msgstr ""
+
+#: src/ams-user.c:549
+msgid "ams-user: internal AMS helper, not meant to be run directly"
+msgstr ""
+
+#: src/evento.c:18
+msgid "terminal"
+msgstr ""
+
+#: src/evento.c:20
+msgid "desktop"
+msgstr ""
+
+#: src/evento.c:33
+#, c-format
+msgid "message %lld sent by %s to: %s"
+msgstr ""
+
+#: src/evento.c:35
+#, c-format
+msgid "message %lld delivered to %s (terminals written: %s)"
+msgstr ""
+
+#: src/evento.c:37
+#, c-format
+msgid "message %lld delivered to %s (recovery)"
+msgstr ""
+
+#: src/evento.c:39
+#, c-format
+msgid "message %lld: ERROR, copy for %s not written"
+msgstr ""
+
+#: src/evento.c:41
+#, c-format
+msgid "message %lld: sending interrupted before it was saved, cancelled"
+msgstr ""
+
+#: src/evento.c:43
+#, c-format
+msgid ""
+"message %lld: delivery completed for %s recipients after an interruption"
+msgstr ""
+
+#: src/evento.c:46
+#, c-format
+msgid "message %lld deleted by %s (older than %s)"
+msgstr ""
+
+#: src/evento.c:48
+#, c-format
+msgid "message %lld revoked by %s"
+msgstr ""
+
+#: src/evento.c:50
+#, c-format
+msgid "user %s: postponed message %lld (%s)"
+msgstr ""
+
+#: src/evento.c:52
+#, c-format
+msgid "user %s: confirmed reading message %lld (%s)"
+msgstr ""
+
+#: src/evento.c:54
+#, c-format
+msgid "user %s: ERROR, confirmation of message %lld not recorded (%s): %s"
+msgstr ""
+
+#: src/evento.c:55
+msgid "unknown error"
+msgstr ""
+
+#: src/guida.c:30
+msgctxt "guida-comandi"
+msgid ""
+"send [options] [TEXT]¦Sends a message to the recipients given with --to. "
+"Without TEXT or --file, the text is read from stdin."
+msgstr ""
+
+#: src/guida.c:31
+msgctxt "guida-comandi"
+msgid ""
+"list¦Lists the messages sent, with how many recipients have confirmed each "
+"one."
+msgstr ""
+
+#: src/guida.c:32
+msgctxt "guida-comandi"
+msgid ""
+"status ID¦Shows the text of the message and the state of each recipient: "
+"sent, delivered (in their mailbox) or confirmed, with date, time and channel."
+msgstr ""
+
+#: src/guida.c:33
+msgctxt "guida-comandi"
+msgid ""
+"revoke ID¦Revokes a message: whoever has not seen it yet will not see it, "
+"and dialogs and questions still open close by themselves."
+msgstr ""
+
+#: src/guida.c:34
+msgctxt "guida-comandi"
+msgid ""
+"log ID¦Shows the history of the message from the system log: sending, "
+"deliveries, postponements, confirmations and revocation, with date and time."
+msgstr ""
+
+#: src/guida.c:35
+msgctxt "guida-comandi"
+msgid ""
+"purge DURATION¦Deletes the messages sent more than DURATION ago (for example "
+"90d), with the copies and confirmations in the users' mailboxes; the events "
+"stay in the system log."
+msgstr ""
+
+#: src/guida.c:36
+msgctxt "guida-comandi"
+msgid "version¦Shows the AMS version."
+msgstr ""
+
+#: src/guida.c:37
+msgctxt "guida-comandi"
+msgid ""
+"help, --help, -h¦Shows this guide. «ams» without arguments opens it too."
+msgstr ""
+
+#: src/guida.c:41
+msgctxt "guida-opzioni"
+msgid ""
+"--to DEST¦Recipients, separated by commas without spaces: a user (mario), a "
+"Unix group (@developers), all (every human user) or online (only those "
+"logged in now)."
+msgstr ""
+
+#: src/guida.c:42
+msgctxt "guida-opzioni"
+msgid ""
+"--title TITLE¦Title shown in the message header and in the desktop dialog."
+msgstr ""
+
+#: src/guida.c:43
+msgctxt "guida-opzioni"
+msgid ""
+"--expires DURATION¦Expiry, after which the message is no longer shown: 30m, "
+"2h, 3d or a date and time (\"2026-10-04 12:00\")."
+msgstr ""
+
+#: src/guida.c:44
+msgctxt "guida-opzioni"
+msgid "--file FILE¦Reads the message text from FILE."
+msgstr ""
+
+#: src/guida.c:48
+msgctxt "guida-esempi"
+msgid ""
+"ams send --to mario \"Your account expires on Friday.\"¦Message with read "
+"confirmation to a single user."
+msgstr ""
+
+#: src/guida.c:49
+msgctxt "guida-esempi"
+msgid ""
+"ams send --to @developers --title Maintenance --file notice.txt¦Text taken "
+"from a file, with a title, to every member of the developers group."
+msgstr ""
+
+#: src/guida.c:50
+msgctxt "guida-esempi"
+msgid ""
+"ams send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to "
+"whoever is logged in now; after 15 minutes it is no longer shown or asked "
+"about."
+msgstr ""
+
+#: src/guida.c:51
+msgctxt "guida-esempi"
+msgid ""
+"ams send --to all --expires 3d \"New password policy.\"¦To every user; after "
+"three days it stops being shown."
+msgstr ""
+
+#: src/guida.c:52
+msgctxt "guida-esempi"
+msgid "ams list¦Which messages were sent and how many confirmations they have."
+msgstr ""
+
+#: src/guida.c:53
+msgctxt "guida-esempi"
+msgid "ams status 12¦Who confirmed message 12, when and from where."
+msgstr ""
+
+#: src/guida.c:54
+msgctxt "guida-esempi"
+msgid ""
+"ams log 12¦The history of message 12: sending, deliveries, postponements, "
+"confirmations."
+msgstr ""
+
+#: src/guida.c:55
+msgctxt "guida-esempi"
+msgid ""
+"ams purge 90d¦Deletes the messages older than 90 days, with copies and "
+"confirmations."
+msgstr ""
+
+#: src/guida.c:56
+msgctxt "guida-esempi"
+msgid "ams revoke 12¦Revokes message 12."
+msgstr ""
+
+#: src/guida.c:60
+msgctxt "guida-file"
+msgid ""
+"/etc/ams/ams.conf¦Configuration: minutes before a postponed message is asked "
+"about again, check interval of the desktop agent."
+msgstr ""
+
+#: src/guida.c:61
+msgctxt "guida-file"
+msgid ""
+"/var/lib/ams/¦The messages: sent/ (reference copies, root only) and users/"
+"USER/ (each user's mailbox, readable only by them and by root)."
+msgstr ""
+
+#: src/guida.c:62
+msgctxt "guida-file"
+msgid ""
+"sudo journalctl -t ams¦The system log: sending, deliveries, confirmations "
+"and revocations."
+msgstr ""
+
+#: src/guida.c:63
+msgctxt "guida-file"
+msgid ""
+"/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦The complete user manual "
+"(in Italian), to open in a browser."
+msgstr ""
+
+#: src/guida.c:67
+msgctxt "guida-sintassi"
+msgid "ams send --to DEST [options] [TEXT]"
+msgstr ""
+
+#: src/guida.c:68
+msgctxt "guida-sintassi"
+msgid "ams list"
+msgstr ""
+
+#: src/guida.c:69
+msgctxt "guida-sintassi"
+msgid "ams status ID"
+msgstr ""
+
+#: src/guida.c:70
+msgctxt "guida-sintassi"
+msgid "ams revoke ID"
+msgstr ""
+
+#: src/guida.c:71
+msgctxt "guida-sintassi"
+msgid "ams log ID"
+msgstr ""
+
+#: src/guida.c:72
+msgctxt "guida-sintassi"
+msgid "ams purge DURATION"
+msgstr ""
+
+#: src/guida.c:73
+msgctxt "guida-sintassi"
+msgid "ams version"
+msgstr ""
+
+#: src/guida.c:80
+msgctxt "guida"
+msgid ""
+"AMS lets administrators send text messages to the users of the machine and "
+"know who has read them. Messages appear in terminals (console, ssh, desktop "
+"terminals, tmux) and on the desktop, in a dialog with the buttons «I have "
+"read it» and «Later»; whoever is not logged in finds them at the next login. "
+"Every message asks for a read confirmation and AMS asks again until the user "
+"gives it, without ever blocking their work. Each user sees AMS in their own "
+"language. The command is reserved to administrators (sudo or wheel group) "
+"and re-runs itself with sudo."
+msgstr ""
+
+#: src/guida.c:213
+msgid "ams manual"
+msgstr ""
+
+#: src/guida.c:214 src/guida.c:331
+msgid "NAME"
+msgstr ""
+
+#: src/guida.c:215
+msgid ""
+"ams — sends messages to the users of the machine and tracks their read "
+"confirmation"
+msgstr ""
+
+#: src/guida.c:216 src/guida.c:336
+msgid "SYNOPSIS"
+msgstr ""
+
+#: src/guida.c:223 src/guida.c:343
+msgid "DESCRIPTION"
+msgstr ""
+
+#: src/guida.c:225
+msgid "COMMANDS"
+msgstr ""
+
+#: src/guida.c:227
+msgid "SEND OPTIONS"
+msgstr ""
+
+#: src/guida.c:229
+msgid "EXAMPLES"
+msgstr ""
+
+#: src/guida.c:231
+msgid "FILES"
+msgstr ""
+
+#: src/guida.c:233
+msgid "ENVIRONMENT"
+msgstr ""
+
+#: src/guida.c:235
+msgid ""
+"Pager used to page this guide when the terminal is too small for the "
+"interactive one (default: less). Like NO_COLOR, it reaches ams only if sudo "
+"keeps it (env_keep in sudoers)."
+msgstr ""
+
+#: src/guida.c:239
+msgid "If set, disables colours."
+msgstr ""
+
+#: src/guida.c:240
+msgid "EXIT STATUS"
+msgstr ""
+
+#: src/guida.c:242
+msgid "Completed successfully."
+msgstr ""
+
+#: src/guida.c:244
+msgid "Error: the error message, starting with «ams:», says which."
+msgstr ""
+
+#: src/guida.c:245
+msgid "SEE ALSO"
+msgstr ""
+
+#: src/guida.c:246
+msgid ""
+"wall(1), write(1), and the user manual (in Italian) in /usr/local/share/doc/"
+"ams/AMS_Manuale_Utente.html"
+msgstr ""
+
+#: src/guida.c:332
+msgid "ams — messages to users with read confirmation"
+msgstr ""
+
+#: src/guida.c:350
+#, c-format
+msgid ""
+"AMS %s · complete manual (in Italian): /usr/local/share/doc/ams/"
+"AMS_Manuale_Utente.html"
+msgstr ""
+
+#: src/guida.c:360 src/guida.c:389
+msgid "Commands"
+msgstr ""
+
+#: src/guida.c:365
+msgid "Send options"
+msgstr ""
+
+#: src/guida.c:370 src/guida.c:393
+msgid "Examples"
+msgstr ""
+
+#: src/guida.c:375
+msgid "Files and log"
+msgstr ""
+
+#: src/guida.c:387
+msgid "Info"
+msgstr ""
+
+#: src/guida.c:391
+msgid "Options"
+msgstr ""
+
+#: src/guida.c:395
+msgid "Files"
+msgstr ""
+
+#: src/guida.c:443
+msgid "←/→ tabs · ↑/↓ scroll · PgUp/PgDn · g/G · q quit"
+msgstr ""
+
+#: src/guida.c:455
+msgid "ams — guide"
+msgstr ""
+
+#: src/guida.c:485
+#, c-format
+msgid "lines %d-%d/%zu"
+msgstr ""

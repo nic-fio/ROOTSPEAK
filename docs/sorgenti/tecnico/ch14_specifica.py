@@ -1,8 +1,8 @@
 from build import arrow, box, c, fig, note, p, path, table, text, ul
 
 S1 = p("Questo capitolo è il contratto di AMS: ciò che qualunque implementazione deve rispettare, indipendentemente da "
-       "come è scritta. Il resto del manuale descrive come la versione in bash lo realizza; una seconda "
-       "implementazione, per esempio compilata, dovrebbe poter lavorare sullo stesso archivio e dare gli stessi esiti.",
+       "come è scritta. Il resto del manuale descrive come la versione in C lo realizza; il prototipo in bash (0.1.0) "
+       "lavorava sullo stesso archivio, e le stesse prove valgono per entrambi.",
        lead=True) + table(["Fonte", "Autorità", "Chi la scrive"], [
     [c("sent/ID/") + " (msg, recipients, delivery, revoked, incomplete, ritiro, failed, lock)", "<b>autorevole</b>: cosa è "
      "stato inviato, a chi, quando, con quale scadenza, a chi è stato consegnato", "solo root"],
@@ -195,9 +195,8 @@ S6 = p("Formato 1 dell'archivio. Chi legge ignora le chiavi di intestazione che 
 
 S7 = table(["", "Requisito"], [
     ["sistema", "Linux con systemd e logind (sessioni, " + c("loginctl") + ", " + c("systemd-run --user") + ")"],
-    ["strumenti", "bash 5, sudo, util-linux (" + c("runuser") + ", " + c("flock") + ", " + c("logger --journald")
-     + "), procps (" + c("pkill -F") + ", " + c("ps -t") + "), coreutils GNU (" + c("date -d") + ", " + c("stat -c")
-     + ", " + c("sync FILE") + ", " + c("timeout") + ")"],
+    ["librerie e strumenti", "glibc, libsystemd (sessioni e journal), sudo, " + c("systemd-run") + " e " + c("date -d")
+     + " (coreutils GNU); per compilare: gcc, make, pkg-config, libsystemd-dev, gettext"],
     ["desktop", "zenity; una sessione che esegue l'avvio automatico XDG (" + c("/etc/xdg/autostart") + ")"],
     ["domanda nel terminale", "bash, zsh o fish a ogni prompt; sh, dash, ksh e le altre shell che leggono "
      + c("/etc/profile") + " al login; il testo all'invio con qualunque shell"],

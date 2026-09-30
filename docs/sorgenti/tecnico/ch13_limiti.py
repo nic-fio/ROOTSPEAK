@@ -22,7 +22,7 @@ S2 = table(["Punto", "Stato"], [
     ["interfaccia a schede per l'amministratore", "previsto, seconda versione"],
     ["pacchetti deb e rpm", "previsto, seconda versione"],
     ["risposta dell'utente all'amministratore", "non prevista (decisione del 30 settembre)"],
-    ["riscrittura in un linguaggio compilato", "solo se il prototipo mostrerà limiti concreti"],
+    ["riscrittura in un linguaggio compilato", "fatta: versione 0.2.0 in C (decisione del 30 settembre)"],
 ], "«TAB» — Punti aperti")
 
 CHAPTER = ("Limiti noti e punti aperti", [

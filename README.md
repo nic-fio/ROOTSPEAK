@@ -95,7 +95,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
 - [2] Pacchetti deb e rpm
-- [1] Ognuno nella sua lingua: interfaccia per utenti e amministratori in italiano e inglese (`lib/lingue/`), inglese di ripiego; il testo dei messaggi non si traduce
+- [1] Ognuno nella sua lingua: interfaccia per utenti e amministratori in italiano e inglese (cataloghi gettext in `po/`), inglese di ripiego; il testo dei messaggi non si traduce
 
 ## Scelte escluse
 
@@ -125,12 +125,15 @@ Nessun demone: ogni pezzo usa strumenti già presenti nel sistema. I dettagli so
   `ams status` calcola lo stato confrontando le due parti. Se un utente cancella un messaggio
   dalla propria cartella, il messaggio risulta semplicemente non confermato.
 
-Il primo prototipo è in shell, per validare il flusso; una riscrittura in un linguaggio
-compilato si valuterà solo se emergono limiti concreti.
+Il primo prototipo (0.1.0) era in shell, per validare il flusso; dalla versione 0.2.0 AMS
+è scritto in C, con le stesse prove e lo stesso formato dell'archivio.
 
-## Installazione (prototipo)
+## Installazione
+
+Servono `gcc make pkg-config libsystemd-dev gettext` per compilare e `zenity` per il desktop.
 
 ```
+make                      # compila in build/
 ./install.sh              # installa (chiede la password di sudo)
 ./install.sh --uninstall  # rimuove, conservando messaggi e configurazione
 ./install.sh --purge      # rimuove tutto
@@ -139,7 +142,8 @@ compilato si valuterà solo se emergono limiti concreti.
 | File | Ruolo |
 |---|---|
 | `/usr/local/bin/ams` | Comando per gli amministratori (`root:sudo`, permessi 750) |
-| `/usr/local/lib/ams/` | Libreria comune e helper interno `ams-user` |
+| `/usr/local/lib/ams/` | Helper interno `ams-user` e agganci di bash e zsh |
+| `/usr/local/share/locale/*/LC_MESSAGES/ams.mo` | Traduzioni |
 | `/etc/ams/ams.conf` | Configurazione |
 | `/etc/profile.d/ams.sh` | Hook delle shell che leggono `/etc/profile` (richiamato anche da `/etc/bash.bashrc`); rimanda bash a `lib/ams/ams.bash` |
 | `/usr/local/lib/ams/ams.zsh` | Hook di zsh (richiamato dallo zshrc di sistema) |

@@ -10,10 +10,10 @@ Fallisce se:
     documenta una voce che non esiste;
   - un file di codice manca dalla mappa dei file del manuale tecnico, o la
     mappa cita un file che non esiste;
-  - la versione di lib/ams-common.sh non compare nei due manuali;
+  - la versione di src/comune.h non compare nei due manuali;
   - un link interno #ancora di uno dei due manuali non porta a nessun id;
-  - le lingue in lib/lingue/ non hanno le stesse chiavi, con gli stessi %s,
-    o le guide nelle varie lingue non hanno lo stesso numero di voci;
+  - un catalogo po/*.po non passa msgfmt --check (stessi %s dell'originale),
+    ha traduzioni da rivedere, o manca di testi presenti nei sorgenti;
   - l'ultima esecuzione di tests/engine.sh non ha l'impronta del codice
     attuale (tools/impronta.sh) o ha controlli falliti.
 """
@@ -68,8 +68,8 @@ for f in sorted(set(wanted) & set(documented)):
 fmap = tech[tech.index('id="file-map"'):]
 fmap = fmap[:fmap.index("</table>")]
 rows = set(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>\d+</td>", fmap))
-code_files = {"bin/ams", "install.sh", "docs/sorgenti/build.py", "docs/sorgenti/stile.css"}
-code_files |= {str(p.relative_to(ROOT)) for d in ("lib", "etc", "tests", "tools")
+code_files = {"install.sh", "Makefile", "docs/sorgenti/build.py", "docs/sorgenti/stile.css"}
+code_files |= {str(p.relative_to(ROOT)) for d in ("src", "po", "etc", "tests", "tools")
                for p in (ROOT / d).rglob("*") if p.is_file() and "risultati" not in p.parts
                and "__pycache__" not in p.parts}
 for f in sorted(code_files - rows):
@@ -88,38 +88,27 @@ for where, text in (("manuale utente", user), ("manuale tecnico", tech)):
             errors.append(f"{where}: il link #{anchor} non porta da nessuna parte")
 
 # ---- lingue ----
-def catalog(path):
-    """Chiave → testo delle righe «[chiave]="testo"» di un file di lingua."""
-    return dict(re.findall(r'^\t\[(\w+)\]="((?:[^"\\]|\\.)*)"$', path.read_text(), re.M))
-
-
-def help_counts(path):
-    src = path.read_text()
-    out = {}
-    for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS", "AMS_HELP_EXAMPLES", "AMS_HELP_FILES", "AMS_HELP_SYNOPSIS"):
-        block = src[src.index(name + "=("):]
-        out[name] = len(re.findall(r'^\t"', block[:block.index("\n)")], re.M))
-    return out
-
-
-LINGUE = ROOT / "lib" / "lingue"
-langs = sorted(p.stem for p in LINGUE.glob("*.sh") if not p.stem.startswith("aiuto-"))
-base = {k: v.count("%s") for k, v in catalog(LINGUE / "it.sh").items()}
-base_help = {k: v.count("%s") for k, v in catalog(LINGUE / "aiuto-it.sh").items()}
-counts = help_counts(LINGUE / "aiuto-it.sh")
-for lang in langs:
-    for fname, ref in ((f"{lang}.sh", base), (f"aiuto-{lang}.sh", base_help)):
-        if not (LINGUE / fname).exists():
-            errors.append(f"lingue: manca {fname}")
-            continue
-        cat = {k: v.count("%s") for k, v in catalog(LINGUE / fname).items()}
-        for k in sorted(set(ref) ^ set(cat)):
-            errors.append(f"lingue: la chiave {k} non è in tutte le lingue ({fname})")
-        for k in sorted(set(ref) & set(cat)):
-            if ref[k] != cat[k]:
-                errors.append(f"lingue: {fname}, chiave {k}: {cat[k]} %s invece di {ref[k]}")
-    if (LINGUE / f"aiuto-{lang}.sh").exists() and help_counts(LINGUE / f"aiuto-{lang}.sh") != counts:
-        errors.append(f"lingue: aiuto-{lang}.sh non ha le stesse voci della guida italiana")
+import subprocess
+with tempfile.TemporaryDirectory() as tmp:
+    pot = pathlib.Path(tmp) / "ams.pot"
+    subprocess.run(["xgettext", "--from-code=UTF-8", "-k", "-kT", "-kN_", "-kTC:1c,2", "-kNC_:1c,2", "-ktl:2",
+                    "-ktlc:2c,3", "-o", str(pot)] + sorted(str(p) for p in (ROOT / "src").glob("*.c")),
+                   check=True, capture_output=True)
+    sorgenti = {(c, m) for c, m, _ in build.po_voci(pot) if m}
+langs = ["en"]
+for po in sorted((ROOT / "po").glob("*.po")):
+    langs.append(po.stem)
+    r = subprocess.run(["msgfmt", "--check", "-o", "/dev/null", str(po)], capture_output=True, text=True)
+    if r.returncode:
+        errors.append(f"lingue: {po.name} non passa msgfmt --check: {r.stderr.strip()[:200]}")
+    voci = {(c, m): t for c, m, t in build.po_voci(po) if m}
+    if "#, fuzzy" in po.read_text().replace('#, fuzzy\nmsgid ""', ""):
+        errors.append(f"lingue: {po.name} ha traduzioni da rivedere (fuzzy)")
+    for c, m in sorted(sorgenti - set(voci)):
+        errors.append(f"lingue: {po.name} non ha «{m[:60]}» ({c or 'senza contesto'}): make pot, poi tradurre")
+    for c, m in sorted(k for k in sorgenti & set(voci) if not voci[k]):
+        errors.append(f"lingue: {po.name}: «{m[:60]}» non è tradotto")
+base = sorgenti
 
 # ---- prove ----
 import json

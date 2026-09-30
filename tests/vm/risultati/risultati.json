@@ -1,14 +1,14 @@
 {
  "meta": {
-  "data": "2026-09-30 12:12:50 UTC",
-  "versione": "AMS - Advanced Messaging System for linux 0.1.0",
+  "data": "2026-09-30 15:20:59 UTC",
+  "versione": "AMS - Advanced Messaging System for linux 0.2.0",
   "sistema": "Debian GNU/Linux 13 (trixie), VM con GNOME, desktop di sara",
   "ok": 61,
   "no": 0,
   "non_provati": 4,
   "totale": 65,
-  "commit": "c3eed4f872-modificato",
-  "impronta": "0aff1a9e1aa5",
+  "commit": "363387f325-modificato",
+  "impronta": "fc33e652b989",
   "solo": ""
  },
  "risultati": [
@@ -29,7 +29,7 @@
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.307
+    "secondi": 0.085
    }
   },
   {
@@ -130,7 +130,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.481
+    "secondi_dal_login": 0.306
    }
   },
   {
@@ -139,7 +139,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 12:09 (terminale pts/2)",
+   "dettagli": "confermato il 30/09 15:18 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -150,8 +150,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.327,
-    "secondi_al_terminale": 0.377
+    "secondi_invio": 0.076,
+    "secondi_al_terminale": 0.126
    }
   },
   {
@@ -171,7 +171,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.052
+    "secondi": 0.051
    }
   },
   {
@@ -200,7 +200,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.909
+    "secondi": 0.951
    }
   },
   {
@@ -209,7 +209,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 12:09",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 15:18",
    "misure": {}
   },
   {
@@ -236,7 +236,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790770160 terminale pts/7",
+   "dettagli": "1790781501 terminale pts/7",
    "misure": {}
   },
   {
@@ -265,7 +265,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.004
+    "secondi": 1.002
    }
   },
   {
@@ -310,11 +310,11 @@
    "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 22/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 43 destinatari",
+   "dettagli": "consegnati prima 4/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 61 destinatari",
    "misure": {
-    "consegnati_al_kill": 22,
+    "consegnati_al_kill": 4,
     "destinatari": 65,
-    "secondi_recupero": 3.675
+    "secondi_recupero": 0.144
    }
   },
   {
@@ -332,9 +332,9 @@
    "descrizione": "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
    "atteso": "nessuna copia nelle caselle, invio interrotto",
    "esito": "OK",
-   "dettagli": "copie rimaste: 0; Messaggio 4 ritirato durante l'invio: consegna interrotta.",
+   "dettagli": "copie rimaste: 0; consegnate prima del ritiro: 3; Messaggio 4 ritirato durante l'invio: consegna interrotta.",
    "misure": {
-    "secondi_attesa_revoke": 0.38
+    "secondi_attesa_revoke": 0.11
    }
   },
   {
@@ -417,7 +417,7 @@
    "descrizione": "un evento scritto da un utente a nome di un altro: ams log lo segnala",
    "atteso": "«non attendibile: scritto da UID 1003»",
    "esito": "OK",
-   "dettagli": "2026-09-30 12:10:18  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
+   "dettagli": "2026-09-30 15:19:06  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
    "misure": {}
   },
   {
@@ -471,7 +471,7 @@
    "descrizione": "la domanda e la conferma nella lingua dell'utente",
    "atteso": "domanda in inglese, «y» conferma",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 12:10 (terminale pts/14)",
+   "dettagli": "confermato il 30/09 15:19 (terminale pts/14)",
    "misure": {}
   },
   {
@@ -480,7 +480,7 @@
    "descrizione": "un amministratore in inglese legge ams status in inglese",
    "atteso": "USER STATE, confirmed on … (terminal …)",
    "esito": "OK",
-   "dettagli": "luca             confirmed on 30/09 12:10 (terminal pts/14) / mario            delivered, written to 1 terminal",
+   "dettagli": "luca             confirmed on 30/09 15:19 (terminal pts/14) / mario            delivered, written to 1 terminal",
    "misure": {}
   },
   {
@@ -489,7 +489,7 @@
    "descrizione": "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
    "atteso": "journal in italiano; ams log in inglese e in italiano",
    "esito": "OK",
-   "dettagli": "2026-09-30 12:10:26  user luca: confirmed reading message 1 (terminal pts/14)",
+   "dettagli": "2026-09-30 15:19:13  user luca: confirmed reading message 1 (terminal pts/14)",
    "misure": {}
   },
   {
@@ -500,8 +500,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 5.03,
-    "ms_per_destinatario": 91.4
+    "secondi": 0.17,
+    "ms_per_destinatario": 3.0
    }
   },
   {
@@ -512,7 +512,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.95
+    "secondi": 0.23
    }
   },
   {
@@ -523,7 +523,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.21
+    "secondi": 0.16
    }
   },
   {
@@ -541,9 +541,9 @@
    "descrizione": "la finestra compare da sola dopo l'invio, nella lingua della sessione",
    "atteso": "finestra «AMS · Messaggio dall'amministratore» (it) con titolo e testo",
    "esito": "OK",
-   "dettagli": "AMS · Messaggio dall'amministratore | AMS · Messaggio dall'amministratore | Manutenzione · 30/09 12:11\n\nServer spento sabato dalle 8 alle 12. | Più tardi | Ho",
+   "dettagli": "AMS · Messaggio dall'amministratore | AMS · Messaggio dall'amministratore | Manutenzione · 30/09 15:19\n\nServer spento sabato dalle 8 alle 12.\n | Più tardi | H",
    "misure": {
-    "secondi_alla_finestra": 0.69
+    "secondi_alla_finestra": 0.58
    }
   },
   {
@@ -552,7 +552,7 @@
    "descrizione": "«Ho letto»: la finestra si chiude e la conferma è registrata",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 12:11 (desktop)",
+   "dettagli": "confermato il 30/09 15:19 (desktop)",
    "misure": {}
   },
   {
@@ -563,7 +563,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_finestra": 0.7
+    "secondi_alla_finestra": 0.54
    }
   },
   {
@@ -572,7 +572,7 @@
    "descrizione": "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, rimandato il 30/09 12:11",
+   "dettagli": "consegnato, rimandato il 30/09 15:19",
    "misure": {}
   },
   {
@@ -583,7 +583,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_ricomparsa": 60.38
+    "secondi_alla_ricomparsa": 60.21
    }
   },
   {
@@ -592,9 +592,9 @@
    "descrizione": "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
    "atteso": "finestra chiusa, confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 12:12 (terminale pts/16)",
+   "dettagli": "confermato il 30/09 15:20 (terminale pts/16)",
    "misure": {
-    "secondi_alla_chiusura": 0.42
+    "secondi_alla_chiusura": 0.74
    }
   },
   {
@@ -605,7 +605,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_chiusura": 0.71
+    "secondi_alla_chiusura": 0.72
    }
   },
   {
@@ -614,7 +614,7 @@
    "descrizione": "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
    "atteso": "«Primo di due», poi «Secondo di due», entrambi confermati",
    "esito": "OK",
-   "dettagli": " di due | Più tardi | Ho letto →  di due | Più tardi | Ho letto; confermato il 30/09 12:12 (desktop)",
+   "dettagli": "di due\n | Più tardi | Ho letto → di due\n | Più tardi | Ho letto; confermato il 30/09 15:20 (desktop)",
    "misure": {}
   },
   {
@@ -623,7 +623,7 @@
    "descrizione": "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 12:12 (desktop)",
+   "dettagli": "confermato il 30/09 15:20 (desktop)",
    "misure": {}
   },
   {
@@ -632,9 +632,9 @@
    "descrizione": "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
    "atteso": "finestra dopo il login automatico",
    "esito": "OK",
-   "dettagli": "re | 30/09 12:12\n\nIn attesa del login | Più tardi | Ho letto",
+   "dettagli": "e | 30/09 15:20\n\nIn attesa del login\n | Più tardi | Ho letto",
    "misure": {
-    "secondi_dal_riavvio_del_login": 2.91
+    "secondi_dal_riavvio_del_login": 3.14
    }
   }
  ]

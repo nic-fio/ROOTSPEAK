@@ -23,7 +23,7 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 DATE = "Settembre 2026"
-VERSION = re.search(r"^AMS_VERSION=(\S+)", (ROOT / "lib/ams-common.sh").read_text(), re.M).group(1)
+VERSION = re.search(r'^#define AMS_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
 
 MANUALS = {
     "utente": dict(file="AMS_Manuale_Utente.html", title="Manuale Utente — AMS", kicker="Documentazione utente",
@@ -147,9 +147,9 @@ def dl(pairs, attrs=None, cls="deflist"):
 
 def code(text, lang="bash", title=""):
     from pygments import lex
-    from pygments.lexers import BashLexer, IniLexer, PythonLexer, TextLexer
+    from pygments.lexers import CLexer, BashLexer, IniLexer, PythonLexer, TextLexer
     from pygments.token import Comment, Keyword, Name, String
-    lx = {"bash": BashLexer, "conf": IniLexer, "python": PythonLexer, "text": TextLexer}[lang]()
+    lx = {"c": CLexer, "bash": BashLexer, "conf": IniLexer, "python": PythonLexer, "text": TextLexer}[lang]()
     out = []
     for tok, val in lex(text.strip("\n"), lx):
         e = html.escape(val, quote=True)
@@ -399,16 +399,34 @@ def risultati_prove():
 
 
 # ── La guida integrata come fonte del riferimento ───────────────────────
+def po_voci(path):
+    """Le voci di un catalogo gettext: (contesto, testo di partenza, traduzione), nell'ordine."""
+    def testo(parti):
+        return re.sub(r'\\(.)', lambda m: {"n": "\n", "t": "\t"}.get(m.group(1), m.group(1)), "".join(parti))
+    voci = []
+    for blocco in path.read_text().split("\n\n"):
+        parti, cur = {"msgctxt": [], "msgid": [], "msgstr": []}, None
+        for riga in blocco.splitlines():
+            m = re.match(r'^(msgctxt|msgid|msgstr) "(.*)"$', riga)
+            if m:
+                cur = m.group(1)
+                parti[cur].append(m.group(2))
+            elif riga.startswith('"') and cur:
+                parti[cur].append(riga[1:-1])
+        if parti["msgid"]:
+            voci.append((testo(parti["msgctxt"]), testo(parti["msgid"]), testo(parti["msgstr"])))
+    return voci
+
+
+GUIDA_CONTESTI = {"AMS_HELP_COMMANDS": "guida-comandi", "AMS_HELP_OPTIONS": "guida-opzioni",
+                  "AMS_HELP_EXAMPLES": "guida-esempi", "AMS_HELP_FILES": "guida-file"}
+
+
 def help_items(name):
-    """Le voci «etichetta¦descrizione» di un array della guida in italiano (lib/lingue/aiuto-it.sh)."""
-    src = (ROOT / "lib/lingue/aiuto-it.sh").read_text()
-    block = src[src.index(name + "=("):]
-    block = block[:block.index("\n)")]
-    items = []
-    for raw in re.findall(r'^\t"((?:[^"\\]|\\.)*)"$', block, re.M):
-        flag, desc = raw.replace('\\"', '"').split("¦", 1)
-        items.append((flag, desc))
-    return items
+    """Le voci «etichetta¦descrizione» di un gruppo della guida, in italiano: le
+    traduzioni di po/it.po con il contesto del gruppo, nell'ordine di src/guida.c."""
+    ctx = GUIDA_CONTESTI[name]
+    return [tuple((tr or mid).split("¦", 1)) for c, mid, tr in po_voci(ROOT / "po/it.po") if c == ctx]
 
 
 def help_reference(name, kind):

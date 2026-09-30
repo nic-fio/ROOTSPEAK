@@ -14,8 +14,8 @@ failures = []
 def spawn(rows, cols):
     pid, fd = pty.fork()
     if pid == 0:
-        env = dict(os.environ, AMS_LIB=os.path.join(ROOT, "lib"), AMS_TEST="1", TERM="xterm-256color")
-        os.execvpe(os.path.join(ROOT, "bin/ams"), ["ams", "--help"], env)
+        env = dict(os.environ, AMS_LIB=os.path.join(ROOT, "build"), AMS_LOCALEDIR=os.path.join(ROOT, "build/locale"), AMS_TEST="1", TERM="xterm-256color")
+        os.execvpe(os.environ.get("AMS_BIN", os.path.join(ROOT, "build/ams")), ["ams", "--help"], env)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
     return pid, fd
 

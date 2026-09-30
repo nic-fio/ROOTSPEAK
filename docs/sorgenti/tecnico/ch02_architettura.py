@@ -1,11 +1,11 @@
 from build import c, note, p, seq, table
 
 SEND = seq([("ams send", "root", "navy"), ("Casella U", "users/U", "dark"), ("Terminali di U", "/dev/pts/N", "blue"),
-            ("Agente di U", "sessione grafica", "blue"), ("Journal", "logger -t ams", "soft")], [
+            ("Agente di U", "sessione grafica", "blue"), ("Journal", "sd_journal_send", "soft")], [
     (0, 0, "destinatari, pulizia del testo, ID"),
-    (0, 1, "inbox/ID (come U, runuser)"),
-    (0, 2, "testo formattato (timeout 3)"),
-    (0, 3, "SIGUSR1 (pkill come U)"),
+    (0, 1, "inbox/ID (processo figlio come U)"),
+    (0, 2, "testo formattato (al più 3 s)"),
+    (0, 3, "SIGUSR1 (dal figlio come U)"),
     (0, 4, "«messaggio N inviato…»", True),
     ("sep", "l'utente risponde"),
     (3, 1, "legge inbox/ID, apre zenity"),

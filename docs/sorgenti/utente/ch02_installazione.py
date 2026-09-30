@@ -8,11 +8,14 @@ S1 = p("AMS funziona su una distribuzione Linux con systemd. È provato su Debia
         ["sudo e un gruppo di amministratori", "decidere chi può usare AMS", c("sudo") + " (gruppo " + c("sudo") + "; " + c("wheel") + " su Fedora)"],
         ["una shell: bash, zsh o fish", "la domanda di conferma nei terminali a ogni prompt (con sh, dash, ksh: solo al login)", "bash è già presente"],
         ["zenity", "la finestra «Ho letto» sul desktop", c("zenity")],
+        ["gli strumenti per compilare, solo per installare", "AMS è scritto in C: " + c("install.sh") + " lo compila",
+         c("gcc make pkg-config libsystemd-dev gettext")],
     ], "«TAB» — Cosa serve") + \
-    term("admin@server:~$ sudo apt install zenity")
+    term("admin@server:~$ sudo apt install zenity gcc make pkg-config libsystemd-dev gettext")
 
 S2 = steps([
-    "Aprire un terminale nella cartella di AMS.",
+    "Aprire un terminale nella cartella di AMS e compilare (una volta, come utente normale):" + term(
+        "admin@server:~/AMS$ make", ""),
     "Lanciare l'installazione e inserire la password di sudo:" + term(
         "admin@server:~/AMS$ ./install.sh\n"
         "AMS installato. Comando: /usr/local/bin/ams (utilizzabile dal gruppo sudo).\n"
@@ -20,7 +23,7 @@ S2 = steps([
         "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda\n"
         "di conferma dalla prossima shell o dal prossimo login.", ""),
     "Controllare che il comando risponda:" + term("admin@server:~$ ams version\n"
-                                                  "AMS - Advanced Messaging System for linux 0.1.0", ""),
+                                                  "AMS - Advanced Messaging System for linux 0.2.0", ""),
 ]) + tip("gli utenti già collegati ricevono subito i messaggi, anche sul desktop. La domanda di conferma nel terminale "
          "arriva invece dalla prossima finestra di terminale che aprono: quelle già aperte non hanno ancora caricato AMS.",
          "Utenti già collegati.")

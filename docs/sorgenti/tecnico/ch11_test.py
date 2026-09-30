@@ -91,7 +91,7 @@ SV = p(c("tests/vm/esegui.sh") + " esegue gli stessi scenari in una <b>macchina 
       "sveglia chiudeva l'attesa su una finestra aperta; una finestra chiusa dal sistema contava come rinvio "
       "(capitolo 7.2).")
 
-S1 = p(c("tests/help-tui.py") + " apre " + c("bin/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
+S1 = p(c("tests/help-tui.py") + " apre " + c("build/ams --help") + " (con " + c("AMS_TEST=1") + ") su uno "
        "pseudo-terminale, preme tasti e controlla l'ultimo schermo disegnato dopo ciascuno.", lead=True) + \
     table(["Prova", "Controllo"], [
         ["apertura su 100 × 30", "schermo alternativo, cornice, scheda Info, 30 righe da 100 colonne"],
@@ -111,14 +111,14 @@ S2 = table(["Controllo", "Fallisce se"], [
     ["mappa dei file", "un file di codice non compare nella mappa del capitolo 3.1, o la mappa ne cita uno inesistente"],
     ["versione", c("AMS_VERSION") + " non compare nei due manuali"],
     ["link", "un link " + c("#ancora") + " non porta a nessun id"],
-    ["lingue", "le lingue in " + c("lib/lingue/") + " non hanno le stesse chiavi, con lo stesso numero di " + c("%s")
-     + ", o le guide non hanno le stesse voci"],
+    ["lingue", "un catalogo " + c("po/*.po") + " non passa " + c("msgfmt --check") + ", ha traduzioni da rivedere o "
+     "manca di testi presenti nel codice"],
     ["prove", "l'ultima esecuzione di " + c("tests/engine.sh") + " non ha l'impronta del codice attuale"],
 ], "«TAB» — I controlli di tools/check-docs.py") + term(
     "nicfio@server:~/AMS$ tools/check-docs.py\n"
-    "documentazione allineata: 2 manuali, 12 voci della guida, 31 file nella mappa, versione 0.1.0, lingue en, it (85 testi)")
+    "documentazione allineata: 2 manuali, 12 voci della guida, 47 file nella mappa, versione 0.2.0, lingue en, it (147 testi)")
 
-S3 = p("Oltre alle suite, nella versione 0.1.0 AMS è stato provato anche dal vivo su Debian 13 con GNOME 48 su "
+S3 = p("Oltre alle suite, il prototipo 0.1.0 è stato provato anche dal vivo su Debian 13 con GNOME 48 su "
        "Wayland, con due account.", lead=True) + table(["Provato", "Come"], [
     ["finestra immediata a un utente collegato", "dal vivo"],
     ["finestra al login di un utente non collegato", "dal vivo, con un secondo account"],
@@ -128,6 +128,25 @@ S3 = p("Oltre alle suite, nella versione 0.1.0 AMS è stato provato anche dal vi
     [c("revoke") + " con domanda in attesa, scadenze, errori, pulizia del testo", "in modalità di prova"],
 ], "«TAB» — Cosa è stato provato")
 
+SD = p("Un programma di root in C che legge dati degli utenti non deve avere errori di memoria. Oltre alle prove di "
+       "comportamento, la versione 0.2.0 ha queste difese, da riprendere quando cambia il codice che legge dati.",
+       lead=True) + table(["Difesa", "Come si lancia", "Cosa ha trovato"], [
+    ["tutti gli avvisi di gcc come errori, e le difese del compilatore (" + c("_FORTIFY_SOURCE=3") + ", stack "
+     "protector, PIE, RELRO completo)", c("make"), "nulla da correggere: il codice nasce così"],
+    ["prove delle parti interne: pulizia, lingue, messaggi, configurazione, eventi (" + c("tests/prove-unita.c") + ")",
+     c("make prove"), "—"],
+    ["AddressSanitizer e UBSan su tutte le prove del motore e della guida, con i rapporti su file (nessuno ammesso)",
+     c("make sanitizer") + ", poi " + c("AMS_BUILD=build-san tests/engine.sh"), "nessun errore di memoria"],
+    ["analisi statica di gcc", c("make analizza"), "pipe non chiuse in un caso d'errore di " + c("come_utente")
+     + " (corretto); restano 3 falsi allarmi sulle copie dei descrittori standard in un figlio che esce subito"],
+    ["fuzzing con libFuzzer, in un container con clang, di: pulizia del testo, formato dei messaggi, uscita della "
+     "lettura delle caselle, ambiente di un processo, configurazione, cataloghi " + c(".mo"),
+     c("tests/fuzz/esegui.sh SECONDI"), "una funzione che presupponeva una struttura già azzerata (corretto); poi "
+     "30 minuti senza difetti"],
+    ["confronto con il prototipo: la pulizia del testo in C e in bash su 2000 testi casuali", "(prima di togliere il "
+     "prototipo)", "risultati identici"],
+], "«TAB» — Le difese del C")
+
 CHAPTER = ("Test e controlli", [
     ("Il motore: tests/engine.sh", S0),
     ("Dal vero: tests/container", SC),
@@ -135,4 +154,5 @@ CHAPTER = ("Test e controlli", [
     ("La guida integrata: tests/help-tui.py", S1),
     ("La documentazione: tools/check-docs.py", S2),
     ("Prove dal vivo", S3),
+    ("Le difese del C", SD),
 ])

@@ -33,11 +33,11 @@ S1 = p("Ogni shell ha il suo aggancio, installato dove quella shell lo legge. Tu
 ])
 
 PROMPT = fig(
-    box(20, 40, 170, 54, "pending", "inbox in ordine", "dark")
+    box(20, 40, 170, 54, "in_attesa", "inbox in ordine", "dark")
     + diamond(360, 67, 220, 76, "rimandato da poco?", "amber")
     + box(560, 40, 170, 54, "conta", "promemoria di una riga", "soft")
-    + box(275, 170, 170, 54, "mostra e chiede", "ask: [s/N]", "blue")
-    + box(560, 170, 170, 54, "esito", "ack · snooze · fermo", "green")
+    + box(275, 170, 170, 54, "mostra e chiede", "chiedi: [s/N]", "blue")
+    + box(560, 170, 170, 54, "esito", "conferma · rimanda · fermo", "green")
     + arrow(192, 67, 248, 67) + arrow(472, 67, 558, 67, "#d97706", False, "sì (non al login)", 515, 57)
     + arrow(360, 107, 360, 168, "#475569", False, "no", 376, 140)
     + arrow(447, 197, 558, 197)
@@ -46,15 +46,15 @@ PROMPT = fig(
     900, 246, "«FIG» — ams-user prompt, per ogni messaggio della casella", "Il giro di ams-user prompt")
 
 S2 = p(c("ams-user prompt") + " prende i messaggi della casella in ordine di numero. Quelli scaduti passano subito in "
-       + c("read/") + ".", lead=True) + PROMPT + table(["Esito di ask", "Cosa fa", "Stampa"], [
-    ["0 · «s»", c("ack ID \"terminale pts/N\""), "[AMS] Confermato. (se la scrittura fallisce: «Non è stato possibile registrare la conferma…», e il messaggio resta)"],
-    ["1 · altro, o solo Invio", c("snooze ID term") + ": tocca " + c("state/ID.term"), "[AMS] La domanda verrà riproposta tra N minuti."],
+       + c("read/") + ".", lead=True) + PROMPT + table(["Esito di chiedi", "Cosa fa", "Stampa"], [
+    ["0 · «s» (o «y»)", c("conferma(ID, \"terminale pts/N\")"), "[AMS] Confermato. (se la scrittura fallisce: «Non è stato possibile registrare la conferma…», e il messaggio resta)"],
+    ["1 · altro, o solo Invio", c("rimanda(ID, \"term\")") + ": tocca " + c("state/ID.term"), "[AMS] La domanda verrà riproposta tra N minuti."],
     ["2 · confermato altrove", "sposta in " + c("read/"), "[AMS] Messaggio già confermato altrove…"],
     ["3 · ritirato", "nulla", "[AMS] L'amministratore ha ritirato il messaggio."],
     ["4 · scaduto mentre la domanda era aperta", "sposta in " + c("read/"), "[AMS] Il messaggio è scaduto."],
 ], "«TAB» — Gli esiti della domanda")
 
-ASK = seq([("Utente", "tastiera", "dark"), ("ask", "read -t 1", "blue"), ("Casella", "users/U", "soft")], [
+ASK = seq([("Utente", "tastiera", "dark"), ("chiedi", "poll 1 s su /dev/tty", "blue"), ("Casella", "users/U", "soft")], [
     (1, 0, "[AMS] Confermi di aver letto il messaggio? [s/N]"),
     (1, 1, "attende 1 secondo"),
     (1, 2, "acks/ID comparso? inbox/ID sparito?"),
@@ -64,7 +64,8 @@ ASK = seq([("Utente", "tastiera", "dark"), ("ask", "read -t 1", "blue"), ("Casel
     (1, 0, "esito 2: «già confermato altrove»", True),
 ], "«FIG» — La domanda si accorge di ciò che succede altrove", "Una domanda che controlla ogni secondo")
 
-S3 = p(c("ask") + " legge la risposta da " + c("/dev/tty") + " con " + c("read -t 1") + " in un ciclo. A ogni secondo "
+S3 = p(c("chiedi") + " di " + c("src/ams-user.c") + " aspetta la risposta su " + c("/dev/tty") + " con " + c("poll")
+       + " per un secondo alla volta, poi la legge con " + c("read") + ". A ogni secondo "
        "senza risposta controlla la casella: se è comparsa la conferma, l'utente ha confermato altrove; se il messaggio "
        "è sparito, è stato ritirato; se è scaduto, la domanda si ferma.", lead=True) + ASK + \
     p("Il terminale resta in modo canonico: ciò che l'utente sta scrivendo resta nel buffer del terminale e non si "

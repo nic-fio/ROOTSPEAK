@@ -3,6 +3,7 @@
 #   ./install.sh              installa
 #   ./install.sh --uninstall  rimuove (i messaggi in /var/lib/ams restano)
 #   ./install.sh --purge      rimuove anche i messaggi
+# Installa la versione in C compilata in build/ (make); se manca, la compila.
 set -euo pipefail
 
 PREFIX=${PREFIX:-/usr/local}
@@ -15,7 +16,9 @@ ZSHRC=$( [ -d /etc/zsh ] && echo /etc/zsh/zshrc || echo /etc/zshrc )
 FISHCONF=/etc/fish/conf.d/ams.fish
 MARK='# AMS hook'
 SRC=$(dirname "$(readlink -f "$0")")
-AGENT_RE="^/bin/bash $LIBDIR/ams-user agent\$"
+LOCALEDIR=$PREFIX/share/locale
+# l'agente del desktop: quello in C e quello del prototipo in bash
+AGENT_RE="^(/bin/bash )?$LIBDIR/ams-user agent\$"
 
 [ "$(id -u)" -eq 0 ] || exec sudo -- "$(readlink -f "$0")" "$@"
 
@@ -33,23 +36,31 @@ subst() { sed -e "s|@LIBDIR@|$LIBDIR|g" -e "s|@VARDIR@|$VARDIR|g" "$1"; }
 do_install() {
 	local group
 	group=$(admin_group)
-	for c in zenity loginctl systemd-run runuser flock; do
+	for c in zenity loginctl systemd-run; do
 		command -v "$c" >/dev/null || echo "Attenzione: manca $c" >&2
 	done
 
+	# I programmi compilati con le cartelle di questa installazione: se mancano
+	# o sono stati compilati per un'altra, si compilano.
+	if ! [ -x "$SRC/build/ams" ] || ! [ -x "$SRC/build/ams-user" ] ||
+		! grep -qaF "$LIBDIR" "$SRC/build/ams"; then
+		make -C "$SRC" PREFIX="$PREFIX" all >/dev/null ||
+			{ echo "Compilazione non riuscita: servono gcc, make, pkg-config, libsystemd-dev e gettext" >&2; exit 1; }
+	fi
 	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/ams /etc/profile.d /etc/xdg/autostart
-	install -m 644 "$SRC/lib/ams-common.sh" "$LIBDIR/ams-common.sh"
-	install -m 644 "$SRC/lib/ams-help.sh" "$LIBDIR/ams-help.sh"
-	install -m 755 "$SRC/lib/ams-user" "$LIBDIR/ams-user"
-	# le lingue: si tolgono quelle non più distribuite
-	rm -rf "$LIBDIR/lingue"
-	install -d -m 755 "$LIBDIR/lingue"
-	install -m 644 "$SRC"/lib/lingue/*.sh "$LIBDIR/lingue/"
+	install -m 755 "$SRC/build/ams-user" "$LIBDIR/ams-user"
+	# il prototipo in bash e le sue lingue non servono più
+	rm -rf "$LIBDIR/lingue" "$LIBDIR/ams-common.sh" "$LIBDIR/ams-help.sh"
+	for mo in "$SRC"/build/locale/*/LC_MESSAGES/ams.mo; do
+		[ -e "$mo" ] || continue
+		l=${mo#"$SRC"/build/locale/}
+		l=${l%%/*}
+		install -d -m 755 "$LOCALEDIR/$l/LC_MESSAGES"
+		install -m 644 "$mo" "$LOCALEDIR/$l/LC_MESSAGES/ams.mo"
+	done
 	# Le versioni precedenti installavano in sbin, che su Debian non è nel PATH degli utenti.
 	rm -f "$PREFIX/sbin/ams"
-	sed "s|^AMS_LIB=.*|AMS_LIB=$LIBDIR|" "$SRC/bin/ams" >"$BINDIR/ams"
-	chown "root:$group" "$BINDIR/ams"
-	chmod 750 "$BINDIR/ams"
+	install -m 750 -o root -g "$group" "$SRC/build/ams" "$BINDIR/ams"
 	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
 	# manuali in un solo file ciascuno; via i nomi e gli asset delle versioni di sviluppo
 	install -d -m 755 "$DOCDIR"
@@ -93,6 +104,7 @@ do_install() {
 do_uninstall() {
 	rm -f "$BINDIR/ams" "$PREFIX/sbin/ams" /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
 	rm -rf "$LIBDIR" "$DOCDIR"
+	rm -f "$LOCALEDIR"/*/LC_MESSAGES/ams.mo
 	if [ -f "$BASHRC" ]; then sed -i "\|$MARK|d" "$BASHRC"; fi
 	if [ -f "$ZSHRC" ]; then sed -i "\|$MARK|d" "$ZSHRC"; fi
 	rm -f "$FISHCONF"

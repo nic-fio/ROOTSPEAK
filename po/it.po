@@ -1,0 +1,679 @@
+# AMS - Advanced Messaging System for linux: traduzione italiana.
+msgid ""
+msgstr ""
+"Project-Id-Version: AMS 0.2.0\n"
+"PO-Revision-Date: 2026-09-30 12:00+0200\n"
+"Last-Translator: nic-fio\n"
+"Language-Team: italiano\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/ams.c:290
+#, c-format
+msgid "message %lld was interrupted before being saved and has been cancelled"
+msgstr "il messaggio %lld era stato interrotto prima di essere salvato ed è stato annullato"
+
+#: src/ams.c:333
+#, c-format
+msgid "completed delivery of message %lld to %d recipients"
+msgstr "completata la consegna del messaggio %lld a %d destinatari"
+
+#: src/ams.c:336
+#, c-format
+msgid "message %lld still not delivered to %d recipients (see ams status %lld)"
+msgstr "messaggio %lld ancora non consegnato a %d destinatari (vedi ams status %lld)"
+
+#: src/ams.c:385
+#, c-format
+msgid "no such group: %s"
+msgstr "gruppo inesistente: %s"
+
+#: src/ams.c:388
+#, c-format
+msgid "no such user: %s"
+msgstr "utente inesistente: %s"
+
+#: src/ams.c:425 src/ams.c:442 src/ams.c:445
+#, c-format
+msgid "invalid expiry: %s"
+msgstr "scadenza non valida: %s"
+
+#: src/ams.c:513 src/ams-user.c:223
+#, c-format
+msgid "── AMS · Message from the administrator · %s ──"
+msgstr "── AMS · Messaggio dall'amministratore · %s ──"
+
+#: src/ams.c:541
+#, c-format
+msgid "missing value for %s"
+msgstr "manca il valore di %s"
+
+#: src/ams.c:551
+msgid "the expiry is already in the past"
+msgstr "la scadenza è già passata"
+
+#: src/ams.c:557
+#, c-format
+msgid "unknown option: %s"
+msgstr "opzione sconosciuta: %s"
+
+#: src/ams.c:563
+msgid "missing --to"
+msgstr "manca --to"
+
+#: src/ams.c:591
+msgid "empty message"
+msgstr "messaggio vuoto"
+
+#: src/ams.c:594
+#, c-format
+msgid "message too long: %zu bytes (at most %d)"
+msgstr "messaggio troppo lungo: %zu byte (al massimo %d)"
+
+#: src/ams.c:598
+msgid "no recipients"
+msgstr "nessun destinatario"
+
+#: src/ams.c:687
+#, c-format
+msgid "Message %lld delivered to %zu of %zu recipients."
+msgstr "Messaggio %lld consegnato a %zu destinatari su %zu."
+
+#: src/ams.c:689
+#, c-format
+msgid "message %lld not delivered to:%s (see the log; the next ams command will retry)"
+msgstr "messaggio %lld non consegnato a:%s (vedi il registro; il prossimo comando ams riproverà)"
+
+#: src/ams.c:699
+#, c-format
+msgid "Message %lld revoked while sending: delivery stopped."
+msgstr "Messaggio %lld ritirato durante l'invio: consegna interrotta."
+
+#: src/ams.c:701
+#, c-format
+msgid "Message %lld sent to 1 user."
+msgstr "Messaggio %lld inviato a 1 utente."
+
+#: src/ams.c:703
+#, c-format
+msgid "Message %lld sent to %zu users."
+msgstr "Messaggio %lld inviato a %zu utenti."
+
+#: src/ams.c:823
+msgid "No messages sent."
+msgstr "Nessun messaggio inviato."
+
+#: src/ams.c:828
+msgid "ID"
+msgstr "ID"
+
+#: src/ams.c:828
+msgid "DATE"
+msgstr "DATA"
+
+#: src/ams.c:828
+msgid "CONFIRMED"
+msgstr "CONFERME"
+
+#: src/ams.c:828
+msgid "TEXT"
+msgstr "TESTO"
+
+#: src/ams.c:841
+msgid "[send cancelled: interrupted before it was saved]"
+msgstr "[invio annullato: interrotto prima del salvataggio]"
+
+#: src/ams.c:870
+#, c-format
+msgid "[%d not delivered] "
+msgstr "[%d non consegnati] "
+
+#: src/ams.c:872
+msgid "[revoked] "
+msgstr "[ritirato] "
+
+#: src/ams.c:874
+msgid "[expired] "
+msgstr "[scaduto] "
+
+#: src/ams.c:908
+msgid "missing message ID"
+msgstr "manca l'ID del messaggio"
+
+#: src/ams.c:910 src/ams.c:919
+#, c-format
+msgid "no such message: %s"
+msgstr "messaggio inesistente: %s"
+
+#: src/ams.c:934
+#, c-format
+msgid "message %lld was cancelled: sending was interrupted before it was saved"
+msgstr "il messaggio %lld è stato annullato: l'invio si era interrotto prima del salvataggio"
+
+#: src/ams.c:936
+#, c-format
+msgid "Message %lld · %s · from %s"
+msgstr "Messaggio %lld · %s · da %s"
+
+#: src/ams.c:941
+#, c-format
+msgid "REVOKED on %s"
+msgstr "RITIRATO il %s"
+
+#: src/ams.c:945
+msgid "EXPIRED"
+msgstr "SCADUTO"
+
+#: src/ams.c:955
+msgid "USER"
+msgstr "UTENTE"
+
+#: src/ams.c:955
+msgid "STATE"
+msgstr "STATO"
+
+#: src/ams.c:968
+#, c-format
+msgid "confirmed on %s (%s)"
+msgstr "confermato il %s (%s)"
+
+#: src/ams.c:971
+msgid "sent, not delivered: the copy could not be written (see the log; the next ams command will retry)"
+msgstr "inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)"
+
+#: src/ams.c:972
+msgid "sent, not delivered"
+msgstr "inviato, non consegnato"
+
+#: src/ams.c:974
+msgid "delivered"
+msgstr "consegnato"
+
+#: src/ams.c:976
+msgid ", not confirmed (revoked)"
+msgstr ", non confermato (ritirato)"
+
+#: src/ams.c:978
+msgid ", not confirmed (expired; confirmation arrived after the expiry)"
+msgstr ", non confermato (scaduto; conferma arrivata dopo la scadenza)"
+
+#: src/ams.c:980
+msgid ", not confirmed (expired)"
+msgstr ", non confermato (scaduto)"
+
+#: src/ams.c:987
+msgid ", written to 1 terminal"
+msgstr ", scritto su 1 terminale"
+
+#: src/ams.c:989
+#, c-format
+msgid ", written to %lld terminals"
+msgstr ", scritto su %lld terminali"
+
+#: src/ams.c:992
+#, c-format
+msgid ", postponed on %s"
+msgstr ", rimandato il %s"
+
+#: src/ams.c:1034
+#, c-format
+msgid "message %lld revoked, but some copies could not be removed from the mailboxes: the next ams command will retry"
+msgstr "messaggio %lld ritirato, ma alcune copie non si sono potute togliere dalle caselle: il prossimo comando ams riproverà"
+
+#: src/ams.c:1036
+#, c-format
+msgid "Message %lld revoked."
+msgstr "Messaggio %lld ritirato."
+
+#: src/ams.c:1056
+msgid "missing duration, for example 90d"
+msgstr "manca la durata, per esempio 90d"
+
+#: src/ams.c:1063
+#, c-format
+msgid "invalid duration: %s (for example 90d, 12h, 30m)"
+msgstr "durata non valida: %s (per esempio 90d, 12h, 30m)"
+
+#: src/ams.c:1113
+#, c-format
+msgid "Deleted 1 message older than %s."
+msgstr "Cancellato 1 messaggio più vecchio di %s."
+
+#: src/ams.c:1115
+#, c-format
+msgid "Deleted %d messages older than %s."
+msgstr "Cancellati %d messaggi più vecchi di %s."
+
+#: src/ams.c:1155
+#, c-format
+msgid "Message %lld · %s"
+msgstr "Messaggio %lld · %s"
+
+#: src/ams.c:1187
+#, c-format
+msgid "[not trustworthy: written by UID %s] "
+msgstr "[non attendibile: scritto da UID %s] "
+
+#: src/ams.c:1255
+#, c-format
+msgid "unknown command: %s (ams --help for the guide)"
+msgstr "comando sconosciuto: %s (ams --help per la guida)"
+
+#: src/ams-user.c:241
+msgid "[AMS] Do you confirm you have read the message? [y/N] "
+msgstr "[AMS] Confermi di aver letto il messaggio? [s/N] "
+
+#: src/ams-user.c:300
+msgid "[AMS] Confirmed."
+msgstr "[AMS] Confermato."
+
+#: src/ams-user.c:301
+msgid "[AMS] The message has expired: the confirmation was not recorded."
+msgstr "[AMS] Il messaggio è scaduto: la conferma non è stata registrata."
+
+#: src/ams-user.c:302 src/ams-user.c:311
+msgid "[AMS] The administrator has revoked the message."
+msgstr "[AMS] L'amministratore ha ritirato il messaggio."
+
+#: src/ams-user.c:303
+msgid "[AMS] The confirmation could not be recorded: you will be asked again."
+msgstr "[AMS] Non è stato possibile registrare la conferma: la domanda verrà ripetuta."
+
+#: src/ams-user.c:308
+msgid "[AMS] Message already confirmed elsewhere (for example on the desktop)."
+msgstr "[AMS] Messaggio già confermato altrove (per esempio dal desktop)."
+
+#: src/ams-user.c:315
+msgid "[AMS] The message has expired."
+msgstr "[AMS] Il messaggio è scaduto."
+
+#: src/ams-user.c:319
+#, c-format
+msgid "[AMS] You will be asked again in %ld minutes."
+msgstr "[AMS] La domanda verrà riproposta tra %ld minuti."
+
+#: src/ams-user.c:325
+msgid "[AMS] You have 1 message from the administrator to confirm."
+msgstr "[AMS] Hai 1 messaggio dell'amministratore da confermare."
+
+#: src/ams-user.c:327
+#, c-format
+msgid "[AMS] You have %d messages from the administrator to confirm."
+msgstr "[AMS] Hai %d messaggi dell'amministratore da confermare."
+
+#: src/ams-user.c:358
+msgid "AMS · Confirmation not recorded"
+msgstr "AMS · Conferma non registrata"
+
+#: src/ams-user.c:359
+msgid "The confirmation could not be recorded: the message will be shown again."
+msgstr "Non è stato possibile registrare la conferma: il messaggio verrà riproposto."
+
+#: src/ams-user.c:391
+msgid "AMS · Message from the administrator"
+msgstr "AMS · Messaggio dall'amministratore"
+
+#: src/ams-user.c:393
+msgid "I have read it"
+msgstr "Ho letto"
+
+#: src/ams-user.c:394
+msgid "Later"
+msgstr "Più tardi"
+
+#: src/ams-user.c:549
+msgid "ams-user: internal AMS helper, not meant to be run directly"
+msgstr "ams-user: helper interno di AMS, non va usato direttamente"
+
+#: src/evento.c:18
+msgid "terminal"
+msgstr "terminale"
+
+#: src/evento.c:20
+msgid "desktop"
+msgstr "desktop"
+
+#: src/evento.c:33
+#, c-format
+msgid "message %lld sent by %s to: %s"
+msgstr "messaggio %lld inviato da %s a: %s"
+
+#: src/evento.c:35
+#, c-format
+msgid "message %lld delivered to %s (terminals written: %s)"
+msgstr "messaggio %lld consegnato a %s (terminali scritti: %s)"
+
+#: src/evento.c:37
+#, c-format
+msgid "message %lld delivered to %s (recovery)"
+msgstr "messaggio %lld consegnato a %s (recupero)"
+
+#: src/evento.c:39
+#, c-format
+msgid "message %lld: ERROR, copy for %s not written"
+msgstr "messaggio %lld: ERRORE, copia per %s non scritta"
+
+#: src/evento.c:41
+#, c-format
+msgid "message %lld: sending interrupted before it was saved, cancelled"
+msgstr "messaggio %lld: invio interrotto prima del salvataggio, annullato"
+
+#: src/evento.c:43
+#, c-format
+msgid "message %lld: delivery completed for %s recipients after an interruption"
+msgstr "messaggio %lld: consegna completata per %s destinatari dopo un'interruzione"
+
+#: src/evento.c:46
+#, c-format
+msgid "message %lld deleted by %s (older than %s)"
+msgstr "messaggio %lld cancellato da %s (più vecchio di %s)"
+
+#: src/evento.c:48
+#, c-format
+msgid "message %lld revoked by %s"
+msgstr "messaggio %lld ritirato da %s"
+
+#: src/evento.c:50
+#, c-format
+msgid "user %s: postponed message %lld (%s)"
+msgstr "utente %s: rimandato il messaggio %lld (%s)"
+
+#: src/evento.c:52
+#, c-format
+msgid "user %s: confirmed reading message %lld (%s)"
+msgstr "utente %s: confermata la lettura del messaggio %lld (%s)"
+
+#: src/evento.c:54
+#, c-format
+msgid "user %s: ERROR, confirmation of message %lld not recorded (%s): %s"
+msgstr "utente %s: ERRORE, conferma del messaggio %lld non registrata (%s): %s"
+
+#: src/evento.c:55
+msgid "unknown error"
+msgstr "errore sconosciuto"
+
+#: src/guida.c:30
+msgctxt "guida-comandi"
+msgid "send [options] [TEXT]¦Sends a message to the recipients given with --to. Without TEXT or --file, the text is read from stdin."
+msgstr "send [opzioni] [TESTO]¦Invia un messaggio ai destinatari indicati con --to. Senza TESTO né --file, il testo viene letto da stdin."
+
+#: src/guida.c:31
+msgctxt "guida-comandi"
+msgid "list¦Lists the messages sent, with how many recipients have confirmed each one."
+msgstr "list¦Elenca i messaggi inviati, con quanti destinatari hanno confermato ciascun messaggio."
+
+#: src/guida.c:32
+msgctxt "guida-comandi"
+msgid "status ID¦Shows the text of the message and the state of each recipient: sent, delivered (in their mailbox) or confirmed, with date, time and channel."
+msgstr "status ID¦Mostra il testo del messaggio e lo stato di ogni destinatario: inviato, consegnato (nella sua casella) o confermato, con data, ora e canale."
+
+#: src/guida.c:33
+msgctxt "guida-comandi"
+msgid "revoke ID¦Revokes a message: whoever has not seen it yet will not see it, and dialogs and questions still open close by themselves."
+msgstr "revoke ID¦Ritira un messaggio: chi non l'ha ancora visto non lo vedrà più, e finestre e domande ancora aperte si chiudono da sole."
+
+#: src/guida.c:34
+msgctxt "guida-comandi"
+msgid "log ID¦Shows the history of the message from the system log: sending, deliveries, postponements, confirmations and revocation, with date and time."
+msgstr "log ID¦Mostra la storia del messaggio dal registro di sistema: invio, consegne, rinvii, conferme e ritiro, con data e ora."
+
+#: src/guida.c:35
+msgctxt "guida-comandi"
+msgid "purge DURATION¦Deletes the messages sent more than DURATION ago (for example 90d), with the copies and confirmations in the users' mailboxes; the events stay in the system log."
+msgstr "purge DURATA¦Cancella i messaggi inviati da più di DURATA (per esempio 90d), con le copie e le conferme nelle caselle degli utenti; gli eventi restano nel registro di sistema."
+
+#: src/guida.c:36
+msgctxt "guida-comandi"
+msgid "version¦Shows the AMS version."
+msgstr "version¦Mostra la versione di AMS."
+
+#: src/guida.c:37
+msgctxt "guida-comandi"
+msgid "help, --help, -h¦Shows this guide. «ams» without arguments opens it too."
+msgstr "help, --help, -h¦Mostra questa guida. La apre anche «ams» senza argomenti."
+
+#: src/guida.c:41
+msgctxt "guida-opzioni"
+msgid "--to DEST¦Recipients, separated by commas without spaces: a user (mario), a Unix group (@developers), all (every human user) or online (only those logged in now)."
+msgstr "--to DEST¦Destinatari, separati da virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti gli utenti umani) oppure online (solo quelli collegati adesso)."
+
+#: src/guida.c:42
+msgctxt "guida-opzioni"
+msgid "--title TITLE¦Title shown in the message header and in the desktop dialog."
+msgstr "--title TITOLO¦Titolo mostrato nell'intestazione del messaggio e nella finestra del desktop."
+
+#: src/guida.c:43
+msgctxt "guida-opzioni"
+msgid "--expires DURATION¦Expiry, after which the message is no longer shown: 30m, 2h, 3d or a date and time (\"2026-10-04 12:00\")."
+msgstr "--expires DURATA¦Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole vanno in inglese)."
+
+#: src/guida.c:44
+msgctxt "guida-opzioni"
+msgid "--file FILE¦Reads the message text from FILE."
+msgstr "--file FILE¦Legge il testo del messaggio da FILE."
+
+#: src/guida.c:48
+msgctxt "guida-esempi"
+msgid "ams send --to mario \"Your account expires on Friday.\"¦Message with read confirmation to a single user."
+msgstr "ams send --to mario \"Il tuo account scade venerdì.\"¦Messaggio con conferma di lettura a un solo utente."
+
+#: src/guida.c:49
+msgctxt "guida-esempi"
+msgid "ams send --to @developers --title Maintenance --file notice.txt¦Text taken from a file, with a title, to every member of the developers group."
+msgstr "ams send --to @sviluppo --title Manutenzione --file avviso.txt¦Testo preso da un file, con titolo, a tutti i membri del gruppo sviluppo."
+
+#: src/guida.c:50
+msgctxt "guida-esempi"
+msgid "ams send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to whoever is logged in now; after 15 minutes it is no longer shown or asked about."
+msgstr "ams send --to online --expires 15m \"Riavvio alle 13:00.\"¦Avviso urgente a chi è collegato adesso; dopo 15 minuti non viene più mostrato né sollecitato."
+
+#: src/guida.c:51
+msgctxt "guida-esempi"
+msgid "ams send --to all --expires 3d \"New password policy.\"¦To every user; after three days it stops being shown."
+msgstr "ams send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli utenti; dopo tre giorni smette di essere mostrato."
+
+#: src/guida.c:52
+msgctxt "guida-esempi"
+msgid "ams list¦Which messages were sent and how many confirmations they have."
+msgstr "ams list¦Quali messaggi sono stati inviati e quante conferme hanno."
+
+#: src/guida.c:53
+msgctxt "guida-esempi"
+msgid "ams status 12¦Who confirmed message 12, when and from where."
+msgstr "ams status 12¦Chi ha confermato il messaggio 12, quando e da dove."
+
+#: src/guida.c:54
+msgctxt "guida-esempi"
+msgid "ams log 12¦The history of message 12: sending, deliveries, postponements, confirmations."
+msgstr "ams log 12¦La storia del messaggio 12: invio, consegne, rinvii, conferme."
+
+#: src/guida.c:55
+msgctxt "guida-esempi"
+msgid "ams purge 90d¦Deletes the messages older than 90 days, with copies and confirmations."
+msgstr "ams purge 90d¦Cancella i messaggi di più di 90 giorni fa, con copie e conferme."
+
+#: src/guida.c:56
+msgctxt "guida-esempi"
+msgid "ams revoke 12¦Revokes message 12."
+msgstr "ams revoke 12¦Ritira il messaggio 12."
+
+#: src/guida.c:60
+msgctxt "guida-file"
+msgid "/etc/ams/ams.conf¦Configuration: minutes before a postponed message is asked about again, check interval of the desktop agent."
+msgstr "/etc/ams/ams.conf¦Configurazione: minuti prima di riproporre un messaggio rimandato, intervallo di controllo dell'agente del desktop."
+
+#: src/guida.c:61
+msgctxt "guida-file"
+msgid "/var/lib/ams/¦The messages: sent/ (reference copies, root only) and users/USER/ (each user's mailbox, readable only by them and by root)."
+msgstr "/var/lib/ams/¦I messaggi: sent/ (copie di riferimento, solo root) e users/UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
+
+#: src/guida.c:62
+msgctxt "guida-file"
+msgid "sudo journalctl -t ams¦The system log: sending, deliveries, confirmations and revocations."
+msgstr "sudo journalctl -t ams¦Il registro di sistema: invii, consegne, conferme e ritiri."
+
+#: src/guida.c:63
+msgctxt "guida-file"
+msgid "/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦The complete user manual (in Italian), to open in a browser."
+msgstr "/usr/local/share/doc/ams/AMS_Manuale_Utente.html¦Il manuale utente completo, da aprire in un browser."
+
+#: src/guida.c:67
+msgctxt "guida-sintassi"
+msgid "ams send --to DEST [options] [TEXT]"
+msgstr "ams send --to DEST [opzioni] [TESTO]"
+
+#: src/guida.c:68
+msgctxt "guida-sintassi"
+msgid "ams list"
+msgstr "ams list"
+
+#: src/guida.c:69
+msgctxt "guida-sintassi"
+msgid "ams status ID"
+msgstr "ams status ID"
+
+#: src/guida.c:70
+msgctxt "guida-sintassi"
+msgid "ams revoke ID"
+msgstr "ams revoke ID"
+
+#: src/guida.c:71
+msgctxt "guida-sintassi"
+msgid "ams log ID"
+msgstr "ams log ID"
+
+#: src/guida.c:72
+msgctxt "guida-sintassi"
+msgid "ams purge DURATION"
+msgstr "ams purge DURATA"
+
+#: src/guida.c:73
+msgctxt "guida-sintassi"
+msgid "ams version"
+msgstr "ams version"
+
+#: src/guida.c:80
+msgctxt "guida"
+msgid "AMS lets administrators send text messages to the users of the machine and know who has read them. Messages appear in terminals (console, ssh, desktop terminals, tmux) and on the desktop, in a dialog with the buttons «I have read it» and «Later»; whoever is not logged in finds them at the next login. Every message asks for a read confirmation and AMS asks again until the user gives it, without ever blocking their work. Each user sees AMS in their own language. The command is reserved to administrators (sudo or wheel group) and re-runs itself with sudo."
+msgstr "AMS permette agli amministratori di mandare messaggi di testo agli utenti della macchina e di sapere chi li ha letti. I messaggi compaiono nei terminali (console, ssh, terminali del desktop, tmux) e sul desktop, in una finestra con i pulsanti «Ho letto» e «Più tardi»; chi non è collegato li trova al login successivo. Ogni messaggio chiede la conferma di lettura e AMS la ripropone finché l'utente non la dà, senza mai bloccare il lavoro. Ogni utente vede AMS nella sua lingua. Il comando è riservato agli amministratori (gruppo sudo o wheel) e si rilancia da solo con sudo."
+
+#: src/guida.c:213
+msgid "ams manual"
+msgstr "Manuale di ams"
+
+#: src/guida.c:214 src/guida.c:331
+msgid "NAME"
+msgstr "NOME"
+
+#: src/guida.c:215
+msgid "ams — sends messages to the users of the machine and tracks their read confirmation"
+msgstr "ams — invia messaggi agli utenti della macchina e ne segue la conferma di lettura"
+
+#: src/guida.c:216 src/guida.c:336
+msgid "SYNOPSIS"
+msgstr "SINTASSI"
+
+#: src/guida.c:223 src/guida.c:343
+msgid "DESCRIPTION"
+msgstr "DESCRIZIONE"
+
+#: src/guida.c:225
+msgid "COMMANDS"
+msgstr "COMANDI"
+
+#: src/guida.c:227
+msgid "SEND OPTIONS"
+msgstr "OPZIONI DI SEND"
+
+#: src/guida.c:229
+msgid "EXAMPLES"
+msgstr "ESEMPI"
+
+#: src/guida.c:231
+msgid "FILES"
+msgstr "FILE"
+
+#: src/guida.c:233
+msgid "ENVIRONMENT"
+msgstr "AMBIENTE"
+
+#: src/guida.c:235
+msgid "Pager used to page this guide when the terminal is too small for the interactive one (default: less). Like NO_COLOR, it reaches ams only if sudo keeps it (env_keep in sudoers)."
+msgstr "Pager usato per impaginare questa guida quando il terminale è troppo piccolo per quella interattiva (predefinito: less). Come NO_COLOR, arriva ad ams solo se sudo la conserva (env_keep in sudoers)."
+
+#: src/guida.c:239
+msgid "If set, disables colours."
+msgstr "Se impostata, disabilita i colori."
+
+#: src/guida.c:240
+msgid "EXIT STATUS"
+msgstr "STATO DI USCITA"
+
+#: src/guida.c:242
+msgid "Completed successfully."
+msgstr "Completato con successo."
+
+#: src/guida.c:244
+msgid "Error: the error message, starting with «ams:», says which."
+msgstr "Errore: il messaggio d'errore, che inizia con «ams:», dice quale."
+
+#: src/guida.c:245
+msgid "SEE ALSO"
+msgstr "VEDERE ANCHE"
+
+#: src/guida.c:246
+msgid "wall(1), write(1), and the user manual (in Italian) in /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+msgstr "wall(1), write(1), e il manuale utente in /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+
+#: src/guida.c:332
+msgid "ams — messages to users with read confirmation"
+msgstr "ams — messaggi agli utenti con conferma di lettura"
+
+#: src/guida.c:350
+#, c-format
+msgid "AMS %s · complete manual (in Italian): /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+msgstr "AMS %s · manuale completo: /usr/local/share/doc/ams/AMS_Manuale_Utente.html"
+
+#: src/guida.c:360 src/guida.c:389
+msgid "Commands"
+msgstr "Comandi"
+
+#: src/guida.c:365
+msgid "Send options"
+msgstr "Opzioni di send"
+
+#: src/guida.c:370 src/guida.c:393
+msgid "Examples"
+msgstr "Esempi"
+
+#: src/guida.c:375
+msgid "Files and log"
+msgstr "File e registro"
+
+#: src/guida.c:387
+msgid "Info"
+msgstr "Info"
+
+#: src/guida.c:391
+msgid "Options"
+msgstr "Opzioni"
+
+#: src/guida.c:395
+msgid "Files"
+msgstr "File"
+
+#: src/guida.c:443
+msgid "←/→ tabs · ↑/↓ scroll · PgUp/PgDn · g/G · q quit"
+msgstr "←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci"
+
+#: src/guida.c:455
+msgid "ams — guide"
+msgstr "ams — guida"
+
+#: src/guida.c:485
+#, c-format
+msgid "lines %d-%d/%zu"
+msgstr "righe %d-%d/%zu"

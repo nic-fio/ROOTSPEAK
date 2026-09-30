@@ -55,7 +55,7 @@ v "dpkg -s locales >/dev/null 2>&1 || apt-get -qq -y install locales >/dev/null
 	else printf '[User]\\nLanguage=$LOCALE_DESK\\n' >>\$f; fi" || exit 1
 # un nuovo login grafico, perché l'agente parta dall'avvio automatico come su un sistema vero
 v "systemctl restart gdm; for i in \$(seq 1 90); do
-	pgrep -u $DESK -f '^/bin/bash /usr/local/lib/ams/ams-user agent\$' >/dev/null && { echo \"desktop di $DESK pronto dopo \${i}s\"; exit 0; }
+	pgrep -u $DESK -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent\$' >/dev/null && { echo \"desktop di $DESK pronto dopo \${i}s\"; exit 0; }
 	sleep 1; done; echo 'desktop non pronto' >&2; exit 1" || exit 1
 
 rm -rf "$QUI/risultati" && mkdir -p "$QUI/risultati/catture"

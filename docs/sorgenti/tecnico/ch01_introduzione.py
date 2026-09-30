@@ -2,9 +2,9 @@ from build import arrow, box, c, fig, p, path, table, text, zone
 
 OVERVIEW = fig(
     zone(20, 44, 250, 250, "Amministratore · root")
-    + box(44, 78, 202, 58, "ams", "bin/ams, via sudo", "navy")
-    + box(44, 150, 202, 50, "ams-common.sh", "libreria comune", "soft")
-    + box(44, 214, 202, 50, "ams-help.sh, lingue/", "guida e testi", "soft")
+    + box(44, 78, 202, 58, "ams", "programma in C, via sudo", "navy")
+    + box(44, 150, 202, 50, "src/: parti comuni", "archivio, testo, lingue", "soft")
+    + box(44, 214, 202, 50, "guida, po/*.po", "guida e traduzioni", "soft")
     + zone(318, 44, 240, 250, "Archivio · /var/lib/ams")
     + box(340, 78, 196, 58, "sent/", "copie di riferimento · root", "dark")
     + box(340, 172, 196, 58, "users/U/", "casella di ogni utente · U", "blue")
@@ -21,8 +21,8 @@ OVERVIEW = fig(
     "Chi fa cosa")
 
 S1 = p("AMS è uno strumento con cui gli amministratori di una macchina Linux mandano messaggi di testo agli utenti e "
-       "ne seguono la conferma di lettura. La versione 0.1.0 è un prototipo in bash: niente demone, niente database, "
-       "solo file e strumenti già presenti nel sistema.", lead=True) + OVERVIEW + \
+       "ne seguono la conferma di lettura. La versione 0.2.0 è scritta in C (il prototipo 0.1.0 era in bash): niente "
+       "demone, niente database, solo file e le librerie di systemd già presenti nel sistema.", lead=True) + OVERVIEW + \
     p("Il comando " + c("ams") + " gira sempre come root e scrive nell'archivio. Dalla parte dell'utente, due ingressi "
       "dello stesso aiutante, " + c("ams-user") + ", leggono la casella e registrano la conferma: uno nel prompt della shell, "
       "l'altro nella sessione grafica.")
@@ -38,10 +38,13 @@ S2 = table(["Principio", "Cosa comporta nel codice"], [
      "sono proprietà del messaggio."],
     ["<b>Gli utenti non hanno comandi</b>", c("ams-user") + " è un aiutante interno fuori dal PATH; la ricezione è "
      "automatica."],
-    ["<b>Root non si fida delle caselle</b>", "Ogni accesso di root a " + c("users/U") + " passa da " + c("runuser -u U")
-     + " (capitolo 5.3)."],
-    ["<b>Strumenti del sistema</b>", c("loginctl") + ", " + c("runuser") + ", " + c("flock") + ", " + c("zenity") + ", "
-     + c("systemd-run") + ", " + c("logger") + "; " + c("notify-send") + " se c'è, solo per segnalare una conferma non registrata."],
+    ["<b>Root non si fida delle caselle</b>", "Ogni accesso di root a " + c("users/U") + " avviene in un processo figlio "
+     "con l'identità di U (" + c("come_utente") + ", capitolo 5.3)."],
+    ["<b>Poche dipendenze</b>", "libsystemd (sessioni di logind e journal), " + c("zenity") + " per la finestra, "
+     + c("systemd-run") + " per avviare un agente, " + c("date") + " per le date a parole; " + c("notify-send")
+     + " se c'è, solo per segnalare una conferma non registrata."],
+    ["<b>C con difese</b>", "tutti gli avvisi come errori, " + c("-fanalyzer") + ", AddressSanitizer e UBSan nelle "
+     "prove, fuzzing di ciò che legge dati degli utenti (capitolo 11)."],
 ], "«TAB» — I principi del progetto")
 
 S3 = table(["Componente", "Chi lo esegue", "Quando"], [

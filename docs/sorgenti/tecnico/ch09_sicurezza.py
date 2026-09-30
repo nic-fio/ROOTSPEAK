@@ -5,8 +5,8 @@ TRUST = fig(
     + box(44, 84, 222, 56, "ams (root)", "sudo, gruppo admin, 750", "navy")
     + box(44, 158, 222, 56, "sent/ · ams.conf", "solo root scrive", "dark")
     + zone(330, 44, 240, 220, "Confine")
-    + box(352, 84, 196, 56, "as_user / runuser", "identità dell'utente", "green")
-    + box(352, 158, 196, 56, "ams_sanitize", "testo e conferme", "green")
+    + box(352, 84, 196, 56, "come_utente", "figlio con l'identità dell'utente", "green")
+    + box(352, 158, 196, 56, "pulisci", "testo e conferme", "green")
     + zone(610, 44, 270, 220, "Non fidato: utenti")
     + box(634, 84, 222, 56, "users/U/", "casella: U può tutto", "amber")
     + box(634, 158, 222, 56, "acks/ID", "scritto dall'utente", "amber")
@@ -20,8 +20,8 @@ S1 = p("Gli amministratori sono fidati; gli utenti no. Tutto ciò che va da root
 
 S2 = table(["Rischio", "Contromisura"], [
     ["un utente normale usa " + c("ams"), "permessi " + c("750 root:gruppo admin") + "; rilancio con sudo, che applica le sue regole"],
-    ["collegamenti simbolici nella casella", "ogni accesso di root alle caselle passa da " + c("as_user") + " (capitolo 5.3)"],
-    ["sequenze di escape nei messaggi", c("ams_sanitize") + " su testo e titolo; " + c("--no-markup") + " in zenity"],
+    ["collegamenti simbolici nella casella", "ogni accesso di root alle caselle avviene in un figlio con l'identità dell'utente, con un tempo massimo (capitolo 5.3)"],
+    ["sequenze di escape nei messaggi", c("pulisci") + " su testo e titolo; " + c("--no-markup") + " in zenity"],
     ["conferme fabbricate", "lette come l'utente, al massimo 200 byte, ripulite (capitolo 8.2); una conferma resta "
      "comunque una dichiarazione dell'utente, non una prova (capitolo 14.1)"],
     ["eventi falsi nel journal", "chiunque può scrivere un evento con i campi " + c("AMS_*") + ", ma il journal "
@@ -33,7 +33,11 @@ S2 = table(["Rischio", "Contromisura"], [
      "messaggi esistenti, con un tempo massimo (capitolo 5.9)"],
     ["testo troppo lungo per la finestra", "al più 65536 byte: zenity riceve il testo come argomento, e Linux non "
      "accetta argomenti oltre 128 KiB"],
-    ["segnali a processi sbagliati", c("pkill") + " eseguito come l'utente, sulla riga di comando esatta dell'agente"],
+    ["segnali a processi sbagliati", "il segnale parte da un figlio con l'identità dell'utente, e solo verso il PID "
+     "pronto con la riga di comando esatta dell'agente"],
+    ["errori di memoria in un programma di root", "C compilato con tutti gli avvisi come errori e le difese di gcc "
+     "(" + c("_FORTIFY_SOURCE=3") + ", stack protector, PIE, RELRO); " + c("-fanalyzer") + "; tutte le prove anche con "
+     "AddressSanitizer e UBSan; fuzzing di ciò che legge dati degli utenti (capitolo 11)"],
     ["configurazione come codice", c("ams.conf") + " è un file di dati: " + c("ams_load_conf") + " accetta solo le chiavi "
      "note con valori interi positivi e non esegue nulla (prima era letto come script da root e dagli utenti)"],
     ["messaggi letti da altri utenti", "caselle " + c("700") + "; " + c("sent/ 700 root")],

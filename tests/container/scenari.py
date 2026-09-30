@@ -60,7 +60,7 @@ def azzera():
         sh(f"loginctl terminate-user {u}")
     if DESK:
         # l'agente si ferma con le sue finestre, e riparte dopo, ad archivio vuoto
-        sh(f"pkill -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'; pkill -u {DESK} -x zenity")
+        sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'; pkill -u {DESK} -x zenity")
         time.sleep(1)
     time.sleep(0.5)
     sh(f"rm -rf {VAR}/sent/* {VAR}/sent/.seq* {VAR}/users/*")
@@ -132,6 +132,26 @@ class Sessione:
             os.waitpid(self.pid, 0)
         except ChildProcessError:
             pass
+
+
+def a_meta(p, tempo=10):
+    """Aspetta che l'invio lanciato in p sia a metà (almeno 3 consegne annotate,
+    non tutte): così un'interruzione cade davvero durante la consegna, per
+    quanto veloce sia l'invio. Restituisce l'ID del messaggio (None se l'invio
+    è finito prima)."""
+    t0 = time.time()
+    while time.time() - t0 < tempo and p.poll() is None:
+        ids = [int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit()] if os.path.isdir(f"{VAR}/sent") else []
+        if ids:
+            mid = max(ids)
+            try:
+                n = len(open(f"{VAR}/sent/{mid}/delivery").read().splitlines())
+            except OSError:
+                n = 0
+            if n >= 3:
+                return mid
+        time.sleep(0.002)
+    return None
 
 
 def registra(codice, area, descrizione, atteso, ok, dettagli="", **misure):
@@ -361,7 +381,7 @@ def f_guasti():
         sh(f"id u{i:02d} >/dev/null 2>&1 || useradd -m -s /bin/bash u{i:02d}")
     # si uccide proprio ams send (non una shell che lo contiene)
     p = subprocess.Popen([AMS, "send", "--to", "all", "Interrotto"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(0.8)
+    a_meta(p)
     p.kill(); p.wait()
     ids = sorted(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
     mid = ids[-1]
@@ -373,7 +393,7 @@ def f_guasti():
     n_dopo = len(sh(f"cat {VAR}/sent/{mid}/delivery").stdout.splitlines())
     registra("F3", "Guasti", "ams send ucciso a metà (SIGKILL): il comando successivo completa",
              "tutte le copie consegnate, nessun segno di invio incompleto",
-             n_tot > 0 and n_dopo == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
+             0 < n_prima < n_tot and n_dopo == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
              f"consegnati prima {n_prima}/{n_tot}, dopo {n_dopo}/{n_tot}; {r.stderr.strip()[:120]}",
              consegnati_al_kill=n_prima, destinatari=n_tot, secondi_recupero=round(dt, 3))
 
@@ -387,8 +407,9 @@ def f_guasti():
 
     # ritiro mentre l'invio a molti utenti è in corso: nessuna copia deve restare o ricomparire
     p = subprocess.Popen([AMS, "send", "--to", "all", "Da ritirare"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    time.sleep(0.8)
+    a_meta(p)
     mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
+    n_prima_ritiro = len(open(f"{VAR}/sent/{mid}/delivery").read().splitlines())
     t0 = time.time()
     rv = ams(f"revoke {mid}")
     dt = time.time() - t0
@@ -396,8 +417,9 @@ def f_guasti():
     copie = [u for u in os.listdir(f"{VAR}/users") if os.path.exists(f"{VAR}/users/{u}/inbox/{mid}")]
     registra("F7", "Guasti", "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
              "nessuna copia nelle caselle, invio interrotto", rv.returncode == 0 and not copie
-             and not os.path.exists(f"{VAR}/sent/{mid}/ritiro"),
-             f"copie rimaste: {len(copie)}; {out_send.strip()[:80]}", secondi_attesa_revoke=round(dt, 2))
+             and not os.path.exists(f"{VAR}/sent/{mid}/ritiro") and n_prima_ritiro < len(os.listdir(f"{VAR}/users")),
+             f"copie rimaste: {len(copie)}; consegnate prima del ritiro: {n_prima_ritiro}; {out_send.strip()[:80]}",
+             secondi_attesa_revoke=round(dt, 2))
     # invio in corso e, nello stesso momento, altri comandi ams che fanno il recupero
     azzera()
     p = subprocess.Popen([AMS, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -670,7 +692,7 @@ def cattura(nome):
 
 
 def agente_attivo():
-    return sh(f"pgrep -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'").returncode == 0
+    return sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'").returncode == 0
 
 
 def apri(utente):
@@ -686,10 +708,31 @@ def apri(utente):
 ETICHETTE = {}
 
 
+def lingua_ambiente(env):
+    """La lingua che AMS sceglie per un ambiente (/proc/PID/environ), con le sue regole."""
+    v = dict(x.split("=", 1) for x in env.decode("utf-8", "replace").split("\0") if "=" in x)
+    loc = v.get("LC_ALL") or v.get("LC_MESSAGES") or v.get("LANG") or ""
+    if re.split(r"[.@]", loc)[0] in ("", "C", "POSIX"):
+        return "en"
+    for x in v.get("LANGUAGE", "").split(":") + [loc]:
+        l = re.split(r"[_.@:]", x)[0]
+        if l == "en" or (re.fullmatch(r"[a-z]{2,3}", l) and os.path.exists(f"/usr/local/share/locale/{l}/LC_MESSAGES/ams.mo")):
+            return l
+    return "en"
+
+
 def testi(lingua):
-    """I testi di AMS nella lingua data, dal suo file in lib/lingue."""
-    src = open(f"/usr/local/lib/ams/lingue/{lingua}.sh").read()
-    return dict(re.findall(r'^\t\[(\w+)\]="((?:[^"\\]|\\.)*)"$', src, re.M))
+    """I testi della finestra nella lingua data: in inglese quelli di partenza,
+    altrimenti le traduzioni di po/LINGUA.po."""
+    t = {"dlg_title": "AMS · Message from the administrator", "dlg_ok": "I have read it", "dlg_later": "Later"}
+    if lingua == "en":
+        return t
+    po = open(f"/opt/ams-src/po/{lingua}.po").read()
+    for k, msgid in list(t.items()):
+        m = re.search(r'^msgid "' + re.escape(msgid) + r'"\nmsgstr "((?:[^"\\]|\\.)*)"', po, re.M)
+        if m and m.group(1):
+            t[k] = m.group(1).replace('\\"', '"')
+    return t
 
 
 def i_desktop():
@@ -699,9 +742,8 @@ def i_desktop():
         return
     grafica = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
     # la finestra è nella lingua della sessione grafica, cioè dell'ambiente dell'agente
-    pid = sh(f"pgrep -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'").stdout.split()
-    lingua = sh(f"AMS_LIB=/usr/local/lib/ams bash -c '. $AMS_LIB/ams-common.sh; ams_env_lang </proc/{pid[0]}/environ; "
-                "echo $_LINGUA'").stdout.strip() if pid else "en"
+    pid = sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'").stdout.split()
+    lingua = lingua_ambiente(open(f"/proc/{pid[0]}/environ", "rb").read()) if pid else "en"
     ETICHETTE.update(testi(lingua))
     registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di AMS attivo "
              "(l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
@@ -726,7 +768,7 @@ def i_desktop():
 
     # solleciti rapidi per la prova; l'agente riparte e rilegge la configurazione
     sh("printf 'AMS_REMIND_MINUTES=1\nAMS_AGENT_POLL=5\n' > /etc/ams/ams.conf")
-    sh(f"pkill -u {DESK} -f '^/bin/bash /usr/local/lib/ams/ams-user agent$'")
+    sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'")
     time.sleep(1)
     t0 = time.time()
     ams(f'send --to {DESK} "Secondo messaggio"')

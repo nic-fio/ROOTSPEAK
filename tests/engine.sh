@@ -2,13 +2,23 @@
 # AMS - Advanced Messaging System for linux
 # Test del motore: invio, casella, conferme, in modalità di prova (senza root,
 # su un archivio temporaneo). Uso: tests/engine.sh [-v]   (-v mostra gli output)
+# Prova i programmi compilati in build/ (make; AMS_BUILD per un'altra
+# cartella, per esempio build-san/ dei sanitizer).
 set -uo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 VERBOSE=${1:-}
 BASE=$(mktemp -d)
 trap 'chmod -R u+w "$BASE" 2>/dev/null; rm -rf "$BASE"' EXIT
-export AMS_TEST=1 AMS_LIB=$ROOT/lib AMS_CONF=/dev/null AMS_TEST_TTY=
+export AMS_TEST=1 AMS_CONF=/dev/null AMS_TEST_TTY=
+B=${AMS_BUILD:-$ROOT/build}
+[ -x "$B/ams" ] && [ -x "$B/prove-unita" ] || { echo "manca $B: lanciare make e make build/prove-unita" >&2; exit 1; }
+export AMS_LIB=$B AMS_LOCALEDIR=$B/locale
+AMS=$B/ams AMS_USER=$B/ams-user
+# le parti interne: la conferma da sola, la configurazione, la scelta della lingua
+ams_ack() { "$AMS_USER" conferma "$@"; }
+leggi_conf() { AMS_CONF=$1 "$B/prove-unita" conf; }
+lingua() { "$B/prove-unita" lingua "$@"; }
 # i test controllano i testi italiani; il gruppo 8 prova le altre lingue
 export LANG=it_IT.UTF-8
 unset LC_ALL LC_MESSAGES LANGUAGE
@@ -22,15 +32,15 @@ fresh() {
 	D=$AMS_VAR/users/$U
 }
 
-send() { "$ROOT/bin/ams" send --to "$U" "$@" >/dev/null; }
+send() { "$AMS" send --to "$U" "$@" >/dev/null; }
 
 # Risponde «$1» alla domanda del prompt, su uno pseudo-terminale
 # (prompt_login: come in una shell di login, dove il rinvio non vale).
 prompt() {
-	printf '%s\n' "$1" | script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1
+	printf '%s\n' "$1" | script -qec "$AMS_USER prompt" /dev/null 2>&1
 }
 prompt_login() {
-	printf '%s\n' "$1" | script -qec "$ROOT/lib/ams-user prompt --login" /dev/null 2>&1
+	printf '%s\n' "$1" | script -qec "$AMS_USER prompt --login" /dev/null 2>&1
 }
 
 check() { # descrizione, condizione (stringa valutata)
@@ -67,7 +77,7 @@ check "dopo il guasto la domanda torna e la conferma riesce" '[ -s "$D/acks/1" ]
 fresh ack-first
 send "prova"
 echo "1000 desktop" >"$D/acks/1"
-(source <(sed -e "s|^AMS_LIB=.*|AMS_LIB=$ROOT/lib|" -e '/^case \${1:-} in/,$d' "$ROOT/lib/ams-user"); ack 1 "terminale pts/9")
+ams_ack 1 "terminale pts/9"
 check "conferma già presente: resta la prima" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
 
 fresh ack-no-move
@@ -82,11 +92,11 @@ check "conferma registrata ma non spostata (interruzione): non viene richiesta d
 # cartella qualunque dell'archivio di prova.
 
 echo "2. consegna"
-state_of() { "$ROOT/bin/ams" status "$1" 2>/dev/null | awk -v u="$2" '$1 == u { $1 = ""; sub(/^ +/, ""); print }'; }
+state_of() { "$AMS" status "$1" 2>/dev/null | awk -v u="$2" '$1 == u { $1 = ""; sub(/^ +/, ""); print }'; }
 R=$AMS_VAR/users/root
 
 fresh send-ok
-"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+"$AMS" send --to "$U,root" "prova" >/dev/null
 R=$AMS_VAR/users/root
 check "invio normale: due consegne registrate, nessun segno di invio incompleto" \
 	'[ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 2 ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ]'
@@ -95,7 +105,7 @@ check "invio normale: stato «consegnato»" '[ "$(state_of 1 root)" = "consegnat
 fresh send-fail
 R=$AMS_VAR/users/root
 mkdir -p "$R/inbox" && chmod 555 "$R/inbox"
-out=$("$ROOT/bin/ams" send --to "$U,root" "prova" 2>&1)
+out=$("$AMS" send --to "$U,root" "prova" 2>&1)
 rc=$?
 [ -n "$VERBOSE" ] && echo "$out" | sed 's/^/       /'
 check "copia non scrivibile: ams send termina con errore" '[ $rc -ne 0 ] && [[ $out == *"non consegnato a: root"* ]]'
@@ -103,41 +113,41 @@ check "copia non scrivibile: l'altro destinatario la riceve" '[ -e "$D/inbox/1" 
 check "copia non scrivibile: resta il segno di invio incompleto" '[ -e "$AMS_VAR/sent/1/incomplete" ]'
 check "copia non scrivibile: stato «inviato, non consegnato»" '[[ $(state_of 1 root) == "inviato, non consegnato"* ]]'
 chmod 755 "$R/inbox"
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "guasto risolto: il comando successivo completa la consegna" \
 	'[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "consegnato" ]'
 
 fresh crash
 R=$AMS_VAR/users/root
-"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+"$AMS" send --to "$U,root" "prova" >/dev/null
 # interruzione simulata dopo il primo destinatario
 rm -f "$R/inbox/1"; sed -i '/^root /d' "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
-"$ROOT/bin/ams" status 1 >/dev/null 2>&1
+"$AMS" status 1 >/dev/null 2>&1
 check "invio interrotto: il comando successivo consegna chi mancava" '[ -e "$R/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ]'
 
 fresh crash-acked
-"$ROOT/bin/ams" send --to "$U" "prova" >/dev/null
+"$AMS" send --to "$U" "prova" >/dev/null
 prompt s >/dev/null
 sed -i "/^$U /d" "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "recupero: non ripropone un messaggio già confermato" '[ ! -e "$D/inbox/1" ] && [[ $(state_of 1 "$U") == confermato* ]]'
 
 fresh unsaved
 mkdir -p "$AMS_VAR/sent/7" "$AMS_VAR/users"; : >"$AMS_VAR/sent/7/incomplete"
-out=$("$ROOT/bin/ams" list 2>&1)
+out=$("$AMS" list 2>&1)
 check "invio interrotto prima del salvataggio: annullato e segnalato" \
 	'[ -e "$AMS_VAR/sent/7/failed" ] && [ ! -e "$AMS_VAR/sent/7/incomplete" ] && [[ $out == *"annullato"* ]]'
 
 fresh in-progress
 R=$AMS_VAR/users/root
-"$ROOT/bin/ams" send --to "$U,root" "prova" >/dev/null
+"$AMS" send --to "$U,root" "prova" >/dev/null
 rm -f "$R/inbox/1"; sed -i '/^root /d' "$AMS_VAR/sent/1/delivery"; : >"$AMS_VAR/sent/1/incomplete"
 flock "$AMS_VAR/sent/1/lock" sleep 2 &
 sleep 0.3
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "invio in corso (lock occupato): il recupero non lo tocca" '[ ! -e "$R/inbox/1" ] && [ -e "$AMS_VAR/sent/1/incomplete" ]'
 wait
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "lock rilasciato: il recupero completa, senza doppioni" \
 	'[ -e "$R/inbox/1" ] && [ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 2 ]'
 
@@ -145,7 +155,7 @@ fresh just-started
 mkdir -p "$AMS_VAR/sent/7" "$AMS_VAR/users"; : >"$AMS_VAR/sent/7/incomplete"
 flock "$AMS_VAR/sent/7/lock" sleep 1 &
 sleep 0.3
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "invio appena iniziato (ancora senza messaggio): non viene annullato" '[ ! -e "$AMS_VAR/sent/7/failed" ]'
 wait
 
@@ -153,7 +163,7 @@ wait
 
 echo "3. stati"
 fresh states
-out=$("$ROOT/bin/ams" send --to "$U" --level info "prova" 2>&1)
+out=$("$AMS" send --to "$U" --level info "prova" 2>&1)
 check "--level non esiste più" '[[ $out == *"opzione sconosciuta: --level"* ]] && [ ! -d "$AMS_VAR/sent/1" ]'
 send "prova"
 check "dopo l'invio: consegnato" '[ "$(state_of 1 "$U")" = "consegnato" ]'
@@ -164,7 +174,7 @@ prompt s >/dev/null
 check "rimandato: al prompt successivo non viene richiesto subito" '[[ $(state_of 1 "$U") == "consegnato, rimandato il "* ]]'
 prompt_login s >/dev/null
 check "confermato (nuovo login)" '[[ $(state_of 1 "$U") == "confermato il "* ]]'
-list=$("$ROOT/bin/ams" list)
+list=$("$AMS" list)
 check "ams list: colonne senza livello, conferme 1/1" '[[ $list == *"ID    DATA         CONFERME  TESTO"* ]] && [[ $list == *" 1/1 "* ]]'
 
 fresh expired
@@ -179,7 +189,7 @@ fresh expire-during
 send --expires 1m "scade durante la domanda"
 exp=$(( $(date +%s) + 2 ))
 sed -i "s/^expires: .*/expires: $exp/" "$AMS_VAR/sent/1/msg" "$D/inbox/1"
-out=$( (sleep 4; echo s) | script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1)
+out=$( (sleep 4; echo s) | script -qec "$AMS_USER prompt" /dev/null 2>&1)
 check "scadenza durante la domanda: la domanda si ferma" '[[ $out == *"Il messaggio è scaduto."* ]]'
 check "scadenza durante la domanda: nessuna conferma registrata" '[ ! -e "$D/acks/1" ] && [ -e "$D/read/1" ]'
 check "scadenza durante la domanda: stato «non confermato (scaduto)»" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
@@ -191,13 +201,13 @@ sed -i "s/^expires: .*/expires: $exp/" "$AMS_VAR/sent/1/msg"
 echo "$(date +%s) desktop" >"$D/acks/1"
 check "conferma con ora dopo la scadenza (copia di riferimento): non vale" \
 	'[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)" ]'
-check "ams list non la conta" '[[ $("$ROOT/bin/ams" list) == *" 0/1 "* ]]'
+check "ams list non la conta" '[[ $("$AMS" list) == *" 0/1 "* ]]'
 
 # ---- 5. configurazione e formato ----
 
 echo "5. configurazione"
 conf=$BASE/ams.conf
-leggi() { (AMS_CONF=$conf; . "$ROOT/lib/ams-common.sh"; echo "$AMS_REMIND_MINUTES $AMS_AGENT_POLL"); }
+leggi() { leggi_conf "$conf"; }
 printf 'AMS_REMIND_MINUTES=$(touch %s/eseguito)\nAMS_AGENT_POLL=`touch %s/eseguito`\n' "$BASE" "$BASE" >"$conf"
 check "la configurazione non viene eseguita come codice" '[ "$(leggi)" = "30 60" ] && [ ! -e "$BASE/eseguito" ]'
 printf '# commento\n AMS_REMIND_MINUTES = 15  # a destra\nAMS_AGENT_POLL=abc\nAMS_DEFAULT_LEVEL=info\nALTRO=5\n' >"$conf"
@@ -215,7 +225,7 @@ fresh purge
 send "vecchio"; send "recente"
 sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$AMS_VAR/sent/1/msg"
 prompt_login s >/dev/null
-out=$("$ROOT/bin/ams" purge 7d)
+out=$("$AMS" purge 7d)
 check "ams purge 7d: cancella il messaggio di 10 giorni fa" '[[ $out == "Cancellato 1 messaggio"* ]] && [ ! -d "$AMS_VAR/sent/1" ]'
 check "ams purge: copie e conferme nella casella tolte" \
 	'[ ! -e "$D/inbox/1" ] && [ ! -e "$D/read/1" ] && [ ! -e "$D/acks/1" ]'
@@ -224,10 +234,10 @@ check "ams purge: il messaggio recente resta" '[ -d "$AMS_VAR/sent/2" ] && [ -e 
 sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$AMS_VAR/sent/2/msg"
 flock "$AMS_VAR/sent/2/lock" sleep 1 &
 sleep 0.2
-"$ROOT/bin/ams" purge 7d >/dev/null 2>&1
+"$AMS" purge 7d >/dev/null 2>&1
 check "ams purge: un invio incompleto o in corso non viene toccato" '[ -d "$AMS_VAR/sent/2" ]'
 wait
-out=$("$ROOT/bin/ams" purge 7x 2>&1)
+out=$("$AMS" purge 7x 2>&1)
 check "ams purge: durata non valida rifiutata" '[[ $out == *"durata non valida"* ]]'
 
 # ---- 7. agente del desktop: sveglia solo quando è pronto ----
@@ -241,7 +251,7 @@ if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
 	vivi=0 pronti=0
 	for i in 1 2 3 4 5 6 7 8 9 10; do
 		rm -f "$BASE/run-agent/ams-agent.pronto"
-		XDG_RUNTIME_DIR=$BASE/run-agent "$ROOT/lib/ams-user" agent &
+		XDG_RUNTIME_DIR=$BASE/run-agent "$AMS_USER" agent &
 		p=$!
 		for k in $(seq 1 200); do [ -s "$BASE/run-agent/ams-agent.pronto" ] && break; sleep 0.01; done
 		[ "$(cat "$BASE/run-agent/ams-agent.pronto" 2>/dev/null)" = "$p" ] && pronti=$((pronti + 1))
@@ -260,9 +270,7 @@ fi
 # ---- 8. lingua: ognuno legge AMS nella sua ----
 
 echo "8. lingua"
-lingua() { # LANGUAGE LC_ALL LC_MESSAGES LANG → lingua scelta
-	bash -c '. "$AMS_LIB/ams-common.sh"; ams_pick_lang "$@"; echo "$_LINGUA"' _ "$@"
-}
+# lingua LANGUAGE LC_ALL LC_MESSAGES LANG → lingua scelta (definita in alto)
 check "LANG=it_IT.UTF-8: italiano" '[ "$(lingua "" "" "" it_IT.UTF-8)" = it ]'
 check "LANG=en_GB.UTF-8: inglese" '[ "$(lingua "" "" "" en_GB.UTF-8)" = en ]'
 check "lingua senza traduzione (de_DE): inglese" '[ "$(lingua "" "" "" de_DE.UTF-8)" = en ]'
@@ -275,21 +283,21 @@ check "valori strani (../, /): inglese, nessun file letto" '[ "$(lingua "../../t
 
 fresh lingua
 send "Testo non tradotto"
-out=$(printf 'y\n' | LANG=en_US.UTF-8 script -qec "$ROOT/lib/ams-user prompt" /dev/null 2>&1)
+out=$(printf 'y\n' | LANG=en_US.UTF-8 script -qec "$AMS_USER prompt" /dev/null 2>&1)
 check "utente in inglese: intestazione, domanda e conferma in inglese, testo intatto" \
 	'[[ $out == *"Message from the administrator"* && $out == *"Do you confirm"* && $out == *"Confirmed."* && $out == *"Testo non tradotto"* ]] && [ -s "$D/acks/1" ]'
 send "Secondo"
-out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" status 2)
+out=$(LANG=en_US.UTF-8 "$AMS" status 2)
 check "amministratore in inglese: ams status" '[[ $out == *"USER"*"STATE"* && $out == *"delivered"* ]]'
-out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" status 1)
+out=$(LANG=en_US.UTF-8 "$AMS" status 1)
 check "conferma data da terminale, letta in inglese: canale tradotto" '[[ $out == *"confirmed on"*"(terminal "* ]]'
-out=$("$ROOT/bin/ams" status 1)
+out=$("$AMS" status 1)
 check "la stessa conferma letta in italiano" '[[ $out == *"confermato il"*"(terminale "* ]]'
-out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" send "x" 2>&1)
+out=$(LANG=en_US.UTF-8 "$AMS" send "x" 2>&1)
 check "errore in inglese" '[[ $out == "ams: missing --to" ]]'
-out=$(LANG=en_US.UTF-8 "$ROOT/bin/ams" --help </dev/null | cat)
+out=$(LANG=en_US.UTF-8 "$AMS" --help </dev/null | cat)
 check "guida in inglese" '[[ $out == *"SYNOPSIS"* && $out == *"SEND OPTIONS"* ]]'
-out=$("$ROOT/bin/ams" --help </dev/null | cat)
+out=$("$AMS" --help </dev/null | cat)
 check "guida in italiano" '[[ $out == *"SINTASSI"* && $out == *"OPZIONI DI SEND"* ]]'
 
 # ---- 9. seconda revisione: ritiro, terminali, interruzioni, caselle anomale ----
@@ -301,14 +309,14 @@ send "lungo invio"
 ( flock "$AMS_VAR/sent/1/lock" sleep 2 ) &
 sleep 0.3
 t0=$(date +%s%N)
-"$ROOT/bin/ams" revoke 1 >/dev/null
+"$AMS" revoke 1 >/dev/null
 dt=$((($(date +%s%N) - t0) / 1000000))
 wait
 check "ams revoke aspetta un invio in corso (lock), poi toglie la copia" '[ $dt -ge 1200 ] && [ ! -e "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/ritiro" ]'
 
 fresh rit-conferma
 send "ritirato"
-"$ROOT/bin/ams" revoke 1 >/dev/null
+"$AMS" revoke 1 >/dev/null
 rev=$(cat "$AMS_VAR/sent/1/revoked")
 echo "$((rev + 5)) terminale pts/9" >"$D/acks/1"
 check "conferma con ora successiva al ritiro: non vale" '[[ "$(state_of 1 "$U")" == "consegnato, non confermato (ritirato)" ]]'
@@ -318,34 +326,34 @@ check "conferma dello stesso secondo del ritiro: vale" '[[ "$(state_of 1 "$U")" 
 fresh rit-ack
 send "ritirato prima della risposta"
 cp "$D/inbox/1" "$BASE/copia"
-out=$(printf 's\n' | script -qec "bash -c '$ROOT/lib/ams-user prompt & sleep 0.5; rm -f $D/inbox/1; wait'" /dev/null 2>&1)
+out=$(printf 's\n' | script -qec "bash -c '$AMS_USER prompt & sleep 0.5; rm -f $D/inbox/1; wait'" /dev/null 2>&1)
 check "copia tolta mentre l'utente risponde: nessuna conferma scritta" '[ ! -e "$D/acks/1" ]'
 
 fresh term-altro
-AMS_TEST_TTY=/dev/null "$ROOT/bin/ams" send --to "$U" "terminale d'altri" >/dev/null
+AMS_TEST_TTY=/dev/null "$AMS" send --to "$U" "terminale d'altri" >/dev/null
 check "terminale di un altro utente (qui /dev/null, di root): non si scrive" '[ "$(state_of 1 "$U")" = consegnato ]'
 : >"$BASE/tty-mio"
-AMS_TEST_TTY=$BASE/tty-mio "$ROOT/bin/ams" send --to "$U" "terminale mio" >/dev/null
+AMS_TEST_TTY=$BASE/tty-mio "$AMS" send --to "$U" "terminale mio" >/dev/null
 check "terminale dell'utente: si scrive" 'grep -q "terminale mio" "$BASE/tty-mio"'
 
 fresh corrente
 send "persa dopo un'interruzione di corrente"
 rm -f "$D/inbox/1"
 : >"$AMS_VAR/sent/1/incomplete"
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "copia annotata ma sparita (invio incompleto): il recupero la riscrive" '[ -s "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/incomplete" ] && [ "$(wc -l <"$AMS_VAR/sent/1/delivery")" = 1 ]'
 
 fresh rit-meta
 send "ritiro interrotto"
 date +%s >"$AMS_VAR/sent/1/revoked"
 : >"$AMS_VAR/sent/1/ritiro"
-"$ROOT/bin/ams" list >/dev/null 2>&1
+"$AMS" list >/dev/null 2>&1
 check "ritiro interrotto: il comando successivo toglie la copia" '[ ! -e "$D/inbox/1" ] && [ ! -e "$AMS_VAR/sent/1/ritiro" ]'
 
 fresh canc-meta
 send "cancellazione interrotta"
 mv "$AMS_VAR/sent/1" "$AMS_VAR/sent/.cancella-1"
-out=$("$ROOT/bin/ams" list 2>&1)
+out=$("$AMS" list 2>&1)
 check "cancellazione interrotta: ams list non la mostra e il recupero la completa" \
 	'[[ $out != *"cancellazione interrotta"* ]] && [ ! -e "$AMS_VAR/sent/.cancella-1" ] && [ ! -e "$D/inbox/1" ]'
 
@@ -353,7 +361,7 @@ fresh molti-acks
 send "uno"
 (cd "$D/acks" && seq 1000 6000 | xargs touch)
 t0=$(date +%s%N)
-"$ROOT/bin/ams" list >/dev/null
+"$AMS" list >/dev/null
 dt=$((($(date +%s%N) - t0) / 1000000))
 [ -n "$VERBOSE" ] && echo "       ams list con 5000 file finti in acks/: $dt ms"
 check "5000 file finti in acks/: ams list non rallenta (meno di 1 s)" '[ $dt -lt 1000 ]'
@@ -361,16 +369,16 @@ check "5000 file finti in acks/: ams list non rallenta (meno di 1 s)" '[ $dt -lt
 fresh fifo
 send "uno"
 mkfifo "$D/acks/1"
-check "acks/ID è una pipe: ams status non si blocca" 'timeout 5 "$ROOT/bin/ams" status 1 >/dev/null'
+check "acks/ID è una pipe: ams status non si blocca" 'timeout 5 "$AMS" status 1 >/dev/null'
 
 fresh lungo
-out=$(head -c 70000 /dev/zero | tr '\0' a | "$ROOT/bin/ams" send --to "$U" 2>&1)
+out=$(head -c 70000 /dev/zero | tr '\0' a | "$AMS" send --to "$U" 2>&1)
 check "testo oltre 65536 byte: rifiutato con un errore chiaro" '[[ $out == *"messaggio troppo lungo: 70000 byte"* ]] && [ ! -e "$AMS_VAR/sent/1" ]'
-out=$(head -c 65536 /dev/zero | tr '\0' a | "$ROOT/bin/ams" send --to "$U" 2>&1)
+out=$(head -c 65536 /dev/zero | tr '\0' a | "$AMS" send --to "$U" 2>&1)
 check "testo di 65536 byte: accettato" '[ -e "$AMS_VAR/sent/1/msg" ]'
 
 printf 'AMS_REMIND_MINUTES=45 # minuti di rinvio\n  AMS_AGENT_POLL = 20  \n' >"$BASE/conf"
-out=$(AMS_CONF=$BASE/conf bash -c '. "$AMS_LIB/ams-common.sh"; echo "$AMS_REMIND_MINUTES $AMS_AGENT_POLL"')
+out=$(leggi_conf "$BASE/conf")
 check "ams.conf: commento a fine riga e spazi" '[ "$out" = "45 20" ]'
 
 echo
