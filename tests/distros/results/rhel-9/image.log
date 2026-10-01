@@ -1,0 +1,191 @@
+STEP 1/4: FROM registry.access.redhat.com/ubi9/ubi
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> 39bf88e0cb7d
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+setup: not available: dnf install -y epel-release
+setup: not available: dnf install -y oracle-epel-release-el9
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Last metadata expiration check: 0:00:01 ago on Thu Oct  1 15:03:47 2026.
+Package systemd-252-67.el9_8.6.x86_64 is already installed.
+Package systemd-pam-252-67.el9_8.6.x86_64 is already installed.
+Package dbus-1:1.12.20-8.el9.x86_64 is already installed.
+Package python3-3.9.25-7.el9_8.3.x86_64 is already installed.
+Package util-linux-2.37.4-25.el9.x86_64 is already installed.
+Package tar-2:1.34-13.el9_8.x86_64 is already installed.
+Package shadow-utils-2:4.9-16.el9.x86_64 is already installed.
+Dependencies resolved.
+========================================================================================
+ Package                      Arch    Version                Repository             Size
+========================================================================================
+Installing:
+ gcc                          x86_64  11.5.0-14.el9          ubi-9-appstream-rpms   32 M
+ less                         x86_64  590-6.el9              ubi-9-baseos-rpms     162 k
+ make                         x86_64  1:4.3-8.el9            ubi-9-baseos-rpms     541 k
+ openssh-clients              x86_64  9.9p1-12.el9_8         ubi-9-baseos-rpms     782 k
+ openssh-server               x86_64  9.9p1-12.el9_8         ubi-9-baseos-rpms     554 k
+ pkgconf-pkg-config           x86_64  1.7.3-10.el9           ubi-9-baseos-rpms      12 k
+ procps-ng                    x86_64  3.3.17-14.el9          ubi-9-baseos-rpms     353 k
+ sudo                         x86_64  1.9.17p2-3.el9_8.1     ubi-9-baseos-rpms     1.3 M
+ systemd-devel                x86_64  252-67.el9_8.6         ubi-9-appstream-rpms  639 k
+Installing dependencies:
+ binutils                     x86_64  2.35.2-72.el9          ubi-9-baseos-rpms     4.6 M
+ binutils-gold                x86_64  2.35.2-72.el9          ubi-9-baseos-rpms     741 k
+ cpp                          x86_64  11.5.0-14.el9          ubi-9-appstream-rpms   11 M
+ elfutils-debuginfod-client   x86_64  0.194-1.el9            ubi-9-baseos-rpms      43 k
+ glibc-devel                  x86_64  2.34-275.el9_8         ubi-9-appstream-rpms   45 k
+ glibc-headers                x86_64  2.34-275.el9_8         ubi-9-appstream-rpms  554 k
+ kernel-headers               x86_64  5.14.0-687.53.1.el9_8  ubi-9-appstream-rpms  2.8 M
+ libcbor                      x86_64  0.7.0-5.el9            ubi-9-baseos-rpms      59 k
+ libedit                      x86_64  3.1-39.20210216cvs.el9 ubi-9-baseos-rpms     109 k
+ libfido2                     x86_64  1.13.0-2.el9           ubi-9-baseos-rpms     100 k
+ libmpc                       x86_64  1.2.1-4.el9            ubi-9-appstream-rpms   65 k
+ libpkgconf                   x86_64  1.7.3-10.el9           ubi-9-baseos-rpms      37 k
+ libxcrypt-devel              x86_64  4.4.18-3.el9           ubi-9-appstream-rpms   32 k
+ openssh                      x86_64  9.9p1-12.el9_8         ubi-9-baseos-rpms     433 k
+ pkgconf                      x86_64  1.7.3-10.el9           ubi-9-baseos-rpms      45 k
+ pkgconf-m4                   noarch  1.7.3-10.el9           ubi-9-baseos-rpms      16 k
+
+Transaction Summary
+========================================================================================
+Install  25 Packages
+
+Total download size: 57 M
+Installed size: 165 M
+Downloading Packages:
+(1/25): elfutils-debuginfod-client-0.194-1.el9. 470 kB/s |  43 kB     00:00    
+(2/25): less-590-6.el9.x86_64.rpm               4.7 MB/s | 162 kB     00:00    
+(3/25): binutils-gold-2.35.2-72.el9.x86_64.rpm  5.7 MB/s | 741 kB     00:00    
+(4/25): libcbor-0.7.0-5.el9.x86_64.rpm          4.1 MB/s |  59 kB     00:00    
+(5/25): libedit-3.1-39.20210216cvs.el9.x86_64.r 4.9 MB/s | 109 kB     00:00    
+(6/25): libfido2-1.13.0-2.el9.x86_64.rpm        4.3 MB/s | 100 kB     00:00    
+(7/25): libpkgconf-1.7.3-10.el9.x86_64.rpm      1.2 MB/s |  37 kB     00:00    
+(8/25): openssh-9.9p1-12.el9_8.x86_64.rpm        26 MB/s | 433 kB     00:00    
+(9/25): make-4.3-8.el9.x86_64.rpm                14 MB/s | 541 kB     00:00    
+(10/25): openssh-clients-9.9p1-12.el9_8.x86_64.  38 MB/s | 782 kB     00:00    
+(11/25): openssh-server-9.9p1-12.el9_8.x86_64.r  20 MB/s | 554 kB     00:00    
+(12/25): pkgconf-1.7.3-10.el9.x86_64.rpm        3.5 MB/s |  45 kB     00:00    
+(13/25): binutils-2.35.2-72.el9.x86_64.rpm       19 MB/s | 4.6 MB     00:00    
+(14/25): pkgconf-m4-1.7.3-10.el9.noarch.rpm     961 kB/s |  16 kB     00:00    
+(15/25): pkgconf-pkg-config-1.7.3-10.el9.x86_64 639 kB/s |  12 kB     00:00    
+(16/25): procps-ng-3.3.17-14.el9.x86_64.rpm      23 MB/s | 353 kB     00:00    
+(17/25): libmpc-1.2.1-4.el9.x86_64.rpm          2.6 MB/s |  65 kB     00:00    
+(18/25): sudo-1.9.17p2-3.el9_8.1.x86_64.rpm      31 MB/s | 1.3 MB     00:00    
+(19/25): libxcrypt-devel-4.4.18-3.el9.x86_64.rp 1.1 MB/s |  32 kB     00:00    
+(20/25): glibc-devel-2.34-275.el9_8.x86_64.rpm  1.6 MB/s |  45 kB     00:00    
+(21/25): glibc-headers-2.34-275.el9_8.x86_64.rp  30 MB/s | 554 kB     00:00    
+(22/25): systemd-devel-252-67.el9_8.6.x86_64.rp  22 MB/s | 639 kB     00:00    
+(23/25): cpp-11.5.0-14.el9.x86_64.rpm           109 MB/s |  11 MB     00:00    
+(24/25): kernel-headers-5.14.0-687.53.1.el9_8.x 119 MB/s | 2.8 MB     00:00    
+(25/25): gcc-11.5.0-14.el9.x86_64.rpm           175 MB/s |  32 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                           120 MB/s |  57 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Installing       : libmpc-1.2.1-4.el9.x86_64                             1/25 
+  Running scriptlet: openssh-9.9p1-12.el9_8.x86_64                         2/25 
+  Installing       : openssh-9.9p1-12.el9_8.x86_64                         2/25 
+  Installing       : elfutils-debuginfod-client-0.194-1.el9.x86_64         3/25 
+  Installing       : binutils-gold-2.35.2-72.el9.x86_64                    4/25 
+  Installing       : binutils-2.35.2-72.el9.x86_64                         5/25 
+  Running scriptlet: binutils-2.35.2-72.el9.x86_64                         5/25 
+  Installing       : cpp-11.5.0-14.el9.x86_64                              6/25 
+  Installing       : kernel-headers-5.14.0-687.53.1.el9_8.x86_64           7/25 
+  Installing       : glibc-headers-2.34-275.el9_8.x86_64                   8/25 
+  Installing       : pkgconf-m4-1.7.3-10.el9.noarch                        9/25 
+  Installing       : make-1:4.3-8.el9.x86_64                              10/25 
+  Installing       : libpkgconf-1.7.3-10.el9.x86_64                       11/25 
+  Installing       : pkgconf-1.7.3-10.el9.x86_64                          12/25 
+  Installing       : pkgconf-pkg-config-1.7.3-10.el9.x86_64               13/25 
+  Installing       : glibc-devel-2.34-275.el9_8.x86_64                    14/25 
+  Installing       : libxcrypt-devel-4.4.18-3.el9.x86_64                  15/25 
+  Installing       : libedit-3.1-39.20210216cvs.el9.x86_64                16/25 
+  Installing       : libcbor-0.7.0-5.el9.x86_64                           17/25 
+  Installing       : libfido2-1.13.0-2.el9.x86_64                         18/25 
+  Installing       : openssh-clients-9.9p1-12.el9_8.x86_64                19/25 
+  Running scriptlet: openssh-clients-9.9p1-12.el9_8.x86_64                19/25 
+  Installing       : gcc-11.5.0-14.el9.x86_64                             20/25 
+  Running scriptlet: openssh-server-9.9p1-12.el9_8.x86_64                 21/25 
+  Installing       : openssh-server-9.9p1-12.el9_8.x86_64                 21/25 
+  Running scriptlet: openssh-server-9.9p1-12.el9_8.x86_64                 21/25 
+Created symlink /etc/systemd/system/multi-user.target.wants/sshd.service → /usr/lib/systemd/system/sshd.service.
+
+  Installing       : systemd-devel-252-67.el9_8.6.x86_64                  22/25 
+  Installing       : sudo-1.9.17p2-3.el9_8.1.x86_64                       23/25 
+  Running scriptlet: sudo-1.9.17p2-3.el9_8.1.x86_64                       23/25 
+  Installing       : procps-ng-3.3.17-14.el9.x86_64                       24/25 
+  Installing       : less-590-6.el9.x86_64                                25/25 
+  Running scriptlet: less-590-6.el9.x86_64                                25/25 
+  Verifying        : binutils-2.35.2-72.el9.x86_64                         1/25 
+  Verifying        : binutils-gold-2.35.2-72.el9.x86_64                    2/25 
+  Verifying        : elfutils-debuginfod-client-0.194-1.el9.x86_64         3/25 
+  Verifying        : less-590-6.el9.x86_64                                 4/25 
+  Verifying        : libcbor-0.7.0-5.el9.x86_64                            5/25 
+  Verifying        : libedit-3.1-39.20210216cvs.el9.x86_64                 6/25 
+  Verifying        : libfido2-1.13.0-2.el9.x86_64                          7/25 
+  Verifying        : libpkgconf-1.7.3-10.el9.x86_64                        8/25 
+  Verifying        : make-1:4.3-8.el9.x86_64                               9/25 
+  Verifying        : openssh-9.9p1-12.el9_8.x86_64                        10/25 
+  Verifying        : openssh-clients-9.9p1-12.el9_8.x86_64                11/25 
+  Verifying        : openssh-server-9.9p1-12.el9_8.x86_64                 12/25 
+  Verifying        : pkgconf-1.7.3-10.el9.x86_64                          13/25 
+  Verifying        : pkgconf-m4-1.7.3-10.el9.noarch                       14/25 
+  Verifying        : pkgconf-pkg-config-1.7.3-10.el9.x86_64               15/25 
+  Verifying        : procps-ng-3.3.17-14.el9.x86_64                       16/25 
+  Verifying        : sudo-1.9.17p2-3.el9_8.1.x86_64                       17/25 
+  Verifying        : libmpc-1.2.1-4.el9.x86_64                            18/25 
+  Verifying        : libxcrypt-devel-4.4.18-3.el9.x86_64                  19/25 
+  Verifying        : cpp-11.5.0-14.el9.x86_64                             20/25 
+  Verifying        : gcc-11.5.0-14.el9.x86_64                             21/25 
+  Verifying        : glibc-devel-2.34-275.el9_8.x86_64                    22/25 
+  Verifying        : glibc-headers-2.34-275.el9_8.x86_64                  23/25 
+  Verifying        : systemd-devel-252-67.el9_8.6.x86_64                  24/25 
+  Verifying        : kernel-headers-5.14.0-687.53.1.el9_8.x86_64          25/25 
+Installed products updated.
+
+Installed:
+  binutils-2.35.2-72.el9.x86_64                                                 
+  binutils-gold-2.35.2-72.el9.x86_64                                            
+  cpp-11.5.0-14.el9.x86_64                                                      
+  elfutils-debuginfod-client-0.194-1.el9.x86_64                                 
+  gcc-11.5.0-14.el9.x86_64                                                      
+  glibc-devel-2.34-275.el9_8.x86_64                                             
+  glibc-headers-2.34-275.el9_8.x86_64                                           
+  kernel-headers-5.14.0-687.53.1.el9_8.x86_64                                   
+  less-590-6.el9.x86_64                                                         
+  libcbor-0.7.0-5.el9.x86_64                                                    
+  libedit-3.1-39.20210216cvs.el9.x86_64                                         
+  libfido2-1.13.0-2.el9.x86_64                                                  
+  libmpc-1.2.1-4.el9.x86_64                                                     
+  libpkgconf-1.7.3-10.el9.x86_64                                                
+  libxcrypt-devel-4.4.18-3.el9.x86_64                                           
+  make-1:4.3-8.el9.x86_64                                                       
+  openssh-9.9p1-12.el9_8.x86_64                                                 
+  openssh-clients-9.9p1-12.el9_8.x86_64                                         
+  openssh-server-9.9p1-12.el9_8.x86_64                                          
+  pkgconf-1.7.3-10.el9.x86_64                                                   
+  pkgconf-m4-1.7.3-10.el9.noarch                                                
+  pkgconf-pkg-config-1.7.3-10.el9.x86_64                                        
+  procps-ng-3.3.17-14.el9.x86_64                                                
+  sudo-1.9.17p2-3.el9_8.1.x86_64                                                
+  systemd-devel-252-67.el9_8.6.x86_64                                           
+
+Complete!
+setup: not available: dnf install -y glibc-langpack-it
+setup: not available: dnf install -y --setopt=install_weak_deps=False fish
+setup: not available: dnf install -y --setopt=install_weak_deps=False ksh
+setup: not available: dnf install -y --setopt=install_weak_deps=False dash
+Initializing machine ID from random generator.
+--> 10608f5f8ea1
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-rhel-9:8052ef5300c2
+--> 6f0bb82a3690
+Successfully tagged localhost/rootspeak-test-rhel-9:8052ef5300c2
+6f0bb82a36903b92a774f9feeb2df58bc24e8c467ac6002e3e99971958af4037

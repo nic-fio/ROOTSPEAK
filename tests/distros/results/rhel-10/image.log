@@ -1,0 +1,176 @@
+STEP 1/4: FROM registry.access.redhat.com/ubi10/ubi
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> 3f6b38b14311
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+setup: not available: dnf install -y epel-release
+setup: not available: dnf install -y oracle-epel-release-el10
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Package systemd-257-23.el10_2.2.x86_64 is already installed.
+Package systemd-pam-257-23.el10_2.2.x86_64 is already installed.
+Package dbus-1:1.14.10-5.el10.x86_64 is already installed.
+Package python3-3.12.14-1.el10_2.x86_64 is already installed.
+Package util-linux-2.40.2-18.el10.x86_64 is already installed.
+Package tar-2:1.35-13.el10_2.x86_64 is already installed.
+Package shadow-utils-2:4.15.0-11.el10.x86_64 is already installed.
+Dependencies resolved.
+=====================================================================================================
+ Package                      Arch    Version                 Repository                         Size
+=====================================================================================================
+Installing:
+ gcc                          x86_64  14.3.1-4.4.el10         ubi-10-for-x86_64-appstream-rpms   38 M
+ less                         x86_64  661-3.el10              ubi-10-for-x86_64-baseos-rpms     195 k
+ make                         x86_64  1:4.4.1-9.el10          ubi-10-for-x86_64-baseos-rpms     591 k
+ openssh-clients              x86_64  9.9p1-28.el10_2         ubi-10-for-x86_64-baseos-rpms     774 k
+ openssh-server               x86_64  9.9p1-28.el10_2         ubi-10-for-x86_64-baseos-rpms     551 k
+ pkgconf-pkg-config           x86_64  2.1.0-3.el10            ubi-10-for-x86_64-baseos-rpms      12 k
+ procps-ng                    x86_64  4.0.4-11.el10           ubi-10-for-x86_64-baseos-rpms     381 k
+ sudo                         x86_64  1.9.17-10.p2.el10_2.6   ubi-10-for-x86_64-baseos-rpms     1.4 M
+ systemd-devel                x86_64  257-23.el10_2.2         ubi-10-for-x86_64-appstream-rpms  739 k
+Installing dependencies:
+ binutils                     x86_64  2.41-63.el10            ubi-10-for-x86_64-baseos-rpms     6.4 M
+ binutils-gold                x86_64  2.41-63.el10            ubi-10-for-x86_64-baseos-rpms     801 k
+ cpp                          x86_64  14.3.1-4.4.el10         ubi-10-for-x86_64-appstream-rpms   13 M
+ cyrus-sasl-lib               x86_64  2.1.28-30.el10_2        ubi-10-for-x86_64-baseos-rpms     112 k
+ elfutils-debuginfod-client   x86_64  0.194-2.el10_2          ubi-10-for-x86_64-baseos-rpms      50 k
+ glibc-devel                  x86_64  2.39-128.el10_2         ubi-10-for-x86_64-appstream-rpms  590 k
+ jansson                      x86_64  2.14-3.el10             ubi-10-for-x86_64-baseos-rpms      48 k
+ kernel-headers               x86_64  6.12.0-211.61.1.el10_2  ubi-10-for-x86_64-appstream-rpms  3.6 M
+ libcbor                      x86_64  0.11.0-3.el10           ubi-10-for-x86_64-baseos-rpms      36 k
+ libedit                      x86_64  3.1-52.20230828cvs.el10 ubi-10-for-x86_64-baseos-rpms     108 k
+ libevent                     x86_64  2.1.13-1.el10_2         ubi-10-for-x86_64-baseos-rpms     268 k
+ libfido2                     x86_64  1.14.0-7.el10           ubi-10-for-x86_64-baseos-rpms     101 k
+ libmpc                       x86_64  1.3.1-7.el10            ubi-10-for-x86_64-appstream-rpms   74 k
+ libpkgconf                   x86_64  2.1.0-3.el10            ubi-10-for-x86_64-baseos-rpms      41 k
+ libxcrypt-devel              x86_64  4.4.36-10.el10          ubi-10-for-x86_64-appstream-rpms   33 k
+ openldap                     x86_64  2.6.10-1.el10           ubi-10-for-x86_64-baseos-rpms     239 k
+ openssh                      x86_64  9.9p1-28.el10_2         ubi-10-for-x86_64-baseos-rpms     360 k
+ pkgconf                      x86_64  2.1.0-3.el10            ubi-10-for-x86_64-baseos-rpms      48 k
+ pkgconf-m4                   noarch  2.1.0-3.el10            ubi-10-for-x86_64-baseos-rpms      15 k
+
+Transaction Summary
+=====================================================================================================
+Install  28 Packages
+
+Total download size: 68 M
+Installed size: 203 M
+Downloading Packages:
+(1/28): cyrus-sasl-lib-2.1.28-30.el10_2.x86_64. 1.0 MB/s | 112 kB     00:00    
+(2/28): elfutils-debuginfod-client-0.194-2.el10 1.6 MB/s |  50 kB     00:00    
+(3/28): binutils-gold-2.41-63.el10.x86_64.rpm   5.0 MB/s | 801 kB     00:00    
+(4/28): jansson-2.14-3.el10.x86_64.rpm          2.3 MB/s |  48 kB     00:00    
+(5/28): less-661-3.el10.x86_64.rpm               12 MB/s | 195 kB     00:00    
+(6/28): libcbor-0.11.0-3.el10.x86_64.rpm        1.8 MB/s |  36 kB     00:00    
+(7/28): libedit-3.1-52.20230828cvs.el10.x86_64. 7.0 MB/s | 108 kB     00:00    
+(8/28): libfido2-1.14.0-7.el10.x86_64.rpm       6.3 MB/s | 101 kB     00:00    
+(9/28): libevent-2.1.13-1.el10_2.x86_64.rpm     6.4 MB/s | 268 kB     00:00    
+(10/28): libpkgconf-2.1.0-3.el10.x86_64.rpm     2.0 MB/s |  41 kB     00:00    
+(11/28): binutils-2.41-63.el10.x86_64.rpm        28 MB/s | 6.4 MB     00:00    
+(12/28): openldap-2.6.10-1.el10.x86_64.rpm       14 MB/s | 239 kB     00:00    
+(13/28): openssh-9.9p1-28.el10_2.x86_64.rpm      20 MB/s | 360 kB     00:00    
+(14/28): openssh-server-9.9p1-28.el10_2.x86_64.  29 MB/s | 551 kB     00:00    
+(15/28): openssh-clients-9.9p1-28.el10_2.x86_64  28 MB/s | 774 kB     00:00    
+(16/28): make-4.4.1-9.el10.x86_64.rpm            11 MB/s | 591 kB     00:00    
+(17/28): pkgconf-m4-2.1.0-3.el10.noarch.rpm     1.1 MB/s |  15 kB     00:00    
+(18/28): pkgconf-2.1.0-3.el10.x86_64.rpm        2.7 MB/s |  48 kB     00:00    
+(19/28): procps-ng-4.0.4-11.el10.x86_64.rpm      20 MB/s | 381 kB     00:00    
+(20/28): pkgconf-pkg-config-2.1.0-3.el10.x86_64 393 kB/s |  12 kB     00:00    
+(21/28): cpp-14.3.1-4.4.el10.x86_64.rpm         111 MB/s |  13 MB     00:00    
+(22/28): sudo-1.9.17-10.p2.el10_2.6.x86_64.rpm  9.9 MB/s | 1.4 MB     00:00    
+(23/28): glibc-devel-2.39-128.el10_2.x86_64.rpm  36 MB/s | 590 kB     00:00    
+(24/28): libmpc-1.3.1-7.el10.x86_64.rpm         4.3 MB/s |  74 kB     00:00    
+(25/28): libxcrypt-devel-4.4.36-10.el10.x86_64. 2.3 MB/s |  33 kB     00:00    
+(26/28): kernel-headers-6.12.0-211.61.1.el10_2. 135 MB/s | 3.6 MB     00:00    
+(27/28): systemd-devel-257-23.el10_2.2.x86_64.r  14 MB/s | 739 kB     00:00    
+(28/28): gcc-14.3.1-4.4.el10.x86_64.rpm         130 MB/s |  38 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                           114 MB/s |  68 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Installing       : libmpc-1.3.1-7.el10.x86_64                            1/28 
+  Installing       : openssh-9.9p1-28.el10_2.x86_64                        2/28 
+  Installing       : jansson-2.14-3.el10.x86_64                            3/28 
+  Installing       : cpp-14.3.1-4.4.el10.x86_64                            4/28 
+  Installing       : kernel-headers-6.12.0-211.61.1.el10_2.x86_64          5/28 
+  Installing       : pkgconf-m4-2.1.0-3.el10.noarch                        6/28 
+  Installing       : make-1:4.4.1-9.el10.x86_64                            7/28 
+  Installing       : libpkgconf-2.1.0-3.el10.x86_64                        8/28 
+  Installing       : pkgconf-2.1.0-3.el10.x86_64                           9/28 
+  Installing       : pkgconf-pkg-config-2.1.0-3.el10.x86_64               10/28 
+  Installing       : glibc-devel-2.39-128.el10_2.x86_64                   11/28 
+  Installing       : libxcrypt-devel-4.4.36-10.el10.x86_64                12/28 
+  Installing       : libevent-2.1.13-1.el10_2.x86_64                      13/28 
+  Installing       : libedit-3.1-52.20230828cvs.el10.x86_64               14/28 
+  Installing       : libcbor-0.11.0-3.el10.x86_64                         15/28 
+  Installing       : libfido2-1.14.0-7.el10.x86_64                        16/28 
+  Installing       : elfutils-debuginfod-client-0.194-2.el10_2.x86_64     17/28 
+  Installing       : binutils-gold-2.41-63.el10.x86_64                    18/28 
+  Running scriptlet: binutils-gold-2.41-63.el10.x86_64                    18/28 
+  Installing       : binutils-2.41-63.el10.x86_64                         19/28 
+  Running scriptlet: binutils-2.41-63.el10.x86_64                         19/28 
+  Installing       : cyrus-sasl-lib-2.1.28-30.el10_2.x86_64               20/28 
+  Installing       : openldap-2.6.10-1.el10.x86_64                        21/28 
+  Installing       : sudo-1.9.17-10.p2.el10_2.6.x86_64                    22/28 
+  Installing       : gcc-14.3.1-4.4.el10.x86_64                           23/28 
+  Installing       : openssh-clients-9.9p1-28.el10_2.x86_64               24/28 
+  Running scriptlet: openssh-clients-9.9p1-28.el10_2.x86_64               24/28 
+  Running scriptlet: openssh-server-9.9p1-28.el10_2.x86_64                25/28 
+  Installing       : openssh-server-9.9p1-28.el10_2.x86_64                25/28 
+  Running scriptlet: openssh-server-9.9p1-28.el10_2.x86_64                25/28 
+Created symlink '/etc/systemd/system/multi-user.target.wants/sshd.service' → '/usr/lib/systemd/system/sshd.service'.
+
+  Installing       : systemd-devel-257-23.el10_2.2.x86_64                 26/28 
+  Installing       : procps-ng-4.0.4-11.el10.x86_64                       27/28 
+  Installing       : less-661-3.el10.x86_64                               28/28 
+  Running scriptlet: less-661-3.el10.x86_64                               28/28 
+Installed products updated.
+
+Installed:
+  binutils-2.41-63.el10.x86_64                                                  
+  binutils-gold-2.41-63.el10.x86_64                                             
+  cpp-14.3.1-4.4.el10.x86_64                                                    
+  cyrus-sasl-lib-2.1.28-30.el10_2.x86_64                                        
+  elfutils-debuginfod-client-0.194-2.el10_2.x86_64                              
+  gcc-14.3.1-4.4.el10.x86_64                                                    
+  glibc-devel-2.39-128.el10_2.x86_64                                            
+  jansson-2.14-3.el10.x86_64                                                    
+  kernel-headers-6.12.0-211.61.1.el10_2.x86_64                                  
+  less-661-3.el10.x86_64                                                        
+  libcbor-0.11.0-3.el10.x86_64                                                  
+  libedit-3.1-52.20230828cvs.el10.x86_64                                        
+  libevent-2.1.13-1.el10_2.x86_64                                               
+  libfido2-1.14.0-7.el10.x86_64                                                 
+  libmpc-1.3.1-7.el10.x86_64                                                    
+  libpkgconf-2.1.0-3.el10.x86_64                                                
+  libxcrypt-devel-4.4.36-10.el10.x86_64                                         
+  make-1:4.4.1-9.el10.x86_64                                                    
+  openldap-2.6.10-1.el10.x86_64                                                 
+  openssh-9.9p1-28.el10_2.x86_64                                                
+  openssh-clients-9.9p1-28.el10_2.x86_64                                        
+  openssh-server-9.9p1-28.el10_2.x86_64                                         
+  pkgconf-2.1.0-3.el10.x86_64                                                   
+  pkgconf-m4-2.1.0-3.el10.noarch                                                
+  pkgconf-pkg-config-2.1.0-3.el10.x86_64                                        
+  procps-ng-4.0.4-11.el10.x86_64                                                
+  sudo-1.9.17-10.p2.el10_2.6.x86_64                                             
+  systemd-devel-257-23.el10_2.2.x86_64                                          
+
+Complete!
+setup: not available: dnf install -y glibc-langpack-it
+setup: not available: dnf install -y --setopt=install_weak_deps=False fish
+setup: not available: dnf install -y --setopt=install_weak_deps=False ksh
+setup: not available: dnf install -y --setopt=install_weak_deps=False dash
+Initializing machine ID from random generator.
+--> 569f6ac35567
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-rhel-10:8052ef5300c2
+--> b3e4ba289ee5
+Successfully tagged localhost/rootspeak-test-rhel-10:8052ef5300c2
+b3e4ba289ee58fb15093a2de150ee4296d86ebb5311dad4ccdc2bab32006994f

@@ -1,0 +1,651 @@
+{
+ "meta": {
+  "date": "2026-10-01 15:03:45 UTC",
+  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
+  "system": "Fedora Linux 44 (Container Image), container with systemd",
+  "ok": 65,
+  "failed": 0,
+  "not_tested": 2,
+  "total": 67,
+  "commit": "708375b5fe-modified",
+  "fingerprint": "43cabeaa5630",
+  "only": ""
+ },
+ "results": [
+  {
+   "code": "A1",
+   "area": "Access",
+   "description": "root sends a message",
+   "expected": "sending succeeds",
+   "outcome": "OK",
+   "details": "Message 1 sent to 1 user.",
+   "measures": {}
+  },
+  {
+   "code": "A2",
+   "area": "Access",
+   "description": "an administrator (sudo group) sends: rspeak re-runs itself with sudo",
+   "expected": "sending succeeds, sender admin",
+   "outcome": "OK",
+   "details": "from: admin",
+   "measures": {
+    "seconds": 0.114
+   }
+  },
+  {
+   "code": "A3",
+   "area": "Access",
+   "description": "an ordinary user cannot run rspeak",
+   "expected": "permission denied, no message",
+   "outcome": "OK",
+   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "measures": {}
+  },
+  {
+   "code": "A4",
+   "area": "Access",
+   "description": "an ordinary user cannot even open the help",
+   "expected": "permission denied",
+   "outcome": "OK",
+   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "measures": {}
+  },
+  {
+   "code": "B1",
+   "area": "Recipients",
+   "description": "one user",
+   "expected": "mario",
+   "outcome": "OK",
+   "details": "['mario']",
+   "measures": {}
+  },
+  {
+   "code": "B2",
+   "area": "Recipients",
+   "description": "list with a duplicate",
+   "expected": "anna, mario (once)",
+   "outcome": "OK",
+   "details": "['anna', 'mario']",
+   "measures": {}
+  },
+  {
+   "code": "B3",
+   "area": "Recipients",
+   "description": "group @developers",
+   "expected": "anna, mario",
+   "outcome": "OK",
+   "details": "['anna', 'mario']",
+   "measures": {}
+  },
+  {
+   "code": "B4",
+   "area": "Recipients",
+   "description": "all: human users, except root and whoever has nologin",
+   "expected": "admin, anna, dario, fabio, kora, luca, mario, zeno",
+   "outcome": "OK",
+   "details": "['admin', 'anna', 'dario', 'fabio', 'kora', 'luca', 'mario', 'zeno']",
+   "measures": {}
+  },
+  {
+   "code": "B5",
+   "area": "Recipients",
+   "description": "online: only whoever has an open session",
+   "expected": "luca",
+   "outcome": "OK",
+   "details": "['luca']",
+   "measures": {}
+  },
+  {
+   "code": "B6",
+   "area": "Recipients",
+   "description": "user that does not exist",
+   "expected": "error, no message created",
+   "outcome": "OK",
+   "details": "rspeak: no such user: nobodyhere",
+   "measures": {}
+  },
+  {
+   "code": "B7",
+   "area": "Recipients",
+   "description": "group without members",
+   "expected": "error «no recipients»",
+   "outcome": "OK",
+   "details": "rspeak: no recipients",
+   "measures": {}
+  },
+  {
+   "code": "C1a",
+   "area": "Delivery",
+   "description": "user logged out: the copy waits in the mailbox",
+   "expected": "delivered",
+   "outcome": "OK",
+   "details": "delivered",
+   "measures": {}
+  },
+  {
+   "code": "C1b",
+   "area": "Delivery",
+   "description": "at login the message and the question appear before the first prompt",
+   "expected": "text and question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_from_login": 0.244
+   }
+  },
+  {
+   "code": "C1c",
+   "area": "Delivery",
+   "description": "confirmation at login",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:02 (terminal pts/2)",
+   "measures": {}
+  },
+  {
+   "code": "C2a",
+   "area": "Delivery",
+   "description": "user logged in: the text appears in their terminal",
+   "expected": "text in the terminal",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_send": 0.052,
+    "seconds_to_terminal": 0.103
+   }
+  },
+  {
+   "code": "C2b",
+   "area": "Delivery",
+   "description": "state after writing to the terminal",
+   "expected": "delivered, written to 1 terminal",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal",
+   "measures": {}
+  },
+  {
+   "code": "C2c",
+   "area": "Delivery",
+   "description": "pressing Enter the question appears",
+   "expected": "question at the next prompt",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.052
+   }
+  },
+  {
+   "code": "C3",
+   "area": "Delivery",
+   "description": "ssh session without a terminal: it is not touched, the copy goes to the mailbox",
+   "expected": "sending succeeds, delivered, no terminal written",
+   "outcome": "OK",
+   "details": "delivered",
+   "measures": {}
+  },
+  {
+   "code": "C4a",
+   "area": "Delivery",
+   "description": "two open sessions: the text appears in both",
+   "expected": "text in 2 terminals",
+   "outcome": "OK",
+   "details": "delivered, written to 2 terminals",
+   "measures": {}
+  },
+  {
+   "code": "C4b",
+   "area": "Delivery",
+   "description": "confirming in one session, the question in the other stops",
+   "expected": "«Message already confirmed elsewhere» in the other",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.951
+   }
+  },
+  {
+   "code": "D1",
+   "area": "Confirmation",
+   "description": "the user postpones",
+   "expected": "delivered, postponed on …",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal, postponed on 01/10 15:02",
+   "measures": {}
+  },
+  {
+   "code": "D2",
+   "area": "Confirmation",
+   "description": "after the postponement, only a reminder at the prompt",
+   "expected": "«You have 1 message…», no question",
+   "outcome": "OK",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@dc4fcf1ed127 ~]$ ",
+   "measures": {}
+  },
+  {
+   "code": "D5",
+   "area": "Confirmation",
+   "description": "rspeak remind after a postponement: the question comes back at the next prompt",
+   "expected": "«Message 1: 1 recipient reminded.», question at the prompt",
+   "outcome": "OK",
+   "details": "Message 1: 1 recipient reminded.",
+   "measures": {}
+  },
+  {
+   "code": "D3",
+   "area": "Confirmation",
+   "description": "at the next login the postponement does not count: the question comes back",
+   "expected": "question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "D4",
+   "area": "Confirmation",
+   "description": "confirmation recorded with date and channel",
+   "expected": "«EPOCH terminal pts/N»",
+   "outcome": "OK",
+   "details": "1790866958 terminal pts/7",
+   "measures": {}
+  },
+  {
+   "code": "E1",
+   "area": "Expiry",
+   "description": "an expired message is not shown at login",
+   "expected": "no text",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "E2",
+   "area": "Expiry",
+   "description": "state of an expired message",
+   "expected": "delivered, not confirmed (expired)",
+   "outcome": "OK",
+   "details": "delivered, not confirmed (expired)",
+   "measures": {}
+  },
+  {
+   "code": "E3",
+   "area": "Revocation",
+   "description": "revocation with the question waiting: the question stops",
+   "expected": "«The administrator has revoked the message.»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 1.001
+   }
+  },
+  {
+   "code": "E4",
+   "area": "Revocation",
+   "description": "state after the revocation",
+   "expected": "delivered, not confirmed (revoked)",
+   "outcome": "OK",
+   "details": "delivered, not confirmed (revoked)",
+   "measures": {}
+  },
+  {
+   "code": "E5",
+   "area": "Revocation",
+   "description": "a message revoked before the login is not shown",
+   "expected": "no text",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "F1",
+   "area": "Faults",
+   "description": "the copy for one user cannot be written: the others receive it",
+   "expected": "error, anna «sent, not delivered», mario delivered",
+   "outcome": "OK",
+   "details": "rspeak: message 1 not delivered to: anna (see the log; the next rspeak command will retry) | anna: sent, not delivered: the copy could not be written (see the log; the next rspeak command will retry)",
+   "measures": {}
+  },
+  {
+   "code": "F2",
+   "area": "Faults",
+   "description": "fault fixed: the next command completes the delivery",
+   "expected": "anna delivered",
+   "outcome": "OK",
+   "details": "rspeak: completed delivery of message 1 to 1 recipients",
+   "measures": {}
+  },
+  {
+   "code": "F3",
+   "area": "Faults",
+   "description": "rspeak send killed halfway (SIGKILL): the next command completes",
+   "expected": "all copies delivered, no sign of an incomplete sending",
+   "outcome": "OK",
+   "details": "delivered before 3/68, after 68/68; rspeak: completed delivery of message 2 to 65 recipients",
+   "measures": {
+    "delivered_at_kill": 3,
+    "recipients": 68,
+    "seconds_recovery": 1.382
+   }
+  },
+  {
+   "code": "F6",
+   "area": "Faults",
+   "description": "user's folder left owned by root by an interrupted sending: the delivery fixes it",
+   "expected": "delivered",
+   "outcome": "OK",
+   "details": "delivered; ",
+   "measures": {}
+  },
+  {
+   "code": "F7",
+   "area": "Faults",
+   "description": "rspeak revoke during a sending to many users: the sending stops and no copy stays",
+   "expected": "no copy in the mailboxes, sending interrupted",
+   "outcome": "OK",
+   "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
+   "measures": {
+    "seconds_waiting_revoke": 0.24
+   }
+  },
+  {
+   "code": "F5",
+   "area": "Faults",
+   "description": "rspeak list repeated while rspeak send delivers: the recovery does not interfere",
+   "expected": "one delivery per recipient, no duplicates, sending complete",
+   "outcome": "OK",
+   "details": "68 deliveries recorded for 68 recipients, 68 distinct",
+   "measures": {
+    "rspeak_list_during_sending": 34
+   }
+  },
+  {
+   "code": "F4",
+   "area": "Faults",
+   "description": "the confirmation cannot be written: the message stays and the user is told",
+   "expected": "notice; state delivered; message still in the mailbox",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal",
+   "measures": {}
+  },
+  {
+   "code": "G1",
+   "area": "Security",
+   "description": "the mailbox is a link to /etc: root does not write there",
+   "expected": "no file 2 in /etc; mario «sent, not delivered»",
+   "outcome": "OK",
+   "details": "rspeak: message 2 not delivered to: mario (see the log; the next rspeak command will retry)",
+   "measures": {}
+  },
+  {
+   "code": "G2",
+   "area": "Security",
+   "description": "escape sequences in the text: they do not reach the terminal",
+   "expected": "no ESC in the text received",
+   "outcome": "OK",
+   "details": "'Text red   end\\r\\r\\n───────────────────────'",
+   "measures": {}
+  },
+  {
+   "code": "G3",
+   "area": "Security",
+   "description": "forged confirmation with escapes and 500 bytes: rspeak status stays clean",
+   "expected": "no ESC in the output, at most 200 bytes read",
+   "outcome": "OK",
+   "details": "luca             confirmed on 01/01 00:00 (fake0000000000000000000000000000000000000000000000000000000000000000000000000",
+   "measures": {}
+  },
+  {
+   "code": "G4",
+   "area": "Security",
+   "description": "an ordinary user with RSPEAK_TEST=1 gets nothing",
+   "expected": "permission denied",
+   "outcome": "OK",
+   "details": "env: ‘/usr/local/bin/rspeak’: Permission denied",
+   "measures": {}
+  },
+  {
+   "code": "J1",
+   "area": "Log",
+   "description": "rspeak log: the history of the message",
+   "expected": "sending, deliveries, postponement, confirmation, revocation",
+   "outcome": "OK",
+   "details": "6 events",
+   "measures": {}
+  },
+  {
+   "code": "J2",
+   "area": "Log",
+   "description": "the confirmation in the journal carries the user who wrote it (_UID)",
+   "expected": "_UID 1001",
+   "outcome": "OK",
+   "details": "1001 1001",
+   "measures": {}
+  },
+  {
+   "code": "J3",
+   "area": "Log",
+   "description": "an event written by a user in the name of another: rspeak log flags it",
+   "expected": "«[not trustworthy: written by UID 1003]»",
+   "outcome": "OK",
+   "details": "2026-10-01 15:03:13  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "measures": {}
+  },
+  {
+   "code": "T1",
+   "area": "TUI",
+   "description": "rspeak without arguments as root: the list with the recipients in the three states",
+   "expected": "«RootSpeak · sent messages», «2 delivered»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "T2",
+   "area": "TUI",
+   "description": "detail: recipients and history from the log",
+   "expected": "anna, mario; «sent by root»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "T3",
+   "area": "TUI",
+   "description": "q: the TUI exits and gives the terminal back",
+   "expected": "exit status 0",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K1-zsh",
+   "area": "Shells",
+   "description": "zsh: at login the message and the question",
+   "expected": "text and question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K2-zsh",
+   "area": "Shells",
+   "description": "zsh: confirmation at login",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/15)",
+   "measures": {}
+  },
+  {
+   "code": "K3-zsh",
+   "area": "Shells",
+   "description": "zsh: user logged in, the text appears in the terminal",
+   "expected": "text in the terminal",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K4-zsh",
+   "area": "Shells",
+   "description": "zsh: pressing Enter the question appears",
+   "expected": "question at the next prompt",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.07
+   }
+  },
+  {
+   "code": "K5-zsh",
+   "area": "Shells",
+   "description": "zsh: confirmation at the prompt",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/15)",
+   "measures": {}
+  },
+  {
+   "code": "K1-fish",
+   "area": "Shells",
+   "description": "fish: at login the message and the question",
+   "expected": "text and question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K2-fish",
+   "area": "Shells",
+   "description": "fish: confirmation at login",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/16)",
+   "measures": {}
+  },
+  {
+   "code": "K3-fish",
+   "area": "Shells",
+   "description": "fish: user logged in, the text appears in the terminal",
+   "expected": "text in the terminal",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K4-fish",
+   "area": "Shells",
+   "description": "fish: pressing Enter the question appears",
+   "expected": "question at the next prompt",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.054
+   }
+  },
+  {
+   "code": "K5-fish",
+   "area": "Shells",
+   "description": "fish: confirmation at the prompt",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/16)",
+   "measures": {}
+  },
+  {
+   "code": "K1-ksh",
+   "area": "Shells",
+   "description": "ksh: at login the message and the question",
+   "expected": "text and question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K2-ksh",
+   "area": "Shells",
+   "description": "ksh: confirmation at login",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/17)",
+   "measures": {}
+  },
+  {
+   "code": "K3-ksh",
+   "area": "Shells",
+   "description": "ksh: user logged in, the text appears in the terminal",
+   "expected": "text in the terminal",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "K4-ksh",
+   "area": "Shells",
+   "description": "ksh: no question at the prompt (it comes at the next login)",
+   "expected": "no question, delivered",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal",
+   "measures": {}
+  },
+  {
+   "code": "K-dash",
+   "area": "Shells",
+   "description": "dash: the login shell works on this distribution",
+   "expected": "no error before RootSpeak",
+   "outcome": "--",
+   "details": "-dash: 62: /etc/profile.d/lang.sh: Syntax error: redirection unexpected",
+   "measures": {}
+  },
+  {
+   "code": "L5",
+   "area": "Language",
+   "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
+   "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 15:03 (terminal pts/18)",
+   "measures": {}
+  },
+  {
+   "code": "H1",
+   "area": "Performance",
+   "description": "sending to all (58 recipients)",
+   "expected": "measure",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.56,
+    "ms_per_recipient": 9.7
+   }
+  },
+  {
+   "code": "H2",
+   "area": "Performance",
+   "description": "rspeak list with 10 messages × 58 recipients",
+   "expected": "measure (item 15 of the review)",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.45
+   }
+  },
+  {
+   "code": "H3",
+   "area": "Performance",
+   "description": "rspeak status of a message with 58 recipients",
+   "expected": "measure",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.59
+   }
+  },
+  {
+   "code": "I1",
+   "area": "Desktop",
+   "description": "confirmation dialog in the graphical session",
+   "expected": "dialog «I have read it»",
+   "outcome": "--",
+   "details": "the container has no graphical session: the dialog is tested in the VM (tests/vm)",
+   "measures": {}
+  }
+ ]
+}

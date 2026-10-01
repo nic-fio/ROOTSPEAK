@@ -23,6 +23,14 @@ VMOPT=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J "$SERVER" 
 x() { ssh "${SSHOPT[@]}" "$SERVER" "export TERM=dumb; $*" 2> >(grep -v '^tput:' >&2); }
 v() { ssh "${SSHOPT[@]}" "${VMOPT[@]}" root@127.0.0.1 "$@"; }
 
+# the server's system is rebuilt at every boot (its / is in RAM): the programs the
+# tests need may be gone, and only the owner can install them, with sudo
+missing=$(x 'for c in qemu-system-x86_64 qemu-img genisoimage curl python3; do command -v $c >/dev/null || printf "%s " $c; done')
+if [ -n "$missing" ]; then
+	echo "the test server $SERVER lacks: $missing(its system is lost at every reboot). Install with:" >&2
+	echo "  ssh -t $SERVER 'sudo apt install -y qemu-system-x86 qemu-utils genisoimage curl python3'" >&2
+	exit 2
+fi
 echo "code on the server ($SERVER:$DIR/src)…"
 tar --exclude=.git --exclude='./tests/*/results' -cf - -C "$ROOT" . |
 	x "rm -rf $DIR/src && mkdir -p $DIR/src $DIR/vm/captures && tar -xf - -C $DIR/src" || exit 1

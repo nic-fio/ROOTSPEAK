@@ -1,0 +1,25 @@
+# RootSpeak - Advanced Messaging System for Linux
+# The distributions of the compatibility tests (tests/distros/run.sh): name and
+# container image. Only distributions with systemd (decision of 1 October 2026).
+debian-12        docker.io/library/debian:bookworm
+debian-13        docker.io/library/debian:trixie
+ubuntu-22.04     docker.io/library/ubuntu:22.04
+ubuntu-24.04     docker.io/library/ubuntu:24.04
+ubuntu-26.04     docker.io/library/ubuntu:26.04
+fedora-44        registry.fedoraproject.org/fedora:44
+fedora-45        registry.fedoraproject.org/fedora:45
+centos-stream-9  quay.io/centos/centos:stream9
+centos-stream-10 quay.io/centos/centos:stream10
+rhel-9           registry.access.redhat.com/ubi9/ubi
+rhel-10          registry.access.redhat.com/ubi10/ubi
+rocky-9          docker.io/rockylinux/rockylinux:9
+rocky-10         docker.io/rockylinux/rockylinux:10
+alma-9           docker.io/library/almalinux:9
+alma-10          docker.io/library/almalinux:10
+oracle-9         docker.io/library/oraclelinux:9
+oracle-10        docker.io/library/oraclelinux:10
+opensuse-leap-16 registry.opensuse.org/opensuse/leap:16.0
+opensuse-tumbleweed registry.opensuse.org/opensuse/tumbleweed
+sles-15          registry.suse.com/bci/bci-base:15.7
+sles-16          registry.suse.com/bci/bci-base:16.0
+arch             docker.io/library/archlinux:latest

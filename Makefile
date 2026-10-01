@@ -16,9 +16,18 @@ CC      ?= gcc
 WARNINGS   = -Wall -Wextra -Wpedantic -Wformat=2 -Wformat-security -Wshadow -Wpointer-arith \
            -Wcast-qual -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wvla \
            -Wnull-dereference -Wimplicit-fallthrough -Wundef -Werror
-HARDENING   = -D_FORTIFY_SOURCE=3 -fstack-protector-strong -fstack-clash-protection -fcf-protection -fPIE
+# an option the compiler accepts (SLES 15 has gcc 7: no -std=c17, no -fcf-protection)
+accepts     = $(shell echo 'int main(void){return 0;}' | $(CC) -x c $(1) -Werror -c -o /dev/null - 2>/dev/null && echo yes)
+STD        := $(if $(call accepts,-std=c17),-std=c17,-std=c11)
+CET        := $(if $(call accepts,-fcf-protection),-fcf-protection)
+# _FORTIFY_SOURCE: 3 where the compiler and the C library support it, otherwise 2
+# (RHEL 9 and its rebuilds); the value the compiler may set by itself (Ubuntu) is replaced
+FORTIFY    := $(shell echo 'int main(void){return 0;}' | \
+                $(CC) -x c -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -include stdio.h -Werror -c -o /dev/null - \
+                2>/dev/null && echo 3 || echo 2)
+HARDENING   = -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=$(FORTIFY) -fstack-protector-strong -fstack-clash-protection $(CET) -fPIE
 CFLAGS  ?= -O2 -g
-CFLAGS  += -std=c17 -D_GNU_SOURCE $(WARNINGS) $(HARDENING) \
+CFLAGS  += $(STD) -D_GNU_SOURCE $(WARNINGS) $(HARDENING) \
            -DLIBDIR='"$(LIBDIR)"'
 LDFLAGS += -pie -Wl,-z,relro,-z,now -Wl,-z,noexecstack
 LIBS     = $(shell pkg-config --libs libsystemd)

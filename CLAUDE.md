@@ -61,6 +61,7 @@ The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-h
 | **TUI for administrators (30 September)** | The command without arguments in a terminal opens the TUI (`--help` stays the help; in a pipe it shows the help). Browse, act (revoke, purge, remind) with confirmation, write and send (Ctrl+E opens `$EDITOR`), automatic refresh. No ncurses. The TUI uses the same functions as the commands and **does not invent states**: only sent, delivered, confirmed; revoked and expired as properties. A message is summarised with its recipients: a three-colour bar and «14 confirmed · 5 delivered · 2 sent». |
 | **Name: RootSpeak (1 October 2026)** | The product will be distributed and sold, and «AMS» is taken for software in the EU (ams-OSRAM, Emerson/Fisher-Rosemount and others). Product name **RootSpeak**, subtitle «Advanced Messaging System for Linux» (descriptive, not a name: it cannot be registered). Administrators' command **`rspeak`**; everything else uses the full name: helper `rootspeak-user`, paths `/etc/rootspeak`, `/var/lib/rootspeak`; the journal identifier stays the command name (`journalctl -t rspeak`). Rejected: LMS, MessageX, TuxCast (taken), Heedbell, Missivo (disliked), `rtspk` (reads like RTSP). No trademark registration for now: the user does not want to pay for it. |
 | **Everything in English (1 October 2026)** | See «How we work». Replaces the exception of the common standard for the `.c`/`.h` file names in `src/`: in this project they are English too. Visible names are English as well: journal fields `RSPEAK_EVENT`, `RSPEAK_MESSAGE`…, events `DELIVERED`, `CONFIRMED`…, store files `revoking`, `.deleting-ID`, `rootspeak-agent.ready`. |
+| **systemd required in 1.0 (1 October 2026)** | Supported: distributions with systemd (logind, `systemd-run`), about 90% of the market. Not in 1.0: Alpine, Void, Gentoo with OpenRC, Devuan, other distributions without systemd. |
 | **Licence: to be decided** | Private repository, copyright Nicola Fiorillo. For sale a commercial licence is needed (proposal: per machine or organisation, internal use and modifications allowed, no redistribution, plus the clause on the rights of third-party components), to be reviewed by a lawyer. Until then: no licence. |
 
 ## Rename to RootSpeak (1 October 2026)
@@ -115,7 +116,7 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 | `install.sh` | Install, upgrade, `--uninstall`, `--purge`. |
 | `docs/` | `User Manual.html` and `Technical Manual.html` (generated, never by hand), `index.html` (home page), `README.md` (what is there and how to regenerate it), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
 | `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual is read from `src/help.c`. |
-| `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make unit`). Results in `results/` and `*/results/`. |
+| `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios (`setup.sh` prepares it on any distribution); `distros/`: the same scenarios on 22 distributions, on the test server; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make unit`). Results in `results/` and `*/results/`. |
 | `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle. |
 | `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
 | `NOTICE.md` | Copyright and third-party components (none embedded). |
@@ -126,7 +127,12 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 normal user, without libvirt or sudo. The base disk is prepared once
 (`tests/vm/run.sh --prepare`, about 10 minutes; again whenever
 `tests/vm/user-data.tpl` changes); every run starts from a clean
-copy and shuts the VM down at the end.
+copy and shuts the VM down at the end. The server's system is ephemeral:
+every reboot loses the installed packages (only `/media` survives). The test
+scripts check first and print the command for the owner, who has sudo:
+`ssh -t 192.168.0.2 'sudo apt install -y podman qemu-system-x86 qemu-utils
+genisoimage curl python3'` (from a real terminal, not with `!`). After a
+reboot the ssh key may be refused for a minute while the server starts.
 
 ## Before recording a change
 
@@ -142,7 +148,10 @@ copy and shuts the VM down at the end.
    `make sanitizer` with `RSPEAK_BUILD=build-san tests/engine.sh`, `make analyze`
    and `tests/fuzz/run.sh` if code that reads data changed;
    `tests/container/run.sh` (real tests as root in a container) if sending,
-   delivery, confirmations or permissions changed; `tests/vm/run.sh` (VM with
+   delivery, confirmations or permissions changed; `tests/distros/run.sh`
+   (the scenarios on 22 distributions, on the test server, about 15 minutes with
+   `RSPEAK_PARALLEL=8`) if the build, `install.sh`, the shell hooks or anything
+   that depends on the distribution changed; `tests/vm/run.sh` (VM with
    GNOME on the test server, 192.168.0.2) if the desktop changed.
    The results are recorded together with the change.
 4. A test of the affected flow in test mode; for desktop, sudo and other
@@ -187,9 +196,30 @@ from the mailbox); the TUI opened over ssh from the phone (Termius), list,
 bars and keys as expected. The bash prototype was tested live on 29–30 September (window, terminal
 also over ssh, single confirmation across channels).
 
+**Compatibility (1 October 2026)**: `tests/distros/run.sh` runs the real
+scenarios on 22 distributions with systemd (Debian 12–13, Ubuntu 22.04–26.04,
+Fedora 44–45, CentOS Stream 9–10, RHEL 9–10 as UBI, Rocky, Alma and Oracle
+9–10, openSUSE Leap 16 and Tumbleweed, SLES 15 and 16, Arch): all passed. Each
+image is built from the official one by `tests/container/setup.sh`; RootSpeak
+is compiled inside. Defects of RootSpeak found and fixed: the build failed on
+Ubuntu 22.04 and RHEL 9 (`_FORTIFY_SOURCE=3`) and on SLES 15 (gcc 7: no
+`-std=c17`, no `-fcf-protection`): the `Makefile` now probes the compiler;
+`install.sh` did not hook zsh on Arch (no `/etc/zsh/zshrc`): it creates the
+file. Limits of the distributions, documented: dash on Fedora/RHEL stops on
+`/etc/profile.d/lang.sh`; on openSUSE `/usr/bin/ksh` cannot be a login shell
+(use `/usr/bin/ksh93`). Test-machine quirks handled in `setup.sh` (masked
+logind in Alma/UBI images, missing machine-id in Arch's, `systemd-pam` on
+Fedora, EPEL on the rebuilds, `logger` on SUSE) and in `scenarios.py` (TERM,
+answers to fish 4's terminal queries, OSC sequences of systemd 259, the user's
+real primary group on SLES). On the test server podman must be run with
+`--root /media/ROOTSPEAK/distros/storage`: a `storage.conf` is ignored by
+rootless podman and the images (about 20 GB) would fill the server's RAM.
+Still to do: the desktop on other distributions (VMs: Ubuntu with GNOME, Fedora
+with KDE, Mint with Cinnamon, Rocky with SELinux enforcing).
+
 **Road to sale** (agreed on 1 October 2026, about 3–4 days of work, the
-trademark search excluded): (1) tests on other distributions — Ubuntu 24.04
-and Rocky Linux 9 in the container, a VM with Ubuntu and GNOME — and fixes;
+trademark search excluded): (1) tests on other distributions — containers
+done (22 distributions, see above); the desktop VMs still to do — and fixes;
 (2) `.deb` and `.rpm` packages (dependencies, admin group, shell hooks,
 upgrade, removal) tested on clean installs; (3) version 1.0: final review of
 message store format, visible names and commands, manuals updated with

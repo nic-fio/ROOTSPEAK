@@ -27,7 +27,9 @@ VAR = "/var/lib/rootspeak"
 RSPEAK = "/usr/local/bin/rspeak"
 AGENT = "/usr/local/lib/rootspeak/rootspeak-user agent"
 DESK = os.environ.get("RSPEAK_TEST_DESKTOP")   # user with a graphical session (only in the VM)
-ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\r")
+# (OSC and APC sequences end with BEL or with ESC \: systemd's profile.d/80-systemd-osc-context.sh
+# writes OSC 3008 with ESC \ before every command and every prompt)
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b[\]_][^\x07\x1b]*(?:\x07|\x1b\\)|\r")
 # what RootSpeak writes in the terminal, exactly as the program prints it
 QUESTION = r"\[RootSpeak\] Do you confirm you have read the message\? \[y/N\]"
 CONFIRMED = r"\[RootSpeak\] Confirmed\."
@@ -37,6 +39,9 @@ DLG_TITLE = "RootSpeak · Message from the administrator"
 DLG_OK = "I have read it"
 DLG_LATER = "Later"
 results = []
+# the sessions are opened as from a terminal emulator, which always sets TERM
+# (without it the ksh93u+m 1.0.8 of Ubuntu 24.04 exits right after the first prompt)
+TERMINAL_ENV = {**os.environ, "TERM": "xterm-256color"}
 # users with a shell other than bash, and their prompt
 TEST_SHELLS = {"zeno": ("zsh", r"% $"), "fabio": ("fish", r"> $"), "kora": ("ksh", r"\$ $"), "dario": ("dash", r"\$ $")}
 
@@ -101,7 +106,7 @@ class Session:
         self.buf = ""
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
-            os.execvp("ssh", ["ssh", "-tt", f"{user}@localhost"] + ([command] if command else []))
+            os.execvpe("ssh", ["ssh", "-tt", f"{user}@localhost"] + ([command] if command else []), TERMINAL_ENV)
         self.read_until(prompt, 15)
 
     def read(self, duration=0.3):
@@ -115,8 +120,17 @@ class Session:
                     break
                 if not data:
                     break
+                self.answer(data)
                 self.buf += data.decode("utf-8", "replace")
         return self.buf
+
+    def answer(self, data):
+        """Answers the questions a shell asks the terminal, as a terminal emulator does:
+        fish 4.1 and later ask for the device attributes and wait for them before the prompt."""
+        if re.search(rb"\x1b\[0?c", data):
+            os.write(self.fd, b"\x1b[?62;22c")
+        if b"\x1b[6n" in data:
+            os.write(self.fd, b"\x1b[1;1R")
 
     def read_until(self, pattern, duration=10):
         """Waits until the output (without colours) contains the pattern; returns the seconds waited."""
@@ -155,7 +169,7 @@ def open_session(user):
     s.user, s.buf = user, ""
     s.pid, s.fd = pty.fork()
     if s.pid == 0:
-        os.execvp("ssh", ["ssh", "-tt", f"{user}@localhost"])
+        os.execvpe("ssh", ["ssh", "-tt", f"{user}@localhost"], TERMINAL_ENV)
     return s
 
 
@@ -390,7 +404,9 @@ def e_expiry_revocation():
 # ---- F. faults and recovery ----
 
 def f_faults():
-    sh(f"install -d -m 700 -o anna -g anna {VAR}/users/anna; "
+    # the user's primary group, not a group named after the user: SLES 15 (USERGROUPS_ENAB no)
+    # puts every new user in «users», and «-g anna» would fail and leave the folder to root
+    sh(f"install -d -m 700 -o anna -g \"$(id -gn anna)\" {VAR}/users/anna; "
        f"install -d -m 555 -o root {VAR}/users/anna/inbox")
     r = rspeak('send --to mario,anna "Fault"')
     st = state(1, "anna")
@@ -398,7 +414,7 @@ def f_faults():
            "error, anna «sent, not delivered», mario delivered",
            r.returncode != 0 and (st or "").startswith("sent, not delivered") and state(1, "mario") == "delivered",
            f"{r.stderr.strip()} | anna: {st}")
-    sh(f"chown anna:anna {VAR}/users/anna/inbox; chmod 755 {VAR}/users/anna/inbox")
+    sh(f"chown anna:\"$(id -gn anna)\" {VAR}/users/anna/inbox; chmod 755 {VAR}/users/anna/inbox")
     r = rspeak("list")
     record("F2", "Faults", "fault fixed: the next command completes the delivery", "anna delivered",
            state(1, "anna") == "delivered" and not os.path.exists(f"{VAR}/sent/1/incomplete"), r.stderr.strip())
@@ -483,7 +499,11 @@ def f_faults():
 
 def g_security():
     rspeak('send --to mario "first"')
-    sh(f"rm -rf {VAR}/users/mario/inbox; ln -s /etc {VAR}/users/mario/inbox; chown -h mario:mario {VAR}/users/mario/inbox")
+    sh(f"rm -rf {VAR}/users/mario/inbox; ln -s /etc {VAR}/users/mario/inbox")
+    # the link belongs to mario, as if he had made it (lchown: the chown -h of Ubuntu 26.04's
+    # coreutils, uutils 0.8, follows the link and would hand /etc itself to mario)
+    pw = pwd.getpwnam("mario")
+    os.lchown(f"{VAR}/users/mario/inbox", pw.pw_uid, pw.pw_gid)
     r = rspeak('send --to mario "attack"')
     record("G1", "Security", "the mailbox is a link to /etc: root does not write there",
            "no file 2 in /etc; mario «sent, not delivered»",
@@ -517,6 +537,15 @@ def k_shells():
     for user, (shell, prompt) in TEST_SHELLS.items():
         if sh(f"getent passwd {user}").returncode:
             record(f"K-{shell}", "Shells", f"{shell}: test user {user}", "present", None, "user missing")
+            continue
+        # a login shell that already fails on the distribution's own files (Fedora's
+        # /etc/profile.d/lang.sh is not POSIX: dash stops there) does not test RootSpeak
+        # (a real login, «-ksh» as its name: openSUSE's ksh is an alternatives wrapper that exits 255 then)
+        r = sh(f"runuser -l {user} -c true </dev/null")
+        err = r.stderr.strip()
+        if r.returncode or (err and "rootspeak" not in err):
+            record(f"K-{shell}", "Shells", f"{shell}: the login shell works on this distribution",
+                   "no error before RootSpeak", None, (err.splitlines()[0][:150] if err else f"exit {r.returncode}"))
             continue
         mid += 1
         rspeak(f'send --to {user} "At login with {shell}"')
@@ -588,8 +617,9 @@ def t_tui():
     s.user, s.buf = "root", ""
     s.pid, s.fd = pty.fork()
     if s.pid == 0:
+        # the size before rspeak starts: set later, rspeak could read 0×0 and open the help in the pager
+        fcntl.ioctl(0, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
         os.execvpe(RSPEAK, ["rspeak"], dict(os.environ, TERM="xterm-256color"))
-    fcntl.ioctl(s.fd, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
     ok1 = s.read_until(r"2 delivered", 10) is not None and "RootSpeak · sent messages" in s.text()
     record("T1", "TUI", "rspeak without arguments as root: the list with the recipients in the three states",
            "«RootSpeak · sent messages», «2 delivered»", ok1, s.text()[-120:] if not ok1 else "")
@@ -599,9 +629,18 @@ def t_tui():
     ok3 = s.read_until(r"sent by root", 10) is not None
     record("T2", "TUI", "detail: recipients and history from the log", "anna, mario; «sent by root»", ok2 and ok3)
     s.write("\x1b"); time.sleep(0.5); s.write("q")
-    try:
-        _, st = os.waitpid(s.pid, 0)
-    except ChildProcessError:
+    st = 1
+    for _ in range(50):   # at most 5 seconds, then it is killed: a stuck TUI must not stop the run
+        try:
+            pid, st = os.waitpid(s.pid, os.WNOHANG)
+        except ChildProcessError:
+            break
+        if pid:
+            break
+        time.sleep(0.1)
+    else:
+        os.kill(s.pid, signal.SIGKILL)
+        os.waitpid(s.pid, 0)
         st = 1
     record("T3", "TUI", "q: the TUI exits and gives the terminal back", "exit status 0",
            os.WIFEXITED(st) and os.WEXITSTATUS(st) == 0)

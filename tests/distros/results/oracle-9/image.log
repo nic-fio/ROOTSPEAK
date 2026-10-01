@@ -1,0 +1,175 @@
+STEP 1/4: FROM docker.io/library/oraclelinux:9
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> c33f057824b5
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+Last metadata expiration check: 0:00:08 ago on Thu Oct  1 15:04:32 2026.
+Package systemd-252-67.0.2.el9_8.4.x86_64 is already installed.
+Package systemd-pam-252-67.0.2.el9_8.4.x86_64 is already installed.
+Package dbus-1:1.12.20-8.0.1.el9.x86_64 is already installed.
+Package openssh-server-9.9p1-11.0.1.el9_8.x86_64 is already installed.
+Package openssh-clients-9.9p1-11.0.1.el9_8.x86_64 is already installed.
+Package python3-3.9.25-7.0.1.el9_8.3.x86_64 is already installed.
+Package procps-ng-3.3.17-14.0.1.el9.x86_64 is already installed.
+Package util-linux-2.37.4-25.0.1.el9.x86_64 is already installed.
+Package tar-2:1.34-13.el9_8.x86_64 is already installed.
+Package shadow-utils-2:4.9-16.el9.x86_64 is already installed.
+Dependencies resolved.
+================================================================================
+ Package                   Arch   Version               Repository         Size
+================================================================================
+Installing:
+ gcc                       x86_64 11.5.0-14.0.1.el9     ol9_appstream      33 M
+ less                      x86_64 590-6.el9             ol9_baseos_latest 175 k
+ make                      x86_64 1:4.3-8.el9           ol9_baseos_latest 570 k
+ pkgconf-pkg-config        x86_64 1.7.3-10.el9          ol9_baseos_latest 9.9 k
+ sudo                      x86_64 1.9.17p2-3.el9_8.1    ol9_baseos_latest 1.4 M
+ systemd-devel             x86_64 252-67.0.2.el9_8.6    ol9_appstream     1.2 M
+Upgrading:
+ systemd                   x86_64 252-67.0.2.el9_8.6    ol9_baseos_latest 4.6 M
+ systemd-libs              x86_64 252-67.0.2.el9_8.6    ol9_baseos_latest 653 k
+ systemd-pam               x86_64 252-67.0.2.el9_8.6    ol9_baseos_latest 249 k
+ systemd-rpm-macros        noarch 252-67.0.2.el9_8.6    ol9_baseos_latest  40 k
+Installing dependencies:
+ binutils                  x86_64 2.35.2-72.0.1.el9     ol9_baseos_latest 4.8 M
+ binutils-gold             x86_64 2.35.2-72.0.1.el9     ol9_baseos_latest 750 k
+ cpp                       x86_64 11.5.0-14.0.1.el9     ol9_appstream      11 M
+ elfutils-debuginfod-client
+                           x86_64 0.194-1.el9           ol9_baseos_latest  51 k
+ glibc-devel               x86_64 2.34-275.0.1.el9_8    ol9_appstream      63 k
+ glibc-headers             x86_64 2.34-275.0.1.el9_8    ol9_appstream     925 k
+ kernel-headers            x86_64 5.14.0-687.53.1.el9_8 ol9_appstream     3.6 M
+ libmpc                    x86_64 1.2.1-4.el9           ol9_appstream      63 k
+ libpkgconf                x86_64 1.7.3-10.el9          ol9_baseos_latest  35 k
+ libxcrypt-devel           x86_64 4.4.18-3.el9          ol9_appstream      42 k
+ pkgconf                   x86_64 1.7.3-10.el9          ol9_baseos_latest  49 k
+ pkgconf-m4                noarch 1.7.3-10.el9          ol9_baseos_latest  14 k
+
+Transaction Summary
+================================================================================
+Install  18 Packages
+Upgrade   4 Packages
+
+Total download size: 63 M
+Downloading Packages:
+(1/22): elfutils-debuginfod-client-0.194-1.el9. 393 kB/s |  51 kB     00:00    
+(2/22): less-590-6.el9.x86_64.rpm               2.8 MB/s | 175 kB     00:00    
+(3/22): binutils-gold-2.35.2-72.0.1.el9.x86_64. 3.8 MB/s | 750 kB     00:00    
+(4/22): libpkgconf-1.7.3-10.el9.x86_64.rpm      1.4 MB/s |  35 kB     00:00    
+(5/22): binutils-2.35.2-72.0.1.el9.x86_64.rpm    21 MB/s | 4.8 MB     00:00    
+(6/22): make-4.3-8.el9.x86_64.rpm                13 MB/s | 570 kB     00:00    
+(7/22): pkgconf-m4-1.7.3-10.el9.noarch.rpm      1.0 MB/s |  14 kB     00:00    
+(8/22): pkgconf-1.7.3-10.el9.x86_64.rpm         1.8 MB/s |  49 kB     00:00    
+(9/22): pkgconf-pkg-config-1.7.3-10.el9.x86_64. 841 kB/s | 9.9 kB     00:00    
+(10/22): sudo-1.9.17p2-3.el9_8.1.x86_64.rpm      74 MB/s | 1.4 MB     00:00    
+(11/22): glibc-devel-2.34-275.0.1.el9_8.x86_64. 4.4 MB/s |  63 kB     00:00    
+(12/22): glibc-headers-2.34-275.0.1.el9_8.x86_6  53 MB/s | 925 kB     00:00    
+(13/22): kernel-headers-5.14.0-687.53.1.el9_8.x 124 MB/s | 3.6 MB     00:00    
+(14/22): libmpc-1.2.1-4.el9.x86_64.rpm          3.8 MB/s |  63 kB     00:00    
+(15/22): libxcrypt-devel-4.4.18-3.el9.x86_64.rp 2.9 MB/s |  42 kB     00:00    
+(16/22): cpp-11.5.0-14.0.1.el9.x86_64.rpm        68 MB/s |  11 MB     00:00    
+(17/22): systemd-devel-252-67.0.2.el9_8.6.x86_6  24 MB/s | 1.2 MB     00:00    
+(18/22): systemd-libs-252-67.0.2.el9_8.6.x86_64  24 MB/s | 653 kB     00:00    
+(19/22): systemd-pam-252-67.0.2.el9_8.6.x86_64.  10 MB/s | 249 kB     00:00    
+(20/22): systemd-252-67.0.2.el9_8.6.x86_64.rpm   60 MB/s | 4.6 MB     00:00    
+(21/22): systemd-rpm-macros-252-67.0.2.el9_8.6. 1.3 MB/s |  40 kB     00:00    
+(22/22): gcc-11.5.0-14.0.1.el9.x86_64.rpm       122 MB/s |  33 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                           121 MB/s |  63 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Upgrading        : systemd-libs-252-67.0.2.el9_8.6.x86_64                1/26 
+  Running scriptlet: systemd-libs-252-67.0.2.el9_8.6.x86_64                1/26 
+  Installing       : libmpc-1.2.1-4.el9.x86_64                             2/26 
+  Installing       : elfutils-debuginfod-client-0.194-1.el9.x86_64         3/26 
+  Installing       : binutils-gold-2.35.2-72.0.1.el9.x86_64                4/26 
+  Installing       : binutils-2.35.2-72.0.1.el9.x86_64                     5/26 
+  Running scriptlet: binutils-2.35.2-72.0.1.el9.x86_64                     5/26 
+  Installing       : cpp-11.5.0-14.0.1.el9.x86_64                          6/26 
+  Upgrading        : systemd-rpm-macros-252-67.0.2.el9_8.6.noarch          7/26 
+  Upgrading        : systemd-pam-252-67.0.2.el9_8.6.x86_64                 8/26 
+  Running scriptlet: systemd-252-67.0.2.el9_8.6.x86_64                     9/26 
+  Upgrading        : systemd-252-67.0.2.el9_8.6.x86_64                     9/26 
+  Running scriptlet: systemd-252-67.0.2.el9_8.6.x86_64                     9/26 
+  Installing       : kernel-headers-5.14.0-687.53.1.el9_8.x86_64          10/26 
+  Installing       : glibc-headers-2.34-275.0.1.el9_8.x86_64              11/26 
+  Installing       : pkgconf-m4-1.7.3-10.el9.noarch                       12/26 
+  Installing       : make-1:4.3-8.el9.x86_64                              13/26 
+  Installing       : libpkgconf-1.7.3-10.el9.x86_64                       14/26 
+  Installing       : pkgconf-1.7.3-10.el9.x86_64                          15/26 
+  Installing       : pkgconf-pkg-config-1.7.3-10.el9.x86_64               16/26 
+  Installing       : glibc-devel-2.34-275.0.1.el9_8.x86_64                17/26 
+  Installing       : libxcrypt-devel-4.4.18-3.el9.x86_64                  18/26 
+  Installing       : gcc-11.5.0-14.0.1.el9.x86_64                         19/26 
+  Installing       : systemd-devel-252-67.0.2.el9_8.6.x86_64              20/26 
+  Installing       : sudo-1.9.17p2-3.el9_8.1.x86_64                       21/26 
+  Running scriptlet: sudo-1.9.17p2-3.el9_8.1.x86_64                       21/26 
+  Installing       : less-590-6.el9.x86_64                                22/26 
+  Cleanup          : systemd-252-67.0.2.el9_8.4.x86_64                    23/26 
+  Running scriptlet: systemd-252-67.0.2.el9_8.4.x86_64                    23/26 
+  Cleanup          : systemd-rpm-macros-252-67.0.2.el9_8.4.noarch         24/26 
+  Cleanup          : systemd-libs-252-67.0.2.el9_8.4.x86_64               25/26 
+  Cleanup          : systemd-pam-252-67.0.2.el9_8.4.x86_64                26/26 
+  Running scriptlet: systemd-pam-252-67.0.2.el9_8.4.x86_64                26/26 
+  Verifying        : binutils-2.35.2-72.0.1.el9.x86_64                     1/26 
+  Verifying        : binutils-gold-2.35.2-72.0.1.el9.x86_64                2/26 
+  Verifying        : elfutils-debuginfod-client-0.194-1.el9.x86_64         3/26 
+  Verifying        : less-590-6.el9.x86_64                                 4/26 
+  Verifying        : libpkgconf-1.7.3-10.el9.x86_64                        5/26 
+  Verifying        : make-1:4.3-8.el9.x86_64                               6/26 
+  Verifying        : pkgconf-1.7.3-10.el9.x86_64                           7/26 
+  Verifying        : pkgconf-m4-1.7.3-10.el9.noarch                        8/26 
+  Verifying        : pkgconf-pkg-config-1.7.3-10.el9.x86_64                9/26 
+  Verifying        : sudo-1.9.17p2-3.el9_8.1.x86_64                       10/26 
+  Verifying        : cpp-11.5.0-14.0.1.el9.x86_64                         11/26 
+  Verifying        : gcc-11.5.0-14.0.1.el9.x86_64                         12/26 
+  Verifying        : glibc-devel-2.34-275.0.1.el9_8.x86_64                13/26 
+  Verifying        : glibc-headers-2.34-275.0.1.el9_8.x86_64              14/26 
+  Verifying        : kernel-headers-5.14.0-687.53.1.el9_8.x86_64          15/26 
+  Verifying        : libmpc-1.2.1-4.el9.x86_64                            16/26 
+  Verifying        : libxcrypt-devel-4.4.18-3.el9.x86_64                  17/26 
+  Verifying        : systemd-devel-252-67.0.2.el9_8.6.x86_64              18/26 
+  Verifying        : systemd-252-67.0.2.el9_8.6.x86_64                    19/26 
+  Verifying        : systemd-252-67.0.2.el9_8.4.x86_64                    20/26 
+  Verifying        : systemd-libs-252-67.0.2.el9_8.6.x86_64               21/26 
+  Verifying        : systemd-libs-252-67.0.2.el9_8.4.x86_64               22/26 
+  Verifying        : systemd-pam-252-67.0.2.el9_8.6.x86_64                23/26 
+  Verifying        : systemd-pam-252-67.0.2.el9_8.4.x86_64                24/26 
+  Verifying        : systemd-rpm-macros-252-67.0.2.el9_8.6.noarch         25/26 
+  Verifying        : systemd-rpm-macros-252-67.0.2.el9_8.4.noarch         26/26 
+
+Upgraded:
+  systemd-252-67.0.2.el9_8.6.x86_64                                             
+  systemd-libs-252-67.0.2.el9_8.6.x86_64                                        
+  systemd-pam-252-67.0.2.el9_8.6.x86_64                                         
+  systemd-rpm-macros-252-67.0.2.el9_8.6.noarch                                  
+Installed:
+  binutils-2.35.2-72.0.1.el9.x86_64                                             
+  binutils-gold-2.35.2-72.0.1.el9.x86_64                                        
+  cpp-11.5.0-14.0.1.el9.x86_64                                                  
+  elfutils-debuginfod-client-0.194-1.el9.x86_64                                 
+  gcc-11.5.0-14.0.1.el9.x86_64                                                  
+  glibc-devel-2.34-275.0.1.el9_8.x86_64                                         
+  glibc-headers-2.34-275.0.1.el9_8.x86_64                                       
+  kernel-headers-5.14.0-687.53.1.el9_8.x86_64                                   
+  less-590-6.el9.x86_64                                                         
+  libmpc-1.2.1-4.el9.x86_64                                                     
+  libpkgconf-1.7.3-10.el9.x86_64                                                
+  libxcrypt-devel-4.4.18-3.el9.x86_64                                           
+  make-1:4.3-8.el9.x86_64                                                       
+  pkgconf-1.7.3-10.el9.x86_64                                                   
+  pkgconf-m4-1.7.3-10.el9.noarch                                                
+  pkgconf-pkg-config-1.7.3-10.el9.x86_64                                        
+  sudo-1.9.17p2-3.el9_8.1.x86_64                                                
+  systemd-devel-252-67.0.2.el9_8.6.x86_64                                       
+
+Complete!
+--> 9ead6bac2261
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-oracle-9:8052ef5300c2
+--> 030ffce05580
+Successfully tagged localhost/rootspeak-test-oracle-9:8052ef5300c2
+030ffce055806e47da4b04243fe2a726e5db5474ebfbf8b4420ecccbecbbe384

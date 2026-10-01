@@ -1,0 +1,338 @@
+{
+ "meta": {
+  "date": "2026-10-01 17:39:06 CEST",
+  "commit": "708375b5fe-modified",
+  "fingerprint": "43cabeaa5630",
+  "ok": 22,
+  "failed": 0,
+  "total": 22
+ },
+ "distributions": [
+  {
+   "name": "debian-12",
+   "system": "Debian GNU/Linux 12 (bookworm)",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "debian-13",
+   "system": "Debian GNU/Linux 13 (trixie)",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "ubuntu-22.04",
+   "system": "Ubuntu 22.04.5 LTS",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "ubuntu-24.04",
+   "system": "Ubuntu 24.04.5 LTS",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "ubuntu-26.04",
+   "system": "Ubuntu 26.04.1 LTS",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "fedora-44",
+   "system": "Fedora Linux 44 (Container Image)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "fedora-45",
+   "system": "Fedora Linux 45 (Container Image Prerelease)",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "centos-stream-9",
+   "system": "CentOS Stream 9",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "centos-stream-10",
+   "system": "CentOS Stream 10 (Coughlan)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "rhel-9",
+   "system": "Red Hat Enterprise Linux 9.8 (Plow)",
+   "outcome": "OK",
+   "ok": 56,
+   "failed": 0,
+   "not_tested": 4,
+   "total": 60,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-fish",
+    "K-ksh",
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "rhel-10",
+   "system": "Red Hat Enterprise Linux 10.2 (Coughlan)",
+   "outcome": "OK",
+   "ok": 56,
+   "failed": 0,
+   "not_tested": 4,
+   "total": 60,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-fish",
+    "K-ksh",
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "rocky-9",
+   "system": "Rocky Linux 9.8 (Blue Onyx)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "rocky-10",
+   "system": "Rocky Linux 10.2 (Red Quartz)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "alma-9",
+   "system": "AlmaLinux 9.8 (Olive Jaguar)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "alma-10",
+   "system": "AlmaLinux 10.2 (Lavender Lion)",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "oracle-9",
+   "system": "Oracle Linux Server 9.8",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "oracle-10",
+   "system": "Oracle Linux Server 10.2",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "opensuse-leap-16",
+   "system": "openSUSE Leap 16.0",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "opensuse-tumbleweed",
+   "system": "openSUSE Tumbleweed",
+   "outcome": "OK",
+   "ok": 69,
+   "failed": 0,
+   "not_tested": 1,
+   "total": 70,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "sles-15",
+   "system": "SUSE Linux Enterprise Server 15 SP7",
+   "outcome": "OK",
+   "ok": 64,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 66,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-fish",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "sles-16",
+   "system": "SUSE Linux Enterprise Server 16.0",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-dash",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  },
+  {
+   "name": "arch",
+   "system": "Arch Linux",
+   "outcome": "OK",
+   "ok": 65,
+   "failed": 0,
+   "not_tested": 2,
+   "total": 67,
+   "failed_codes": [],
+   "not_tested_codes": [
+    "K-ksh",
+    "I1"
+   ],
+   "fingerprint": "43cabeaa5630"
+  }
+ ]
+}

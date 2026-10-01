@@ -61,8 +61,15 @@ S1 = p("The repository contains the C code, the files to install on the system, 
     ("tests/help-tui.py", "Test of the built-in help on a virtual terminal."),
     ("tests/fuzz/fuzz.c", "Fuzzing with libFuzzer of what reads untrusted data (four targets)."),
     ("tests/fuzz/run.sh", "Builds and runs the fuzzing in a container with clang."),
-    ("tests/container/Containerfile", "The test machine: Debian 13 with systemd, sshd, several users and shells."),
-    ("tests/container/run.sh", "Starts the test machine, installs RootSpeak, runs the scenarios, saves the results."),
+    ("tests/container/Containerfile", "The test machine: Debian 13, or any distribution with systemd, with sshd, "
+     "several users and shells."),
+    ("tests/container/setup.sh", "Prepares the test machine on any distribution (apt, dnf, zypper, pacman): "
+     "packages, sshd, shells, Italian locale, test users."),
+    ("tests/container/run.sh", "Starts the test machine, builds and installs RootSpeak there, runs the scenarios, "
+     "saves the results."),
+    ("tests/distros/run.sh", "Compatibility tests on the test server: the scenarios on every distribution of "
+     "the list, several at a time, with a summary."),
+    ("tests/distros/list", "The distributions of the compatibility tests and their container images."),
     ("tests/container/scenarios.py", "The real-world scenarios, run as root in the test machine (also in the "
      "VM, together with the desktop ones)."),
     ("tests/vm/run.sh", "Tests in the desktop VM on the test server: code, clean VM, scenarios, "

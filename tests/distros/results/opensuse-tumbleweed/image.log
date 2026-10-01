@@ -1,0 +1,27 @@
+STEP 1/4: FROM registry.opensuse.org/opensuse/tumbleweed
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> 8a48b52ab61c
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+
+The following 78 NEW packages are going to be installed:
+  alts binutils busybox busybox-diffutils cpp cpp16 crypto-policies-scripts dbus-1 dbus-1-common dbus-1-tools dbus-broker dbus-broker-block-restart findutils gcc gcc16 glibc-devel glibc-locale kbd krb5 less libalternatives1 libasan8 libatomic1 libcbor0_14 libcom_err2 libctf-nobfd0 libctf0 libdbus-1-3 libedit0 libexpat1 libfido2-1 libgomp1 libhwasan0 libisl23 libitm1 libkbdfile1 libkeymap1 libkeyutils1 libkfont0 liblastlog2-2 libldap2 liblsan0 libmpc3 libmpdec4 libmpfr6 libpkgconf7 libpython3_13-1_0 libsasl2-3 libseccomp2 libsframe2 libtsan2 libubsan1 libverto1 libwtmpdb0 libxcrypt-devel libxkbcommon0 linux-glibc-devel make openssh-clients openssh-common openssh-server pam-config pam-extra pkgconf pkgconf-m4 pkgconf-pkg-config python313 python313-base sudo systemd systemd-default-settings systemd-default-settings-branding-openSUSE systemd-devel systemd-presets-branding-openSUSE systemd-presets-common-SUSE systemd-rpm-macros util-linux-systemd xkeyboard-config
+
+78 new packages to install.
+
+Package download size:   123.3 MiB
+
+Package install size change:
+              |     614.3 MiB  required by packages that will be installed
+   614.3 MiB  |  -      0 B    released by packages that will be removed
+
+Backend:  classic_rpmtrans
+Continue? [y/n/v/...? shows all options] (y): y
+
+Initializing machine ID from random generator.
+Created symlink '/etc/systemd/system/multi-user.target.wants/sshd.service' → '/usr/lib/systemd/system/sshd.service'.
+--> 8628048b4cbd
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-opensuse-tumbleweed:8052ef5300c2
+--> 860d176a2ffa
+Successfully tagged localhost/rootspeak-test-opensuse-tumbleweed:8052ef5300c2
+860d176a2ffaa56564f70ec7dc2bc271906fb6c164676caaa56db7b4863f320f

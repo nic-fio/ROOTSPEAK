@@ -412,7 +412,8 @@ def test_results():
     rows = []
     for name, f, unit in (("tests/engine.sh", "tests/results/engine.json", "checks"),
                           ("tests/container/run.sh", "tests/container/results/results.json", "scenarios"),
-                          ("tests/vm/run.sh", "tests/vm/results/results.json", "scenarios")):
+                          ("tests/vm/run.sh", "tests/vm/results/results.json", "scenarios"),
+                          ("tests/distros/run.sh", "tests/distros/results/summary.json", "distributions")):
         path = ROOT / f
         if not path.exists():
             rows.append([c(name), "never run", "", "", "", ""])
@@ -432,6 +433,37 @@ def test_results():
     return table(["Suite", "Result", "Date", "Commit", "Fingerprint", "Valid for the current code"], rows,
                  "«TAB» — The last run of each suite (" + c("tests/*/results/") + "); fingerprint of the current "
                  "code: " + c(current))
+
+
+def distro_results():
+    """One row per distribution of the last tests/distros/run.sh: outcome and what was not tested, with the reason."""
+    import json
+    path = ROOT / "tests/distros/results/summary.json"
+    if not path.exists():
+        return p("The distributions have not been tested yet.")
+    current = current_fingerprint()
+    rows = []
+    for d in json.loads(path.read_text())["distributions"]:
+        if d.get("not_run"):
+            rows.append([c(d["name"]), "—", "<b>not run</b>: " + esc(d["not_run"]), ""])
+            continue
+        res = json.loads((ROOT / "tests/distros/results" / d["name"] / "results.json").read_text())["results"]
+        why = []
+        for r in res:
+            if r["outcome"] != "--" or r["code"] == "I1":
+                continue
+            shell = r["code"].removeprefix("K-")
+            why.append(f"{shell}: not in the distribution's packages" if r["details"] == "user missing"
+                       else f"{shell}: the login shell already fails on the distribution's own files ("
+                       + esc(r["details"][:80]) + ")" if r["code"].startswith("K-") else f"{r['code']}: {esc(r['details'][:80])}")
+        outcome = f"{d['ok']} of {d['total']} passed" + (f", <b>{d['failed']} failed</b> ({', '.join(d['failed_codes'])})"
+                                                        if d["failed"] else "")
+        if d.get("fingerprint") != current:
+            outcome += " — <b>older code</b>"
+        rows.append([c(d["name"]), esc(d["system"]), outcome, "; ".join(why) or "—"])
+    return table(["Name", "System", "Scenarios", "Not tested, and why"], rows,
+                 "«TAB» — RootSpeak on each distribution: the last run of " + c("tests/distros/run.sh")
+                 + " (the desktop scenario is never tested in a container)")
 
 
 # ── The built-in help as the source of the reference ───────────────────

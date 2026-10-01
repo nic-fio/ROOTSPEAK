@@ -5,26 +5,37 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import c, flow, note, p, steps, table, term, tip, tree, warn  # noqa: E402
 from _helpers import ref  # noqa: E402
 
-S1 = p("RootSpeak runs on a Linux distribution with systemd. It has been tested on Debian 13 with GNOME on Wayland: live, "
-       "and with automated tests in a test machine and in a virtual machine with a desktop. With X11, other desktops "
-       "and other systemd distributions it should work the same way, but this has not been tested; without systemd "
-       "it does not work.", lead=True) + \
-    table(["Requirement", "What it is for", "Package on Debian and Ubuntu"], [
-        ["systemd", "knowing who is logged in and where, and opening the dialog on the desktop", "already present"],
-        ["sudo and an administrators group", "deciding who may use " + c("rspeak"),
-         c("sudo") + " (group " + c("sudo") + "; on Fedora and similar " + c("wheel") + ")"],
+S1 = p("RootSpeak runs on a Linux distribution with systemd; without systemd it does not work. It is tested "
+       "automatically, as root and with real users and sessions, on the current versions of Debian, Ubuntu, Fedora, "
+       "RHEL and its rebuilds (CentOS Stream, Rocky Linux, AlmaLinux, Oracle Linux), openSUSE, SLES and Arch Linux: "
+       "the list, with the result on each one, is in the technical manual, chapter “Tests and checks”. The desktop "
+       "dialog has been tested on Debian 13 with GNOME on Wayland.", lead=True) + \
+    table(["Requirement", "What it is for"], [
+        ["systemd", "knowing who is logged in and where, and opening the dialog on the desktop"],
+        ["sudo and an administrators group", "deciding who may use " + c("rspeak") + ": the group " + c("sudo")
+         + " on Debian and Ubuntu, " + c("wheel") + " on the others"],
         ["a shell: bash, zsh or fish", "the confirmation question in terminals at every prompt; with sh, dash and ksh "
-         "only at login", "bash is already present"],
-        ["zenity", "the “I have read it” / “Later” dialog on the desktop", c("zenity")],
-        ["notify-send (optional)", "the desktop notice when a confirmation could not be recorded",
-         c("libnotify-bin")],
+         "only at login"],
+        ["zenity", "the “I have read it” / “Later” dialog on the desktop"],
+        ["notify-send (optional)", "the desktop notice when a confirmation could not be recorded"],
         ["the build tools, only for installing", "RootSpeak is written in C: " + c("install.sh") + " compiles it "
-         "if needed", c("gcc make pkg-config libsystemd-dev")],
+         "if needed, with the compiler and the systemd development files"],
     ], "«TAB» — Requirements") + \
+    table(["Distribution", "Packages to install"], [
+        ["Debian, Ubuntu", c("sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev")],
+        ["Fedora, RHEL, CentOS Stream, Rocky, Alma, Oracle",
+         c("sudo dnf install zenity libnotify gcc make pkgconf-pkg-config systemd-devel")],
+        ["openSUSE, SLES", c("sudo zypper install zenity libnotify-tools gcc make pkg-config systemd-devel")],
+        ["Arch Linux", c("sudo pacman -S zenity libnotify gcc make pkgconf")],
+    ], "«TAB» — The packages on each family of distributions") + \
     term("admin@server:~$ sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev",
          "Installing the packages on Debian and Ubuntu") + \
-    note("on machines without a desktop zenity is not needed: RootSpeak uses only the terminals. The installation reports "
-         "“Warning: zenity is missing” but carries on.", "Servers without a desktop.")
+    note("on machines without a desktop zenity and notify-send are not needed: RootSpeak uses only the terminals. "
+         "The installation reports “Warning: zenity is missing” but carries on.", "Servers without a desktop.") + \
+    note("on Fedora and RHEL the login shell dash stops on a file of the distribution (" + c("/etc/profile.d/lang.sh")
+         + ") before reaching RootSpeak; on openSUSE the login shell must be " + c("/usr/bin/ksh93") + ", not "
+         + c("/usr/bin/ksh") + ", which cannot start a login. Both are limits of the distributions, with or without "
+         "RootSpeak.", "Two shells to know about.")
 
 INSTALL_PATH = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "installs, with sudo", "navy"),
                  ("rspeak version", "does it answer?", "blue"), ("rspeak", "the TUI, empty", "green")],
@@ -47,7 +58,7 @@ S2 = INSTALL_PATH + steps([
                                              "RootSpeak - Advanced Messaging System for Linux 0.2.0"),
 ]) + tip("if " + c("make") + " has not been run, or if the programs were compiled for other folders, "
          + c("install.sh") + " compiles on its own. If compilation fails it writes “Build failed: gcc, make, pkg-config and "
-         "libsystemd-dev are needed”.", "Automatic compilation.") + \
+         "the systemd development files are needed (libsystemd-dev or systemd-devel)”.", "Automatic compilation.") + \
     note("users who are already logged in receive messages straight away, on the desktop too. The confirmation "
          "question in the terminal, instead, arrives from the next terminal window they open: the ones already open "
          "have not loaded RootSpeak yet.", "Users already logged in.")

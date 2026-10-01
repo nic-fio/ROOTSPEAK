@@ -44,7 +44,7 @@ do_install() {
 	if ! [ -x "$SRC/build/rspeak" ] || ! [ -x "$SRC/build/rootspeak-user" ] ||
 		! grep -qaF "$LIBDIR" "$SRC/build/rspeak"; then
 		make -C "$SRC" PREFIX="$PREFIX" all >/dev/null ||
-			{ echo "Build failed: gcc, make, pkg-config and libsystemd-dev are needed" >&2; exit 1; }
+			{ echo "Build failed: gcc, make, pkg-config and the systemd development files are needed (libsystemd-dev or systemd-devel)" >&2; exit 1; }
 	fi
 	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/rootspeak /etc/profile.d /etc/xdg/autostart
 	install -m 755 "$SRC/build/rootspeak-user" "$LIBDIR/rootspeak-user"
@@ -60,9 +60,10 @@ do_install() {
 	subst "$SRC/etc/rootspeak.zsh" >"$LIBDIR/rootspeak.zsh"
 	chmod 644 "$LIBDIR/rootspeak.bash" "$LIBDIR/rootspeak.zsh"
 	# zsh: a line in the system zshrc, if zsh is installed (if it is installed
-	# later, run install.sh again); fish: a file in conf.d, which fish reads
-	# even if it is installed later
-	if [ -f "$ZSHRC" ] && ! grep -qF "$MARK" "$ZSHRC"; then
+	# later, run install.sh again); the zshrc is created if missing (Arch has
+	# only /etc/zsh/zprofile); fish: a file in conf.d, which fish reads even if
+	# it is installed later
+	if command -v zsh >/dev/null && ! grep -qsF "$MARK" "$ZSHRC"; then
 		echo "[ -r $LIBDIR/rootspeak.zsh ] && . $LIBDIR/rootspeak.zsh  $MARK" >>"$ZSHRC"
 	fi
 	install -d -m 755 "$(dirname "$FISHCONF")"

@@ -1,4 +1,4 @@
-from build import arrow, box, c, fig, note, p, test_results, table, term, text, ul, warn, zone
+from build import arrow, box, c, distro_results, fig, note, p, test_results, table, term, text, ul, warn, zone
 
 
 def cap(n, s=None):
@@ -8,8 +8,8 @@ def cap(n, s=None):
 LEVELS = fig(
     box(330, 20, 240, 44, "live", "after install.sh, by the user", "grey", 12)
     + box(250, 72, 400, 44, "tests/vm", "VM with GNOME on Wayland, root, real dialogs", "navy", 12)
-    + box(170, 124, 560, 44, "tests/container", "Debian 13 with systemd, root, real ssh sessions, nine users", "navy",
-          12)
+    + box(170, 124, 560, 44, "tests/container · tests/distros",
+          "Debian 13 and 21 other distributions with systemd, root, real ssh sessions", "navy", 12)
     + box(90, 176, 720, 44, "tests/engine.sh · tests/tui.py · tests/help-tui.py",
           "test mode, no root, temporary message store, virtual terminals", "blue", 12)
     + box(20, 228, 860, 44, "make unit · make analyze · make sanitizer · tests/fuzz",
@@ -74,8 +74,8 @@ S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on 
       "text cleaning, messages, configuration, event texts.")
 
 S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an isolated test machine: a Debian 13 "
-       "container with systemd running (logind, sshd), without root on the host system. RootSpeak is installed there with "
-       + c("install.sh") + "; the users are " + c("admin") + " (group sudo), " + c("mario") + " and " + c("anna")
+       "container with systemd running (logind, sshd), without root on the host system. RootSpeak is built there "
+       "and installed with " + c("install.sh") + "; the users are " + c("admin") + " (group sudo), " + c("mario") + " and " + c("anna")
        + " (group developers), " + c("luca") + ", " + c("service") + " (without a shell) and four users with other "
        "shells: " + c("zeno") + " (zsh), " + c("fabio") + " (fish), " + c("kora") + " (ksh), " + c("dario")
        + " (dash). " + c("scenarios.py") + " runs as root, opens real ssh sessions with a terminal, answers the "
@@ -130,6 +130,39 @@ S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an iso
     "Each run writes " + c("results.json") + " and " + c("report.md") + " to " + c("tests/container/results/")
     + " and " + c("tests/vm/results/") + ", with the measurements of every scenario.",
 ])
+
+DISTROS = fig(
+    box(20, 44, 250, 56, "tests/distros/run.sh", "on the PC: code to the server, results back", "dark", 12)
+    + arrow(270, 72, 330, 72)
+    + box(330, 44, 550, 56, "test server: 4 test machines at a time",
+          "one image per distribution, kept on the SSD", "navy", 12)
+    + arrow(605, 100, 605, 128)
+    + box(330, 128, 550, 56, "in each: setup.sh, then build, install.sh, scenarios.py",
+          "apt · dnf · zypper · pacman; the compiler of the distribution", "blue", 12)
+    + arrow(330, 156, 270, 156)
+    + box(20, 128, 250, 56, "tests/distros/results/", "one folder per distribution, summary.json", "grey", 12),
+    900, 204, "«FIG» — The compatibility tests on the distributions", "tests/distros")
+
+S3B = p(c("tests/distros/run.sh") + " runs the same real-world scenarios on every distribution listed in "
+        + c("tests/distros/list") + ": the families of Debian and Ubuntu, Fedora, RHEL and its rebuilds (CentOS "
+        "Stream, Rocky, Alma, Oracle; RHEL itself through its free UBI images), SUSE (openSUSE and SLES) and Arch. "
+        "Only distributions with systemd: RootSpeak relies on logind and " + c("systemd-run") + ".", lead=True) + DISTROS + \
+    p("Each distribution gets its own image, built from the official image of the distribution by the same "
+      + c("tests/container/Containerfile") + " with " + c("tests/container/setup.sh") + ": the package manager tells "
+      "the family, and the script installs the compiler, sshd, the shells and the test users. The administrators' "
+      "group is the one of the distribution (" + c("sudo") + " or " + c("wheel") + "). RootSpeak is then "
+      "<b>built inside the machine</b>, with the compiler and the libraries of that distribution, and installed with "
+      + c("install.sh") + ", as a customer would. The images carry the fingerprint of the preparation: a change to "
+      + c("setup.sh") + " builds them again.") + \
+    p("A shell that a distribution does not package (ksh on Arch, or the shells missing from the limited "
+      "repositories of RHEL's UBI images) is “not tested”, not failed; so is a login shell that already stops on the distribution's own files before reaching "
+      "RootSpeak (dash on Fedora and RHEL: " + c("/etc/profile.d/lang.sh") + " is not POSIX).") + distro_results() + \
+    ul(["The runs go on the test server (192.168.0.2), four distributions at a time (" + c("RSPEAK_PARALLEL")
+        + "); the images live in " + c("/media/ROOTSPEAK/distros/storage") + ", on the SSD, because the server's "
+        + c("/") + " is in RAM.",
+        c("tests/distros/run.sh fedora-44 arch") + " runs only some of them; the results are in "
+        + c("tests/distros/results/") + " (" + c("summary.md") + ", and the " + c("report.md") + " of each one).",
+        "The desktop of other distributions is tested in a VM (" + c("tests/vm") + "), not here."])
 
 S4 = p("The two full-screen interfaces are tested on a pseudo-terminal, pressing keys as a person would and checking "
        "the last screen drawn after each one.", lead=True) + table(["Test", "Check"], [
@@ -218,6 +251,7 @@ CHAPTER = ("Tests and checks", [
     ("The tests and their results", S1),
     ("The engine: tests/engine.sh", S2),
     ("For real: the test machine and the VM", S3),
+    ("On other distributions: tests/distros", S3B),
     ("The interfaces: tests/tui.py and tests/help-tui.py", S4),
     ("The documentation: tools/check-docs.py", S5),
     ("Live tests", S6),

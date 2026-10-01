@@ -1,0 +1,87 @@
+test machine: running (Debian GNU/Linux 13 (trixie))
+RootSpeak installed. Command: /usr/local/bin/rspeak (usable by the sudo group).
+a_access
+  ok  A1  root sends a message
+  ok  A2  an administrator (sudo group) sends: rspeak re-runs itself with sudo  [{'seconds': 0.083}]
+  ok  A3  an ordinary user cannot run rspeak
+  ok  A4  an ordinary user cannot even open the help
+b_recipients
+  ok  B1  one user
+  ok  B2  list with a duplicate
+  ok  B3  group @developers
+  ok  B4  all: human users, except root and whoever has nologin
+  ok  B5  online: only whoever has an open session
+  ok  B6  user that does not exist
+  ok  B7  group without members
+c_delivery
+  ok  C1a  user logged out: the copy waits in the mailbox
+  ok  C1b  at login the message and the question appear before the first prompt  [{'seconds_from_login': 0.442}]
+  ok  C1c  confirmation at login
+  ok  C2a  user logged in: the text appears in their terminal  [{'seconds_send': 0.054, 'seconds_to_terminal': 0.105}]
+  ok  C2b  state after writing to the terminal
+  ok  C2c  pressing Enter the question appears  [{'seconds': 0.054}]
+  ok  C3  ssh session without a terminal: it is not touched, the copy goes to the mailbox
+  ok  C4a  two open sessions: the text appears in both
+  ok  C4b  confirming in one session, the question in the other stops  [{'seconds': 0.951}]
+d_confirmation
+  ok  D1  the user postpones
+  ok  D2  after the postponement, only a reminder at the prompt
+  ok  D5  rspeak remind after a postponement: the question comes back at the next prompt
+  ok  D3  at the next login the postponement does not count: the question comes back
+  ok  D4  confirmation recorded with date and channel
+e_expiry_revocation
+  ok  E1  an expired message is not shown at login
+  ok  E2  state of an expired message
+  ok  E3  revocation with the question waiting: the question stops  [{'seconds': 1.003}]
+  ok  E4  state after the revocation
+  ok  E5  a message revoked before the login is not shown
+f_faults
+  ok  F1  the copy for one user cannot be written: the others receive it
+  ok  F2  fault fixed: the next command completes the delivery
+  ok  F3  rspeak send killed halfway (SIGKILL): the next command completes  [{'delivered_at_kill': 3, 'recipients': 68, 'seconds_recovery': 1.322}]
+  ok  F6  user's folder left owned by root by an interrupted sending: the delivery fixes it
+  ok  F7  rspeak revoke during a sending to many users: the sending stops and no copy stays  [{'seconds_waiting_revoke': 0.66}]
+  ok  F5  rspeak list repeated while rspeak send delivers: the recovery does not interfere  [{'rspeak_list_during_sending': 16}]
+  ok  F4  the confirmation cannot be written: the message stays and the user is told
+g_security
+  ok  G1  the mailbox is a link to /etc: root does not write there
+  ok  G2  escape sequences in the text: they do not reach the terminal
+  ok  G3  forged confirmation with escapes and 500 bytes: rspeak status stays clean
+  ok  G4  an ordinary user with RSPEAK_TEST=1 gets nothing
+j_log
+  ok  J1  rspeak log: the history of the message
+  ok  J2  the confirmation in the journal carries the user who wrote it (_UID)
+  ok  J3  an event written by a user in the name of another: rspeak log flags it
+t_tui
+  ok  T1  rspeak without arguments as root: the list with the recipients in the three states
+  ok  T2  detail: recipients and history from the log
+  ok  T3  q: the TUI exits and gives the terminal back
+k_shells
+  ok  K1-zsh  zsh: at login the message and the question
+  ok  K2-zsh  zsh: confirmation at login
+  ok  K3-zsh  zsh: user logged in, the text appears in the terminal
+  ok  K4-zsh  zsh: pressing Enter the question appears  [{'seconds': 0.057}]
+  ok  K5-zsh  zsh: confirmation at the prompt
+  ok  K1-fish  fish: at login the message and the question
+  ok  K2-fish  fish: confirmation at login
+  ok  K3-fish  fish: user logged in, the text appears in the terminal
+  ok  K4-fish  fish: pressing Enter the question appears  [{'seconds': 0.056}]
+  ok  K5-fish  fish: confirmation at the prompt
+  ok  K1-ksh  ksh: at login the message and the question
+  ok  K2-ksh  ksh: confirmation at login
+  ok  K3-ksh  ksh: user logged in, the text appears in the terminal
+  ok  K4-ksh  ksh: no question at the prompt (it comes at the next login)
+  ok  K1-dash  dash: at login the message and the question
+  ok  K2-dash  dash: confirmation at login
+  ok  K3-dash  dash: user logged in, the text appears in the terminal
+  ok  K4-dash  dash: no question at the prompt (it comes at the next login)
+l_language
+  ok  L5  a user whose session is in Italian: header, question and answer in English, «y» confirms
+h_performance
+  ok  H1  sending to all (58 recipients)  [{'seconds': 0.71, 'ms_per_recipient': 12.2}]
+  ok  H2  rspeak list with 10 messages × 58 recipients  [{'seconds': 0.59}]
+  ok  H3  rspeak status of a message with 58 recipients  [{'seconds': 0.55}]
+i_desktop
+  --  I1  confirmation dialog in the graphical session
+
+69 passed, 0 failed, 1 not tested out of 70; results in /opt/results

@@ -1,0 +1,35 @@
+STEP 1/4: FROM registry.suse.com/bci/bci-base:16.0
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> 1b0a71308eed
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+
+The following package is going to be upgraded:
+  tar
+
+The following 91 NEW packages are going to be installed:
+  alts binutils cpp cpp15 dbus-1 dbus-1-common dbus-1-tools dbus-broker dbus-broker-block-restart diffutils findutils gcc gcc15 glibc-devel glibc-locale kbd krb5 less libalternatives1 libasan8 libatomic1 libblkid1 libcap-ng0 libcbor0_11 libcom_err2 libctf-nobfd0 libctf0 libdbus-1-3 libedit0 libexpat1 libfdisk1 libfido2-1 libgomp1 libhidapi-hidraw0 libhwasan0 libisl23 libitm1 libkbdfile1 libkeymap1 libkeyutils1 libkfont0 liblastlog2-2 libldap-2 libldap-data liblsan0 libmount1 libmpc3 libmpdec4 libmpfr6 libpkgconf5 libproc2-1 libpython3_13-1_0 libsasl2-3 libseccomp2 libsframe2 libsmartcols1 libsystemd0 libtsan2 libubsan1 libuuid1 libverto1 libwtmpdb0 libxcrypt-devel linux-glibc-devel make openssh-clients openssh-common openssh-server pam-config pam-extra permissions permissions-config pkgconf pkgconf-m4 pkgconf-pkg-config procps python3 python3-base python313 python313-base sudo systemd systemd-default-settings systemd-default-settings-branding-SLE systemd-devel systemd-presets-branding-SLE systemd-presets-common-SUSE systemd-rpm-macros update-alternatives util-linux util-linux-systemd
+
+The following 92 packages are not supported by their vendor:
+  alts binutils cpp cpp15 dbus-1 dbus-1-common dbus-1-tools dbus-broker dbus-broker-block-restart diffutils findutils gcc gcc15 glibc-devel glibc-locale kbd krb5 less libalternatives1 libasan8 libatomic1 libblkid1 libcap-ng0 libcbor0_11 libcom_err2 libctf-nobfd0 libctf0 libdbus-1-3 libedit0 libexpat1 libfdisk1 libfido2-1 libgomp1 libhidapi-hidraw0 libhwasan0 libisl23 libitm1 libkbdfile1 libkeymap1 libkeyutils1 libkfont0 liblastlog2-2 libldap-2 libldap-data liblsan0 libmount1 libmpc3 libmpdec4 libmpfr6 libpkgconf5 libproc2-1 libpython3_13-1_0 libsasl2-3 libseccomp2 libsframe2 libsmartcols1 libsystemd0 libtsan2 libubsan1 libuuid1 libverto1 libwtmpdb0 libxcrypt-devel linux-glibc-devel make openssh-clients openssh-common openssh-server pam-config pam-extra permissions permissions-config pkgconf pkgconf-m4 pkgconf-pkg-config procps python3 python3-base python313 python313-base sudo systemd systemd-default-settings systemd-default-settings-branding-SLE systemd-devel systemd-presets-branding-SLE systemd-presets-common-SUSE systemd-rpm-macros tar update-alternatives util-linux util-linux-systemd
+
+1 package to upgrade, 91 new.
+
+Package download size:   122.2 MiB
+
+Package install size change:
+              |     590.2 MiB  required by packages that will be installed
+   589.8 MiB  |  -  473.3 KiB  released by packages that will be removed
+
+Backend:  classic_rpmtrans
+Continue? [y/n/v/...? shows all options] (y): y
+
+setup: not available: zypper -n -q install --no-recommends dash
+setup: not available: zypper -n -q install --no-recommends python311
+Initializing machine ID from random generator.
+Created symlink '/etc/systemd/system/multi-user.target.wants/sshd.service' → '/usr/lib/systemd/system/sshd.service'.
+--> af644d947cf9
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-sles-16:8052ef5300c2
+--> 24d9ddbf6241
+Successfully tagged localhost/rootspeak-test-sles-16:8052ef5300c2
+24d9ddbf624134c479e8c51826f4658482b6f19f4204a8da35fc404af3451816

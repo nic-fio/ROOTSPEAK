@@ -1,0 +1,187 @@
+STEP 1/4: FROM docker.io/rockylinux/rockylinux:10
+STEP 2/4: COPY setup.sh /usr/local/sbin/rootspeak-test-setup
+--> 90f00e70a336
+STEP 3/4: RUN /usr/local/sbin/rootspeak-test-setup
+setup: not available: dnf install -y oracle-epel-release-el10
+Last metadata expiration check: 0:00:02 ago on Thu Oct  1 15:04:04 2026.
+Package python3-3.12.13-2.el10_2.x86_64 is already installed.
+Package util-linux-2.40.2-18.el10.x86_64 is already installed.
+Package less-661-3.el10.x86_64 is already installed.
+Package tar-2:1.35-11.el10.x86_64 is already installed.
+Package shadow-utils-2:4.15.0-11.el10.x86_64 is already installed.
+Dependencies resolved.
+================================================================================
+ Package              Arch     Version                        Repository   Size
+================================================================================
+Installing:
+ dbus                 x86_64   1:1.14.10-5.el10               baseos      7.4 k
+ gcc                  x86_64   14.3.1-4.4.el10                appstream    38 M
+ make                 x86_64   1:4.4.1-9.el10                 baseos      590 k
+ openssh-clients      x86_64   9.9p1-28.el10_2.rocky.0.1      baseos      762 k
+ openssh-server       x86_64   9.9p1-28.el10_2.rocky.0.1      baseos      541 k
+ pkgconf-pkg-config   x86_64   2.1.0-3.el10                   baseos      9.8 k
+ procps-ng            x86_64   4.0.4-11.el10                  baseos      370 k
+ sudo                 x86_64   1.9.17-10.p2.el10_2.6          baseos      1.3 M
+ systemd              x86_64   257-23.el10_2.2.rocky.0.1      baseos      5.6 M
+ systemd-devel        x86_64   257-23.el10_2.2.rocky.0.1      appstream   554 k
+ systemd-pam          x86_64   257-23.el10_2.2.rocky.0.1      baseos      322 k
+Upgrading:
+ python3              x86_64   3.12.14-1.el10_2               baseos       27 k
+ python3-libs         x86_64   3.12.14-1.el10_2               baseos      8.9 M
+ systemd-libs         x86_64   257-23.el10_2.2.rocky.0.1      baseos      839 k
+ tar                  x86_64   2:1.35-13.el10_2               baseos      858 k
+Installing dependencies:
+ cpp                  x86_64   14.3.1-4.4.el10                appstream    13 M
+ dbus-broker          x86_64   36-5.el10_2                    baseos      173 k
+ dbus-common          noarch   1:1.14.10-5.el10               baseos       14 k
+ glibc-devel          x86_64   2.39-121.el10_2                appstream   475 k
+ kernel-headers       x86_64   6.12.0-211.61.1.el10_2         appstream   3.3 M
+ libcbor              x86_64   0.11.0-3.el10                  baseos       33 k
+ libedit              x86_64   3.1-52.20230828cvs.el10        baseos      105 k
+ libfido2             x86_64   1.14.0-7.el10                  baseos       97 k
+ libmpc               x86_64   1.3.1-7.el10                   appstream    70 k
+ libpkgconf           x86_64   2.1.0-3.el10                   baseos       38 k
+ libseccomp           x86_64   2.5.6-1.el10                   baseos       70 k
+ libxcrypt-devel      x86_64   4.4.36-10.el10                 appstream    29 k
+ openssh              x86_64   9.9p1-28.el10_2.rocky.0.1      baseos      350 k
+ pkgconf              x86_64   2.1.0-3.el10                   baseos       44 k
+ pkgconf-m4           noarch   2.1.0-3.el10                   baseos       14 k
+
+Transaction Summary
+================================================================================
+Install  26 Packages
+Upgrade   4 Packages
+
+Total download size: 76 M
+Downloading Packages:
+(1/30): dbus-1.14.10-5.el10.x86_64.rpm          111 kB/s | 7.4 kB     00:00    
+(2/30): dbus-common-1.14.10-5.el10.noarch.rpm   186 kB/s |  14 kB     00:00    
+(3/30): libcbor-0.11.0-3.el10.x86_64.rpm        1.2 MB/s |  33 kB     00:00    
+(4/30): dbus-broker-36-5.el10_2.x86_64.rpm      1.7 MB/s | 173 kB     00:00    
+(5/30): libedit-3.1-52.20230828cvs.el10.x86_64. 2.6 MB/s | 105 kB     00:00    
+(6/30): libpkgconf-2.1.0-3.el10.x86_64.rpm      1.2 MB/s |  38 kB     00:00    
+(7/30): libfido2-1.14.0-7.el10.x86_64.rpm       2.6 MB/s |  97 kB     00:00    
+(8/30): libseccomp-2.5.6-1.el10.x86_64.rpm      2.4 MB/s |  70 kB     00:00    
+(9/30): make-4.4.1-9.el10.x86_64.rpm            2.2 MB/s | 590 kB     00:00    
+(10/30): openssh-9.9p1-28.el10_2.rocky.0.1.x86_ 917 kB/s | 350 kB     00:00    
+(11/30): pkgconf-2.1.0-3.el10.x86_64.rpm        895 kB/s |  44 kB     00:00    
+(12/30): openssh-clients-9.9p1-28.el10_2.rocky. 1.8 MB/s | 762 kB     00:00    
+(13/30): openssh-server-9.9p1-28.el10_2.rocky.0 3.0 MB/s | 541 kB     00:00    
+(14/30): pkgconf-m4-2.1.0-3.el10.noarch.rpm     358 kB/s |  14 kB     00:00    
+(15/30): pkgconf-pkg-config-2.1.0-3.el10.x86_64 283 kB/s | 9.8 kB     00:00    
+(16/30): procps-ng-4.0.4-11.el10.x86_64.rpm     4.8 MB/s | 370 kB     00:00    
+(17/30): sudo-1.9.17-10.p2.el10_2.6.x86_64.rpm   15 MB/s | 1.3 MB     00:00    
+(18/30): systemd-257-23.el10_2.2.rocky.0.1.x86_  24 MB/s | 5.6 MB     00:00    
+(19/30): systemd-pam-257-23.el10_2.2.rocky.0.1. 1.6 MB/s | 322 kB     00:00    
+(20/30): glibc-devel-2.39-121.el10_2.x86_64.rpm 5.2 MB/s | 475 kB     00:00    
+(21/30): kernel-headers-6.12.0-211.61.1.el10_2.  28 MB/s | 3.3 MB     00:00    
+(22/30): libmpc-1.3.1-7.el10.x86_64.rpm         1.4 MB/s |  70 kB     00:00    
+(23/30): libxcrypt-devel-4.4.36-10.el10.x86_64. 1.3 MB/s |  29 kB     00:00    
+(24/30): systemd-devel-257-23.el10_2.2.rocky.0.  10 MB/s | 554 kB     00:00    
+(25/30): python3-3.12.14-1.el10_2.x86_64.rpm    472 kB/s |  27 kB     00:00    
+(26/30): python3-libs-3.12.14-1.el10_2.x86_64.r  73 MB/s | 8.9 MB     00:00    
+(27/30): systemd-libs-257-23.el10_2.2.rocky.0.1  26 MB/s | 839 kB     00:00    
+(28/30): tar-1.35-13.el10_2.x86_64.rpm           23 MB/s | 858 kB     00:00    
+(29/30): cpp-14.3.1-4.4.el10.x86_64.rpm          11 MB/s |  13 MB     00:01    
+(30/30): gcc-14.3.1-4.4.el10.x86_64.rpm          14 MB/s |  38 MB     00:02    
+--------------------------------------------------------------------------------
+Total                                            19 MB/s |  76 MB     00:03     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Upgrading        : systemd-libs-257-23.el10_2.2.rocky.0.1.x86_64         1/34 
+  Installing       : libmpc-1.3.1-7.el10.x86_64                            2/34 
+  Installing       : openssh-9.9p1-28.el10_2.rocky.0.1.x86_64              3/34 
+  Installing       : cpp-14.3.1-4.4.el10.x86_64                            4/34 
+  Upgrading        : python3-libs-3.12.14-1.el10_2.x86_64                  5/34 
+  Upgrading        : python3-3.12.14-1.el10_2.x86_64                       6/34 
+  Installing       : kernel-headers-6.12.0-211.61.1.el10_2.x86_64          7/34 
+  Installing       : pkgconf-m4-2.1.0-3.el10.noarch                        8/34 
+  Installing       : make-1:4.4.1-9.el10.x86_64                            9/34 
+  Installing       : libseccomp-2.5.6-1.el10.x86_64                       10/34 
+  Installing       : libpkgconf-2.1.0-3.el10.x86_64                       11/34 
+  Installing       : pkgconf-2.1.0-3.el10.x86_64                          12/34 
+  Installing       : pkgconf-pkg-config-2.1.0-3.el10.x86_64               13/34 
+  Installing       : glibc-devel-2.39-121.el10_2.x86_64                   14/34 
+  Installing       : libxcrypt-devel-4.4.36-10.el10.x86_64                15/34 
+  Installing       : libedit-3.1-52.20230828cvs.el10.x86_64               16/34 
+  Installing       : libcbor-0.11.0-3.el10.x86_64                         17/34 
+  Installing       : libfido2-1.14.0-7.el10.x86_64                        18/34 
+  Installing       : dbus-common-1:1.14.10-5.el10.noarch                  19/34 
+  Running scriptlet: dbus-common-1:1.14.10-5.el10.noarch                  19/34 
+  Installing       : dbus-broker-36-5.el10_2.x86_64                       20/34 
+  Running scriptlet: dbus-broker-36-5.el10_2.x86_64                       20/34 
+  Installing       : dbus-1:1.14.10-5.el10.x86_64                         21/34 
+  Installing       : systemd-pam-257-23.el10_2.2.rocky.0.1.x86_64         22/34 
+  Running scriptlet: systemd-257-23.el10_2.2.rocky.0.1.x86_64             23/34 
+  Installing       : systemd-257-23.el10_2.2.rocky.0.1.x86_64             23/34 
+  Running scriptlet: systemd-257-23.el10_2.2.rocky.0.1.x86_64             23/34 
+Creating group 'input' with GID 104.
+Creating group 'kvm' with GID 36.
+Creating group 'render' with GID 105.
+Creating group 'sgx' with GID 106.
+Creating group 'systemd-journal' with GID 190.
+Creating group 'dbus' with GID 81.
+Creating user 'dbus' (System Message Bus) with UID 81 and GID 81.
+
+  Running scriptlet: openssh-server-9.9p1-28.el10_2.rocky.0.1.x86_64      24/34 
+  Installing       : openssh-server-9.9p1-28.el10_2.rocky.0.1.x86_64      24/34 
+  Running scriptlet: openssh-server-9.9p1-28.el10_2.rocky.0.1.x86_64      24/34 
+Created symlink '/etc/systemd/system/multi-user.target.wants/sshd.service' → '/usr/lib/systemd/system/sshd.service'.
+
+  Installing       : openssh-clients-9.9p1-28.el10_2.rocky.0.1.x86_64     25/34 
+  Running scriptlet: openssh-clients-9.9p1-28.el10_2.rocky.0.1.x86_64     25/34 
+  Installing       : gcc-14.3.1-4.4.el10.x86_64                           26/34 
+  Installing       : procps-ng-4.0.4-11.el10.x86_64                       27/34 
+  Installing       : systemd-devel-257-23.el10_2.2.rocky.0.1.x86_64       28/34 
+  Upgrading        : tar-2:1.35-13.el10_2.x86_64                          29/34 
+  Installing       : sudo-1.9.17-10.p2.el10_2.6.x86_64                    30/34 
+  Cleanup          : python3-3.12.13-2.el10_2.x86_64                      31/34 
+  Cleanup          : python3-libs-3.12.13-2.el10_2.x86_64                 32/34 
+  Cleanup          : tar-2:1.35-11.el10.x86_64                            33/34 
+  Cleanup          : systemd-libs-257-23.el10_2.1.rocky.0.1.x86_64        34/34 
+  Running scriptlet: systemd-libs-257-23.el10_2.1.rocky.0.1.x86_64        34/34 
+
+Upgraded:
+  python3-3.12.14-1.el10_2.x86_64                                               
+  python3-libs-3.12.14-1.el10_2.x86_64                                          
+  systemd-libs-257-23.el10_2.2.rocky.0.1.x86_64                                 
+  tar-2:1.35-13.el10_2.x86_64                                                   
+Installed:
+  cpp-14.3.1-4.4.el10.x86_64                                                    
+  dbus-1:1.14.10-5.el10.x86_64                                                  
+  dbus-broker-36-5.el10_2.x86_64                                                
+  dbus-common-1:1.14.10-5.el10.noarch                                           
+  gcc-14.3.1-4.4.el10.x86_64                                                    
+  glibc-devel-2.39-121.el10_2.x86_64                                            
+  kernel-headers-6.12.0-211.61.1.el10_2.x86_64                                  
+  libcbor-0.11.0-3.el10.x86_64                                                  
+  libedit-3.1-52.20230828cvs.el10.x86_64                                        
+  libfido2-1.14.0-7.el10.x86_64                                                 
+  libmpc-1.3.1-7.el10.x86_64                                                    
+  libpkgconf-2.1.0-3.el10.x86_64                                                
+  libseccomp-2.5.6-1.el10.x86_64                                                
+  libxcrypt-devel-4.4.36-10.el10.x86_64                                         
+  make-1:4.4.1-9.el10.x86_64                                                    
+  openssh-9.9p1-28.el10_2.rocky.0.1.x86_64                                      
+  openssh-clients-9.9p1-28.el10_2.rocky.0.1.x86_64                              
+  openssh-server-9.9p1-28.el10_2.rocky.0.1.x86_64                               
+  pkgconf-2.1.0-3.el10.x86_64                                                   
+  pkgconf-m4-2.1.0-3.el10.noarch                                                
+  pkgconf-pkg-config-2.1.0-3.el10.x86_64                                        
+  procps-ng-4.0.4-11.el10.x86_64                                                
+  sudo-1.9.17-10.p2.el10_2.6.x86_64                                             
+  systemd-257-23.el10_2.2.rocky.0.1.x86_64                                      
+  systemd-devel-257-23.el10_2.2.rocky.0.1.x86_64                                
+  systemd-pam-257-23.el10_2.2.rocky.0.1.x86_64                                  
+
+Complete!
+--> eb0b69f6df73
+STEP 4/4: CMD ["/usr/lib/systemd/systemd"]
+COMMIT rootspeak-test-rocky-10:8052ef5300c2
+--> 7ce19b0c6010
+Successfully tagged localhost/rootspeak-test-rocky-10:8052ef5300c2
+7ce19b0c60108cc004c33c75f3ad24499373a9c3cb65d3420367ffb5dddd9968
