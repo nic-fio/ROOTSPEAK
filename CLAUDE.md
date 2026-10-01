@@ -195,7 +195,17 @@ upgrade, removal) tested on clean installs; (3) version 1.0: final review of
 message store format, visible names and commands, manuals updated with
 packages and supported distributions, the last live tests (expiry, the
 question in a terminal over ssh); (4) commercial licence, `NOTICE.md`,
-«Licence» in README and manuals (the lawyer's review has its own timing).
+«Licence» in README and manuals.
+**Budget** (the user, 1 October 2026): no spending except a domain; the user
+already has a VPS. Hence: product site, manuals, downloads and the `apt`/`dnf`
+package repository on that VPS with the new domain (`rootspeak` was free in
+October; check before buying); payments and licence keys through a platform
+that is merchant of record and takes a percentage per sale (it also handles EU
+VAT); no lawyer: proposal to use a standard licence written by lawyers
+(PolyForm Internal Use), the user to choose after a comparison of the PolyForm
+variants; professional trademark search postponed. Before selling, the user
+must check the Italian tax side (VAT number for continuous sales): Claude
+flagged it, not its field.
 
 The adversarial review of 30 September 2026
 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed. The [2]
