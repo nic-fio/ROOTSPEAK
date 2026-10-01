@@ -187,6 +187,16 @@ from the mailbox); the TUI opened over ssh from the phone (Termius), list,
 bars and keys as expected. The bash prototype was tested live on 29–30 September (window, terminal
 also over ssh, single confirmation across channels).
 
+**Road to sale** (agreed on 1 October 2026, about 3–4 days of work, the
+trademark search excluded): (1) tests on other distributions — Ubuntu 24.04
+and Rocky Linux 9 in the container, a VM with Ubuntu and GNOME — and fixes;
+(2) `.deb` and `.rpm` packages (dependencies, admin group, shell hooks,
+upgrade, removal) tested on clean installs; (3) version 1.0: final review of
+message store format, visible names and commands, manuals updated with
+packages and supported distributions, the last live tests (expiry, the
+question in a terminal over ssh); (4) commercial licence, `NOTICE.md`,
+«Licence» in README and manuals (the lawyer's review has its own timing).
+
 The adversarial review of 30 September 2026
 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed. The [2]
 items of the README were frozen until the review was closed; restart from
