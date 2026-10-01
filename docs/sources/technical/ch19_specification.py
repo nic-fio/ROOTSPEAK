@@ -187,9 +187,9 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
          + c("inbox/"), "whoever reads the mailbox completes the move without asking again"],
         ["leaving the session right after “I have read it”", "confirmation recorded: the agent waits for "
          "the dialog, writes the answer as soon as it arrives and defers SIGTERM until after the write", "none "
-         "(scenario I10: exit after 0.1 s)"],
-        ["leaving the session with the dialog open", "no postponement recorded: the dialog comes back at the next "
-         "login", "none"],
+         "(scenario I10: exit as soon as zenity has the answer)"],
+        ["leaving the session with the dialog open", "no postponement recorded (zenity's exit 1 counts as “Later” "
+         "only if the display is still there): the dialog comes back at the next login", "none (scenario I13)"],
         ["the desktop agent dies", "lock released; one of its dialogs may stay open", c("rspeak send")
          + " or the login start a new agent; the orphaned dialog no longer records anything"],
         [c("rspeak revoke") + " after " + c("revoked") + ", before removing the copies", c("revoked") + " and "

@@ -1,0 +1,48 @@
+#cloud-config
+# RootSpeak - Advanced Messaging System for Linux
+# Test VM with a desktop: Debian 13, GNOME on Wayland, automatic login of «sara».
+# desktop: GNOME
+# image: https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2
+# prepare.sh replaces @KEYS@ (root's ssh keys) and @COMMON@ (users.sh, run at the end).
+hostname: rootspeak-desktop
+disable_root: false
+ssh_pwauth: false
+users:
+  - name: root
+    ssh_authorized_keys: [@KEYS@]
+package_update: true
+packages: [gnome-core, gdm3, zenity, python3-pyatspi, at-spi2-core, dbus-user-session, openssh-server,
+           sudo, python3, procps, locales,
+           # to build RootSpeak in the VM, as a customer does
+           gcc, make, pkg-config, libsystemd-dev, libc6-dev]
+write_files:
+  @COMMON@
+  - path: /etc/gdm3/daemon.conf
+    content: |
+      [daemon]
+      AutomaticLoginEnable=true
+      AutomaticLogin=sara
+  - path: /etc/dconf/profile/user
+    content: |
+      user-db:user
+      system-db:local
+  - path: /etc/dconf/db/local.d/00-rootspeak-test
+    content: |
+      [org/gnome/desktop/session]
+      idle-delay=uint32 0
+      [org/gnome/desktop/screensaver]
+      lock-enabled=false
+      [org/gnome/desktop/interface]
+      toolkit-accessibility=true
+      [org/gnome/shell]
+      welcome-dialog-last-shown-version='999'
+      [org/gnome/software]
+      download-updates=false
+      allow-updates=false
+runcmd:
+  - dconf update
+  - apt-get -y purge gnome-tour gnome-software || true
+  - /usr/local/sbin/rootspeak-test-users
+power_state:
+  mode: poweroff
+  condition: true

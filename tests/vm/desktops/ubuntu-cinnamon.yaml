@@ -1,0 +1,58 @@
+#cloud-config
+# RootSpeak - Advanced Messaging System for Linux
+# Test VM with a desktop: Cinnamon on X11 with LightDM, on Ubuntu 24.04 LTS (the
+# base of Linux Mint 22, which publishes no cloud image), automatic login of «sara».
+# desktop: Cinnamon
+# image: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+# prepare.sh replaces @KEYS@ (root's ssh keys) and @COMMON@ (users.sh, run at the end).
+hostname: rootspeak-desktop
+disable_root: false
+ssh_pwauth: false
+users:
+  - name: root
+    ssh_authorized_keys: [@KEYS@]
+package_update: true
+# cinnamon-core, as on Linux Mint: the full cinnamon-desktop-environment brings firefox and
+# thunderbird, whose Ubuntu packages install snaps and fail when the snap store does not answer
+packages: [cinnamon-core, xserver-xorg, lightdm, slick-greeter, zenity, python3-pyatspi, at-spi2-core,
+           dconf-cli, openssh-server, sudo, python3, procps, locales,
+           # to build RootSpeak in the VM, as a customer does
+           gcc, make, pkg-config, libsystemd-dev, libc6-dev]
+write_files:
+  @COMMON@
+  - path: /etc/apt/preferences.d/rootspeak-test-no-snaps
+    content: |
+      Package: firefox thunderbird chromium-browser
+      Pin: release o=Ubuntu
+      Pin-Priority: -1
+  - path: /etc/lightdm/lightdm.conf.d/50-rootspeak-test.conf
+    content: |
+      [Seat:*]
+      autologin-user=sara
+      autologin-user-timeout=0
+      user-session=cinnamon
+      greeter-session=slick-greeter
+  - path: /etc/dconf/profile/user
+    content: |
+      user-db:user
+      system-db:local
+  - path: /etc/dconf/db/local.d/00-rootspeak-test
+    content: |
+      [org/cinnamon/desktop/session]
+      idle-delay=uint32 0
+      [org/cinnamon/desktop/screensaver]
+      lock-enabled=false
+      [org/gnome/desktop/interface]
+      toolkit-accessibility=true
+      [org/cinnamon/desktop/interface]
+      toolkit-accessibility=true
+runcmd:
+  - dconf update
+  - groupadd -rf autologin
+  - echo /usr/sbin/lightdm > /etc/X11/default-display-manager
+  - ln -sf /lib/systemd/system/lightdm.service /etc/systemd/system/display-manager.service
+  - /usr/local/sbin/rootspeak-test-users
+  - usermod -aG autologin sara
+power_state:
+  mode: poweroff
+  condition: true

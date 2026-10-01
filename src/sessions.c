@@ -158,12 +158,16 @@ bool graphical_session(uid_t uid)
 
 	for (int i = 0; i < n; i++) {
 		char *kind = NULL;
+		char *st = NULL;
 		uid_t su;
 
+		/* a session that is closing no longer counts: its display is going away */
 		if (!found_f && sd_session_get_uid(sessions[i], &su) >= 0 && su == uid &&
-		    sd_session_get_type(sessions[i], &kind) >= 0 && (!strcmp(kind, "x11") || !strcmp(kind, "wayland")))
+		    sd_session_get_type(sessions[i], &kind) >= 0 && (!strcmp(kind, "x11") || !strcmp(kind, "wayland")) &&
+		    !(sd_session_get_state(sessions[i], &st) >= 0 && !strcmp(st, "closing")))
 			found_f = true;
 		free(kind);
+		free(st);
 		free(sessions[i]);
 	}
 	free(sessions);

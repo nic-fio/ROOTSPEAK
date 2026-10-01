@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RootSpeak - Advanced Messaging System for Linux
 Runs inside the test VM, with the identity of the desktop user and their session
-bus: looks at and uses the RootSpeak dialogs through GNOME's accessibility
+bus: looks at and uses the RootSpeak dialogs through the desktop accessibility
 (AT-SPI), as a person would, on Wayland too.
 
     desktop.py windows            number of RootSpeak dialogs open

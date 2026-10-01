@@ -466,6 +466,33 @@ def distro_results():
                  + " (the desktop scenario is never tested in a container)")
 
 
+def desktop_results():
+    """One row per desktop profile of tests/vm: system, desktop, outcome of its last run."""
+    import json
+    current = current_fingerprint()
+    rows = []
+    for prof in sorted((ROOT / "tests/vm/desktops").glob("*.yaml")):
+        name = prof.stem
+        label = re.search(r"^# desktop: (.*)$", prof.read_text(), re.M).group(1)
+        res = ROOT / ("tests/vm/results" if name == "debian-gnome" else f"tests/vm/desktops/results/{name}") / "results.json"
+        if not res.exists():
+            rows.append([c(name), "—", esc(label), "never run"])
+            continue
+        d = json.loads(res.read_text())
+        m = d["meta"]
+        failed = [r["code"] for r in d["results"] if r["outcome"] == "NO"]
+        outcome = f"{m['ok']} of {m['total']} passed" + (f", <b>{m['failed']} failed</b> ({', '.join(failed)})"
+                                                        if failed else "")
+        if m.get("fingerprint") != current:
+            outcome += " — <b>older code</b>"
+        system, _, rest = m["system"].partition(", VM with ")
+        # the desktop and the kind of session (Wayland or X11) as measured in the run
+        rows.append([c(name), esc(system), esc(rest.split(", desktop of")[0] or label), outcome])
+    return table(["Profile", "System", "Desktop", "Scenarios"], rows,
+                 "«TAB» — RootSpeak on each desktop: the last run of " + c("tests/vm/run.sh PROFILE")
+                 + " (the four shells other than bash are tested in the containers)")
+
+
 # ── The built-in help as the source of the reference ───────────────────
 # The groups of the built-in help, as they are named in src/help.c.
 HELP_GROUPS = {"RSPEAK_HELP_COMMANDS": "COMMANDS", "RSPEAK_HELP_OPTIONS": "OPTIONS",

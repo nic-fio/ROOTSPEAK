@@ -98,7 +98,8 @@ S3 = p(c("show_dialog") + " starts " + c("zenity --question --no-markup --width=
          "and the message is still in the mailbox, a notification says so and the dialog comes back at the next "
          "round"],
         ["exit 1 (“Later”, or dialog closed by the user)", c("postpone(ID, \"gui\")")
-         + ": touches " + c("state/ID.gui") + ", event " + c("POSTPONED")],
+         + ": touches " + c("state/ID.gui") + ", event " + c("POSTPONED") + "; only if the display is still "
+         "there: zenity also exits with 1 when it loses the display (session ended, display manager restarted)"],
         ["closed by the agent: confirmation elsewhere, revocation or expiry", "nothing: if it has expired, the "
          "message moves to " + c("read/")],
         ["other results (dialog killed, for example when the session ends)", "nothing: it is not the user's "
@@ -115,7 +116,13 @@ S3 = p(c("show_dialog") + " starts " + c("zenity --question --no-markup --width=
     "signal interrupted " + c("wait") + " and the agent took the dialog as closed, recording a postponement never "
     "chosen (test VM, scenario I7).",
     "When the session ends the agent waits for the dialog at most 2 seconds, then closes it: a confirmation already "
-    "given is not lost (scenario I10: “I have read it” and logout after 0.1 s, confirmation recorded).",
+    "given is not lost (scenario I10: logout as soon as zenity has exited with the answer, confirmation recorded).",
+    "After an exit 1 the agent tells “Later” from a lost display: the session must still be there for logind (not "
+    + c("closing") + ") and the display socket (" + c("$WAYLAND_DISPLAY") + " or " + c("/tmp/.X11-unix/X") + "N) must "
+    "accept a connection. Otherwise nothing is recorded and the dialog comes back at the "
+    "next login (scenario I13). Until 1 October 2026 the end of the session was recorded as a postponement, and "
+    "the dialog came back only after " + c("RSPEAK_REMIND_MINUTES") + ": the tests on Ubuntu, Fedora with KDE "
+    "Plasma and Cinnamon found it.",
     "Timings of the last run recorded in the VM: dialog after sending 0.58 s (I1), closing after a "
     "confirmation from the terminal 0.65 s (I5), after a revocation 0.67 s (I6), at graphical login 2.64 s after "
     "the login manager restart (I9).",

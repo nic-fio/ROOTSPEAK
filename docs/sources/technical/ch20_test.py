@@ -1,4 +1,4 @@
-from build import arrow, box, c, distro_results, fig, note, p, test_results, table, term, text, ul, warn, zone
+from build import arrow, box, c, desktop_results, distro_results, fig, note, p, test_results, table, term, text, ul, warn, zone
 
 
 def cap(n, s=None):
@@ -7,7 +7,7 @@ def cap(n, s=None):
 
 LEVELS = fig(
     box(330, 20, 240, 44, "live", "after install.sh, by the user", "grey", 12)
-    + box(250, 72, 400, 44, "tests/vm", "VM with GNOME on Wayland, root, real dialogs", "navy", 12)
+    + box(250, 72, 400, 44, "tests/vm", "VMs with GNOME, KDE Plasma, Cinnamon; root, real dialogs", "navy", 12)
     + box(170, 124, 560, 44, "tests/container · tests/distros",
           "Debian 13 and 21 other distributions with systemd, root, real ssh sessions", "navy", 12)
     + box(90, 176, 720, 44, "tests/engine.sh · tests/tui.py · tests/help-tui.py",
@@ -108,11 +108,17 @@ S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an iso
         ["I. Desktop", "not tested in the container (no graphical session); tested in the VM"],
     ], "«TAB» — The real-world scenarios") + \
     p(c("tests/vm/run.sh") + " runs the same scenarios in a <b>virtual machine with a desktop</b>, on the test "
-      "server (QEMU with KVM, without root or libvirt), plus the dialog scenarios. The VM is Debian 13 with GNOME on "
-      "Wayland, with an Italian desktop; " + c("sara") + " logs into the desktop automatically. Each run starts from a clean copy of a base "
-      "disk prepared once (" + c("prepare.sh") + ", cloud-init). The dialog buttons are pressed through GNOME "
-      "accessibility (" + c("desktop.py") + ", AT-SPI), as a person would, and the screenshots come from the QEMU "
-      "monitor (" + c("capture.py") + "). The measurements of the last run are in " + c("tests/vm/results/report.md") + ".") + table(
+      "server (QEMU with KVM, without root or libvirt), plus the dialog scenarios. Each desktop is a profile in "
+      + c("tests/vm/desktops/") + ": the cloud image of its distribution, the packages of the desktop, the automatic "
+      "login of " + c("sara") + " (GDM, SDDM or LightDM) and the accessibility settings. " + c("prepare.sh")
+      + " builds the base disk of a profile once with cloud-init (" + c("users.sh") + " adds the users), and again "
+      "when the profile changes; each run starts from a clean copy of it, builds RootSpeak in the VM and puts the "
+      "system and the desktop in Italian. The dialog buttons are pressed through the desktop's accessibility ("
+      + c("desktop.py") + ", AT-SPI), as a person would, and the screenshots come from the QEMU monitor ("
+      + c("capture.py") + ").") + desktop_results() + p("Cinnamon is tested on Ubuntu 24.04, the base of Linux "
+      "Mint 22, because Mint publishes no cloud image; Rocky Linux 9 runs with SELinux enforcing, as RHEL ships "
+      "it. The measurements of each run are in " + c("tests/vm/results/report.md") + " (Debian) and in "
+      + c("tests/vm/desktops/results/") + ".") + table(
     ["Scenario", "What is checked and measured"], [
         ["I1 · the dialog appears by itself after sending", "seconds to the dialog"],
         ["I2 · “I have read it” closes the dialog and records the confirmation (desktop)", "state of the recipient"],
@@ -124,7 +130,9 @@ S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an iso
         ["I7 · two messages, one dialog after the other, oldest first", "order and confirmations"],
         ["I8 · agent not running: " + c("rspeak send") + " starts it", "seconds to the dialog"],
         ["I9 · message while the desktop is closed, then graphical login", "seconds after the login restarts"],
-        ["I10 · “I have read it” and logout from the session after 0.1 s", "confirmation recorded"],
+        ["I10 · “I have read it”, then logout as soon as zenity has the answer", "confirmation recorded; "
+         "seconds from the click to the answer"],
+        ["I13 · logout with the dialog open", "no postponement: the dialog comes back first at the next login"],
     ], "«TAB» — The desktop scenarios in the VM") + ul([
     c("RSPEAK_TEST_ONLY=i_desktop") + " runs only the desktop scenarios.",
     "Each run writes " + c("results.json") + " and " + c("report.md") + " to " + c("tests/container/results/")

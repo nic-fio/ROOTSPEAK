@@ -1,9 +1,8 @@
-building the image…
 test machine: running (Oracle Linux Server 10.2)
 RootSpeak installed. Command: /usr/local/bin/rspeak (usable by the wheel group).
 a_access
   ok  A1  root sends a message
-  ok  A2  an administrator (sudo group) sends: rspeak re-runs itself with sudo  [{'seconds': 0.194}]
+  ok  A2  an administrator (sudo group) sends: rspeak re-runs itself with sudo  [{'seconds': 0.256}]
   ok  A3  an ordinary user cannot run rspeak
   ok  A4  an ordinary user cannot even open the help
 b_recipients
@@ -16,14 +15,14 @@ b_recipients
   ok  B7  group without members
 c_delivery
   ok  C1a  user logged out: the copy waits in the mailbox
-  ok  C1b  at login the message and the question appear before the first prompt  [{'seconds_from_login': 0.324}]
+  ok  C1b  at login the message and the question appear before the first prompt  [{'seconds_from_login': 0.377}]
   ok  C1c  confirmation at login
-  ok  C2a  user logged in: the text appears in their terminal  [{'seconds_send': 0.092, 'seconds_to_terminal': 0.142}]
+  ok  C2a  user logged in: the text appears in their terminal  [{'seconds_send': 0.066, 'seconds_to_terminal': 0.116}]
   ok  C2b  state after writing to the terminal
-  ok  C2c  pressing Enter the question appears  [{'seconds': 0.051}]
+  ok  C2c  pressing Enter the question appears  [{'seconds': 0.053}]
   ok  C3  ssh session without a terminal: it is not touched, the copy goes to the mailbox
   ok  C4a  two open sessions: the text appears in both
-  ok  C4b  confirming in one session, the question in the other stops  [{'seconds': 0.951}]
+  ok  C4b  confirming in one session, the question in the other stops  [{'seconds': 0.952}]
 d_confirmation
   ok  D1  the user postpones
   ok  D2  after the postponement, only a reminder at the prompt
@@ -33,16 +32,16 @@ d_confirmation
 e_expiry_revocation
   ok  E1  an expired message is not shown at login
   ok  E2  state of an expired message
-  ok  E3  revocation with the question waiting: the question stops  [{'seconds': 1.003}]
+  ok  E3  revocation with the question waiting: the question stops  [{'seconds': 1.002}]
   ok  E4  state after the revocation
   ok  E5  a message revoked before the login is not shown
 f_faults
   ok  F1  the copy for one user cannot be written: the others receive it
   ok  F2  fault fixed: the next command completes the delivery
-  ok  F3  rspeak send killed halfway (SIGKILL): the next command completes  [{'delivered_at_kill': 3, 'recipients': 68, 'seconds_recovery': 1.32}]
+  ok  F3  rspeak send killed halfway (SIGKILL): the next command completes  [{'delivered_at_kill': 3, 'recipients': 68, 'seconds_recovery': 1.078}]
   ok  F6  user's folder left owned by root by an interrupted sending: the delivery fixes it
-  ok  F7  rspeak revoke during a sending to many users: the sending stops and no copy stays  [{'seconds_waiting_revoke': 0.75}]
-  ok  F5  rspeak list repeated while rspeak send delivers: the recovery does not interfere  [{'rspeak_list_during_sending': 20}]
+  ok  F7  rspeak revoke during a sending to many users: the sending stops and no copy stays  [{'seconds_waiting_revoke': 0.74}]
+  ok  F5  rspeak list repeated while rspeak send delivers: the recovery does not interfere  [{'rspeak_list_during_sending': 23}]
   ok  F4  the confirmation cannot be written: the message stays and the user is told
 g_security
   ok  G1  the mailbox is a link to /etc: root does not write there
@@ -61,12 +60,12 @@ k_shells
   ok  K1-zsh  zsh: at login the message and the question
   ok  K2-zsh  zsh: confirmation at login
   ok  K3-zsh  zsh: user logged in, the text appears in the terminal
-  ok  K4-zsh  zsh: pressing Enter the question appears  [{'seconds': 0.069}]
+  ok  K4-zsh  zsh: pressing Enter the question appears  [{'seconds': 0.06}]
   ok  K5-zsh  zsh: confirmation at the prompt
   ok  K1-fish  fish: at login the message and the question
   ok  K2-fish  fish: confirmation at login
   ok  K3-fish  fish: user logged in, the text appears in the terminal
-  ok  K4-fish  fish: pressing Enter the question appears  [{'seconds': 0.064}]
+  ok  K4-fish  fish: pressing Enter the question appears  [{'seconds': 0.055}]
   ok  K5-fish  fish: confirmation at the prompt
   ok  K1-ksh  ksh: at login the message and the question
   ok  K2-ksh  ksh: confirmation at login
@@ -76,9 +75,9 @@ k_shells
 l_language
   ok  L5  a user whose session is in Italian: header, question and answer in English, «y» confirms
 h_performance
-  ok  H1  sending to all (58 recipients)  [{'seconds': 0.71, 'ms_per_recipient': 12.3}]
-  ok  H2  rspeak list with 10 messages × 58 recipients  [{'seconds': 0.61}]
-  ok  H3  rspeak status of a message with 58 recipients  [{'seconds': 0.68}]
+  ok  H1  sending to all (58 recipients)  [{'seconds': 0.49, 'ms_per_recipient': 8.5}]
+  ok  H2  rspeak list with 10 messages × 58 recipients  [{'seconds': 0.34}]
+  ok  H3  rspeak status of a message with 58 recipients  [{'seconds': 0.32}]
 i_desktop
   --  I1  confirmation dialog in the graphical session
 

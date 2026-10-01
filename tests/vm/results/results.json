@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-01 15:14:51 UTC",
+  "date": "2026-10-01 18:33:04 UTC",
   "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
-  "system": "Debian GNU/Linux 13 (trixie), VM with GNOME, desktop of sara",
-  "ok": 64,
+  "system": "Debian GNU/Linux 13 (trixie), VM with GNOME on Wayland, desktop of sara",
+  "ok": 65,
   "failed": 0,
   "not_tested": 4,
-  "total": 68,
-  "commit": "708375b5fe-modified",
-  "fingerprint": "43cabeaa5630",
+  "total": 69,
+  "commit": "81199e69f0-modified",
+  "fingerprint": "3368c39af24d",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.178
+    "seconds": 0.196
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.483
+    "seconds_from_login": 0.353
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:12 (terminal pts/2)",
+   "details": "confirmed on 01/10 18:30 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.083,
-    "seconds_to_terminal": 0.133
+    "seconds_send": 0.059,
+    "seconds_to_terminal": 0.11
    }
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.054
+    "seconds": 0.055
    }
   },
   {
@@ -200,7 +200,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.952
+    "seconds": 1.823
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 01/10 15:12",
+   "details": "delivered, written to 1 terminal, postponed on 01/10 18:30",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1790867536 terminal pts/7",
+   "details": "1790879414 terminal pts/7",
    "measures": {}
   },
   {
@@ -274,7 +274,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 1.002
+    "seconds": 1.001
    }
   },
   {
@@ -319,11 +319,11 @@
    "description": "rspeak send killed halfway (SIGKILL): the next command completes",
    "expected": "all copies delivered, no sign of an incomplete sending",
    "outcome": "OK",
-   "details": "delivered before 3/65, after 65/65; rspeak: completed delivery of message 2 to 62 recipients",
+   "details": "delivered before 4/65, after 65/65; rspeak: completed delivery of message 2 to 61 recipients",
    "measures": {
-    "delivered_at_kill": 3,
+    "delivered_at_kill": 4,
     "recipients": 65,
-    "seconds_recovery": 0.129
+    "seconds_recovery": 0.278
    }
   },
   {
@@ -341,9 +341,9 @@
    "description": "rspeak revoke during a sending to many users: the sending stops and no copy stays",
    "expected": "no copy in the mailboxes, sending interrupted",
    "outcome": "OK",
-   "details": "copies left: 0; delivered before the revocation: 4; Message 4 revoked while sending: delivery stopped.",
+   "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.12
+    "seconds_waiting_revoke": 0.11
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "65 deliveries recorded for 65 recipients, 65 distinct",
    "measures": {
-    "rspeak_list_during_sending": 14
+    "rspeak_list_during_sending": 40
    }
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-01 15:13:00  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-01 18:30:53  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -498,7 +498,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:13 (terminal pts/15)",
+   "details": "confirmed on 01/10 18:31 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -509,8 +509,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.13,
-    "ms_per_recipient": 2.5
+    "seconds": 0.18,
+    "ms_per_recipient": 3.3
    }
   },
   {
@@ -521,7 +521,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.09
+    "seconds": 0.14
    }
   },
   {
@@ -532,7 +532,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.04
+    "seconds": 0.1
    }
   },
   {
@@ -541,7 +541,7 @@
    "description": "sara has a graphical session with the RootSpeak agent running (run.sh checks the start from the automatic login before the scenarios)",
    "expected": "graphical session, agent running",
    "outcome": "OK",
-   "details": "session 8",
+   "details": "session 7",
    "measures": {}
   },
   {
@@ -550,9 +550,9 @@
    "description": "the dialog appears by itself after the sending",
    "expected": "dialog «RootSpeak · Message from the administrator» with title and text",
    "outcome": "OK",
-   "details": "RootSpeak · Message from the administrator | RootSpeak · Message from the administrator | Maintenance · 01/10 15:13\n\nServer off on Saturday from 8 to 12.\n | Later | ",
+   "details": "RootSpeak · Message from the administrator | RootSpeak · Message from the administrator | Maintenance · 01/10 18:31\n\nServer off on Saturday from 8 to 12.\n | Later | ",
    "measures": {
-    "seconds_to_dialog": 0.56
+    "seconds_to_dialog": 0.66
    }
   },
   {
@@ -561,7 +561,7 @@
    "description": "«I have read it»: the dialog closes and the confirmation is recorded",
    "expected": "confirmed (desktop)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:13 (desktop)",
+   "details": "confirmed on 01/10 18:31 (desktop)",
    "measures": {}
   },
   {
@@ -581,7 +581,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_to_dialog": 0.62
+    "seconds_to_dialog": 0.59
    }
   },
   {
@@ -590,7 +590,7 @@
    "description": "«Later»: the dialog closes, the message stays delivered",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, postponed on 01/10 15:13",
+   "details": "delivered, postponed on 01/10 18:31",
    "measures": {}
   },
   {
@@ -601,7 +601,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_to_reappearance": 60.28
+    "seconds_to_reappearance": 60.24
    }
   },
   {
@@ -612,7 +612,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_to_reappearance": 0.39
+    "seconds_to_reappearance": 0.4
    }
   },
   {
@@ -621,7 +621,7 @@
    "description": "confirmation from a terminal with the dialog open: the dialog closes by itself",
    "expected": "dialog closed, confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:14 (terminal pts/16)",
+   "details": "confirmed on 01/10 18:32 (terminal pts/16)",
    "measures": {
     "seconds_to_closing": 0.67
    }
@@ -634,7 +634,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_to_closing": 0.72
+    "seconds_to_closing": 0.67
    }
   },
   {
@@ -643,16 +643,27 @@
    "description": "two messages: the dialogs appear one after the other, oldest first",
    "expected": "«First of two», then «Second of two», both confirmed",
    "outcome": "OK",
-   "details": " two\n | Later | I have read it →  two\n | Later | I have read it; confirmed on 01/10 15:14 (desktop)",
+   "details": " two\n | Later | I have read it →  two\n | Later | I have read it; confirmed on 01/10 18:32 (desktop)",
    "measures": {}
   },
   {
    "code": "I10",
    "area": "Desktop",
-   "description": "«I have read it» and straight out of the session (0.1 s): the confirmation stays",
+   "description": "«I have read it» and out of the session as soon as the dialog has the answer: the confirmation stays",
    "expected": "confirmed (desktop)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:14 (desktop)",
+   "details": "confirmed on 01/10 18:32 (desktop)",
+   "measures": {
+    "seconds_click_to_answer": 0.35
+   }
+  },
+  {
+   "code": "I13",
+   "area": "Desktop",
+   "description": "session ended with the dialog open: no postponement, the dialog comes back at the login",
+   "expected": "delivered without postponement; «Left open» first at the login",
+   "outcome": "OK",
+   "details": "delivered; :32\n\nLeft open\n | Later | I have read it",
    "measures": {}
   },
   {
@@ -661,9 +672,9 @@
    "description": "message sent while the desktop was closed: the dialog appears at the graphical login",
    "expected": "dialog after the automatic login",
    "outcome": "OK",
-   "details": "01/10 15:14\n\nWaiting for the login\n | Later | I have read it",
+   "details": "01/10 18:32\n\nWaiting for the login\n | Later | I have read it",
    "measures": {
-    "seconds_from_login_restart": 2.73
+    "seconds_from_login_restart": 13.22
    }
   }
  ]

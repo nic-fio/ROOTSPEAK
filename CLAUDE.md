@@ -122,12 +122,15 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 | `NOTICE.md` | Copyright and third-party components (none embedded). |
 | `.github/workflows/ci.yml` | On GitHub at every push: `make`, `make unit`, `tests/engine.sh`, `make docs-check` (no container or VM). |
 
-**Test server** (192.168.0.2, ssh access with a key): the VM lives in
+**Test server** (192.168.0.2, ssh access with a key): the VMs live in
 `/media/ROOTSPEAK` on the SSD (the server's `/` is in RAM). QEMU with KVM as a
-normal user, without libvirt or sudo. The base disk is prepared once
-(`tests/vm/run.sh --prepare`, about 10 minutes; again whenever
-`tests/vm/user-data.tpl` changes); every run starts from a clean
-copy and shuts the VM down at the end. The server's system is ephemeral:
+normal user, without libvirt or sudo. One desktop profile per VM
+(`tests/vm/desktops/*.yaml`: debian-gnome, ubuntu-gnome, ubuntu-cinnamon,
+fedora-kde, rocky-gnome; `tests/vm/run.sh PROFILE`), each with its folder
+(`vm` for Debian, `vm-PROFILE`), ssh port and base disk, prepared again
+automatically when the profile or `tests/vm/users.sh` change (10–30 minutes);
+every run starts from a clean copy and shuts the VM down at the end. RAM is
+tight: at most 2–3 VMs at a time, with `RSPEAK_VM_MEMORY=4G`/`6G`. The server's system is ephemeral:
 every reboot loses the installed packages (only `/media` survives). The test
 scripts check first and print the command for the owner, who has sudo:
 `ssh -t 192.168.0.2 'sudo apt install -y podman qemu-system-x86 qemu-utils
@@ -214,12 +217,23 @@ answers to fish 4's terminal queries, OSC sequences of systemd 259, the user's
 real primary group on SLES). On the test server podman must be run with
 `--root /media/ROOTSPEAK/distros/storage`: a `storage.conf` is ignored by
 rootless podman and the images (about 20 GB) would fill the server's RAM.
-Still to do: the desktop on other distributions (VMs: Ubuntu with GNOME, Fedora
-with KDE, Mint with Cinnamon, Rocky with SELinux enforcing).
+**Desktops (1 October 2026)**: five VM profiles, all passed (65 of 69, the four
+shells are not in the VMs): Debian 13 GNOME/Wayland, Ubuntu 24.04 GNOME/X11,
+Ubuntu 24.04 Cinnamon/X11 (stand-in for Mint 22, which has no cloud image),
+Fedora 44 KDE Plasma/Wayland, Rocky 9 GNOME/Wayland with SELinux enforcing (no
+denials). They found a RootSpeak defect, fixed: when the session ended with the
+dialog open (logout, display manager restarted, compositor crash) zenity's
+exit 1 was recorded as «Later», and the dialog came back only after
+`RSPEAK_REMIND_MINUTES`; now a postponement is recorded only if the display is
+still there (`display_alive()` in `rootspeak-user.c`, sessions «closing» not
+counted in `graphical_session()`), scenario I13. The diagnosis was split among
+three agents, one VM each: give each agent its own port (run.sh: 2222 Debian,
+then 2223+ in the alphabetical order of the profiles) — wrong ports made two
+agents work in each other's VM.
 
 **Road to sale** (agreed on 1 October 2026, about 3–4 days of work, the
-trademark search excluded): (1) tests on other distributions — containers
-done (22 distributions, see above); the desktop VMs still to do — and fixes;
+trademark search excluded): (1) tests on other distributions — done: 22
+distributions in containers and 5 desktops in VMs (see above), with fixes;
 (2) `.deb` and `.rpm` packages (dependencies, admin group, shell hooks,
 upgrade, removal) tested on clean installs; (3) version 1.0: final review of
 message store format, visible names and commands, manuals updated with

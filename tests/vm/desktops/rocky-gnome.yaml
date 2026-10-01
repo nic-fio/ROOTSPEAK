@@ -1,0 +1,50 @@
+#cloud-config
+# RootSpeak - Advanced Messaging System for Linux
+# Test VM with a desktop: Rocky Linux 9 (RHEL 9), GNOME on Wayland, SELinux
+# enforcing as RHEL ships it, automatic login of «sara».
+# desktop: GNOME
+# image: https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
+# prepare.sh replaces @KEYS@ (root's ssh keys) and @COMMON@ (users.sh, run at the end).
+hostname: rootspeak-desktop
+disable_root: false
+ssh_pwauth: false
+users:
+  - name: root
+    ssh_authorized_keys: [@KEYS@]
+package_update: true
+# («Server with GUI»: dnf 4 takes an environment as @ID, not @^ID)
+packages: ["@graphical-server-environment", zenity, python3-pyatspi, at-spi2-core, openssh-server,
+           sudo, python3, procps-ng, glibc-langpack-it, glibc-langpack-en,
+           # to build RootSpeak in the VM, as a customer does
+           gcc, make, pkgconf-pkg-config, systemd-devel]
+write_files:
+  @COMMON@
+  - path: /etc/gdm/custom.conf
+    content: |
+      [daemon]
+      AutomaticLoginEnable=true
+      AutomaticLogin=sara
+  - path: /etc/dconf/profile/user
+    content: |
+      user-db:user
+      system-db:local
+  - path: /etc/dconf/db/local.d/00-rootspeak-test
+    content: |
+      [org/gnome/desktop/session]
+      idle-delay=uint32 0
+      [org/gnome/desktop/screensaver]
+      lock-enabled=false
+      [org/gnome/desktop/interface]
+      toolkit-accessibility=true
+      [org/gnome/shell]
+      welcome-dialog-last-shown-version='999'
+runcmd:
+  - dconf update
+  - dnf -y remove gnome-initial-setup || true
+  - /usr/local/sbin/rootspeak-test-users
+  # SELinux as on a real RHEL: enforcing (the cloud image already is, so every
+  # file has been labelled as it was written: no relabel at each test boot)
+  - sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config
+power_state:
+  mode: poweroff
+  condition: true

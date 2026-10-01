@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-01 15:39:05 UTC",
+  "date": "2026-10-01 18:23:39 UTC",
   "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
   "system": "Debian GNU/Linux 13 (trixie), container with systemd",
   "ok": 69,
   "failed": 0,
   "not_tested": 1,
   "total": 70,
-  "commit": "708375b5fe-modified",
-  "fingerprint": "43cabeaa5630",
+  "commit": "81199e69f0-modified",
+  "fingerprint": "3368c39af24d",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.083
+    "seconds": 0.081
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.442
+    "seconds_from_login": 0.288
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:37 (terminal pts/2)",
+   "details": "confirmed on 01/10 18:22 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.054,
-    "seconds_to_terminal": 0.105
+    "seconds_send": 0.049,
+    "seconds_to_terminal": 0.1
    }
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.054
+    "seconds": 0.055
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 01/10 15:37",
+   "details": "delivered, written to 1 terminal, postponed on 01/10 18:22",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@08ea49f0c6b3:~$ ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@ee7d23bf641c:~$ ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1790869072 terminal pts/7",
+   "details": "1790878935 terminal pts/7",
    "measures": {}
   },
   {
@@ -274,7 +274,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 1.003
+    "seconds": 1.001
    }
   },
   {
@@ -319,11 +319,11 @@
    "description": "rspeak send killed halfway (SIGKILL): the next command completes",
    "expected": "all copies delivered, no sign of an incomplete sending",
    "outcome": "OK",
-   "details": "delivered before 3/68, after 68/68; rspeak: completed delivery of message 2 to 65 recipients",
+   "details": "delivered before 4/68, after 68/68; rspeak: completed delivery of message 2 to 64 recipients",
    "measures": {
-    "delivered_at_kill": 3,
+    "delivered_at_kill": 4,
     "recipients": 68,
-    "seconds_recovery": 1.322
+    "seconds_recovery": 0.939
    }
   },
   {
@@ -343,7 +343,7 @@
    "outcome": "OK",
    "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.66
+    "seconds_waiting_revoke": 0.58
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "68 deliveries recorded for 68 recipients, 68 distinct",
    "measures": {
-    "rspeak_list_during_sending": 16
+    "rspeak_list_during_sending": 35
    }
   },
   {
@@ -408,7 +408,7 @@
    "description": "rspeak log: the history of the message",
    "expected": "sending, deliveries, postponement, confirmation, revocation",
    "outcome": "OK",
-   "details": "8 events",
+   "details": "6 events",
    "measures": {}
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-01 15:38:20  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-01 18:22:50  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/15)",
+   "details": "confirmed on 01/10 18:22 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.057
+    "seconds": 0.052
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/15)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -518,7 +518,7 @@
    "description": "fish: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/16)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -538,7 +538,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.056
+    "seconds": 0.055
    }
   },
   {
@@ -547,7 +547,7 @@
    "description": "fish: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/16)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -565,7 +565,7 @@
    "description": "ksh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/17)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/17)",
    "measures": {}
   },
   {
@@ -601,7 +601,7 @@
    "description": "dash: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/18)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/18)",
    "measures": {}
   },
   {
@@ -628,7 +628,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 01/10 15:38 (terminal pts/19)",
+   "details": "confirmed on 01/10 18:23 (terminal pts/19)",
    "measures": {}
   },
   {
@@ -639,8 +639,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.71,
-    "ms_per_recipient": 12.2
+    "seconds": 0.62,
+    "ms_per_recipient": 10.7
    }
   },
   {
@@ -651,7 +651,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.59
+    "seconds": 0.46
    }
   },
   {
@@ -662,7 +662,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.55
+    "seconds": 0.46
    }
   },
   {

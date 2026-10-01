@@ -1,0 +1,34 @@
+#cloud-config
+# RootSpeak - Advanced Messaging System for Linux
+# Test VM with a desktop: Fedora 44, KDE Plasma on Wayland with SDDM, automatic
+# login of «sara».
+# desktop: KDE Plasma
+# image: https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-44-1.7.x86_64.qcow2
+# prepare.sh replaces @KEYS@ (root's ssh keys) and @COMMON@ (users.sh, run at the end).
+hostname: rootspeak-desktop
+disable_root: false
+ssh_pwauth: false
+users:
+  - name: root
+    ssh_authorized_keys: [@KEYS@]
+package_update: true
+packages: ["@kde-desktop-environment", sddm, zenity, python3-pyatspi, at-spi2-core, openssh-server, sudo,
+           python3, procps-ng, glibc-langpack-it, glibc-langpack-en,
+           # to build RootSpeak in the VM, as a customer does
+           gcc, make, pkgconf-pkg-config, systemd-devel]
+write_files:
+  @COMMON@
+  - path: /etc/sddm.conf.d/50-rootspeak-test.conf
+    content: |
+      [Autologin]
+      User=sara
+      Session=plasma.desktop
+runcmd:
+  - systemctl enable sddm
+  - ln -sf /usr/lib/systemd/system/sddm.service /etc/systemd/system/display-manager.service
+  # no first-start assistant
+  - dnf -y remove plasma-welcome initial-setup-gui || true
+  - /usr/local/sbin/rootspeak-test-users
+power_state:
+  mode: poweroff
+  condition: true

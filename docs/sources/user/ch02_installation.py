@@ -9,7 +9,8 @@ S1 = p("RootSpeak runs on a Linux distribution with systemd; without systemd it 
        "automatically, as root and with real users and sessions, on the current versions of Debian, Ubuntu, Fedora, "
        "RHEL and its rebuilds (CentOS Stream, Rocky Linux, AlmaLinux, Oracle Linux), openSUSE, SLES and Arch Linux: "
        "the list, with the result on each one, is in the technical manual, chapter “Tests and checks”. The desktop "
-       "dialog has been tested on Debian 13 with GNOME on Wayland.", lead=True) + \
+       "dialog has been tested with GNOME (Debian 13, Ubuntu 24.04, Rocky Linux 9 with SELinux), KDE Plasma "
+       "(Fedora 44) and Cinnamon (the desktop of Linux Mint), on Wayland and on X11.", lead=True) + \
     table(["Requirement", "What it is for"], [
         ["systemd", "knowing who is logged in and where, and opening the dialog on the desktop"],
         ["sudo and an administrators group", "deciding who may use " + c("rspeak") + ": the group " + c("sudo")

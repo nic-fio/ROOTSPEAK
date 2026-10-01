@@ -740,7 +740,7 @@ def wait_windows(n, duration):
 
 
 def window_text(duration=6):
-    """The text of the first RootSpeak dialog; just after a login GNOME's accessibility
+    """The text of the first RootSpeak dialog; just after a login the desktop's accessibility
     may expose the window before its content, so it tries again."""
     t0 = time.time()
     t = ""
@@ -790,6 +790,13 @@ def agent_language():
         return ""
     v = dict(x.split("=", 1) for x in env.split("\0") if "=" in x)
     return v.get("LC_ALL") or v.get("LC_MESSAGES") or v.get("LANG") or ""
+
+
+def session_type():
+    """The kind of graphical session logind gives the desktop user: Wayland or X11, as it really is."""
+    sid = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
+    t = sh(f"loginctl show-session {sid} -p Type --value").stdout.strip() if sid else ""
+    return {"wayland": "Wayland", "x11": "X11"}.get(t, t or "an unknown session type")
 
 
 def i_desktop():
@@ -896,23 +903,54 @@ def i_desktop():
            f"{t1[-30:]} → {t2[-30:]}; {st}")
     wait_windows(0, 10)
 
-    # «I have read it» and leaving the session at once: the confirmation must not get lost
+    # «I have read it» and leaving the session at once: the confirmation must not get lost.
+    # Through AT-SPI the press reaches zenity some hundred milliseconds after doAction returns
+    # (a real key press: about 40 ms); the session is closed as soon as zenity has the answer
+    # and has exited, which is sooner than any person can log out.
     rspeak(f'send --to {DESK} "Click and go"')
     wait_windows(1, 20)
+    t0 = time.time()
     desk("click", DLG_OK)
-    time.sleep(0.1)
+    answered = None
+    while time.time() - t0 < 5:
+        if not sh(f"pgrep -u {DESK} -x zenity").stdout.strip():
+            answered = round(time.time() - t0, 2)
+            break
+        time.sleep(0.01)
     sh(f"loginctl terminate-user {DESK}")
     time.sleep(2)
     st = state(7, DESK) or ""
-    record("I10", "Desktop", f"«{DLG_OK}» and straight out of the session (0.1 s): the confirmation stays",
-           "confirmed (desktop)", st.startswith("confirmed"), st)
+    record("I10", "Desktop", f"«{DLG_OK}» and out of the session as soon as the dialog has the answer: the confirmation stays",
+           "confirmed (desktop)", answered is not None and st.startswith("confirmed"), st, seconds_click_to_answer=answered)
+
+    # leaving the session with the dialog open: not a postponement, the dialog comes back at the login
+    time.sleep(1)
+    sh("systemctl restart display-manager")
+    wait_windows(0, 90)
+    t0 = time.time()
+    while time.time() - t0 < 90 and not agent_running():
+        time.sleep(0.5)
+    rspeak(f'send --to {DESK} "Left open"')
+    wait_windows(1, 20)
+    sh(f"loginctl terminate-user {DESK}")
+    time.sleep(2)
+    st13 = state(8, DESK) or ""
 
     # message waiting, then graphical login
     time.sleep(1)
     rspeak(f'send --to {DESK} "Waiting for the login"')
     t0 = time.time()
-    sh("systemctl restart gdm")
+    sh("systemctl restart display-manager")   # gdm, sddm or lightdm
     dt = wait_windows(1, 90)
+    t13 = window_text()
+    record("I13", "Desktop", "session ended with the dialog open: no postponement, the dialog comes back at the login",
+           "delivered without postponement; «Left open» first at the login",
+           st13.startswith("delivered") and "postponed" not in st13 and "Left open" in t13, f"{st13}; {t13[-40:]}")
+    if "Left open" in t13:
+        desk("click", DLG_OK)
+        wait_windows(0, 10)
+        dt2 = wait_windows(1, 20)
+        dt = dt if dt2 is not None else None
     t9 = window_text()
     record("I9", "Desktop", "message sent while the desktop was closed: the dialog appears at the graphical login",
            "dialog after the automatic login", dt is not None and "Waiting for the login" in t9, t9[-60:],
@@ -929,7 +967,8 @@ def report():
     os.makedirs(OUT, exist_ok=True)
     meta = dict(date=time.strftime("%Y-%m-%d %H:%M:%S %Z"), version=sh(f"{RSPEAK} version").stdout.strip(),
                 system=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
-                + (f", VM with GNOME, desktop of {DESK}" if DESK else ", container with systemd"),
+                + (f", VM with {os.environ.get('RSPEAK_TEST_DESKTOP_LABEL') or 'GNOME'} on {session_type()}, desktop of {DESK}"
+                   if DESK else ", container with systemd"),
                 ok=sum(r["outcome"] == "OK" for r in results), failed=sum(r["outcome"] == "NO" for r in results),
                 not_tested=sum(r["outcome"] == "--" for r in results), total=len(results),
                 commit=os.environ.get("RSPEAK_TEST_COMMIT", "unknown"),

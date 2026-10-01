@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -349,6 +351,57 @@ static void wait_for(int ms)
 	ppoll(NULL, 0, &ts, &waiting);
 }
 
+/* True if the socket at path (an abstract name if it starts with '@') accepts a connection. */
+static bool socket_answers(const char *path)
+{
+	struct sockaddr_un a = {.sun_family = AF_UNIX};
+	size_t n = strlen(path);
+	int fd;
+	bool r;
+
+	if (n >= sizeof a.sun_path)
+		return true;
+	memcpy(a.sun_path, path, n);
+	if (path[0] == '@')
+		a.sun_path[0] = '\0';
+	fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+	if (fd < 0)
+		return true;
+	r = connect(fd, (struct sockaddr *)&a, (socklen_t)(offsetof(struct sockaddr_un, sun_path) + n)) == 0;
+	close(fd);
+	return r;
+}
+
+/* False if the display of the session is gone (session ended, display manager
+ * restarted, compositor crashed). zenity also exits with 1 when it loses the
+ * display, exactly as for «Later»: only a display still there tells them apart.
+ * When in doubt, true. */
+static bool display_alive(void)
+{
+	const char *w = getenv("WAYLAND_DISPLAY");
+	const char *d = getenv("DISPLAY");
+	const char *run = getenv("XDG_RUNTIME_DIR");
+	bool r = true;
+
+	if (!graphical_session(getuid()))
+		return false;
+	if (w && *w) {
+		char *p = w[0] == '/' ? xstrdup(w) : xasprintf("%s/%s", run && *run ? run : "/tmp", w);
+
+		r = socket_answers(p);
+		free(p);
+	} else if (d && d[0] == ':') {
+		int num = atoi(d + 1);
+		char *p = xasprintf("/tmp/.X11-unix/X%d", num);
+		char *abs = xasprintf("@/tmp/.X11-unix/X%d", num);
+
+		r = socket_answers(abs) || socket_answers(p);
+		free(abs);
+		free(p);
+	}
+	return r;
+}
+
 static void report_failed_confirmation(void)
 {
 	pid_t pid = fork();
@@ -454,7 +507,12 @@ static void show_dialog(long long id)
 		if (confirm(id, "desktop") == 1 && has_entry("inbox", id, ""))
 			report_failed_confirmation();
 	} else if (WIFEXITED(state) && WEXITSTATUS(state) == 1) {
-		postpone(id, "gui");
+		/* «Later», or zenity lost the display (session ended, display
+		 * manager restarted): only a display still there tells them apart.
+		 * Checked at once: a reminder arriving right after «Later» must find
+		 * the postponement already written (scenario I11). */
+		if (!fine && display_alive())
+			postpone(id, "gui");
 	}
 	free(f);
 }
@@ -522,6 +580,9 @@ static int cmd_agent(void)
 			long long id;
 
 			read_number(ids.v[i], &id);
+			/* display gone: no dialog until the next round */
+			if (!display_alive())
+				break;
 			if (!postponed(id, "gui"))
 				show_dialog(id);
 		}

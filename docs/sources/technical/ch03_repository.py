@@ -72,15 +72,22 @@ S1 = p("The repository contains the C code, the files to install on the system, 
     ("tests/distros/list", "The distributions of the compatibility tests and their container images."),
     ("tests/container/scenarios.py", "The real-world scenarios, run as root in the test machine (also in the "
      "VM, together with the desktop ones)."),
-    ("tests/vm/run.sh", "Tests in the desktop VM on the test server: code, clean VM, scenarios, "
-     "screenshots, results."),
-    ("tests/vm/prepare.sh", "Builds the VM base disk once (Debian 13, GNOME, users)."),
-    ("tests/vm/user-data.tpl", "The VM's cloud-init configuration: packages, users, automatic login, "
-     "accessibility."),
-    ("tests/vm/start.sh", "Starts the VM from a clean copy of the base disk."),
+    ("tests/vm/run.sh", "Tests in a VM with a desktop on the test server: code, clean VM, scenarios, "
+     "screenshots, results; one desktop profile per run."),
+    ("tests/vm/prepare.sh", "Builds once the base disk of a desktop profile, from the cloud image of its "
+     "distribution."),
+    ("tests/vm/users.sh", "Run in the VM while its base disk is prepared: users, ssh keys, Italian locale."),
+    ("tests/vm/desktops/debian-gnome.yaml", "Desktop profile (cloud-init): Debian 13 with GNOME on Wayland."),
+    ("tests/vm/desktops/ubuntu-gnome.yaml", "Desktop profile: Ubuntu 24.04 with GNOME on Wayland."),
+    ("tests/vm/desktops/ubuntu-cinnamon.yaml", "Desktop profile: Cinnamon on X11 with LightDM on Ubuntu 24.04, "
+     "the base of Linux Mint 22."),
+    ("tests/vm/desktops/fedora-kde.yaml", "Desktop profile: Fedora 44 with KDE Plasma on Wayland."),
+    ("tests/vm/desktops/rocky-gnome.yaml", "Desktop profile: Rocky Linux 9 with GNOME, SELinux enforcing."),
+    ("tests/vm/start.sh", "Starts a VM from a clean copy of its base disk."),
     ("tests/vm/stop.sh", "Shuts down the VM and deletes the working disk."),
     ("tests/vm/capture.py", "Captures the VM screen from the QEMU monitor."),
-    ("tests/vm/desktop.py", "Reads and presses the buttons of the RootSpeak dialogs through GNOME accessibility."),
+    ("tests/vm/desktop.py", "Reads and presses the buttons of the RootSpeak dialogs through the desktop's "
+     "accessibility (AT-SPI)."),
     ("tools/check-docs.py", "Consistency checks between code, help, manuals and tests."),
     ("tools/fingerprint.sh", "Code fingerprint (SHA-256 of src, Makefile, etc, install.sh) and commit, recorded "
      "with the test results."),
