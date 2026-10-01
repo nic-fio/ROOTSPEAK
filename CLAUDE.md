@@ -1,137 +1,193 @@
-# Lavorare ad AMS
+# Working on RootSpeak (formerly AMS)
 
-Come si sviluppa questo progetto: gli accordi, le decisioni già prese e cosa
-controllare prima di registrare una modifica. Un clone più questo file sono
-tutto il contesto di lavoro: niente di ciò che serve per continuare sta fuori
-dal repository.
+How this project is developed: the agreements, the decisions already taken and
+what to check before recording a change. A clone plus this file is all the
+working context: nothing needed to continue lives outside the repository.
 
-Il nome è **AMS - Advanced Messaging System** (non «Message System», senza «for linux»).
+The product is **RootSpeak — Advanced Messaging System for Linux**. The
+administrators' command is `rspeak`. Until the rename is finished (see
+«Rename in progress» below) the code, the paths and the documents still say
+**AMS - Advanced Messaging System** and `ams`.
 
-## Come si lavora
+## How we work
 
-- **Si parla con l'utente in italiano, sempre**, senza frasi in inglese.
-  Codice, commenti, messaggi del programma e il resto della documentazione
-  sono in italiano, come prima.
-- **I manuali e la pagina `docs/index.html` sono in inglese**: `docs/User Manual.html` e
-  `docs/Technical Manual.html` e i loro sorgenti in `docs/sources/` (testi dei
-  capitoli, didascalie, etichette di `build.py`). Comandi, percorsi, uscite del
-  programma e schermate restano come sono.
-- **Quando l'utente propone qualcosa**, prima si dice se migliora o peggiora il
-  risultato e perché, poi lo si esegue o si fa una controproposta.
-- **Testi per l'utente senza gergo da programmatori**: guida integrata,
-  messaggi e manuale utente sono scritti per chi usa AMS.
-- **Verificare, non dichiarare.** Ogni affermazione sul comportamento viene da
-  un'esecuzione: modalità di prova, `tests/`, o una prova dal vivo dopo
-  `./install.sh`. «Dovrebbe funzionare» non è un risultato.
-- **La documentazione conta quanto il codice.** Una funzione non è finita
-  finché i manuali non la descrivono. I manuali si giudicano come un lavoro di
-  grafica: schemi in ogni capitolo, testi pratici, e ogni pagina guardata con
-  uno screenshot prima di consegnarla.
-- **Claude non ha la password di sudo**: l'installazione e le prove come root
-  le lancia l'utente (`! ./install.sh`, `! ams …`). Attenzione: se le
-  credenziali di sudo dell'utente sono ancora valide, `build/ams` senza
-  `AMS_TEST=1` parte come root senza chiedere nulla. Nelle prove impostare
-  sempre la modalità di prova (manuale tecnico, «Provare senza root»).
+- **Talk to the user in Italian, always**, with no sentences in English. Only
+  the conversation is in Italian.
+- **Everything in the repository is in English** (decision of 1 October 2026):
+  code, identifiers, file names, comments, program messages, configuration,
+  tests, tools, `README.md`, the manuals, this file, the decision history and
+  commit messages. The one exception is the Italian translation for users,
+  `po/it.po`, which is a feature of the product. Older commits stay as they are.
+  The old name does not appear anywhere in code, configuration, tests or
+  manuals: no `AMS_…`, no `ams`, no `[AMS]` (only the decision history
+  mentions it).
+  Until the language pass is done, parts of the code and of the documents are
+  still in Italian (see «Rename in progress»).
+- **When the user proposes something**, first say whether it improves or
+  worsens the result and why, then do it or make a counter-proposal.
+- **Texts for users without programmer jargon**: the built-in help, the
+  messages and the user manual are written for the people who use the product.
+- **Verify, don't declare.** Every statement about behaviour comes from a run:
+  test mode, `tests/`, or a live test after `./install.sh`. «It should work» is
+  not a result.
+- **Documentation counts as much as code.** A feature is not finished until the
+  manuals describe it. The manuals are judged like graphic work: diagrams in
+  every chapter, practical texts, and every page looked at with a screenshot
+  before delivering it.
+- **Claude does not have the sudo password**: installation and tests as root
+  are run by the user (`! ./install.sh`, `! ams …`). Careful: if the user's
+  sudo credentials are still cached, `build/ams` without `AMS_TEST=1` starts as
+  root without asking anything. In tests always set test mode (technical
+  manual, «Testing without root»).
 
-## Decisioni prese: non riaprirle
+## Decisions taken: do not reopen them
 
-Il perché di ciascuna è in [docs/decisions-and-history.md](docs/decisions-and-history.md).
+The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-history.md).
 
-| Decisione | |
+| Decision | |
 |---|---|
-| **Una sola macchina, inviano solo gli amministratori** | Niente rete, niente messaggi tra utenti. |
-| **Ogni messaggio chiede la conferma; tre stati** | Per ogni destinatario: inviato, consegnato (copia nella casella), confermato. Niente livelli (`info` è stato tolto il 30 settembre: scelta di semplificare l'architettura); per gli avvisi brevi si usa `--expires`. Scadenza e ritiro sono proprietà del messaggio. |
-| **Nessun blocco** | Niente livello `block`, niente disconnessioni, niente blocco a schermo intero: l'utente può sempre rimandare. |
-| **Ricezione automatica, nessun comando per gli utenti** | Gli utenti non hanno `ams`; il codice che gira come utente è `ams-user`, fuori dal PATH. |
-| **`ams` sempre come root, senza eccezioni** | Si rilancia con sudo prima di tutto, anche per `--help` e `version`. |
-| **Nessun gruppo di AMS** | Si usa il gruppo admin esistente (`sudo`/`wheel`): `ams` è `root:<gruppo>` `750`. |
-| **Nessun demone** | logind, sudo, aggancio della shell, avvio automatico del desktop. |
-| **Root non tocca le caselle come root** | Ogni accesso a `/var/lib/ams/users/U` avviene in un processo figlio con l'identità dell'utente (`come_utente`), con un tempo massimo. |
-| **zenity** per il desktop | Finestra «Ho letto» / «Più tardi»; `notify-send`, se c'è, solo per segnalare una conferma non registrata. |
-| **Guida integrata come MTERM, niente man page** | Schede in un terminale, pagina con pager sotto 44×10, testo in una pipe; testi in `src/guida.c` (inglese) e nei cataloghi `po/`. |
-| **Manuali nello stile comune dei 7 progetti (1° ottobre 2026)** | Generati da `docs/sources/` (un file per capitolo) in due file HTML autosufficienti in inglese (`User Manual.html`, `Technical Manual.html`), con lo stile comune dei manuali dei 7 progetti, approvato dal proprietario: incorporato in ogni manuale e identico in tutti. `docs/sources/style.css` è il canone (nato da questo file) e `docs/sources/manual.js` lo script comune (ricerca nella barra laterale, indice analitico, pulsante Copy): si copiano alla lettera, mai modificati in un solo progetto; le regole solo di AMS stanno in `AMS_CSS` di `build.py` (nessuno script proprio: il pulsante Copy lo fa lo script comune). Copertina: logo (`docs/sources/cover-logo.png`, copia trasparente di `logos/ams-logo.png`), «User Manual»/«Technical Manual», versione e data. Piè di pagina: `AMS · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo` (niente licenza). Indice analitico solo nel manuale tecnico, dai termini del glossario. L'utente ha bocciato i manuali in stile NESH ("fanno schifo"). |
-| **Riscrittura in C (30 settembre)** | Tutto: `ams` e `ams-user`; gli agganci delle shell restano script, la finestra resta zenity. Fatta: versione 0.2.0; il prototipo in bash è stato tolto quando il C ha passato tutte le prove (resta nella storia di git). Difese obbligatorie: tutti gli avvisi, `-fanalyzer`, sanitizer nei test, fuzzing di ciò che legge file degli utenti. |
-| **Lingue con gettext (30 settembre)** | Formato e strumenti di gettext (`po/*.po`, `.mo`, `msgfmt --check`), testi di partenza in inglese; i `.mo` li legge un lettore di AMS, non la libintl: con la libintl una lingua non installata nel sistema non funziona (provato: `C.UTF-8` ignora `LANGUAGE`), e root deve scrivere a ogni terminale nella sua lingua. |
-| **TUI per gli amministratori (30 settembre)** | `ams` senza argomenti in un terminale apre la TUI (`--help` resta la guida; in una pipe `ams` mostra la guida). Consultare, agire (ritiro, pulizia, sollecito) con conferma, scrivere e inviare (Ctrl+E apre `$EDITOR`), aggiornamento automatico. Niente ncurses. La TUI usa le stesse funzioni dei comandi e **non inventa stati**: solo inviato, consegnato, confermato; ritirato e scaduto come proprietà. Un messaggio si riassume con i suoi destinatari: barra a tre colori e «14 confermato · 5 consegnato · 2 inviato». |
-| **Nessuna licenza** | Repository privato, copyright nic-fio. |
+| **One machine, only administrators send** | No network, no messages between users. |
+| **Every message asks for confirmation; three states** | For each recipient: sent, delivered (copy in the inbox), confirmed. No levels (`info` was removed on 30 September: a choice to simplify the architecture); for short notices use `--expires`. Expiry and revocation are properties of the message. |
+| **No blocking** | No `block` level, no logouts, no full-screen lock: the user can always postpone. |
+| **Automatic delivery, no command for users** | Users don't have the administrators' command; the code that runs as the user is the helper (`ams-user`, to become `rootspeak-user`), outside the PATH. |
+| **The command always runs as root, no exceptions** | It re-runs itself with sudo before anything else, including `--help` and `version`. |
+| **No group of our own** | The existing admin group is used (`sudo`/`wheel`): the command is `root:<group>` `750`. |
+| **No daemon** | logind, sudo, the shell hook, desktop autostart. |
+| **Root does not touch inboxes as root** | Every access to `/var/lib/ams/users/U` happens in a child process with the user's identity (`come_utente`), with a time limit. |
+| **zenity** for the desktop | Window «I have read it» / «Later»; `notify-send`, if present, only to report a confirmation that was not recorded. |
+| **Built-in help like MTERM's, no man page** | Tabs in a terminal, manual-style page with a pager below 44×10, plain text in a pipe; texts in `src/guida.c` (English) and in the `po/` catalogues. |
+| **Manuals in the common style of the 7 projects (1 October 2026)** | Generated from `docs/sources/` (one file per chapter) into two self-contained HTML files in English (`User Manual.html`, `Technical Manual.html`), with the common style of the 7 projects' manuals, approved by the owner: embedded in every manual and identical in all of them. `docs/sources/style.css` is the canon (born from this project) and `docs/sources/manual.js` the common script (sidebar search, index, Copy button): they are copied verbatim, never changed in one project only; rules specific to this project live in `AMS_CSS` in `build.py` (no script of its own: the common script does the Copy button). Cover: logo (`docs/sources/cover-logo.png`, transparent copy of the logo in `logos/`), «User Manual»/«Technical Manual», version and date. Footer: `<Product> · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo` (no licence). Index only in the technical manual, from the glossary terms. The user rejected manuals in the NESH style ("they suck"). |
+| **Rewrite in C (30 September)** | Everything: the command and the helper; the shell hooks stay scripts, the window stays zenity. Done: version 0.2.0; the bash prototype was removed when the C passed all tests (it remains in git history). Mandatory defences: all warnings, `-fanalyzer`, sanitizers in the tests, fuzzing of everything that reads users' files. |
+| **Languages with gettext (30 September)** | gettext format and tools (`po/*.po`, `.mo`, `msgfmt --check`), source texts in English; the `.mo` files are read by our own reader, not libintl: with libintl a language not installed on the system does not work (tested: `C.UTF-8` ignores `LANGUAGE`), and root must write to each terminal in its user's language. |
+| **TUI for administrators (30 September)** | The command without arguments in a terminal opens the TUI (`--help` stays the help; in a pipe it shows the help). Browse, act (revoke, purge, remind) with confirmation, write and send (Ctrl+E opens `$EDITOR`), automatic refresh. No ncurses. The TUI uses the same functions as the commands and **does not invent states**: only sent, delivered, confirmed; revoked and expired as properties. A message is summarised with its recipients: a three-colour bar and «14 confirmed · 5 delivered · 2 sent». |
+| **Name: RootSpeak (1 October 2026)** | The product will be distributed and sold, and «AMS» is taken for software in the EU (ams-OSRAM, Emerson/Fisher-Rosemount and others). Product name **RootSpeak**, subtitle «Advanced Messaging System for Linux» (descriptive, not a name: it cannot be registered). Administrators' command **`rspeak`**; everything else uses the full name: helper `rootspeak-user`, paths `/etc/rootspeak`, `/var/lib/rootspeak`, catalogue `rootspeak.mo`. Rejected: LMS, MessageX, TuxCast (taken), Heedbell, Missivo (disliked), `rtspk` (reads like RTSP). No trademark registration for now: the user does not want to pay for it. |
+| **Everything in English (1 October 2026)** | See «How we work». Replaces the exception of the common standard for the `.c`/`.h` file names in `src/`: in this project they become English too. |
+| **Licence: to be decided** | Private repository, copyright Nicola Fiorillo. For sale a commercial licence is needed (proposal: per machine or organisation, internal use and modifications allowed, no redistribution, plus the clause on the rights of third-party components), to be reviewed by a lawyer. Until then: no licence. |
 
-## Il repository
+## Rename in progress (1 October 2026)
 
-La struttura segue quella standard comune ai 7 progetti (AMS, EFI_PARTITION_MANAGER, HOSTER,
-MTERM, NESH, PHONESTRA, SCRAPER), decisa dal proprietario il 30 settembre 2026: nomi di file e
-cartelle in inglese (tranne i file `.c`/`.h` di `src/`, che coincidono con i nomi del codice),
-`README.md`, `CLAUDE.md`, `NOTICE.md`, `Makefile` con `make`, `make test`, `make docs-check`,
-`make clean`, `.github/workflows/ci.yml`, `logos/`, `src/`, `tests/`, `tools/` e `docs/` con `index.html`, i
-due manuali, `README.md`, `decisions-and-history.md`, `.nojekyll`, `sources/`. Il contenuto dei
-documenti resta nella sua lingua.
+Order agreed with the user; each step is recorded in its own commit.
 
-| Dove | Cosa |
+1. **Decision**: this file and `docs/decisions-and-history.md` in English with
+   the new decisions. Done.
+2. **Logo**: chosen by the user among 20 proposals (no. 07, «Orbit»: the old
+   symbol redrawn — envelope, orbit, orange dot). Master
+   `logos/rootspeak-logo.svg` (text in Outfit, SIL OFL 1.1),
+   `logos/rootspeak-logo.png` 2172×724 rendered from it. Done; at step 6 it
+   replaces `logos/ams-logo.png` and the transparent copy
+   `docs/sources/cover-logo.png`.
+3. **Trademark check** of «RootSpeak»: done on 1 October 2026 in the WIPO
+   Global Brand Database (89 sources, EUIPO and UIBM included; TMview had
+   blocked our automated searches). One record only: «ROOTSPEAK», US
+   application 99350201, pending since 21 August 2025, class 41
+   (education/entertainment), owner Dara Caldwell-Ross — not software, not in
+   Europe. Not checked: the split form «root speak». A professional search is
+   advisable before selling outside the EU.
+4. **Rename** in code, paths, tests, documents (`ams` → `rspeak`,
+   `ams-user` → `rootspeak-user`, every `AMS_…` constant, variable, header
+   guard and the `[AMS]` prefix of terminal messages → `RSPEAK_…` /
+   `[RootSpeak]`), then all the suites, container and VM included, and a live
+   test by the user. **No trace of the old name may remain** in code,
+   configuration, tests, tools or manuals: the old name survives only as
+   history (`docs/decisions-and-history.md`, «formerly AMS»).
+   `tools/check-docs.py` gets a check that fails if `AMS`/`ams` reappears
+   outside those places.
+5. **Language pass**: code, comments, identifiers, file names, `Makefile`
+   targets, tests, tools and documents into English, file by file, in a
+   separate commit from the rename. **No Italian may remain** outside
+   `po/it.po` and the history of decisions.
+6. **Manuals**: regenerated with the new name, logo and TUI screenshots;
+   every page checked.
+7. **Repository**: rename `nic-fio/AMS` to `nic-fio/RootSpeak` on GitHub (only
+   with the user's explicit yes), the local folder, and the mentions of AMS in
+   the `CLAUDE.md` of the other 6 projects.
+8. **Licence**: commercial licence, `NOTICE.md`, a «Licence» section in the
+   README and in the manuals.
+
+## The repository
+
+The structure follows the standard common to the 7 projects (AMS,
+EFI_PARTITION_MANAGER, HOSTER, MTERM, NESH, PHONESTRA, SCRAPER), decided by the
+owner on 30 September 2026: file and folder names in English, `README.md`,
+`CLAUDE.md`, `NOTICE.md`, `Makefile` with `make`, `make test`,
+`make docs-check`, `make clean`, `.github/workflows/ci.yml`, `logos/`, `src/`,
+`tests/`, `tools/` and `docs/` with `index.html`, the two manuals,
+`README.md`, `decisions-and-history.md`, `.nojekyll`, `sources/`.
+
+| Where | What |
 |---|---|
-| `src/` | Il codice in C: `ams.c` (comando degli amministratori), `ams-user.c` (aiutante come utente), `archivio.c`, `utente.c`, `sessioni.c`, `testo.c`, `lingua.c`, `evento.c`, `guida.c`, `comune.c`. |
-| `po/` | Cataloghi gettext: `ams.pot` e le traduzioni (`it.po`). |
-| `Makefile` | `make`, `make prove`, `make test` (prove, controlli dei manuali, `tests/engine.sh`), `make docs`, `make docs-check`, `make sanitizer`, `make analizza`, `make pot`, `make clean`. |
-| `etc/` | Aggancio della shell, avvio automatico dell'agente, configurazione predefinita. |
-| `install.sh` | Installazione, aggiornamento, `--uninstall`, `--purge`. |
-| `docs/` | `User Manual.html` e `Technical Manual.html` (in inglese, generati, mai a mano), `index.html` (pagina iniziale), `README.md` (cosa c'è e come si rigenera), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
-| `docs/sources/` | `build.py` (generatore e funzioni per figure e tabelle), `style.css` e `manual.js` (stile e script comuni ai 7 progetti, da non modificare qui), `cover-logo.png` (il logo della copertina), capitoli in `user/` e `technical/` (in inglese), schermate vere della TUI in `screens/` e `user/screens/`. Il riferimento dei comandi del manuale utente viene dai testi di partenza inglesi di `po/ams.pot`. |
-| `tests/` | `engine.sh`: il motore in modalità di prova; `help-tui.py`: la guida interattiva su un terminale virtuale; `container/`: la macchina di prova e gli scenari dal vero; `vm/`: la VM con desktop sul server delle prove; `unit-tests.c`: le parti interne (`make prove`). Risultati in `results/` e `*/results/`. |
-| `tools/` | `check-docs.py`: coerenza tra codice, guida e manuali; `fingerprint.sh`: impronta del codice registrata con i risultati; `tui-screenshots.sh`: schermate vere della TUI per i manuali; `setup-dev.sh`: cosa manca per lavorare su una copia appena clonata; `backup.sh`: tutto il repository in un git bundle. |
-| `logos/` | Il logo del progetto (`ams-logo.png`, PNG 2172×724 fornito dal proprietario, da non modificare): nelle copertine dei manuali e di `docs/index.html` va la sua copia trasparente `docs/sources/cover-logo.png`. |
-| `NOTICE.md` | Copyright e componenti di terzi (nessuno incorporato). |
-| `.github/workflows/ci.yml` | Su GitHub a ogni push: `make`, `make prove`, `tests/engine.sh`, `make docs-check` (niente container né VM). |
+| `src/` | The C code: `ams.c` (administrators' command), `ams-user.c` (helper running as the user), `archivio.c`, `utente.c`, `sessioni.c`, `testo.c`, `lingua.c`, `evento.c`, `guida.c`, `comune.c`, `tui.c`. |
+| `po/` | gettext catalogues: `ams.pot` and the translations (`it.po`). |
+| `Makefile` | `make`, `make prove`, `make test` (unit tests, manual checks, `tests/engine.sh`), `make docs`, `make docs-check`, `make sanitizer`, `make analizza`, `make pot`, `make clean`. |
+| `etc/` | Shell hooks, desktop agent autostart, default configuration. |
+| `install.sh` | Install, upgrade, `--uninstall`, `--purge`. |
+| `docs/` | `User Manual.html` and `Technical Manual.html` (generated, never by hand), `index.html` (home page), `README.md` (what is there and how to regenerate it), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
+| `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual comes from the English source texts in `po/ams.pot`. |
+| `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make prove`). Results in `results/` and `*/results/`. |
+| `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle. |
+| `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the old `ams-logo.png` (supplied by the owner) stays until step 6: the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
+| `NOTICE.md` | Copyright and third-party components (none embedded). |
+| `.github/workflows/ci.yml` | On GitHub at every push: `make`, `make prove`, `tests/engine.sh`, `make docs-check` (no container or VM). |
 
-**Server delle prove** (192.168.0.2, accesso ssh con chiave): la VM vive in
-`/media/AMS` sull'SSD (il `/` del server è in RAM). QEMU con KVM come utente
-normale, senza libvirt né sudo. Il disco base si prepara una volta
-(`tests/vm/run.sh --prepara`, circa 10 minuti); ogni esecuzione parte da una
-copia pulita e spegne la VM alla fine.
+**Test server** (192.168.0.2, ssh access with a key): the VM lives in
+`/media/AMS` on the SSD (the server's `/` is in RAM). QEMU with KVM as a
+normal user, without libvirt or sudo. The base disk is prepared once
+(`tests/vm/run.sh --prepara`, about 10 minutes); every run starts from a clean
+copy and shuts the VM down at the end.
 
-## Prima di registrare una modifica
+## Before recording a change
 
-1. `make` (avvisi come errori) e `make prove`; `make pot` se sono cambiati
-   testi da tradurre, poi la traduzione in `po/it.po`.
-2. `make docs` (`python3 docs/sources/build.py`), poi `make docs-check` (`tools/check-docs.py`): fallisce se i
-   manuali in `docs/` non corrispondono ai sorgenti, se guida integrata e
-   riferimento del manuale utente divergono, se un file di codice manca dalla
-   mappa dei file, se la versione non coincide, se un link interno è rotto,
-   se un catalogo è incompleto o se `tests/engine.sh` non è stato eseguito
-   sul codice attuale.
-   **Fallisce se i manuali non sono aggiornati.**
-3. `tests/engine.sh` sempre; `tests/help-tui.py` se è cambiata la guida;
-   `make sanitizer` con `AMS_BUILD=build-san tests/engine.sh`, `make analizza`
-   e `tests/fuzz/run.sh` se è cambiato il codice che legge dati;
-   `tests/container/run.sh` (prove dal vero come root in un container) se
-   sono cambiati invio, consegna, conferme o permessi; `tests/vm/run.sh`
-   (VM con GNOME sul server delle prove, 192.168.0.2) se è cambiato il desktop.
-   I risultati vanno registrati insieme alla modifica.
-4. Prova del flusso toccato in modalità di prova; per desktop, sudo e altri
-   utenti, prova dal vivo dopo `./install.sh`, fatta dall'utente.
-5. I commit usano l'identità locale del repository (nome `nic-fio`, indirizzo
-   noreply di GitHub), che tiene fuori l'indirizzo personale. Messaggi in
-   italiano. Mai `git add -A` senza guardare `git status`.
+1. `make` (warnings as errors) and `make prove`; `make pot` if translatable
+   texts changed, then the translation in `po/it.po`.
+2. `make docs` (`python3 docs/sources/build.py`), then `make docs-check`
+   (`tools/check-docs.py`): it fails if the manuals in `docs/` don't match the
+   sources, if the built-in help and the user manual reference diverge, if a
+   code file is missing from the file map, if the version doesn't match, if an
+   internal link is broken, if a catalogue is incomplete or if
+   `tests/engine.sh` was not run on the current code.
+   **It fails if the manuals are not up to date.**
+3. `tests/engine.sh` always; `tests/help-tui.py` if the help changed;
+   `make sanitizer` with `AMS_BUILD=build-san tests/engine.sh`, `make analizza`
+   and `tests/fuzz/run.sh` if code that reads data changed;
+   `tests/container/run.sh` (real tests as root in a container) if sending,
+   delivery, confirmations or permissions changed; `tests/vm/run.sh` (VM with
+   GNOME on the test server, 192.168.0.2) if the desktop changed.
+   The results are recorded together with the change.
+4. A test of the affected flow in test mode; for desktop, sudo and other
+   users, a live test after `./install.sh`, done by the user.
+5. Commits use the repository's local identity (name `nic-fio`, GitHub noreply
+   address), which keeps the personal address out. Messages in English (from
+   1 October 2026). Never `git add -A` without looking at `git status`.
 
-Il capitolo **«Specifica»** del manuale tecnico è il contratto di AMS (fonti
-autorevoli, stati, invarianti, interruzioni, tempo, formato dell'archivio):
-ogni modifica lo rispetta o lo aggiorna esplicitamente.
+The **«Specification»** chapter of the technical manual is the contract of the
+product (authoritative sources, states, invariants, interruptions, time,
+archive format): every change respects it or updates it explicitly.
 
-Versione: `AMS_VERSION` in `src/comune.h`, e la stessa nei due manuali
-(controllata da `tools/check-docs.py`).
+Version: `AMS_VERSION` in `src/comune.h`, and the same in the two manuals
+(checked by `tools/check-docs.py`).
 
-## A che punto è
+## Where things stand
 
-Versione 0.2.0 in C (30 settembre 2026), che sostituisce il prototipo in bash 0.1.0.
-Suite (numeri aggiornati nel manuale tecnico, capitolo 11, letti dai risultati): `tests/engine.sh` 82 controlli, `tests/tui.py`, container 72 scenari
-(più il desktop, non provabile lì), VM con desktop in italiano 66 scenari, tutti riusciti (le shell si provano solo nel container; `AMS_PROVA_LINGUA=en` per il desktop in inglese, 11 su 11)
-(30 settembre 2026), anche con AddressSanitizer e UBSan; fuzzing 30 minuti senza
-difetti. Il prototipo in bash è stato provato anche dal vivo su Debian 13 con GNOME 48 su
-Wayland, con due account (`nicfio`, `user`): finestra immediata e al login,
-testo e domanda nel terminale anche via ssh, conferma unica fra
-i canali, `list` e `status`. `revoke`, scadenze, errori e pulizia del testo
-provati in modalità di prova. La revisione avversariale del 30 settembre 2026
-([docs/adversarial-review.md](docs/adversarial-review.md)) è chiusa:
-le due decisioni rimaste sono state prese il 30 settembre: domanda di
-conferma in tutte le shell (bash, zsh, fish a ogni prompt; al login per le
-shell che leggono `/etc/profile`), nessuna risposta degli utenti, interfaccia
-nella lingua di ciascun utente. Shell e lingue sono fatte (scenari K ed L; cataloghi gettext in `po/`, inglese di ripiego). La versione in C non è ancora stata provata dal vivo sul PC dell'utente. Le voci [2] del README erano congelate fino
-alla chiusura della revisione; ripartire da lì solo su indicazione
-dell'utente.
+Version 0.2.0 in C (30 September 2026), which replaces the bash prototype
+0.1.0. Suites (numbers kept up to date in the technical manual, chapter 11,
+read from the results): `tests/engine.sh` 82 checks, `tests/tui.py`, container
+72 scenarios (plus the desktop, which cannot be tested there), VM with an
+Italian desktop 66 scenarios, all passed (shells are tested only in the
+container; `AMS_PROVA_LINGUA=en` for the English desktop, 11 of 11)
+(30 September 2026), also with AddressSanitizer and UBSan; fuzzing for 30
+minutes with no defects. The bash prototype was also tested live on Debian 13
+with GNOME 48 on Wayland, with two accounts (`nicfio`, `user`): window at once
+and at login, text and question in the terminal also over ssh, a single
+confirmation across channels, `list` and `status`. `revoke`, expiry, errors
+and text cleaning tested in test mode. The adversarial review of 30 September
+2026 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed: the
+two remaining decisions were taken on 30 September: the confirmation question
+in all shells (bash, zsh, fish at every prompt; at login for the shells that
+read `/etc/profile`), no replies from users, interface in each user's
+language. Shells and languages are done (scenarios K and L; gettext
+catalogues in `po/`, English as fallback). **The C version has not yet been
+tested live on the user's PC**: it must be before any sale. The [2] items of
+the README were frozen until the review was closed; restart from there only
+when the user says so.
+
+On 1 October 2026 the rename to RootSpeak started (see above).

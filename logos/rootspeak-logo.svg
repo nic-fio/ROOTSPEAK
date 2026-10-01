@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1086 362">
+  <title>RootSpeak — Advanced Messaging System for Linux</title>
+  <!-- Text set in Outfit (SIL Open Font License 1.1); the PNG files are rendered from this file. -->
+  <defs>
+    <linearGradient id="orbit" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1f6fd1"></stop><stop offset="1" stop-color="#39a9f0"></stop></linearGradient>
+    <linearGradient id="env" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b8be8"></stop><stop offset="1" stop-color="#1857b8"></stop></linearGradient>
+    <radialGradient id="dot" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#ffc04d"></stop><stop offset="1" stop-color="#f08a12"></stop></radialGradient>
+    <clipPath id="front"><path d="M-40 66 L160 66 L160 200 L-40 200 Z" transform="rotate(-24 60 66)"></path></clipPath>
+  </defs>
+  <g transform="translate(26 24) scale(2.6)">
+    <ellipse cx="60" cy="66" rx="56" ry="28" transform="rotate(-24 60 66)" fill="none" stroke="url(#orbit)" stroke-width="7"></ellipse>
+    <rect x="30" y="44" width="62" height="44" rx="9" fill="url(#env)"></rect>
+    <path d="M38 52l23 18 23-18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <g clip-path="url(#front)"><ellipse cx="60" cy="66" rx="56" ry="28" transform="rotate(-24 60 66)" fill="none" stroke="url(#orbit)" stroke-width="7"></ellipse></g>
+    <circle cx="100" cy="22" r="12" fill="url(#dot)"></circle>
+  </g>
+  <text id="word" x="372" y="206" font-family="Outfit, sans-serif" font-weight="700" font-size="136" letter-spacing="-1.5"><tspan fill="#14306b">Root</tspan><tspan fill="#1f6fd1">Speak</tspan></text>
+  <text id="sub" x="376" y="262" font-family="Outfit, sans-serif" font-weight="500" font-size="27" fill="#5b6782" lengthAdjust="spacing" textLength="665.0">ADVANCED MESSAGING SYSTEM FOR LINUX</text>
+</svg>
