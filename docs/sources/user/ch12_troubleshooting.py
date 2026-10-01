@@ -26,6 +26,8 @@ S1 = p("When a command fails, " + c("rspeak") + " prints a line in red that star
         [c("the expiry is already in the past"), "the date given is in the past", "correct the date"],
         [c("unknown option: X"), "misspelt option", c("rspeak --help")],
         [c("unknown command: X (rspeak --help for the guide)"), "misspelt command", c("rspeak --help")],
+        [c("too many arguments for remind: 4 (rspeak --help for the guide)"), "one word too many, for example two message "
+         "numbers: each command takes one", "repeat the command for each message"],
         [c("missing message ID"), c("status") + ", " + c("revoke") + ", " + c("remind") + " or " + c("log")
          + " without a number", "add the number, taken from " + c("rspeak list")],
         [c("no such message: ID"), "no message with that number (or already deleted)", "check with "

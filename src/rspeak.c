@@ -1408,6 +1408,14 @@ int main(int argc, char **argv)
 	if (strcmp(cmd, "send") && strcmp(cmd, "list") && strcmp(cmd, "status") && strcmp(cmd, "revoke") &&
 	    strcmp(cmd, "remind") && strcmp(cmd, "log") && strcmp(cmd, "purge"))
 		die("unknown command: %s (rspeak --help for the guide)", cmd);
+	/* an extra argument is a typing error to report, not something to ignore
+	 * (rspeak remind 3 4 does not remind message 4) */
+	if (strcmp(cmd, "send")) {
+		int want = !strcmp(cmd, "list") ? 0 : 1;
+
+		if (argc - 2 > want)
+			die("too many arguments for %s: %s (rspeak --help for the guide)", cmd, argv[2 + want]);
+	}
 	if (strcmp(cmd, "purge"))
 		recover();
 	if (!strcmp(cmd, "send"))

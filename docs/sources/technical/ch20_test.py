@@ -65,6 +65,8 @@ S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on 
          + c("rootspeak.conf")],
         ["10. reminder", "a postponed question does not come back at once; " + c("rspeak remind") + " brings it back; "
          "those who have confirmed are not reminded, and the command says so; a revoked message cannot be reminded"],
+        ["11. arguments", "an extra argument is an error and nothing is done (" + c("remind 1 1") + ", "
+         + c("list extra") + ", " + c("revoke 1 2") + ")"],
     ], "«TAB» — The groups of tests/engine.sh") + \
     p("At the end " + c("tests/engine.sh") + " writes " + c("tests/results/engine.json") + " with date, commit, "
       "fingerprint and counts; " + c("tools/check-docs.py") + " fails if that fingerprint is not the one of the "

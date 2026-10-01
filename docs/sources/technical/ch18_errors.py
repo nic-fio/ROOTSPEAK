@@ -37,6 +37,8 @@ S1 = p("RootSpeak distinguishes three families of errors. Those that can be dete
 
 S2 = table(["Message", "When", "What remains"], [
     ["unknown command: X (rspeak --help for the guide)", "first argument not recognised", "nothing"],
+    ["too many arguments for C: X (rspeak --help for the guide)", "a command other than " + c("send") + " received "
+     "more arguments than it takes (" + c("list") + " none, the others one); X is the first extra one", "nothing"],
     ["missing --to · missing value for --title · unknown option: --level", "options of " + c("send"), "nothing"],
     ["invalid expiry: X · the expiry is already in the past", c("--expires") + " cannot be interpreted, or is in the "
      "past", "nothing"],

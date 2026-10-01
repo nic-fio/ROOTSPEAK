@@ -388,6 +388,19 @@ send "to revoke"
 out=$("$RSPEAK" remind 2 2>&1)
 check "rspeak remind of a revoked message: error" '[[ $out == *"has been revoked: nobody to remind"* ]]'
 
+# ---- 11. arguments ----
+
+echo "11. arguments"
+fresh args
+send "one"
+out=$("$RSPEAK" remind 1 1 2>&1); rc=$?
+check "an extra argument is an error, and nothing is done" \
+	'[ $rc -ne 0 ] && [[ $out == "rspeak: too many arguments for remind: 1 (rspeak --help for the guide)" ]] && [ ! -e "$D/state/1.term" ]'
+out=$("$RSPEAK" list extra 2>&1); rc=$?
+check "list takes no argument" '[ $rc -ne 0 ] && [[ $out == *"too many arguments for list: extra"* ]]'
+out=$("$RSPEAK" revoke 1 2 2>&1); rc=$?
+check "revoke with two numbers: refused, the message is not revoked" '[ $rc -ne 0 ] && [ ! -e "$RSPEAK_VAR/sent/1/revoked" ]'
+
 echo
 if [ $fails -eq 0 ]; then echo "OK: $total checks"; else echo "FAILED: $fails of $total"; fi
 # result, with commit and fingerprint of the code tested (read by the technical manual, chapter 11)
