@@ -98,9 +98,13 @@ Order agreed with the user; each step is recorded in its own commit.
    `po/it.po` and the history of decisions.
 6. **Manuals**: regenerated with the new name, logo and TUI screenshots;
    every page checked.
-7. **Repository**: rename `nic-fio/AMS` to `nic-fio/RootSpeak` on GitHub (only
-   with the user's explicit yes), the local folder, and the mentions of AMS in
-   the `CLAUDE.md` of the other 6 projects.
+7. **Repository**: done on 1 October 2026 by the user's choice: a new private
+   repository `nic-fio/ROOTSPEAK` with the whole git history (42 commits,
+   identical hashes), local folder `~/Documenti/ROOTSPEAK`, CI passed. The
+   user will delete `nic-fio/AMS` and the old local folder. Still to do: the
+   links to `github.com/nic-fio/AMS` in `docs/index.html` and in the user
+   manual (step 4), the VM folder `/media/AMS` on the test server, and the
+   mentions of AMS in the `CLAUDE.md` of the other 6 projects.
 8. **Licence**: commercial licence, `NOTICE.md`, a «Licence» section in the
    README and in the manuals.
 
