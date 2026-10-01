@@ -1,36 +1,36 @@
 #!/bin/bash
 # RootSpeak - Advanced Messaging System for Linux
-# Fuzzing con libFuzzer (clang) in un container Debian 13, senza toccare il
-# sistema: compila tests/fuzz/fuzz.c con AddressSanitizer e UBSan e lo lancia
-# per ogni bersaglio. Un difetto ferma il fuzzing e lascia il caso in
+# Fuzzing with libFuzzer (clang) in a Debian 13 container, without touching the
+# system: builds tests/fuzz/fuzz.c with AddressSanitizer and UBSan and runs it
+# for each target. A defect stops the fuzzing and leaves the case in
 # tests/fuzz/results/.
-#   tests/fuzz/run.sh [SECONDI_PER_BERSAGLIO]      (predefinito 60)
+#   tests/fuzz/run.sh [SECONDS_PER_TARGET]      (default 60)
 set -uo pipefail
-QUI=$(cd "$(dirname "$0")" && pwd)
-ROOT=$(cd "$QUI/../.." && pwd)
+HERE=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$HERE/../.." && pwd)
 SEC=${1:-60}
 IMG=rootspeak-fuzz
-mkdir -p "$QUI/results"
+mkdir -p "$HERE/results"
 if ! podman image exists $IMG; then
 	printf 'FROM docker.io/library/debian:trixie\nRUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends clang libclang-rt-dev libsystemd-dev pkg-config libc6-dev && rm -rf /var/lib/apt/lists/*\n' |
-		podman build -q -t $IMG -f - "$QUI" >/dev/null || exit 1
+		podman build -q -t $IMG -f - "$HERE" >/dev/null || exit 1
 fi
-podman run --rm -v "$ROOT:/src:ro,Z" -v "$QUI/results:/out:Z" $IMG bash -c "
+podman run --rm -v "$ROOT:/src:ro,Z" -v "$HERE/results:/out:Z" $IMG bash -c "
 	set -e
 	cd /tmp
 	clang -g -O1 -std=c17 -D_GNU_SOURCE -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=undefined \
-		-I/src/src /src/tests/fuzz/fuzz.c /src/src/comune.c /src/src/testo.c /src/src/lingua.c \
-		/src/src/archivio.c /src/src/utente.c /src/src/sessioni.c /src/src/evento.c \
+		-I/src/src /src/tests/fuzz/fuzz.c /src/src/common.c /src/src/text.c \
+		/src/src/store.c /src/src/user.c /src/src/sessions.c /src/src/event.c \
 		-o fuzz \$(pkg-config --libs libsystemd)
-	esito=0
-	for b in 0 1 2 3 4 5; do
-		mkdir -p semi\$b
-		printf \"\\\\x0\$b\" > semi\$b/zero
-		if ./fuzz -max_total_time=$SEC -max_len=4096 -artifact_prefix=/out/bersaglio\$b- -print_final_stats=0 semi\$b 2>log\$b; then
-			echo \"bersaglio \$b: nessun difetto (\$(grep -o 'cov: [0-9]*' log\$b | tail -1), \$(grep -o 'Done [0-9]* runs' log\$b | tail -1))\"
+	status=0
+	for b in 0 1 2 3; do
+		mkdir -p seeds\$b
+		printf \"\\\\x0\$b\" > seeds\$b/zero
+		if ./fuzz -max_total_time=$SEC -max_len=4096 -artifact_prefix=/out/target\$b- -print_final_stats=0 seeds\$b 2>log\$b; then
+			echo \"target \$b: no defects (\$(grep -o 'cov: [0-9]*' log\$b | tail -1), \$(grep -o 'Done [0-9]* runs' log\$b | tail -1))\"
 		else
-			echo \"bersaglio \$b: DIFETTO\"; tail -30 log\$b; esito=1
+			echo \"target \$b: DEFECT\"; tail -30 log\$b; status=1
 		fi
 	done
-	exit \$esito
+	exit \$status
 "

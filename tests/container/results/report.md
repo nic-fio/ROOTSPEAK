@@ -1,83 +1,80 @@
-# Prove di RootSpeak nella macchina di prova
+# RootSpeak tests in the test machine
 
-- Data: 2026-10-01 09:07:04 UTC
+- Date: 2026-10-01 11:23:40 UTC
 - RootSpeak - Advanced Messaging System for Linux 0.2.0
-- Sistema: Debian GNU/Linux 13 (trixie), container con systemd
-- Codice: commit dc03ab73d5-modificato, impronta 00d658f1b22f
-- Esito: **72 riusciti, 0 falliti, 1 non provati** su 73 scenari
+- System: Debian GNU/Linux 13 (trixie), container with systemd
+- Code: commit bc6a7d46a7-modified, fingerprint 932147779e01
+- Outcome: **69 passed, 0 failed, 1 not tested** out of 70 scenarios
 
-| Codice | Area | Scenario | Atteso | Esito | Misure / dettagli |
+| Code | Area | Scenario | Expected | Outcome | Measures / details |
 |---|---|---|---|---|---|
-| A1 | Accesso | root invia un messaggio | invio riuscito | OK | Messaggio 1 inviato a 1 utente. |
-| A2 | Accesso | un amministratore (gruppo sudo) invia: rspeak si rilancia con sudo | invio riuscito, mittente admin | OK | secondi 0.045; from: admin |
-| A3 | Accesso | un utente normale non può eseguire rspeak | permesso negato, nessun messaggio | OK | runuser: failed to execute /usr/local/bin/rspeak: Permesso negato |
-| A4 | Accesso | un utente normale non può aprire nemmeno la guida | permesso negato | OK | runuser: failed to execute /usr/local/bin/rspeak: Permesso negato |
-| B1 | Destinatari | un utente | mario | OK | ['mario'] |
-| B2 | Destinatari | lista con un doppione | anna, mario (una volta) | OK | ['anna', 'mario'] |
-| B3 | Destinatari | gruppo @sviluppo | anna, mario | OK | ['anna', 'mario'] |
-| B4 | Destinatari | all: utenti umani, esclusi root e chi ha nologin | admin, anna, dario, fabio, kora, luca, mario, zeno | OK | ['admin', 'anna', 'dario', 'fabio', 'kora', 'luca', 'mario', 'zeno'] |
-| B5 | Destinatari | online: solo chi ha una sessione aperta | luca | OK | ['luca'] |
-| B6 | Destinatari | utente inesistente | errore, nessun messaggio creato | OK | rspeak: utente inesistente: pippo |
-| B7 | Destinatari | gruppo senza membri | errore «nessun destinatario» | OK | rspeak: nessun destinatario |
-| C1a | Consegna | utente scollegato: la copia aspetta nella casella | consegnato | OK | consegnato |
-| C1b | Consegna | al login il messaggio e la domanda compaiono prima del primo prompt | testo e domanda al login | OK | secondi_dal_login 0.275 |
-| C1c | Consegna | conferma al login | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/2) |
-| C2a | Consegna | utente collegato: il testo compare nel suo terminale | testo nel terminale | OK | secondi_invio 0.038, secondi_al_terminale 0.088 |
-| C2b | Consegna | stato dopo la scrittura nel terminale | consegnato, scritto su 1 terminale | OK | consegnato, scritto su 1 terminale |
-| C2c | Consegna | premendo Invio compare la domanda | domanda al prompt successivo | OK | secondi 0.053 |
-| C3 | Consegna | sessione ssh senza terminale: non viene toccata, la copia va nella casella | invio riuscito, consegnato, nessun terminale scritto | OK | consegnato |
-| C4a | Consegna | due sessioni aperte: il testo compare in entrambe | testo in 2 terminali | OK | consegnato, scritto su 2 terminali |
-| C4b | Consegna | confermando in una sessione, la domanda nell'altra si ferma | «già confermato altrove» nell'altra | OK | secondi 0.952 |
-| D1 | Conferma | l'utente rimanda | consegnato, rimandato il … | OK | consegnato, scritto su 1 terminale, rimandato il 01/10 09:06 |
-| D2 | Conferma | dopo il rinvio, al prompt solo un promemoria | «Hai 1 messaggio…», nessuna domanda | OK | true [RootSpeak] Hai 1 messaggio dell'amministratore da confermare. luca@f5f6026d35e2:~$  |
-| D5 | Conferma | rspeak remind dopo un rinvio: la domanda torna al prompt successivo | «sollecitato 1 destinatario», domanda al prompt | OK | Messaggio 1: sollecitato 1 destinatario. |
-| D3 | Conferma | al login successivo il rinvio non vale: la domanda torna | domanda al login | OK |  |
-| D4 | Conferma | conferma registrata con data e canale | «EPOCH terminale pts/N» | OK | 1790845583 terminale pts/7 |
-| E1 | Scadenza | un messaggio scaduto non viene mostrato al login | nessun testo | OK |  |
-| E2 | Scadenza | stato di un messaggio scaduto | consegnato, non confermato (scaduto) | OK | consegnato, non confermato (scaduto) |
-| E3 | Ritiro | ritiro con la domanda in attesa: la domanda si interrompe | «L'amministratore ha ritirato il messaggio» | OK | secondi 1.001 |
-| E4 | Ritiro | stato dopo il ritiro | consegnato, non confermato (ritirato) | OK | consegnato, non confermato (ritirato) |
-| E5 | Ritiro | un messaggio ritirato prima del login non viene mostrato | nessun testo | OK |  |
-| F1 | Guasti | la copia per un utente non si può scrivere: gli altri la ricevono | errore, anna «inviato, non consegnato», mario consegnato | OK | rspeak: messaggio 1 non consegnato a: anna (vedi il registro; il prossimo comando rspeak riproverà) ¦ anna: inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando |
-| F2 | Guasti | guasto risolto: il comando successivo completa la consegna | anna consegnato | OK | rspeak: completata la consegna del messaggio 1 a 1 destinatari |
-| F3 | Guasti | rspeak send ucciso a metà (SIGKILL): il comando successivo completa | tutte le copie consegnate, nessun segno di invio incompleto | OK | consegnati_al_kill 6, destinatari 68, secondi_recupero 0.639; consegnati prima 6/68, dopo 68/68; rspeak: completata la consegna del messaggio 2 a 62 destinatari |
-| F6 | Guasti | cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema | consegnato | OK | consegnato;  |
-| F7 | Guasti | rspeak revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta | nessuna copia nelle caselle, invio interrotto | OK | secondi_attesa_revoke 0.24; copie rimaste: 0; consegnate prima del ritiro: 5; Messaggio 4 ritirato durante l'invio: consegna interrotta. |
-| F5 | Guasti | rspeak list ripetuto mentre rspeak send consegna: il recupero non interferisce | una consegna per destinatario, nessun doppione, invio completo | OK | rspeak_list_durante_invio 15; 68 consegne annotate per 68 destinatari, 68 distinte |
-| F4 | Guasti | la conferma non si può scrivere: il messaggio resta e l'utente è avvisato | avviso; stato consegnato; messaggio ancora nella casella | OK | consegnato, scritto su 1 terminale |
-| G1 | Sicurezza | la casella è un collegamento a /etc: root non ci scrive | nessun file 2 in /etc; mario «inviato, non consegnato» | OK | rspeak: messaggio 2 non consegnato a: mario (vedi il registro; il prossimo comando rspeak riproverà) |
-| G2 | Sicurezza | sequenze di escape nel testo: non arrivano al terminale | nessun ESC nel testo ricevuto | OK | 'Testo rosso   fine\r\r\n───────────────────' |
-| G3 | Sicurezza | conferma fabbricata con escape e 500 byte: rspeak status resta pulito | nessun ESC nell'uscita, al massimo 200 byte letti | OK | luca             confermato il 01/01 00:00 (finto00000000000000000000000000000000000000000000000000000000000000000000000 |
-| G4 | Sicurezza | un utente normale con RSPEAK_TEST=1 non ottiene nulla | permesso negato | OK | env: ‘/usr/local/bin/rspeak’: Permesso negato |
-| J1 | Registro | rspeak log: la storia del messaggio | invio, consegne, rinvio, conferma, ritiro | OK | 6 eventi |
-| J2 | Registro | la conferma nel journal porta l'utente che l'ha scritta (_UID) | _UID 1001 | OK | 1001 1001 |
-| J3 | Registro | un evento scritto da un utente a nome di un altro: rspeak log lo segnala | «non attendibile: scritto da UID 1003» | OK | 2026-10-01 09:06:39  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop) |
-| T1 | TUI | rspeak senza argomenti come root: la lista con i destinatari nei tre stati | «RootSpeak · messaggi inviati», «2 consegnato» | OK |  |
-| T2 | TUI | dettaglio: destinatari e storia dal registro | anna, mario; «inviato da root» | OK |  |
-| T3 | TUI | q: la TUI esce e ridà il terminale | uscita 0 | OK |  |
-| K1-zsh | Shell | zsh: al login il messaggio e la domanda | testo e domanda al login | OK |  |
-| K2-zsh | Shell | zsh: conferma al login | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/15) |
-| K3-zsh | Shell | zsh: utente collegato, il testo compare nel terminale | testo nel terminale | OK |  |
-| K4-zsh | Shell | zsh: premendo Invio compare la domanda | domanda al prompt successivo | OK | secondi 0.071 |
-| K5-zsh | Shell | zsh: conferma al prompt | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/15) |
-| K1-fish | Shell | fish: al login il messaggio e la domanda | testo e domanda al login | OK |  |
-| K2-fish | Shell | fish: conferma al login | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/16) |
-| K3-fish | Shell | fish: utente collegato, il testo compare nel terminale | testo nel terminale | OK |  |
-| K4-fish | Shell | fish: premendo Invio compare la domanda | domanda al prompt successivo | OK | secondi 0.052 |
-| K5-fish | Shell | fish: conferma al prompt | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/16) |
-| K1-ksh | Shell | ksh: al login il messaggio e la domanda | testo e domanda al login | OK |  |
-| K2-ksh | Shell | ksh: conferma al login | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/17) |
-| K3-ksh | Shell | ksh: utente collegato, il testo compare nel terminale | testo nel terminale | OK |  |
-| K4-ksh | Shell | ksh: al prompt nessuna domanda (arriva al login successivo) | nessuna domanda, consegnato | OK | consegnato, scritto su 1 terminale |
-| K1-dash | Shell | dash: al login il messaggio e la domanda | testo e domanda al login | OK |  |
-| K2-dash | Shell | dash: conferma al login | confermato (terminale) | OK | confermato il 01/10 09:06 (terminale pts/18) |
-| K3-dash | Shell | dash: utente collegato, il testo compare nel terminale | testo nel terminale | OK |  |
-| K4-dash | Shell | dash: al prompt nessuna domanda (arriva al login successivo) | nessuna domanda, consegnato | OK | consegnato, scritto su 1 terminale |
-| L1 | Lingua | all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente | luca in inglese, mario in italiano, testo non tradotto | OK |  |
-| L2 | Lingua | la domanda e la conferma nella lingua dell'utente | domanda in inglese, «y» conferma | OK | confermato il 01/10 09:06 (terminale pts/19) |
-| L3 | Lingua | un amministratore in inglese legge rspeak status in inglese | USER STATE, confirmed on … (terminal …) | OK | luca             confirmed on 01/10 09:06 (terminal pts/19) / mario            delivered, written to 1 terminal |
-| L4 | Lingua | il registro è nella lingua del sistema; rspeak log lo riscrive in quella di chi legge | journal in italiano; rspeak log in inglese e in italiano | OK | 2026-10-01 09:06:55  user luca: confirmed reading message 1 (terminal pts/19) |
-| H1 | Prestazioni | invio a tutti (58 destinatari) | misura | OK | secondi 0.22, ms_per_destinatario 3.7 |
-| H2 | Prestazioni | rspeak list con 10 messaggi × 58 destinatari | misura (punto 15 della revisione) | OK | secondi 0.28 |
-| H3 | Prestazioni | rspeak status di un messaggio con 58 destinatari | misura | OK | secondi 0.38 |
-| I1 | Desktop | finestra di conferma nella sessione grafica | finestra «Ho letto» | NON PROVATO | il container non ha una sessione grafica: la finestra si prova nella VM (tests/vm) |
+| A1 | Access | root sends a message | sending succeeds | OK | Message 1 sent to 1 user. |
+| A2 | Access | an administrator (sudo group) sends: rspeak re-runs itself with sudo | sending succeeds, sender admin | OK | seconds 0.062; from: admin |
+| A3 | Access | an ordinary user cannot run rspeak | permission denied, no message | OK | runuser: failed to execute /usr/local/bin/rspeak: Permission denied |
+| A4 | Access | an ordinary user cannot even open the help | permission denied | OK | runuser: failed to execute /usr/local/bin/rspeak: Permission denied |
+| B1 | Recipients | one user | mario | OK | ['mario'] |
+| B2 | Recipients | list with a duplicate | anna, mario (once) | OK | ['anna', 'mario'] |
+| B3 | Recipients | group @developers | anna, mario | OK | ['anna', 'mario'] |
+| B4 | Recipients | all: human users, except root and whoever has nologin | admin, anna, dario, fabio, kora, luca, mario, zeno | OK | ['admin', 'anna', 'dario', 'fabio', 'kora', 'luca', 'mario', 'zeno'] |
+| B5 | Recipients | online: only whoever has an open session | luca | OK | ['luca'] |
+| B6 | Recipients | user that does not exist | error, no message created | OK | rspeak: no such user: nobodyhere |
+| B7 | Recipients | group without members | error «no recipients» | OK | rspeak: no recipients |
+| C1a | Delivery | user logged out: the copy waits in the mailbox | delivered | OK | delivered |
+| C1b | Delivery | at login the message and the question appear before the first prompt | text and question at login | OK | seconds_from_login 0.286 |
+| C1c | Delivery | confirmation at login | confirmed (terminal) | OK | confirmed on 01/10 11:22 (terminal pts/2) |
+| C2a | Delivery | user logged in: the text appears in their terminal | text in the terminal | OK | seconds_send 0.032, seconds_to_terminal 0.083 |
+| C2b | Delivery | state after writing to the terminal | delivered, written to 1 terminal | OK | delivered, written to 1 terminal |
+| C2c | Delivery | pressing Enter the question appears | question at the next prompt | OK | seconds 0.058 |
+| C3 | Delivery | ssh session without a terminal: it is not touched, the copy goes to the mailbox | sending succeeds, delivered, no terminal written | OK | delivered |
+| C4a | Delivery | two open sessions: the text appears in both | text in 2 terminals | OK | delivered, written to 2 terminals |
+| C4b | Delivery | confirming in one session, the question in the other stops | «Message already confirmed elsewhere» in the other | OK | seconds 0.951 |
+| D1 | Confirmation | the user postpones | delivered, postponed on … | OK | delivered, written to 1 terminal, postponed on 01/10 11:23 |
+| D2 | Confirmation | after the postponement, only a reminder at the prompt | «You have 1 message…», no question | OK | true [RootSpeak] You have 1 message from the administrator to confirm. luca@f3d148de504a:~$  |
+| D5 | Confirmation | rspeak remind after a postponement: the question comes back at the next prompt | «Message 1: 1 recipient reminded.», question at the prompt | OK | Message 1: 1 recipient reminded. |
+| D3 | Confirmation | at the next login the postponement does not count: the question comes back | question at login | OK |  |
+| D4 | Confirmation | confirmation recorded with date and channel | «EPOCH terminal pts/N» | OK | 1790853784 terminal pts/7 |
+| E1 | Expiry | an expired message is not shown at login | no text | OK |  |
+| E2 | Expiry | state of an expired message | delivered, not confirmed (expired) | OK | delivered, not confirmed (expired) |
+| E3 | Revocation | revocation with the question waiting: the question stops | «The administrator has revoked the message.» | OK | seconds 1.002 |
+| E4 | Revocation | state after the revocation | delivered, not confirmed (revoked) | OK | delivered, not confirmed (revoked) |
+| E5 | Revocation | a message revoked before the login is not shown | no text | OK |  |
+| F1 | Faults | the copy for one user cannot be written: the others receive it | error, anna «sent, not delivered», mario delivered | OK | rspeak: message 1 not delivered to: anna (see the log; the next rspeak command will retry) ¦ anna: sent, not delivered: the copy could not be written (see the log; the next rspeak command will retry) |
+| F2 | Faults | fault fixed: the next command completes the delivery | anna delivered | OK | rspeak: completed delivery of message 1 to 1 recipients |
+| F3 | Faults | rspeak send killed halfway (SIGKILL): the next command completes | all copies delivered, no sign of an incomplete sending | OK | delivered_at_kill 3, recipients 68, seconds_recovery 0.462; delivered before 3/68, after 68/68; rspeak: completed delivery of message 2 to 65 recipients |
+| F6 | Faults | user's folder left owned by root by an interrupted sending: the delivery fixes it | delivered | OK | delivered;  |
+| F7 | Faults | rspeak revoke during a sending to many users: the sending stops and no copy stays | no copy in the mailboxes, sending interrupted | OK | seconds_waiting_revoke 0.14; copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped. |
+| F5 | Faults | rspeak list repeated while rspeak send delivers: the recovery does not interfere | one delivery per recipient, no duplicates, sending complete | OK | rspeak_list_during_sending 11; 68 deliveries recorded for 68 recipients, 68 distinct |
+| F4 | Faults | the confirmation cannot be written: the message stays and the user is told | notice; state delivered; message still in the mailbox | OK | delivered, written to 1 terminal |
+| G1 | Security | the mailbox is a link to /etc: root does not write there | no file 2 in /etc; mario «sent, not delivered» | OK | rspeak: message 2 not delivered to: mario (see the log; the next rspeak command will retry) |
+| G2 | Security | escape sequences in the text: they do not reach the terminal | no ESC in the text received | OK | 'Text red   end\r\r\n───────────────────────' |
+| G3 | Security | forged confirmation with escapes and 500 bytes: rspeak status stays clean | no ESC in the output, at most 200 bytes read | OK | luca             confirmed on 01/01 00:00 (fake0000000000000000000000000000000000000000000000000000000000000000000000000 |
+| G4 | Security | an ordinary user with RSPEAK_TEST=1 gets nothing | permission denied | OK | env: ‘/usr/local/bin/rspeak’: Permission denied |
+| J1 | Log | rspeak log: the history of the message | sending, deliveries, postponement, confirmation, revocation | OK | 8 events |
+| J2 | Log | the confirmation in the journal carries the user who wrote it (_UID) | _UID 1001 | OK | 1001 1001 |
+| J3 | Log | an event written by a user in the name of another: rspeak log flags it | «[not trustworthy: written by UID 1003]» | OK | 2026-10-01 11:23:18  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop) |
+| T1 | TUI | rspeak without arguments as root: the list with the recipients in the three states | «RootSpeak · sent messages», «2 delivered» | OK |  |
+| T2 | TUI | detail: recipients and history from the log | anna, mario; «sent by root» | OK |  |
+| T3 | TUI | q: the TUI exits and gives the terminal back | exit status 0 | OK |  |
+| K1-zsh | Shells | zsh: at login the message and the question | text and question at login | OK |  |
+| K2-zsh | Shells | zsh: confirmation at login | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/15) |
+| K3-zsh | Shells | zsh: user logged in, the text appears in the terminal | text in the terminal | OK |  |
+| K4-zsh | Shells | zsh: pressing Enter the question appears | question at the next prompt | OK | seconds 0.075 |
+| K5-zsh | Shells | zsh: confirmation at the prompt | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/15) |
+| K1-fish | Shells | fish: at login the message and the question | text and question at login | OK |  |
+| K2-fish | Shells | fish: confirmation at login | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/16) |
+| K3-fish | Shells | fish: user logged in, the text appears in the terminal | text in the terminal | OK |  |
+| K4-fish | Shells | fish: pressing Enter the question appears | question at the next prompt | OK | seconds 0.055 |
+| K5-fish | Shells | fish: confirmation at the prompt | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/16) |
+| K1-ksh | Shells | ksh: at login the message and the question | text and question at login | OK |  |
+| K2-ksh | Shells | ksh: confirmation at login | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/17) |
+| K3-ksh | Shells | ksh: user logged in, the text appears in the terminal | text in the terminal | OK |  |
+| K4-ksh | Shells | ksh: no question at the prompt (it comes at the next login) | no question, delivered | OK | delivered, written to 1 terminal |
+| K1-dash | Shells | dash: at login the message and the question | text and question at login | OK |  |
+| K2-dash | Shells | dash: confirmation at login | confirmed (terminal) | OK | confirmed on 01/10 11:23 (terminal pts/18) |
+| K3-dash | Shells | dash: user logged in, the text appears in the terminal | text in the terminal | OK |  |
+| K4-dash | Shells | dash: no question at the prompt (it comes at the next login) | no question, delivered | OK | delivered, written to 1 terminal |
+| L5 | Language | a user whose session is in Italian: header, question and answer in English, «y» confirms | «Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.» | OK | confirmed on 01/10 11:23 (terminal pts/19) |
+| H1 | Performance | sending to all (58 recipients) | measure | OK | seconds 0.19, ms_per_recipient 3.3 |
+| H2 | Performance | rspeak list with 10 messages × 58 recipients | measure (item 15 of the review) | OK | seconds 0.22 |
+| H3 | Performance | rspeak status of a message with 58 recipients | measure | OK | seconds 0.32 |
+| I1 | Desktop | confirmation dialog in the graphical session | dialog «I have read it» | -- | the container has no graphical session: the dialog is tested in the VM (tests/vm) |

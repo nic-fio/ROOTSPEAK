@@ -1,9 +1,9 @@
 #!/bin/bash
 # RootSpeak - Advanced Messaging System for Linux
-# Test del motore: invio, casella, conferme, in modalità di prova (senza root,
-# su un archivio temporaneo). Uso: tests/engine.sh [-v]   (-v mostra gli output)
-# Prova i programmi compilati in build/ (make; RSPEAK_BUILD per un'altra
-# cartella, per esempio build-san/ dei sanitizer).
+# Engine tests: sending, mailbox, confirmations, in test mode (no root, on a
+# temporary message store). Usage: tests/engine.sh [-v]   (-v shows the output)
+# Tests the programs built in build/ (make; RSPEAK_BUILD for another folder,
+# for example build-san/ of the sanitizers).
 set -uo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -12,20 +12,19 @@ BASE=$(mktemp -d)
 trap 'chmod -R u+w "$BASE" 2>/dev/null; rm -rf "$BASE"' EXIT
 export RSPEAK_TEST=1 RSPEAK_CONF=/dev/null RSPEAK_TEST_TTY=
 B=${RSPEAK_BUILD:-$ROOT/build}
-[ -x "$B/rspeak" ] && [ -x "$B/unit-tests" ] || { echo "manca $B: lanciare make e make build/unit-tests" >&2; exit 1; }
-export RSPEAK_LIB=$B RSPEAK_LOCALEDIR=$B/locale
+[ -x "$B/rspeak" ] && [ -x "$B/unit-tests" ] || { echo "$B is missing: run make and make build/unit-tests" >&2; exit 1; }
+export RSPEAK_LIB=$B
 RSPEAK=$B/rspeak RSPEAK_USER=$B/rootspeak-user
-# le parti interne: la conferma da sola, la configurazione, la scelta della lingua
-rspeak_ack() { "$RSPEAK_USER" conferma "$@"; }
-leggi_conf() { RSPEAK_CONF=$1 "$B/unit-tests" conf; }
-lingua() { "$B/unit-tests" lingua "$@"; }
-# i test controllano i testi italiani; il gruppo 8 prova le altre lingue
+# the internals: the confirmation on its own, the configuration
+rspeak_ack() { "$RSPEAK_USER" confirm "$@"; }
+read_conf() { RSPEAK_CONF=$1 "$B/unit-tests" conf; }
+# RootSpeak speaks English whatever the language of the session
 export LANG=it_IT.UTF-8
 unset LC_ALL LC_MESSAGES LANGUAGE
 U=$(id -un)
 fails=0 total=0
 
-# Archivio nuovo per ogni test.
+# A new message store for each test.
 fresh() {
 	export RSPEAK_VAR=$BASE/var-$1
 	rm -rf "$RSPEAK_VAR"
@@ -34,8 +33,8 @@ fresh() {
 
 send() { "$RSPEAK" send --to "$U" "$@" >/dev/null; }
 
-# Risponde «$1» alla domanda del prompt, su uno pseudo-terminale
-# (prompt_login: come in una shell di login, dove il rinvio non vale).
+# Answers «$1» to the question at the prompt, on a pseudo-terminal
+# (prompt_login: as in a login shell, where the postponement does not count).
 prompt() {
 	printf '%s\n' "$1" | script -qec "$RSPEAK_USER prompt" /dev/null 2>&1
 }
@@ -43,7 +42,7 @@ prompt_login() {
 	printf '%s\n' "$1" | script -qec "$RSPEAK_USER prompt --login" /dev/null 2>&1
 }
 
-check() { # descrizione, condizione (stringa valutata)
+check() { # description, condition (evaluated string)
 	total=$((total + 1))
 	if eval "$2"; then
 		[ -n "$VERBOSE" ] && echo "  ok   $1"
@@ -53,102 +52,102 @@ check() { # descrizione, condizione (stringa valutata)
 	fi
 }
 
-# ---- 1. conferme: registrate, mai perse in silenzio ----
+# ---- 1. confirmations: recorded, never lost silently ----
 
-echo "1. conferme"
+echo "1. confirmations"
 fresh ack-ok
-send "prova"
-out=$(prompt s)
-check "conferma normale: registrata" '[ -s "$D/acks/1" ] && [ ! -e "$D/inbox/1" ] && [[ $out == *"Confermato."* ]]'
+send "test"
+out=$(prompt y)
+check "normal confirmation: recorded" '[ -s "$D/acks/1" ] && [ ! -e "$D/inbox/1" ] && [[ $out == *"Confirmed."* ]]'
 
 fresh ack-fail
-send "prova"
+send "test"
 chmod 555 "$D/acks"
-out=$(prompt s)
+out=$(prompt y)
 chmod 755 "$D/acks"
 [ -n "$VERBOSE" ] && echo "$out" | tail -2 | sed 's/^/       /'
-check "scrittura impossibile: il messaggio resta nella casella" '[ -e "$D/inbox/1" ] && [ ! -e "$D/read/1" ]'
-check "scrittura impossibile: nessuna conferma registrata" '[ ! -e "$D/acks/1" ]'
-check "scrittura impossibile: l'utente è avvisato" '[[ $out == *"Non è stato possibile registrare la conferma"* ]]'
-check "scrittura impossibile: nessun file temporaneo rimasto" '[ -z "$(ls -A "$D/acks")" ]'
-out=$(prompt s)
-check "dopo il guasto la domanda torna e la conferma riesce" '[ -s "$D/acks/1" ] && [[ $out == *"Confermato."* ]]'
+check "cannot write: the message stays in the mailbox" '[ -e "$D/inbox/1" ] && [ ! -e "$D/read/1" ]'
+check "cannot write: no confirmation recorded" '[ ! -e "$D/acks/1" ]'
+check "cannot write: the user is told" '[[ $out == *"The confirmation could not be recorded"* ]]'
+check "cannot write: no temporary file left" '[ -z "$(ls -A "$D/acks")" ]'
+out=$(prompt y)
+check "after the fault the question comes back and the confirmation succeeds" '[ -s "$D/acks/1" ] && [[ $out == *"Confirmed."* ]]'
 
 fresh ack-first
-send "prova"
+send "test"
 echo "1000 desktop" >"$D/acks/1"
-rspeak_ack 1 "terminale pts/9"
-check "conferma già presente: resta la prima" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
+rspeak_ack 1 "terminal pts/9"
+check "confirmation already there: the first one stays" '[ "$(cat "$D/acks/1")" = "1000 desktop" ] && [ ! -e "$D/inbox/1" ]'
 
 fresh ack-no-move
-send "prova"
+send "test"
 echo "$(date +%s) desktop" >"$D/acks/1"
-out=$(prompt s)
-check "conferma registrata ma non spostata (interruzione): non viene richiesta di nuovo" \
-	'[[ $out != *"Confermi"* ]] && [ -e "$D/read/1" ] && [ ! -e "$D/inbox/1" ]'
+out=$(prompt y)
+check "confirmation recorded but not moved (interruption): not asked again" \
+	'[[ $out != *"Do you confirm"* ]] && [ -e "$D/read/1" ] && [ ! -e "$D/inbox/1" ]'
 
-# ---- 2. consegna: tracciata per destinatario, completata dopo un'interruzione ----
-# Il secondo destinatario è root: in modalità di prova la sua casella è una
-# cartella qualunque dell'archivio di prova.
+# ---- 2. delivery: tracked per recipient, completed after an interruption ----
+# The second recipient is root: in test mode its mailbox is just a folder of
+# the test message store.
 
-echo "2. consegna"
+echo "2. delivery"
 state_of() { "$RSPEAK" status "$1" 2>/dev/null | awk -v u="$2" '$1 == u { $1 = ""; sub(/^ +/, ""); print }'; }
 R=$RSPEAK_VAR/users/root
 
 fresh send-ok
-"$RSPEAK" send --to "$U,root" "prova" >/dev/null
+"$RSPEAK" send --to "$U,root" "test" >/dev/null
 R=$RSPEAK_VAR/users/root
-check "invio normale: due consegne registrate, nessun segno di invio incompleto" \
+check "normal send: two deliveries recorded, no incomplete-send mark" \
 	'[ "$(wc -l <"$RSPEAK_VAR/sent/1/delivery")" = 2 ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ]'
-check "invio normale: stato «consegnato»" '[ "$(state_of 1 root)" = "consegnato" ]'
+check "normal send: state «delivered»" '[ "$(state_of 1 root)" = "delivered" ]'
 
 fresh send-fail
 R=$RSPEAK_VAR/users/root
 mkdir -p "$R/inbox" && chmod 555 "$R/inbox"
-out=$("$RSPEAK" send --to "$U,root" "prova" 2>&1)
+out=$("$RSPEAK" send --to "$U,root" "test" 2>&1)
 rc=$?
 [ -n "$VERBOSE" ] && echo "$out" | sed 's/^/       /'
-check "copia non scrivibile: rspeak send termina con errore" '[ $rc -ne 0 ] && [[ $out == *"non consegnato a: root"* ]]'
-check "copia non scrivibile: l'altro destinatario la riceve" '[ -e "$D/inbox/1" ] && delivered_u=$(awk "{print \$1}" "$RSPEAK_VAR/sent/1/delivery") && [ "$delivered_u" = "$U" ]'
-check "copia non scrivibile: resta il segno di invio incompleto" '[ -e "$RSPEAK_VAR/sent/1/incomplete" ]'
-check "copia non scrivibile: stato «inviato, non consegnato»" '[[ $(state_of 1 root) == "inviato, non consegnato"* ]]'
+check "copy cannot be written: rspeak send ends with an error" '[ $rc -ne 0 ] && [[ $out == *"not delivered to: root"* ]]'
+check "copy cannot be written: the other recipient gets it" '[ -e "$D/inbox/1" ] && delivered_u=$(awk "{print \$1}" "$RSPEAK_VAR/sent/1/delivery") && [ "$delivered_u" = "$U" ]'
+check "copy cannot be written: the incomplete-send mark stays" '[ -e "$RSPEAK_VAR/sent/1/incomplete" ]'
+check "copy cannot be written: state «sent, not delivered»" '[[ $(state_of 1 root) == "sent, not delivered"* ]]'
 chmod 755 "$R/inbox"
 "$RSPEAK" list >/dev/null 2>&1
-check "guasto risolto: il comando successivo completa la consegna" \
-	'[ -e "$R/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "consegnato" ]'
+check "fault fixed: the next command completes the delivery" \
+	'[ -e "$R/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ] && [ "$(state_of 1 root)" = "delivered" ]'
 
 fresh crash
 R=$RSPEAK_VAR/users/root
-"$RSPEAK" send --to "$U,root" "prova" >/dev/null
-# interruzione simulata dopo il primo destinatario
+"$RSPEAK" send --to "$U,root" "test" >/dev/null
+# interruption simulated after the first recipient
 rm -f "$R/inbox/1"; sed -i '/^root /d' "$RSPEAK_VAR/sent/1/delivery"; : >"$RSPEAK_VAR/sent/1/incomplete"
 "$RSPEAK" status 1 >/dev/null 2>&1
-check "invio interrotto: il comando successivo consegna chi mancava" '[ -e "$R/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ]'
+check "interrupted send: the next command delivers to whoever was missing" '[ -e "$R/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ]'
 
 fresh crash-acked
-"$RSPEAK" send --to "$U" "prova" >/dev/null
-prompt s >/dev/null
+"$RSPEAK" send --to "$U" "test" >/dev/null
+prompt y >/dev/null
 sed -i "/^$U /d" "$RSPEAK_VAR/sent/1/delivery"; : >"$RSPEAK_VAR/sent/1/incomplete"
 "$RSPEAK" list >/dev/null 2>&1
-check "recupero: non ripropone un messaggio già confermato" '[ ! -e "$D/inbox/1" ] && [[ $(state_of 1 "$U") == confermato* ]]'
+check "recovery: does not show again a message already confirmed" '[ ! -e "$D/inbox/1" ] && [[ $(state_of 1 "$U") == confirmed* ]]'
 
 fresh unsaved
 mkdir -p "$RSPEAK_VAR/sent/7" "$RSPEAK_VAR/users"; : >"$RSPEAK_VAR/sent/7/incomplete"
 out=$("$RSPEAK" list 2>&1)
-check "invio interrotto prima del salvataggio: annullato e segnalato" \
-	'[ -e "$RSPEAK_VAR/sent/7/failed" ] && [ ! -e "$RSPEAK_VAR/sent/7/incomplete" ] && [[ $out == *"annullato"* ]]'
+check "send interrupted before saving: cancelled and reported" \
+	'[ -e "$RSPEAK_VAR/sent/7/failed" ] && [ ! -e "$RSPEAK_VAR/sent/7/incomplete" ] && [[ $out == *"cancelled"* ]]'
 
 fresh in-progress
 R=$RSPEAK_VAR/users/root
-"$RSPEAK" send --to "$U,root" "prova" >/dev/null
+"$RSPEAK" send --to "$U,root" "test" >/dev/null
 rm -f "$R/inbox/1"; sed -i '/^root /d' "$RSPEAK_VAR/sent/1/delivery"; : >"$RSPEAK_VAR/sent/1/incomplete"
 flock "$RSPEAK_VAR/sent/1/lock" sleep 2 &
 sleep 0.3
 "$RSPEAK" list >/dev/null 2>&1
-check "invio in corso (lock occupato): il recupero non lo tocca" '[ ! -e "$R/inbox/1" ] && [ -e "$RSPEAK_VAR/sent/1/incomplete" ]'
+check "send in progress (lock held): recovery leaves it alone" '[ ! -e "$R/inbox/1" ] && [ -e "$RSPEAK_VAR/sent/1/incomplete" ]'
 wait
 "$RSPEAK" list >/dev/null 2>&1
-check "lock rilasciato: il recupero completa, senza doppioni" \
+check "lock released: recovery completes, without duplicates" \
 	'[ -e "$R/inbox/1" ] && [ "$(wc -l <"$RSPEAK_VAR/sent/1/delivery")" = 2 ]'
 
 fresh just-started
@@ -156,256 +155,244 @@ mkdir -p "$RSPEAK_VAR/sent/7" "$RSPEAK_VAR/users"; : >"$RSPEAK_VAR/sent/7/incomp
 flock "$RSPEAK_VAR/sent/7/lock" sleep 1 &
 sleep 0.3
 "$RSPEAK" list >/dev/null 2>&1
-check "invio appena iniziato (ancora senza messaggio): non viene annullato" '[ ! -e "$RSPEAK_VAR/sent/7/failed" ]'
+check "send just started (no message yet): not cancelled" '[ ! -e "$RSPEAK_VAR/sent/7/failed" ]'
 wait
 
-# ---- 3. stati: inviato, consegnato, confermato; ogni messaggio chiede conferma ----
+# ---- 3. states: sent, delivered, confirmed; every message asks for confirmation ----
 
-echo "3. stati"
+echo "3. states"
 fresh states
-out=$("$RSPEAK" send --to "$U" --level info "prova" 2>&1)
-check "--level non esiste più" '[[ $out == *"opzione sconosciuta: --level"* ]] && [ ! -d "$RSPEAK_VAR/sent/1" ]'
-send "prova"
-check "dopo l'invio: consegnato" '[ "$(state_of 1 "$U")" = "consegnato" ]'
-check "il messaggio non ha più un livello" '! grep -q "^level:" "$RSPEAK_VAR/sent/1/msg"'
+out=$("$RSPEAK" send --to "$U" --level info "test" 2>&1)
+check "--level no longer exists" '[[ $out == *"unknown option: --level"* ]] && [ ! -d "$RSPEAK_VAR/sent/1" ]'
+send "test"
+check "after sending: delivered" '[ "$(state_of 1 "$U")" = "delivered" ]'
+check "the message no longer has a level" '! grep -q "^level:" "$RSPEAK_VAR/sent/1/msg"'
 prompt n >/dev/null
-check "rimandato: resta consegnato, con l'ora del rinvio" '[[ $(state_of 1 "$U") == "consegnato, rimandato il "* ]]'
-prompt s >/dev/null
-check "rimandato: al prompt successivo non viene richiesto subito" '[[ $(state_of 1 "$U") == "consegnato, rimandato il "* ]]'
-prompt_login s >/dev/null
-check "confermato (nuovo login)" '[[ $(state_of 1 "$U") == "confermato il "* ]]'
+check "postponed: stays delivered, with the time of the postponement" '[[ $(state_of 1 "$U") == "delivered, postponed on "* ]]'
+prompt y >/dev/null
+check "postponed: not asked again at the next prompt" '[[ $(state_of 1 "$U") == "delivered, postponed on "* ]]'
+prompt_login y >/dev/null
+check "confirmed (new login)" '[[ $(state_of 1 "$U") == "confirmed on "* ]]'
 list=$("$RSPEAK" list)
-check "rspeak list: destinatari nei tre stati, a parole" '[[ $list == *"DESTINATARI"* ]] && [[ $list == *"tutti confermato (1)"* ]]'
-check "rspeak list: nessuno stato inventato" '! grep -qiE "in attesa|completo|annullato|incompleto" <<<"$list"'
+check "rspeak list: recipients in the three states, in words" '[[ $list == *"RECIPIENTS"* ]] && [[ $list == *"all confirmed (1)"* ]]'
+check "rspeak list: no invented state" '! grep -qiE "pending|complete|cancelled|waiting" <<<"$list"'
 
 fresh expired
-send --expires 1m "prova"
+send --expires 1m "test"
 sed -i "s/^expires: .*/expires: $(( $(date +%s) - 5 ))/" "$RSPEAK_VAR/sent/1/msg"
-check "scaduto: consegnato, non confermato" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
+check "expired: delivered, not confirmed" '[ "$(state_of 1 "$U")" = "delivered, not confirmed (expired)" ]'
 
-# ---- 4. scadenza: domande e finestre si chiudono, una conferma tardiva non vale ----
+# ---- 4. expiry: questions and dialogs close, a late confirmation does not count ----
 
-echo "4. scadenza"
+echo "4. expiry"
 fresh expire-during
-send --expires 1m "scade durante la domanda"
+send --expires 1m "expires during the question"
 exp=$(( $(date +%s) + 2 ))
 sed -i "s/^expires: .*/expires: $exp/" "$RSPEAK_VAR/sent/1/msg" "$D/inbox/1"
-out=$( (sleep 4; echo s) | script -qec "$RSPEAK_USER prompt" /dev/null 2>&1)
-check "scadenza durante la domanda: la domanda si ferma" '[[ $out == *"Il messaggio è scaduto."* ]]'
-check "scadenza durante la domanda: nessuna conferma registrata" '[ ! -e "$D/acks/1" ] && [ -e "$D/read/1" ]'
-check "scadenza durante la domanda: stato «non confermato (scaduto)»" '[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto)" ]'
+out=$( (sleep 4; echo y) | script -qec "$RSPEAK_USER prompt" /dev/null 2>&1)
+check "expiry during the question: the question stops" '[[ $out == *"The message has expired."* ]]'
+check "expiry during the question: no confirmation recorded" '[ ! -e "$D/acks/1" ] && [ -e "$D/read/1" ]'
+check "expiry during the question: state «not confirmed (expired)»" '[ "$(state_of 1 "$U")" = "delivered, not confirmed (expired)" ]'
 
 fresh late-ack
-send --expires 1m "conferma fuori tempo"
+send --expires 1m "late confirmation"
 exp=$(( $(date +%s) - 10 ))
 sed -i "s/^expires: .*/expires: $exp/" "$RSPEAK_VAR/sent/1/msg"
 echo "$(date +%s) desktop" >"$D/acks/1"
-check "conferma con ora dopo la scadenza (copia di riferimento): non vale" \
-	'[ "$(state_of 1 "$U")" = "consegnato, non confermato (scaduto; conferma arrivata dopo la scadenza)" ]'
-check "rspeak list non la conta" '[[ $("$RSPEAK" list) == *"[scaduto]"*"1 consegnato"* ]]'
+check "confirmation timed after the expiry (reference copy): does not count" \
+	'[ "$(state_of 1 "$U")" = "delivered, not confirmed (expired; confirmation arrived after the expiry)" ]'
+check "rspeak list does not count it" '[[ $("$RSPEAK" list) == *"[expired]"*"1 delivered"* ]]'
 
-# ---- 5. configurazione e formato ----
+# ---- 5. configuration and format ----
 
-echo "5. configurazione"
+echo "5. configuration"
 conf=$BASE/rootspeak.conf
-leggi() { leggi_conf "$conf"; }
-printf 'RSPEAK_REMIND_MINUTES=$(touch %s/eseguito)\nRSPEAK_AGENT_POLL=`touch %s/eseguito`\n' "$BASE" "$BASE" >"$conf"
-check "la configurazione non viene eseguita come codice" '[ "$(leggi)" = "30 60" ] && [ ! -e "$BASE/eseguito" ]'
-printf '# commento\n RSPEAK_REMIND_MINUTES = 15  # a destra\nRSPEAK_AGENT_POLL=abc\nRSPEAK_DEFAULT_LEVEL=info\nALTRO=5\n' >"$conf"
-check "valori validi letti, non validi e sconosciuti ignorati" '[ "$(leggi)" = "15 60" ]'
+readc() { read_conf "$conf"; }
+printf 'RSPEAK_REMIND_MINUTES=$(touch %s/executed)\nRSPEAK_AGENT_POLL=`touch %s/executed`\n' "$BASE" "$BASE" >"$conf"
+check "the configuration is not run as code" '[ "$(readc)" = "30 60" ] && [ ! -e "$BASE/executed" ]'
+printf '# comment\n RSPEAK_REMIND_MINUTES = 15  # on the right\nRSPEAK_AGENT_POLL=abc\nRSPEAK_DEFAULT_LEVEL=info\nOTHER=5\n' >"$conf"
+check "valid values read, invalid and unknown ones ignored" '[ "$(readc)" = "15 60" ]'
 printf 'RSPEAK_REMIND_MINUTES=0\nRSPEAK_AGENT_POLL=-3\n' >"$conf"
-check "zero e negativi ignorati" '[ "$(leggi)" = "30 60" ]'
+check "zero and negative values ignored" '[ "$(readc)" = "30 60" ]'
 fresh format
-send "prova"
-check "il messaggio dichiara la versione del formato" '[ "$(head -1 "$RSPEAK_VAR/sent/1/msg")" = "format: 1" ]'
+send "test"
+check "the message declares the format version" '[ "$(head -1 "$RSPEAK_VAR/sent/1/msg")" = "format: 1" ]'
 
-# ---- 6. pulizia ----
+# ---- 6. purge ----
 
-echo "6. pulizia"
+echo "6. purge"
 fresh purge
-send "vecchio"; send "recente"
+send "old"; send "recent"
 sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$RSPEAK_VAR/sent/1/msg"
-prompt_login s >/dev/null
+prompt_login y >/dev/null
 out=$("$RSPEAK" purge 7d)
-check "rspeak purge 7d: cancella il messaggio di 10 giorni fa" '[[ $out == "Cancellato 1 messaggio"* ]] && [ ! -d "$RSPEAK_VAR/sent/1" ]'
-check "rspeak purge: copie e conferme nella casella tolte" \
+check "rspeak purge 7d: deletes the message from 10 days ago" '[[ $out == "Deleted 1 message"* ]] && [ ! -d "$RSPEAK_VAR/sent/1" ]'
+check "rspeak purge: copies and confirmations removed from the mailbox" \
 	'[ ! -e "$D/inbox/1" ] && [ ! -e "$D/read/1" ] && [ ! -e "$D/acks/1" ]'
-check "rspeak purge: il messaggio recente resta" '[ -d "$RSPEAK_VAR/sent/2" ] && [ -e "$D/inbox/2" -o -e "$D/read/2" ]'
+check "rspeak purge: the recent message stays" '[ -d "$RSPEAK_VAR/sent/2" ] && [ -e "$D/inbox/2" -o -e "$D/read/2" ]'
 : >"$RSPEAK_VAR/sent/2/incomplete"
 sed -i "s/^date: .*/date: $(( $(date +%s) - 10 * 86400 ))/" "$RSPEAK_VAR/sent/2/msg"
 flock "$RSPEAK_VAR/sent/2/lock" sleep 1 &
 sleep 0.2
 "$RSPEAK" purge 7d >/dev/null 2>&1
-check "rspeak purge: un invio incompleto o in corso non viene toccato" '[ -d "$RSPEAK_VAR/sent/2" ]'
+check "rspeak purge: an incomplete or running send is not touched" '[ -d "$RSPEAK_VAR/sent/2" ]'
 wait
 out=$("$RSPEAK" purge 7x 2>&1)
-check "rspeak purge: durata non valida rifiutata" '[[ $out == *"durata non valida"* ]]'
+check "rspeak purge: invalid duration refused" '[[ $out == *"invalid duration"* ]]'
 
-# ---- 7. agente del desktop: sveglia solo quando è pronto ----
-# Richiede una sessione grafica dell'utente che esegue i test (l'agente esce
-# subito senza); altrimenti il gruppo è saltato.
+# ---- 7. desktop agent: woken only when it is ready ----
+# Needs a graphical session of the user running the tests (without one the
+# agent exits at once); otherwise the group is skipped.
 
-echo "7. agente"
+echo "7. agent"
 if [ -n "$(loginctl show-user "$U" -p Display --value 2>/dev/null)" ]; then
 	fresh agent
 	mkdir -p "$RSPEAK_VAR/users" "$BASE/run-agent"
-	vivi=0 pronti=0
+	alive=0 ready=0
 	for i in 1 2 3 4 5 6 7 8 9 10; do
-		rm -f "$BASE/run-agent/rootspeak-agent.pronto"
+		rm -f "$BASE/run-agent/rootspeak-agent.ready"
 		XDG_RUNTIME_DIR=$BASE/run-agent "$RSPEAK_USER" agent &
 		p=$!
-		for k in $(seq 1 200); do [ -s "$BASE/run-agent/rootspeak-agent.pronto" ] && break; sleep 0.01; done
-		[ "$(cat "$BASE/run-agent/rootspeak-agent.pronto" 2>/dev/null)" = "$p" ] && pronti=$((pronti + 1))
-		for k in 1 2 3 4 5; do pkill -USR1 -F "$BASE/run-agent/rootspeak-agent.pronto" -f 'rootspeak-user agent$' 2>/dev/null; done
+		for k in $(seq 1 200); do [ -s "$BASE/run-agent/rootspeak-agent.ready" ] && break; sleep 0.01; done
+		[ "$(cat "$BASE/run-agent/rootspeak-agent.ready" 2>/dev/null)" = "$p" ] && ready=$((ready + 1))
+		for k in 1 2 3 4 5; do pkill -USR1 -F "$BASE/run-agent/rootspeak-agent.ready" -f 'rootspeak-user agent$' 2>/dev/null; done
 		sleep 0.2
-		kill -0 $p 2>/dev/null && vivi=$((vivi + 1))
+		kill -0 $p 2>/dev/null && alive=$((alive + 1))
 		kill $p 2>/dev/null; wait $p 2>/dev/null
 	done
-	check "l'agente scrive il suo PID in rootspeak-agent.pronto quando è pronto (10 su 10)" '[ $pronti = 10 ]'
-	check "la sveglia al PID pronto non lo uccide (10 su 10)" '[ $vivi = 10 ]'
-	check "all'uscita rootspeak-agent.pronto sparisce" '[ ! -e "$BASE/run-agent/rootspeak-agent.pronto" ]'
+	check "the agent writes its PID in rootspeak-agent.ready when ready (10 of 10)" '[ $ready = 10 ]'
+	check "waking the ready PID does not kill it (10 of 10)" '[ $alive = 10 ]'
+	check "on exit rootspeak-agent.ready disappears" '[ ! -e "$BASE/run-agent/rootspeak-agent.ready" ]'
 else
-	echo "  --   saltato: nessuna sessione grafica"
+	echo "  --   skipped: no graphical session"
 fi
 
-# ---- 8. lingua: ognuno legge RootSpeak nella sua ----
+# ---- 8. English only: whatever the language of the session ----
 
-echo "8. lingua"
-# lingua LANGUAGE LC_ALL LC_MESSAGES LANG → lingua scelta (definita in alto)
-check "LANG=it_IT.UTF-8: italiano" '[ "$(lingua "" "" "" it_IT.UTF-8)" = it ]'
-check "LANG=en_GB.UTF-8: inglese" '[ "$(lingua "" "" "" en_GB.UTF-8)" = en ]'
-check "lingua senza traduzione (de_DE): inglese" '[ "$(lingua "" "" "" de_DE.UTF-8)" = en ]'
-check "LANG=C o assente: inglese" '[ "$(lingua "" "" "" C.UTF-8)" = en ] && [ "$(lingua "" "" "" "")" = en ]'
-check "LC_ALL=C vince su LANG=it: inglese" '[ "$(lingua "" C "" it_IT.UTF-8)" = en ]'
-check "LC_MESSAGES=it vince su LANG=en: italiano" '[ "$(lingua "" "" it_IT.UTF-8 en_US.UTF-8)" = it ]'
-check "LANGUAGE=de:it con LANG=en: italiano (primo noto dell'elenco)" '[ "$(lingua de:it "" "" en_US.UTF-8)" = it ]'
-check "LANGUAGE ignorata con LANG=C: inglese" '[ "$(lingua it "" "" C)" = en ]'
-check "valori strani (../, /): inglese, nessun file letto" '[ "$(lingua "../../tmp/x" "" "" "a/b")" = en ]'
-
-fresh lingua
-send "Testo non tradotto"
-out=$(printf 'y\n' | LANG=en_US.UTF-8 script -qec "$RSPEAK_USER prompt" /dev/null 2>&1)
-check "utente in inglese: intestazione, domanda e conferma in inglese, testo intatto" \
-	'[[ $out == *"Message from the administrator"* && $out == *"Do you confirm"* && $out == *"Confirmed."* && $out == *"Testo non tradotto"* ]] && [ -s "$D/acks/1" ]'
-send "Secondo"
-out=$(LANG=en_US.UTF-8 "$RSPEAK" status 2)
-check "amministratore in inglese: rspeak status" '[[ $out == *"USER"*"STATE"* && $out == *"delivered"* ]]'
-out=$(LANG=en_US.UTF-8 "$RSPEAK" status 1)
-check "conferma data da terminale, letta in inglese: canale tradotto" '[[ $out == *"confirmed on"*"(terminal "* ]]'
+echo "8. English only"
+fresh english
+send "Text written by the administrator"
+out=$(prompt s)
+check "an Italian session: header and question in English, text untouched" \
+	'[[ $out == *"Message from the administrator"* && $out == *"Do you confirm"* && $out == *"Text written by the administrator"* ]]'
+check "«s» (an Italian yes) is not a yes: no confirmation, the message is postponed" \
+	'[ ! -e "$D/acks/1" ] && [[ $(state_of 1 "$U") == "delivered, postponed on "* ]]'
+out=$(prompt_login Y)
+check "«Y» confirms" '[[ $out == *"Confirmed."* ]] && [ -s "$D/acks/1" ]'
+send "Second"
+out=$("$RSPEAK" status 2)
+check "rspeak status in English" '[[ $out == *"USER"*"STATE"* && $out == *"delivered"* ]]'
 out=$("$RSPEAK" status 1)
-check "la stessa conferma letta in italiano" '[[ $out == *"confermato il"*"(terminale "* ]]'
-out=$(LANG=en_US.UTF-8 "$RSPEAK" send "x" 2>&1)
-check "errore in inglese" '[[ $out == "rspeak: missing --to" ]]'
-out=$(LANG=en_US.UTF-8 "$RSPEAK" --help </dev/null | cat)
-check "guida in inglese" '[[ $out == *"SYNOPSIS"* && $out == *"SEND OPTIONS"* ]]'
+check "confirmation given from a terminal: shown as «terminal»" '[[ $out == *"confirmed on"*"(terminal "* ]]'
+out=$("$RSPEAK" send "x" 2>&1)
+check "error in English" '[[ $out == "rspeak: missing --to" ]]'
 out=$("$RSPEAK" --help </dev/null | cat)
-check "guida in italiano" '[[ $out == *"SINTASSI"* && $out == *"OPZIONI DI SEND"* ]]'
+check "help in English" '[[ $out == *"SYNOPSIS"* && $out == *"SEND OPTIONS"* ]]'
 
-# ---- 9. seconda revisione: ritiro, terminali, interruzioni, caselle anomale ----
+# ---- 9. second review: revocation, terminals, interruptions, odd mailboxes ----
 
-echo "9. seconda revisione"
-S=$RSPEAK_VAR
-fresh rit-attesa
-send "lungo invio"
+echo "9. second review"
+fresh rev-wait
+send "long send"
 ( flock "$RSPEAK_VAR/sent/1/lock" sleep 2 ) &
 sleep 0.3
 t0=$(date +%s%N)
 "$RSPEAK" revoke 1 >/dev/null
 dt=$((($(date +%s%N) - t0) / 1000000))
 wait
-check "rspeak revoke aspetta un invio in corso (lock), poi toglie la copia" '[ $dt -ge 1200 ] && [ ! -e "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/ritiro" ]'
+check "rspeak revoke waits for a running send (lock), then removes the copy" '[ $dt -ge 1200 ] && [ ! -e "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/revoking" ]'
 
-fresh rit-conferma
-send "ritirato"
+fresh rev-ack
+send "revoked"
 "$RSPEAK" revoke 1 >/dev/null
 rev=$(cat "$RSPEAK_VAR/sent/1/revoked")
-echo "$((rev + 5)) terminale pts/9" >"$D/acks/1"
-check "conferma con ora successiva al ritiro: non vale" '[[ "$(state_of 1 "$U")" == "consegnato, non confermato (ritirato)" ]]'
-echo "$rev terminale pts/9" >"$D/acks/1"
-check "conferma dello stesso secondo del ritiro: vale" '[[ "$(state_of 1 "$U")" == confermato* ]]'
+echo "$((rev + 5)) terminal pts/9" >"$D/acks/1"
+check "confirmation timed after the revocation: does not count" '[[ "$(state_of 1 "$U")" == "delivered, not confirmed (revoked)" ]]'
+echo "$rev terminal pts/9" >"$D/acks/1"
+check "confirmation in the same second as the revocation: counts" '[[ "$(state_of 1 "$U")" == confirmed* ]]'
 
-fresh rit-ack
-send "ritirato prima della risposta"
-cp "$D/inbox/1" "$BASE/copia"
-out=$(printf 's\n' | script -qec "bash -c '$RSPEAK_USER prompt & sleep 0.5; rm -f $D/inbox/1; wait'" /dev/null 2>&1)
-check "copia tolta mentre l'utente risponde: nessuna conferma scritta" '[ ! -e "$D/acks/1" ]'
+fresh rev-answer
+send "revoked before the answer"
+cp "$D/inbox/1" "$BASE/copy"
+out=$(printf 'y\n' | script -qec "bash -c '$RSPEAK_USER prompt & sleep 0.5; rm -f $D/inbox/1; wait'" /dev/null 2>&1)
+check "copy removed while the user answers: no confirmation written" '[ ! -e "$D/acks/1" ]'
 
-fresh term-altro
-RSPEAK_TEST_TTY=/dev/null "$RSPEAK" send --to "$U" "terminale d'altri" >/dev/null
-check "terminale di un altro utente (qui /dev/null, di root): non si scrive" '[ "$(state_of 1 "$U")" = consegnato ]'
-: >"$BASE/tty-mio"
-RSPEAK_TEST_TTY=$BASE/tty-mio "$RSPEAK" send --to "$U" "terminale mio" >/dev/null
-check "terminale dell'utente: si scrive" 'grep -q "terminale mio" "$BASE/tty-mio"'
+fresh term-other
+RSPEAK_TEST_TTY=/dev/null "$RSPEAK" send --to "$U" "someone else's terminal" >/dev/null
+check "terminal of another user (here /dev/null, root's): not written" '[ "$(state_of 1 "$U")" = delivered ]'
+: >"$BASE/tty-mine"
+RSPEAK_TEST_TTY=$BASE/tty-mine "$RSPEAK" send --to "$U" "my terminal" >/dev/null
+check "terminal of the user: written" 'grep -q "my terminal" "$BASE/tty-mine"'
 
-fresh corrente
-send "persa dopo un'interruzione di corrente"
+fresh power
+send "lost after a power cut"
 rm -f "$D/inbox/1"
 : >"$RSPEAK_VAR/sent/1/incomplete"
 "$RSPEAK" list >/dev/null 2>&1
-check "copia annotata ma sparita (invio incompleto): il recupero la riscrive" '[ -s "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ] && [ "$(wc -l <"$RSPEAK_VAR/sent/1/delivery")" = 1 ]'
+check "copy recorded but gone (incomplete send): recovery writes it again" '[ -s "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/incomplete" ] && [ "$(wc -l <"$RSPEAK_VAR/sent/1/delivery")" = 1 ]'
 
-fresh rit-meta
-send "ritiro interrotto"
+fresh rev-half
+send "revocation interrupted"
 date +%s >"$RSPEAK_VAR/sent/1/revoked"
-: >"$RSPEAK_VAR/sent/1/ritiro"
+: >"$RSPEAK_VAR/sent/1/revoking"
 "$RSPEAK" list >/dev/null 2>&1
-check "ritiro interrotto: il comando successivo toglie la copia" '[ ! -e "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/ritiro" ]'
+check "revocation interrupted: the next command removes the copy" '[ ! -e "$D/inbox/1" ] && [ ! -e "$RSPEAK_VAR/sent/1/revoking" ]'
 
-fresh canc-meta
-send "cancellazione interrotta"
-mv "$RSPEAK_VAR/sent/1" "$RSPEAK_VAR/sent/.cancella-1"
+fresh del-half
+send "deletion interrupted"
+mv "$RSPEAK_VAR/sent/1" "$RSPEAK_VAR/sent/.deleting-1"
 out=$("$RSPEAK" list 2>&1)
-check "cancellazione interrotta: rspeak list non la mostra e il recupero la completa" \
-	'[[ $out != *"cancellazione interrotta"* ]] && [ ! -e "$RSPEAK_VAR/sent/.cancella-1" ] && [ ! -e "$D/inbox/1" ]'
+check "deletion interrupted: rspeak list does not show it and recovery completes it" \
+	'[[ $out != *"deletion interrupted"* ]] && [ ! -e "$RSPEAK_VAR/sent/.deleting-1" ] && [ ! -e "$D/inbox/1" ]'
 
-fresh molti-acks
-send "uno"
+fresh many-acks
+send "one"
 (cd "$D/acks" && seq 1000 6000 | xargs touch)
 t0=$(date +%s%N)
 "$RSPEAK" list >/dev/null
 dt=$((($(date +%s%N) - t0) / 1000000))
-[ -n "$VERBOSE" ] && echo "       rspeak list con 5000 file finti in acks/: $dt ms"
-check "5000 file finti in acks/: rspeak list non rallenta (meno di 1 s)" '[ $dt -lt 1000 ]'
+[ -n "$VERBOSE" ] && echo "       rspeak list with 5000 fake files in acks/: $dt ms"
+check "5000 fake files in acks/: rspeak list does not slow down (under 1 s)" '[ $dt -lt 1000 ]'
 
 fresh fifo
-send "uno"
+send "one"
 mkfifo "$D/acks/1"
-check "acks/ID è una pipe: rspeak status non si blocca" 'timeout 5 "$RSPEAK" status 1 >/dev/null'
+check "acks/ID is a pipe: rspeak status does not hang" 'timeout 5 "$RSPEAK" status 1 >/dev/null'
 
-fresh lungo
+fresh long
 out=$(head -c 70000 /dev/zero | tr '\0' a | "$RSPEAK" send --to "$U" 2>&1)
-check "testo oltre 65536 byte: rifiutato con un errore chiaro" '[[ $out == *"messaggio troppo lungo: 70000 byte"* ]] && [ ! -e "$RSPEAK_VAR/sent/1" ]'
+check "text over 65536 bytes: refused with a clear error" '[[ $out == *"message too long: 70000 bytes"* ]] && [ ! -e "$RSPEAK_VAR/sent/1" ]'
 out=$(head -c 65536 /dev/zero | tr '\0' a | "$RSPEAK" send --to "$U" 2>&1)
-check "testo di 65536 byte: accettato" '[ -e "$RSPEAK_VAR/sent/1/msg" ]'
+check "text of 65536 bytes: accepted" '[ -e "$RSPEAK_VAR/sent/1/msg" ]'
 
-printf 'RSPEAK_REMIND_MINUTES=45 # minuti di rinvio\n  RSPEAK_AGENT_POLL = 20  \n' >"$BASE/conf"
-out=$(leggi_conf "$BASE/conf")
-check "rootspeak.conf: commento a fine riga e spazi" '[ "$out" = "45 20" ]'
+printf 'RSPEAK_REMIND_MINUTES=45 # minutes of postponement\n  RSPEAK_AGENT_POLL = 20  \n' >"$BASE/conf"
+out=$(read_conf "$BASE/conf")
+check "rootspeak.conf: comment at the end of the line and spaces" '[ "$out" = "45 20" ]'
 
-# ---- 10. sollecito ----
+# ---- 10. reminder ----
 
-echo "10. sollecito"
-fresh sollecito
-send "da confermare"
+echo "10. reminder"
+fresh remind
+send "to confirm"
 prompt n >/dev/null
-out=$(prompt s)
-check "rimandato: al prompt la domanda non torna subito" '[[ $out != *"Confermi"* ]]'
+out=$(prompt y)
+check "postponed: the question does not come back at once at the prompt" '[[ $out != *"Do you confirm"* ]]'
 out=$("$RSPEAK" remind 1)
-check "rspeak remind: sollecita chi non ha confermato" '[[ $out == "Messaggio 1: sollecitato 1 destinatario." ]] && [ ! -e "$D/state/1.term" ]'
-out=$(prompt s)
-check "dopo il sollecito la domanda torna al prompt successivo" '[[ $out == *"Confermi"* ]] && [[ "$(state_of 1 "$U")" == confermato* ]]'
+check "rspeak remind: reminds whoever has not confirmed" '[[ $out == "Message 1: 1 recipient reminded." ]] && [ ! -e "$D/state/1.term" ]'
+out=$(prompt y)
+check "after the reminder the question comes back at the next prompt" '[[ $out == *"Do you confirm"* ]] && [[ "$(state_of 1 "$U")" == confirmed* ]]'
 out=$("$RSPEAK" remind 1)
-check "rspeak remind: whoever has confirmed is not reminded, and the command says so" '[[ $out == "Messaggio 1: hanno già confermato tutti, nessuno da sollecitare." ]]'
-send "da ritirare"
+check "rspeak remind: whoever has confirmed is not reminded, and the command says so" '[[ $out == "Message 1: everyone has already confirmed, nobody to remind." ]]'
+send "to revoke"
 "$RSPEAK" revoke 2 >/dev/null
 out=$("$RSPEAK" remind 2 2>&1)
-check "rspeak remind di un messaggio ritirato: errore" '[[ $out == *"è stato ritirato: nessuno da sollecitare"* ]]'
+check "rspeak remind of a revoked message: error" '[[ $out == *"has been revoked: nobody to remind"* ]]'
 
 echo
-if [ $fails -eq 0 ]; then echo "OK: $total controlli"; else echo "FALLITI: $fails su $total"; fi
-# risultato, con commit e impronta del codice provato (letti dal manuale tecnico, capitolo 11)
+if [ $fails -eq 0 ]; then echo "OK: $total checks"; else echo "FAILED: $fails of $total"; fi
+# result, with commit and fingerprint of the code tested (read by the technical manual, chapter 11)
 mkdir -p "$ROOT/tests/results"
-printf '{"data": "%s", "commit": "%s", "impronta": "%s", "ok": %d, "no": %d, "totale": %d}\n' \
+printf '{"date": "%s", "commit": "%s", "fingerprint": "%s", "ok": %d, "failed": %d, "total": %d}\n' \
 	"$(date '+%Y-%m-%d %H:%M:%S %Z')" "$("$ROOT/tools/fingerprint.sh" --commit)" "$("$ROOT/tools/fingerprint.sh")" \
 	$((total - fails)) "$fails" "$total" >"$ROOT/tests/results/engine.json"
 [ $fails -eq 0 ]

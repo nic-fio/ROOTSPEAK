@@ -26,10 +26,10 @@ S1 = p("Each shell has its own hook, installed where that shell reads it. They a
 
 S2 = flow([("interactive bash", "$- contains i", "dark"), ("profile.d/rootspeak.sh", "→ rootspeak.bash, once", "blue"),
            ("PROMPT_COMMAND", "+ __rspeak_prompt", "blue"), ("mailbox empty?", "compgen -G", "navy"),
-           ("rootspeak-user prompt", "only if needed", "light")], "«FIG» — From the hook to the question, in bash") + \
+           ("rootspeak-user", "prompt, only if needed", "light")], "«FIG» — From the hook to the question, in bash") + \
     code("""__rspeak_prompt() {
 	local s=$?
-	# Controllo senza processi esterni: con la casella vuota non costa nulla.
+	# A check without external processes: with an empty mailbox it costs nothing.
 	if compgen -G "$__RSPEAK_INBOX/[0-9]*" >/dev/null; then
 		@LIBDIR@/rootspeak-user prompt
 	fi
@@ -49,73 +49,65 @@ S2 = flow([("interactive bash", "$- contains i", "dark"), ("profile.d/rootspeak.
     + ": the hook is also called from " + c("/etc/bash.bashrc") + " (" + cap(3, 3) + ").",
 ])
 
-GIRO = fig(
-    box(20, 40, 170, 56, "in_attesa", "inbox in numeric order", "dark")
+ROUND = fig(
+    box(20, 40, 170, 56, "pending_n", "inbox in numeric order", "dark")
     + diamond(360, 68, 240, 72, "recently postponed?", "amber")
     + box(570, 40, 160, 56, "reminder", "counted, not asked", "soft")
-    + box(270, 160, 180, 56, "shows and asks", "text, then [s/N]", "blue")
+    + box(270, 160, 180, 56, "shows and asks", "text, then [y/N]", "blue")
     + box(560, 160, 170, 56, "result", "confirm · postpone · …", "green")
     + arrow(192, 68, 238, 68) + arrow(482, 68, 568, 68, "#d97706", False, "yes, not at login", 525, 58)
     + arrow(360, 106, 360, 158, "#475569", False, "no", 376, 134)
     + arrow(452, 188, 558, 188)
     + text(815, 60, "at the end, if there are any:", 11, "#475569")
-    + text(815, 78, "«Hai N messaggi", 11, "#92400e", "600")
-    + text(815, 94, "dell'amministratore", 11, "#92400e", "600")
-    + text(815, 110, "da confermare.»", 11, "#92400e", "600")
+    + text(815, 78, "“You have N messages", 11, "#92400e", "600")
+    + text(815, 94, "from the administrator", 11, "#92400e", "600")
+    + text(815, 110, "to confirm.”", 11, "#92400e", "600")
     + text(105, 130, "confirmed and expired", 11, "#475569")
     + text(105, 146, "move to read/", 11, "#475569"),
-    900, 236, "«FIG» — rootspeak-user prompt, for each message in the mailbox; «Hai N messaggi dell'amministratore da "
-    "confermare.» means “You have N messages from the administrator to confirm.”", "The rootspeak-user prompt loop")
+    900, 236, "«FIG» — rootspeak-user prompt, for each message in the mailbox", "The rootspeak-user prompt loop")
 
 S3 = p(c("rootspeak-user prompt") + " in " + c("src/rootspeak-user.c") + " takes the messages in the mailbox in numeric "
        "order. If stdin is not a terminal it does nothing; the confirmation channel is the terminal name ("
-       + c("terminale pts/3") + ", “terminal pts/3”).", lead=True) + GIRO + ul([
-    c("in_attesa") + " lists " + c("inbox/") + " (only names made of digits, and regular files). A message whose "
+       + c("terminal pts/3") + ").", lead=True) + ROUND + ul([
+    c("pending_n") + " lists " + c("inbox/") + " (only names made of digits, and regular files). A message whose "
     "confirmation is already present, because of an interruption between the confirmation and the move, goes to "
     + c("read/") + " without asking; an expired one goes to " + c("read/") + " without a confirmation.",
     "A message postponed less than " + c("RSPEAK_REMIND_MINUTES") + " minutes ago (modification time of "
     + c("state/ID.term") + ") is not asked about: it is counted, and at the end the one-line reminder appears. With "
     + c("--login") + " the postponement does not apply.",
-]) + table(["Result of chiedi", "What it does", "Prints"], [
-    ["0 · «s», «S», «y» or «Y»", c("conferma(ID, \"terminale pts/N\")"), "«[RootSpeak] Confermato.» (“[RootSpeak] Confirmed.”); "
-     "or «[RootSpeak] Il messaggio è scaduto: la conferma non è stata registrata.» (“[RootSpeak] The message has expired: the "
-     "confirmation was not recorded.”), «[RootSpeak] L'amministratore ha ritirato il messaggio.» (“[RootSpeak] The administrator "
-     "has revoked the message.”), «[RootSpeak] Non è stato possibile registrare la conferma: la domanda verrà ripetuta.» "
-     "(“[RootSpeak] The confirmation could not be recorded: you will be asked again.”)"],
-    ["1 · anything else, or just Enter", c("rimanda(ID, \"term\")") + ": touches " + c("state/ID.term") + ", event "
-     + c("RINVIATO"), "«[RootSpeak] La domanda verrà riproposta tra 30 minuti.» (“[RootSpeak] You will be asked again in 30 "
-     "minutes.”)"],
-    ["2 · confirmed elsewhere", "moves to " + c("read/"), "«[RootSpeak] Messaggio già confermato altrove (per esempio dal "
-     "desktop).» (“[RootSpeak] Message already confirmed elsewhere (for example on the desktop).”)"],
-    ["3 · revoked", "nothing", "«[RootSpeak] L'amministratore ha ritirato il messaggio.» (“[RootSpeak] The administrator has "
-     "revoked the message.”)"],
-    ["4 · expired while the question was open", "moves to " + c("read/"), "«[RootSpeak] Il messaggio è scaduto.» (“[RootSpeak] The "
-     "message has expired.”)"],
+]) + table(["Result of ask", "What it does", "Prints"], [
+    ["0 · “y” or “Y”", c("confirm(ID, \"terminal pts/N\")"), "“[RootSpeak] Confirmed.”; or “[RootSpeak] The message has "
+     "expired: the confirmation was not recorded.”, “[RootSpeak] The administrator has revoked the message.”, "
+     "“[RootSpeak] The confirmation could not be recorded: you will be asked again.”"],
+    ["1 · anything else, or just Enter", c("postpone(ID, \"term\")") + ": touches " + c("state/ID.term") + ", event "
+     + c("POSTPONED"), "“[RootSpeak] You will be asked again in 30 minutes.”"],
+    ["2 · confirmed elsewhere", "moves to " + c("read/"), "“[RootSpeak] Message already confirmed elsewhere (for example "
+     "on the desktop).”"],
+    ["3 · revoked", "nothing", "“[RootSpeak] The administrator has revoked the message.”"],
+    ["4 · expired while the question was open", "moves to " + c("read/"), "“[RootSpeak] The message has expired.”"],
 ], "«TAB» — The results of the question") + term(
     "mario@server:~$ \n"
-    "── RootSpeak · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
-    "Sabato dalle 8 alle 12 il server sarà spento.\n"
+    "── RootSpeak · Message from the administrator · Maintenance · 01/10 10:49 ──\n"
+    "On Saturday from 8 am to 12 noon the server will be off for disk maintenance.\n"
     "────────────────────────────────────────\n"
-    "[RootSpeak] Confermi di aver letto il messaggio? [s/N] s\n"
-    "[RootSpeak] Confermato.\n"
-    "mario@server:~$ ", "The question at the prompt: «[RootSpeak] Confermi di aver letto il messaggio? [s/N]» (“[RootSpeak] Do you "
-    "confirm you have read the message? [y/N]”), answer s, «[RootSpeak] Confermato.» (“[RootSpeak] Confirmed.”)") + \
+    "[RootSpeak] Do you confirm you have read the message? [y/N] y\n"
+    "[RootSpeak] Confirmed.\n"
+    "mario@server:~$ ", "The question at the prompt, answered with y") + \
     note(c("rootspeak-user") + " runs inside the user's prompt: it never ends with an error that would disrupt the "
          "shell, and any problem it meets (unreadable mailbox, no terminal) turns into doing nothing.")
 
-ASK = seq([("User", "keyboard", "dark"), ("chiedi", "poll 1 s on /dev/tty", "blue"),
+ASK = seq([("User", "keyboard", "dark"), ("ask", "poll 1 s on /dev/tty", "blue"),
            ("Mailbox", "users/U", "soft")], [
-    (1, 0, "[RootSpeak] Confermi di aver letto…? [s/N]"),
-    ("nota", 1, "waits at most 1 second".ljust(24)),
+    (1, 0, "[RootSpeak] Do you confirm…? [y/N]"),
+    ("note", 1, "waits at most 1 second".ljust(24)),
     (1, 2, "acks/ID? inbox/ID? expired?"),
-    ("nota", 1, "nothing new: starts over".ljust(27)),
+    ("note", 1, "nothing new: starts over".ljust(27)),
     ("sep", "meanwhile: user confirms on desktop".ljust(37)),
     (1, 2, "acks/ID exists"),
     (1, 0, "result 2: “confirmed elsewhere”", True),
-], "«FIG» — The question notices what happens elsewhere; «[RootSpeak] Confermi di aver letto…? [s/N]» is “[RootSpeak] Do you "
-   "confirm you have read…? [y/N]”", "A question that checks every second")
+], "«FIG» — The question notices what happens elsewhere", "A question that checks every second")
 
-S4 = p(c("chiedi") + " waits for the answer on " + c("/dev/tty") + " with " + c("poll") + ", one second at a time, "
+S4 = p(c("ask") + " waits for the answer on " + c("/dev/tty") + " with " + c("poll") + ", one second at a time, "
        "then reads it with " + c("read") + ". At every second without an answer it checks the mailbox: if the "
        "confirmation has appeared, the user confirmed elsewhere; if the message has disappeared, it was revoked; if "
        "it has expired, the question stops.", lead=True) + ASK + ul([
@@ -125,8 +117,8 @@ S4 = p(c("chiedi") + " waits for the answer on " + c("/dev/tty") + " with " + c(
     "revocation (scenario E3, 1.0 s), expiry (" + c("tests/engine.sh") + ", group 4).",
     "Without " + c("/dev/tty") + " (no controlling terminal) the answer counts as “no”: the message stays and comes "
     "back later.",
-    "Only the first character of the answer is checked: " + c("s") + ", " + c("S") + ", " + c("y") + " and "
-    + c("Y") + " mean yes in every language.",
+    "Only the first character of the answer is checked: only " + c("y") + " and " + c("Y") + " mean yes. RootSpeak "
+    "speaks English, whatever the language of the session.",
 ])
 
 CHAPTER = ("Receiving in the terminal", [

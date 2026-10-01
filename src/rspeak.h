@@ -1,62 +1,62 @@
 /* RootSpeak - Advanced Messaging System for Linux
- * Le parti di rspeak usate anche dalla TUI: la TUI legge l'archivio con le
- * stesse funzioni dei comandi, e le azioni sono i comandi stessi. */
+ * The parts of rspeak also used by the TUI: the TUI reads the message store with
+ * the same functions as the commands, and the actions are the commands themselves. */
 #ifndef RSPEAK_RSPEAK_H
 #define RSPEAK_RSPEAK_H
 
-#include "comune.h"
-#include "testo.h"
+#include "common.h"
+#include "text.h"
 
-/* Gli stati di un destinatario: gli unici tre (capitolo «Specifica»). */
-typedef enum { INVIATO, CONSEGNATO, CONFERMATO } stato_e;
+/* The states of a recipient: the only three («Specification» chapter). */
+typedef enum { SENT, DELIVERED, CONFIRMED } state_e;
 
-/* Un messaggio riassunto con i suoi destinatari. */
+/* A message summarised with its recipients. */
 typedef struct {
 	long long id;
 	msg_t m;
-	int confermato, consegnato, inviato;
-	bool ritirato, scaduto;
-} riassunto_t;
+	int confirmed, delivered, sent;
+	bool revoked, expired;
+} summary_t;
 
-/* I numeri dei messaggi in sent/, in ordine. */
-void elenco_messaggi(strv_t *ids);
-/* Riassume il messaggio id; false se non c'è (o l'invio è stato annullato). */
-bool riassumi(long long id, riassunto_t *r);
-void riassunto_libera(riassunto_t *r);
-/* «14 confermato · 5 consegnato · 2 inviato» oppure «tutti confermato (58)». */
-void riassunto_frase(const riassunto_t *r, buf_t *out);
+/* The numbers of the messages in sent/, in order. */
+void message_list(strv_t *ids);
+/* Summarises message id; false if it does not exist (or the sending was cancelled). */
+bool summarise(long long id, summary_t *r);
+void summary_free(summary_t *r);
+/* «14 confirmed · 5 delivered · 2 sent» or «all confirmed (58)». */
+void summary_text(const summary_t *r, buf_t *out);
 
-/* I destinatari di un messaggio con la riga di stato di rspeak status. */
+/* The recipients of a message with the status line of rspeak status. */
 typedef struct {
-	char *utente;
-	stato_e stato;
-	char *riga;
-} destinatario_t;
+	char *user;
+	state_e state;
+	char *line;
+} recipient_t;
 typedef struct {
-	destinatario_t *v;
+	recipient_t *v;
 	size_t n;
-} destinatari_t;
-void destinatari(long long id, const msg_t *m, destinatari_t *out);
-void destinatari_libera(destinatari_t *d);
-/* Data del ritiro (0 se non ritirato). */
-long long data_ritiro(long long id);
+} recipients_t;
+void recipients(long long id, const msg_t *m, recipients_t *out);
+void recipients_free(recipients_t *d);
+/* Date of the revocation (0 if not revoked). */
+long long revocation_date(long long id);
 
-/* Le caselle lette restano in memoria: la TUI le dimentica a ogni aggiornamento. */
-void caselle_svuota(void);
-/* Completa invii, ritiri e cancellazioni interrotti. */
-void recupera(void);
+/* The mailboxes read stay in memory: the TUI forgets them at every refresh. */
+void mailboxes_empty(void);
+/* Completes interrupted sendings, revocations and deletions. */
+void recover(void);
 
-/* I comandi: stampano come da riga di comando e, in caso d'errore, escono
- * con die. La TUI li esegue in un processo figlio e ne mostra l'uscita. */
+/* The commands: they print as from the command line and, on error, exit
+ * with die. The TUI runs them in a child process and shows their output. */
 void cmd_send(int argc, char **argv);
 void cmd_revoke(const char *arg);
 void cmd_remind(const char *arg);
 void cmd_purge(const char *dur);
 void cmd_log(const char *arg);
-/* Risolve i destinatari e stampa quanti sono (per l'anteprima del modulo). */
-void cmd_conta_destinatari(const char *to);
+/* Resolves the recipients and prints how many there are (for the form's preview). */
+void cmd_count_recipients(const char *to);
 
-/* La TUI (src/tui.c): false se il terminale è troppo piccolo. */
+/* The TUI (src/tui.c): false if the terminal is too small. */
 bool rspeak_tui(void);
 
 #endif

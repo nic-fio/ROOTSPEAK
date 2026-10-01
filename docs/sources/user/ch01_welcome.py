@@ -3,13 +3,13 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import VERSION, arrow, box, c, fig, key, note, p, path, table, text, tip, ui, ul, warn  # noqa: E402
-from _helpers import CONFERMATO, CONSEGNATO, INVIATO, RITIRATO, SCADUTO, rif  # noqa: E402
+from _helpers import CONFIRMED, DELIVERED, SENT, REVOKED, EXPIRED, ref  # noqa: E402
 
 PANORAMA = fig(
     box(20, 128, 170, 64, "Administrator", "sudo rspeak · TUI or commands", "dark")
     + box(240, 128, 170, 64, "RootSpeak", "one mailbox per user", "navy")
     + box(462, 38, 220, 64, "In the terminal", "text at once, question at the prompt", "blue")
-    + box(462, 128, 220, 64, "On the desktop", "«Ho letto» / «Più tardi» dialog", "blue")
+    + box(462, 128, 220, 64, "On the desktop", "“I have read it” / “Later” dialog", "blue")
     + box(462, 218, 220, 64, "At the next login", "for whoever is not logged in", "light")
     + box(730, 128, 150, 64, "Confirmation ✓", "who, when, from where", "green")
     + arrow(192, 160, 238, 160)
@@ -21,11 +21,10 @@ PANORAMA = fig(
     + path([(684, 250), (706, 250), (706, 170), (728, 170)], "#16a34a", True)
     + path([(805, 194), (805, 318), (105, 318), (105, 194)], "#475569", True)
     + text(455, 309, "the message list and rspeak status: who has confirmed and who has not", 11.5, "#334155", "600"),
-    900, 340, "«FIG» — A message reaches every session of the user; the first confirmation goes back to the administrator. "
-    "The dialog buttons «Ho letto» and «Più tardi» mean “I have read it” and “Later”",
+    900, 340, "«FIG» — A message reaches every session of the user; the first confirmation goes back to the administrator",
     "The path of a message")
 
-S1 = p("<b>RootSpeak - Advanced Messaging System for Linux</b> lets whoever administers a Linux machine send a message to the "
+S1 = p("<b>RootSpeak — Advanced Messaging System for Linux</b> lets whoever administers a Linux machine send a message to the "
        "users and know, for each of them, whether they have confirmed reading it. It is meant for the notices that "
        "matter: maintenance, a reboot, a new rule, an account about to expire.", lead=True) + \
     p("The administrator writes the message in the full-screen interface of " + c("rspeak") + " or with a command. "
@@ -34,7 +33,7 @@ S1 = p("<b>RootSpeak - Advanced Messaging System for Linux</b> lets whoever admi
       "letter, and the administrator sees who has confirmed, when and from where.") + PANORAMA + \
     p("For administrators, RootSpeak offers a single place in which to:") + ul([
         "write a message and send it to one user, to a group, to everyone or only to whoever is logged in;",
-        "see how far each recipient has got: " + INVIATO + ", " + CONSEGNATO + " or " + CONFERMATO + ";",
+        "see how far each recipient has got: " + SENT + ", " + DELIVERED + " or " + CONFIRMED + ";",
         "remind whoever has not confirmed yet, revoke a mistaken message, give it an expiry;",
         "find the history of every message in the system log;",
         "delete old messages when they are no longer needed.",
@@ -50,7 +49,6 @@ S2 = table(["", c("wall") + " / " + c("write"), c("/etc/motd") + " and banners",
     ["Asks for a read confirmation", "no", "no", "yes, for every message"],
     ["Shows the message again to whoever has not confirmed", "no", "no", "yes, every 30 minutes"],
     ["Tells the administrator who has read it", "no", "no", "yes, with date, time and channel"],
-    ["Speaks each user's language", "no", "no", "yes (Italian, English)"],
 ], "«TAB» — RootSpeak and the classic Linux tools") + \
     p("RootSpeak, on the other hand, does <b>not</b> do these things, by design:") + ul([
         "<b>It never blocks anyone.</b> No locked screen, no denied login, no disconnection: the user can always "
@@ -70,27 +68,27 @@ S3 = table(["Who", "What they do with RootSpeak", "Chapters"], [
      "answer their questions.", "8"],
     ["Whoever assesses security", "Knows who can use RootSpeak, who sees what and what a confirmation is worth.", "11"],
 ], "«TAB» — The readers of this manual") + \
-    p("Anyone using RootSpeak for the first time can follow the guided path in " + rif(4) + ", which leads from "
+    p("Anyone using RootSpeak for the first time can follow the guided path in " + ref(4) + ", which leads from "
       "installation to the first confirmation in a few steps. The users who receive the messages do not need to "
       "read anything: the dialog and the question explain themselves, and there is no command for them.") + \
     tip("the inner workings (message store, delivery, security) are described in the Technical Manual, "
         "installed next to this one in " + c("/usr/local/share/doc/rootspeak/") + ".", "Further reading.")
 
 S4 = table(["Convention", "Meaning"], [
-    [ui("Ho letto") + " (“I have read it”)", "Text that appears on the screen: buttons, window titles, fields, RootSpeak messages. The "
-     "screenshots in this manual show RootSpeak in Italian; on an English system the same button reads “I have read it”."],
+    [ui("I have read it"), "Text that appears on the screen: buttons, window titles, fields, RootSpeak messages. "
+     "RootSpeak speaks English, whatever the language of the user's session."],
     [c("rspeak send --to mario"), "Commands, file names and values to type exactly as shown."],
     [key("Ctrl", "S") + " " + key("Enter"), "Keys to press; the + sign means “together”."],
-    [INVIATO + " " + CONSEGNATO + " " + CONFERMATO, "The three states of a recipient, always in these colours, "
+    [SENT + " " + DELIVERED + " " + CONFIRMED, "The three states of a recipient, always in these colours, "
      "the same as in the TUI."],
-    [RITIRATO + " " + SCADUTO, "Properties of the message, not states of the recipients: from that moment on the "
+    [REVOKED + " " + EXPIRED, "Properties of the message, not states of the recipients: from that moment on the "
      "message is no longer shown."],
     ["Blue <b>Note</b> box", "Information that helps understanding."],
     ["Green <b>Tip</b> box", "A better or safer way to do something."],
     ["Yellow <b>Warning</b> box", "A behaviour that may be surprising or cause data loss."],
 ], "«TAB» — The conventions of the manual") + \
     p("In the examples " + c("admin") + " is an administrator; " + c("mario") + ", " + c("anna") + " and " + c("luca")
-      + " are users of the machine " + c("server") + ", and " + c("@sviluppo") + " is a group. In the dark boxes, "
+      + " are users of the machine " + c("server") + ", and " + c("@developers") + " is a group. In the dark boxes, "
       "lines starting with the prompt (" + c("admin@server:~$") + ") are commands to type; orange lines are what "
       "RootSpeak shows to the users; red lines are errors. The TUI screenshots are real, taken from RootSpeak while "
       "running.") + \

@@ -1,6 +1,6 @@
 /* RootSpeak - Advanced Messaging System for Linux
- * Utilità comuni: ambiente, errori, memoria, testi che crescono, file. */
-#include "comune.h"
+ * Common utilities: environment, errors, memory, growing texts, files. */
+#include "common.h"
 
 #include <ctype.h>
 #include <dirent.h>
@@ -16,24 +16,20 @@
 #ifndef LIBDIR
 #define LIBDIR "/usr/local/lib/rootspeak"
 #endif
-#ifndef LOCALEDIR
-#define LOCALEDIR "/usr/local/share/locale"
-#endif
 
 const char *rspeak_var = "/var/lib/rootspeak";
 const char *rspeak_libdir = LIBDIR;
-const char *rspeak_localedir = LOCALEDIR;
 const char *rspeak_conf_path = "/etc/rootspeak/rootspeak.conf";
 bool rspeak_test = false;
-const char *rspeak_nome = "rspeak";
+const char *rspeak_name = "rspeak";
 
-void rspeak_init(const char *nome)
+void rspeak_init(const char *name)
 {
 	const char *v;
 
-	rspeak_nome = nome;
-	/* Le variabili di prova valgono solo in modalità di prova: un programma
-	 * di root non prende cartelle dall'ambiente di chi lo lancia. */
+	rspeak_name = name;
+	/* The test variables apply only in test mode: a program run
+	 * as root does not take directories from the environment of whoever launches it. */
 	v = getenv("RSPEAK_TEST");
 	rspeak_test = v && *v;
 	if (rspeak_test) {
@@ -41,21 +37,19 @@ void rspeak_init(const char *nome)
 			rspeak_var = v;
 		if ((v = getenv("RSPEAK_LIB")) && *v)
 			rspeak_libdir = v;
-		if ((v = getenv("RSPEAK_LOCALEDIR")) && *v)
-			rspeak_localedir = v;
 		if ((v = getenv("RSPEAK_CONF")) && *v)
 			rspeak_conf_path = v;
 	}
 }
 
-/* ---- errori e memoria ---- */
+/* ---- errors and memory ---- */
 
 void die(const char *fmt, ...)
 {
 	va_list ap;
 
 	fflush(stdout);
-	fprintf(stderr, "%s: ", rspeak_nome);
+	fprintf(stderr, "%s: ", rspeak_name);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
@@ -63,12 +57,12 @@ void die(const char *fmt, ...)
 	exit(1);
 }
 
-void avviso(const char *fmt, ...)
+void notice(const char *fmt, ...)
 {
 	va_list ap;
 
 	fflush(stdout);
-	fprintf(stderr, "%s: ", rspeak_nome);
+	fprintf(stderr, "%s: ", rspeak_name);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
@@ -80,7 +74,7 @@ void *xmalloc(size_t n)
 	void *p = malloc(n ? n : 1);
 
 	if (!p)
-		die("memoria esaurita");
+		die("out of memory");
 	return p;
 }
 
@@ -88,7 +82,7 @@ void *xrealloc(void *p, size_t n)
 {
 	p = realloc(p, n ? n : 1);
 	if (!p)
-		die("memoria esaurita");
+		die("out of memory");
 	return p;
 }
 
@@ -111,18 +105,18 @@ char *xasprintf(const char *fmt, ...)
 	r = vasprintf(&s, fmt, ap);
 	va_end(ap);
 	if (r < 0)
-		die("memoria esaurita");
+		die("out of memory");
 	return s;
 }
 
-/* ---- testi che crescono ---- */
+/* ---- growing texts ---- */
 
-static void buf_spazio(buf_t *b, size_t extra)
+static void buf_reserve(buf_t *b, size_t extra)
 {
 	size_t serve;
 
 	if (extra > SIZE_MAX - b->n - 1)
-		die("memoria esaurita");
+		die("out of memory");
 	serve = b->n + extra + 1;
 	if (serve <= b->cap)
 		return;
@@ -135,7 +129,7 @@ static void buf_spazio(buf_t *b, size_t extra)
 
 void buf_add(buf_t *b, const void *p, size_t n)
 {
-	buf_spazio(b, n);
+	buf_reserve(b, n);
 	if (n)
 		memcpy(b->s + b->n, p, n);
 	b->n += n;
@@ -161,8 +155,8 @@ void buf_vprintf(buf_t *b, const char *fmt, va_list ap)
 	n = vsnprintf(NULL, 0, fmt, ap2);
 	va_end(ap2);
 	if (n < 0)
-		die("formato non valido");
-	buf_spazio(b, (size_t)n);
+		die("invalid format");
+	buf_reserve(b, (size_t)n);
 	vsnprintf(b->s + b->n, (size_t)n + 1, fmt, ap);
 	b->n += (size_t)n;
 }
@@ -190,7 +184,7 @@ void buf_free(buf_t *b)
 	b->n = b->cap = 0;
 }
 
-/* ---- elenchi ---- */
+/* ---- lists ---- */
 
 void strv_add_own(strv_t *l, char *s)
 {
@@ -236,7 +230,7 @@ void strv_free(strv_t *l)
 
 /* ---- file ---- */
 
-int leggi_fd(int fd, size_t max, buf_t *out)
+int read_fd(int fd, size_t max, buf_t *out)
 {
 	char tmp[8192];
 
@@ -260,13 +254,13 @@ int leggi_fd(int fd, size_t max, buf_t *out)
 	}
 }
 
-int leggi_file(const char *path, size_t max, bool nofollow, buf_t *out)
+int read_file(const char *path, size_t max, bool nofollow, buf_t *out)
 {
 	struct stat st;
 	int fd, r, e;
 
-	/* O_NONBLOCK: una pipe al posto del file non blocca l'apertura; il
-	 * controllo successivo la rifiuta. */
+	/* O_NONBLOCK: a pipe in place of the file does not block the open; the
+	 * check that follows rejects it. */
 	fd = open(path, O_RDONLY | O_CLOEXEC | O_NOCTTY | O_NONBLOCK | (nofollow ? O_NOFOLLOW : 0));
 	if (fd < 0)
 		return -1;
@@ -280,14 +274,14 @@ int leggi_file(const char *path, size_t max, bool nofollow, buf_t *out)
 		errno = EFBIG;
 		return -1;
 	}
-	r = leggi_fd(fd, max, out);
+	r = read_fd(fd, max, out);
 	e = errno;
 	close(fd);
 	errno = e;
 	return r;
 }
 
-int scrivi_tutto(int fd, const void *p, size_t n)
+int write_all(int fd, const void *p, size_t n)
 {
 	const char *c = p;
 
@@ -329,7 +323,7 @@ int syncfs_path(const char *path)
 	return r;
 }
 
-int scrivi_atomico(const char *path, const void *p, size_t n, mode_t mode)
+int write_atomic(const char *path, const void *p, size_t n, mode_t mode)
 {
 	char *tmp = xasprintf("%s.tmp", path);
 	int fd, e;
@@ -337,18 +331,18 @@ int scrivi_atomico(const char *path, const void *p, size_t n, mode_t mode)
 	unlink(tmp);
 	fd = open(tmp, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, mode);
 	if (fd < 0)
-		goto errore;
-	if (scrivi_tutto(fd, p, n) < 0 || fsync(fd) < 0) {
+		goto err_text;
+	if (write_all(fd, p, n) < 0 || fsync(fd) < 0) {
 		e = errno;
 		close(fd);
 		errno = e;
-		goto errore;
+		goto err_text;
 	}
 	if (close(fd) < 0 || rename(tmp, path) < 0)
-		goto errore;
+		goto err_text;
 	free(tmp);
 	return 0;
-errore:
+err_text:
 	e = errno;
 	unlink(tmp);
 	free(tmp);
@@ -356,21 +350,21 @@ errore:
 	return -1;
 }
 
-bool esiste(const char *path)
+bool exists(const char *path)
 {
 	struct stat st;
 
 	return lstat(path, &st) == 0;
 }
 
-bool e_cartella(const char *path)
+bool is_folder(const char *path)
 {
 	struct stat st;
 
 	return lstat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-bool solo_cifre(const char *s)
+bool only_digits(const char *s)
 {
 	if (!*s)
 		return false;
@@ -380,11 +374,11 @@ bool solo_cifre(const char *s)
 	return true;
 }
 
-bool leggi_numero(const char *s, long long *out)
+bool read_number(const char *s, long long *out)
 {
 	long long v = 0;
 
-	if (!solo_cifre(s) || strlen(s) > 18)
+	if (!only_digits(s) || strlen(s) > 18)
 		return false;
 	for (; *s; s++)
 		v = v * 10 + (*s - '0');
@@ -397,13 +391,13 @@ static int cmp_num(const void *a, const void *b)
 	const char *x = *(char *const *)a, *y = *(char *const *)b;
 	size_t lx = strlen(x), ly = strlen(y);
 
-	/* sole cifre: più corto = più piccolo (gli zeri iniziali non ci sono nei numeri di RootSpeak) */
+	/* digits only: shorter = smaller (RootSpeak's numbers have no leading zeros) */
 	if (lx != ly)
 		return lx < ly ? -1 : 1;
 	return strcmp(x, y);
 }
 
-int elenca_numeri(const char *dir, strv_t *out)
+int list_numbers(const char *dir, strv_t *out)
 {
 	DIR *d = opendir(dir);
 	struct dirent *e;
@@ -411,7 +405,7 @@ int elenca_numeri(const char *dir, strv_t *out)
 	if (!d)
 		return -1;
 	while ((e = readdir(d)))
-		if (solo_cifre(e->d_name) && strlen(e->d_name) <= 18)
+		if (only_digits(e->d_name) && strlen(e->d_name) <= 18)
 			strv_add(out, e->d_name);
 	closedir(d);
 	if (out->n > 1)
@@ -419,14 +413,14 @@ int elenca_numeri(const char *dir, strv_t *out)
 	return 0;
 }
 
-/* ---- tempo ---- */
+/* ---- time ---- */
 
-time_t adesso(void)
+time_t now(void)
 {
 	return time(NULL);
 }
 
-void data_breve(time_t t, char out[32])
+void short_date(time_t t, char out[32])
 {
 	struct tm tm;
 

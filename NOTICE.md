@@ -1,24 +1,23 @@
-# Copyright e componenti di terzi
+# Copyright and third-party components
 
 RootSpeak - Advanced Messaging System for Linux
-Copyright (c) 2026 nic-fio. Tutti i diritti riservati.
+Copyright (c) 2026 nic-fio. All rights reserved.
 
-Il repository è privato. Non è concessa alcuna licenza d'uso, copia, modifica
-o distribuzione: per qualunque uso serve un permesso esplicito dell'autore.
+The repository is private. No licence to use, copy, modify or distribute it
+is granted: any use needs the author's explicit permission.
 
-## Componenti di terzi
+## Third-party components
 
-RootSpeak non incorpora né distribuisce codice di terzi: `rspeak`, `rootspeak-user`, gli
-agganci delle shell, i cataloghi delle lingue e i manuali sono scritti per
-questo progetto. Lo stile dei manuali viene da IR_Service, un altro progetto
-dello stesso autore.
+RootSpeak neither embeds nor distributes third-party code: `rspeak`,
+`rootspeak-user`, the shell hooks and the manuals are written for this
+project. The style of the manuals comes from IR_Service, another project by
+the same author.
 
-Usa, senza includerli, programmi e librerie già presenti nel sistema, ciascuno
-con la propria licenza:
+It uses, without including them, programs and libraries already present on
+the system, each with its own licence:
 
-| Componente | Come lo usa RootSpeak | Licenza |
+| Component | How RootSpeak uses it | Licence |
 |---|---|---|
-| libsystemd | collegata dinamicamente a `rspeak` e `rootspeak-user` (journal, sessioni di logind) | LGPL-2.1 o successiva |
-| zenity, notify-send | lanciati come programmi esterni, per la finestra di conferma sul desktop | LGPL-2.1 o successiva |
-| gettext (`msgfmt`, `xgettext`) | solo per compilare i cataloghi delle lingue: i `.mo` li legge un lettore di RootSpeak, non la libintl | GPL-3.0 o successiva |
-| Pygments | solo per generare i manuali (evidenziazione del codice) | BSD 2-Clause |
+| libsystemd | dynamically linked to `rspeak` and `rootspeak-user` (journal, logind sessions) | LGPL-2.1 or later |
+| zenity, notify-send | started as external programs, for the confirmation dialog on the desktop | LGPL-2.1 or later |
+| Pygments | only to generate the manuals (code highlighting) | BSD 2-Clause |

@@ -1,6 +1,6 @@
 /* RootSpeak - Advanced Messaging System for Linux
- * Utenti, e azioni di root con l'identità di un utente (al posto di runuser). */
-#include "utente.h"
+ * Users, and root actions performed with a user's identity (instead of runuser). */
+#include "user.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -15,27 +15,27 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static void da_passwd(const struct passwd *pw, utente_t *u)
+static void from_passwd(const struct passwd *pw, user_t *u)
 {
-	u->nome = xstrdup(pw->pw_name);
+	u->name = xstrdup(pw->pw_name);
 	u->uid = pw->pw_uid;
 	u->gid = pw->pw_gid;
 }
 
-bool utente_cerca(const char *nome, utente_t *u)
+bool user_find(const char *name, user_t *u)
 {
 	struct passwd *pw;
 
 	memset(u, 0, sizeof *u);
 	errno = 0;
-	pw = getpwnam(nome);
+	pw = getpwnam(name);
 	if (!pw)
 		return false;
-	da_passwd(pw, u);
+	from_passwd(pw, u);
 	return true;
 }
 
-bool utente_da_uid(uid_t uid, utente_t *u)
+bool user_from_uid(uid_t uid, user_t *u)
 {
 	struct passwd *pw;
 
@@ -43,17 +43,17 @@ bool utente_da_uid(uid_t uid, utente_t *u)
 	pw = getpwuid(uid);
 	if (!pw)
 		return false;
-	da_passwd(pw, u);
+	from_passwd(pw, u);
 	return true;
 }
 
-void utente_libera(utente_t *u)
+void user_free(user_t *u)
 {
-	free(u->nome);
+	free(u->name);
 	memset(u, 0, sizeof *u);
 }
 
-static long long ms_adesso(void)
+static long long now_ms(void)
 {
 	struct timespec ts;
 
@@ -61,15 +61,15 @@ static long long ms_adesso(void)
 	return (long long)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
-static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int out)
+static void child(const user_t *u, as_user_fn fn, void *arg, int in, int out)
 {
 	int nul = open("/dev/null", O_RDWR | O_CLOEXEC);
 
 	if (nul < 0 || dup2(in >= 0 ? in : nul, 0) < 0 || dup2(out >= 0 ? out : nul, 1) < 0 || dup2(nul, 2) < 0)
 		_exit(126);
 	if (geteuid() == 0 && !rspeak_test) {
-		/* identità completa dell'utente: gruppi, poi gruppo, poi utente */
-		if (initgroups(u->nome, u->gid) < 0 || setresgid(u->gid, u->gid, u->gid) < 0 ||
+		/* the user's full identity: supplementary groups, then group, then user */
+		if (initgroups(u->name, u->gid) < 0 || setresgid(u->gid, u->gid, u->gid) < 0 ||
 		    setresuid(u->uid, u->uid, u->uid) < 0)
 			_exit(126);
 		if (getuid() != u->uid || geteuid() != u->uid || getegid() != u->gid || setuid(0) == 0)
@@ -87,13 +87,13 @@ static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int 
 	}
 }
 
-int come_utente(const utente_t *u, come_utente_fn fn, void *arg, const buf_t *in, buf_t *out, size_t max,
-		int secondi)
+int as_user(const user_t *u, as_user_fn fn, void *arg, const buf_t *in, buf_t *out, size_t max,
+		int seconds)
 {
-	int pin[2] = {-1, -1}, pout[2] = {-1, -1}, stato;
-	size_t scritti = 0;
-	long long scadenza = ms_adesso() + (long long)secondi * 1000;
-	bool scaduto = false;
+	int pin[2] = {-1, -1}, pout[2] = {-1, -1}, state;
+	size_t written = 0;
+	long long expiry = now_ms() + (long long)seconds * 1000;
+	bool expired = false;
 	pid_t pid;
 
 	if (in && pipe2(pin, O_CLOEXEC) < 0)
@@ -121,7 +121,7 @@ int come_utente(const utente_t *u, come_utente_fn fn, void *arg, const buf_t *in
 		if (in)
 			close(pin[1]);
 		close(pout[0]);
-		figlio(u, fn, arg, in ? pin[0] : -1, pout[1]);
+		child(u, fn, arg, in ? pin[0] : -1, pout[1]);
 	}
 	if (in) {
 		close(pin[0]);
@@ -133,27 +133,27 @@ int come_utente(const utente_t *u, come_utente_fn fn, void *arg, const buf_t *in
 	for (;;) {
 		struct pollfd pf[2];
 		int n = 0, r;
-		long long resto = scadenza - ms_adesso();
+		long long rest = expiry - now_ms();
 
-		if (resto <= 0) {
-			scaduto = true;
+		if (rest <= 0) {
+			expired = true;
 			break;
 		}
 		pf[n++] = (struct pollfd){.fd = pout[0], .events = POLLIN};
 		if (in && pin[1] >= 0)
 			pf[n++] = (struct pollfd){.fd = pin[1], .events = POLLOUT};
-		r = poll(pf, (nfds_t)n, (int)(resto > 1000 ? 1000 : resto));
+		r = poll(pf, (nfds_t)n, (int)(rest > 1000 ? 1000 : rest));
 		if (r < 0) {
 			if (errno == EINTR)
 				continue;
 			break;
 		}
 		if (n == 2 && pf[1].revents) {
-			ssize_t w = pf[1].revents & POLLOUT ? write(pin[1], in->s + scritti, in->n - scritti) : -1;
+			ssize_t w = pf[1].revents & POLLOUT ? write(pin[1], in->s + written, in->n - written) : -1;
 
 			if (w > 0)
-				scritti += (size_t)w;
-			if (w < 0 || scritti == in->n) {
+				written += (size_t)w;
+			if (w < 0 || written == in->n) {
 				close(pin[1]);
 				pin[1] = -1;
 			}
@@ -173,26 +173,26 @@ int come_utente(const utente_t *u, come_utente_fn fn, void *arg, const buf_t *in
 	if (pin[1] >= 0)
 		close(pin[1]);
 	close(pout[0]);
-	/* Anche dopo la fine dell'uscita il figlio ha un tempo massimo: l'utente
-	 * potrebbe fermarlo (stesso UID), e rspeak non deve restare appeso. */
+	/* Even after its output has ended the child has a time limit: the user
+	 * could stop it (same UID), and rspeak must not hang. */
 	for (;;) {
 		pid_t w;
 
-		if (scaduto)
+		if (expired)
 			kill(pid, SIGKILL);
-		w = waitpid(pid, &stato, scaduto ? 0 : WNOHANG);
+		w = waitpid(pid, &state, expired ? 0 : WNOHANG);
 		if (w == pid)
 			break;
 		if (w < 0 && errno != EINTR)
 			return -1;
 		if (w == 0) {
-			if (ms_adesso() >= scadenza)
-				scaduto = true;
+			if (now_ms() >= expiry)
+				expired = true;
 			else
 				poll(NULL, 0, 10);
 		}
 	}
-	if (scaduto || !WIFEXITED(stato))
+	if (expired || !WIFEXITED(state))
 		return -1;
-	return WEXITSTATUS(stato) == 126 ? -1 : WEXITSTATUS(stato);
+	return WEXITSTATUS(state) == 126 ? -1 : WEXITSTATUS(state);
 }

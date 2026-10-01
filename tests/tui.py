@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """RootSpeak - Advanced Messaging System for Linux
-Prova la TUI degli amministratori (rspeak senza argomenti) su un terminale
-virtuale, in modalità di prova su un archivio temporaneo: la apre, preme dei
-tasti come farebbe una persona e controlla lo schermo e l'archivio dopo ognuno.
-    tests/tui.py [-v]        (-v stampa gli schermi)
-Usa i programmi in build/ (RSPEAK_BUILD per un'altra cartella)."""
+Tests the administrators' TUI (rspeak without arguments) on a virtual
+terminal, in test mode on a temporary message store: it opens it, presses keys
+as a person would and checks the screen and the store after each one.
+    tests/tui.py [-v]        (-v prints the screens)
+Uses the programs in build/ (RSPEAK_BUILD for another folder)."""
 import fcntl, os, pty, re, select, shutil, struct, subprocess, sys, tempfile, termios, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,26 +13,26 @@ VERBOSE = "-v" in sys.argv
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 U = subprocess.run(["id", "-un"], capture_output=True, text=True).stdout.strip()
 TMP = tempfile.mkdtemp()
-ENV = dict(os.environ, RSPEAK_TEST="1", RSPEAK_VAR=f"{TMP}/var", RSPEAK_LIB=B, RSPEAK_LOCALEDIR=f"{B}/locale",
-           RSPEAK_CONF="/dev/null", RSPEAK_TEST_TTY="", LANG="it_IT.UTF-8", TERM="xterm-256color",
-           EDITOR="sed -i s/seconda/SECONDA/")
+ENV = dict(os.environ, RSPEAK_TEST="1", RSPEAK_VAR=f"{TMP}/var", RSPEAK_LIB=B,
+           RSPEAK_CONF="/dev/null", RSPEAK_TEST_TTY="", LANG="en_US.UTF-8", TERM="xterm-256color",
+           EDITOR="sed -i s/second/SECOND/")
 ENV.pop("LANGUAGE", None), ENV.pop("LC_ALL", None), ENV.pop("LC_MESSAGES", None)
-falliti = []
+failed = []
 
 
 def rspeak(*args, stdin=None):
     return subprocess.run([f"{B}/rspeak", *args], env=ENV, input=stdin, capture_output=True, text=True)
 
 
-def avvia(righe, colonne):
+def start(rows, cols):
     pid, fd = pty.fork()
     if pid == 0:
         os.execvpe(f"{B}/rspeak", ["rspeak"], ENV)
-    fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", righe, colonne, 0, 0))
+    fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
     return pid, fd
 
 
-def leggi_byte(fd, t=1.0):
+def read_bytes(fd, t=1.0):
     out, t0 = b"", time.time()
     while time.time() - t0 < t:
         r, _, _ = select.select([fd], [], [], 0.05)
@@ -44,141 +44,144 @@ def leggi_byte(fd, t=1.0):
     return out
 
 
-def leggi(fd, t=1.0):
-    """Ciò che arriva in t secondi."""
-    return leggi_byte(fd, t).decode("utf-8", "replace")
+def read(fd, t=1.0):
+    """What arrives in t seconds."""
+    return read_bytes(fd, t).decode("utf-8", "replace")
 
 
-def leggi_schermo(fd, t=1.0, limite=6.0):
-    """Legge finché l'ultimo disegno è completo (ha l'angolo in basso a destra)."""
-    raw, t0 = leggi_byte(fd, t), time.time()
-    while not (b"\x1b[H" in raw and "┘".encode() in raw.split(b"\x1b[H")[-1]) and time.time() - t0 < limite:
-        raw += leggi_byte(fd, 0.3)
+def read_screen(fd, t=1.0, limit=6.0):
+    """Reads until the last drawing is complete (it has the bottom right corner)."""
+    raw, t0 = read_bytes(fd, t), time.time()
+    while not (b"\x1b[H" in raw and "┘".encode() in raw.split(b"\x1b[H")[-1]) and time.time() - t0 < limit:
+        raw += read_bytes(fd, 0.3)
     return raw.decode("utf-8", "replace")
 
 
-def schermo(raw):
+def screen(raw):
     fr = raw.split("\x1b[H")[-1]
     return [ANSI.sub("", l).rstrip("\r") for l in fr.split("\n")]
 
 
-def controlla(nome, ok, righe):
+def check(name, ok, lines):
     if VERBOSE or not ok:
-        print(f"--- {nome}")
-        print("\n".join(l for l in righe if l.strip("│ ")))
+        print(f"--- {name}")
+        print("\n".join(l for l in lines if l.strip("│ ")))
     if not ok:
-        falliti.append(nome)
+        failed.append(name)
 
 
-def testo(righe):
-    return "\n".join(righe)
+def text(lines):
+    return "\n".join(lines)
 
 
 try:
-    rspeak("send", "--to", U, "--title", "Manutenzione", "Sabato dalle 8 alle 12 il server sarà spento.")
-    rspeak("send", "--to", U, "Seconda prova")
-    subprocess.run(["script", "-qec", f"{B}/rootspeak-user prompt", "/dev/null"], env=ENV, input="s\n",
+    rspeak("send", "--to", U, "--title", "Maintenance", "On Saturday from 8 to 12 the server will be off.")
+    rspeak("send", "--to", U, "Second test")
+    subprocess.run(["script", "-qec", f"{B}/rootspeak-user prompt", "/dev/null"], env=ENV, input="y\n",
                    capture_output=True, text=True)
 
-    pid, fd = avvia(28, 120)
-    raw = leggi_schermo(fd, 1.5)
-    s = schermo(raw)
-    controlla("apertura: lista con barra e frase, dimensioni giuste",
-              "\x1b[?1049h" in raw and s[0].startswith("┌─ RootSpeak · messaggi inviati") and len(s) == 28
-              and all(len(l) == 120 for l in s) and "tutti confermato (1)" in testo(s) and "1 consegnato" in testo(s)
-              and "█ confermato" in testo(s), s)
-    controlla("nessuno stato inventato", not re.search(r"in attesa|completo|incompleto|annullato", testo(s)), s)
+    pid, fd = start(28, 120)
+    raw = read_screen(fd, 1.5)
+    s = screen(raw)
+    check("opening: list with bar and summary, right size",
+          "\x1b[?1049h" in raw and s[0].startswith("┌─ RootSpeak · sent messages") and len(s) == 28
+          and all(len(l) == 120 for l in s) and "all confirmed (1)" in text(s) and "1 delivered" in text(s)
+          and "█ confirmed" in text(s), s)
+    check("no invented state", not re.search(r"pending|complete|cancelled|waiting", text(s)), s)
 
     os.write(fd, b"\r")
-    s = schermo(leggi_schermo(fd))
-    controlla("Invio: dettaglio con i destinatari e lo stato di rspeak status",
-              "Messaggio 2" in s[0] and "Seconda prova" in testo(s) and f"{U}" in testo(s) and "consegnato" in testo(s), s)
+    s = screen(read_screen(fd))
+    check("Enter: detail with the recipients and the state of rspeak status",
+          "Message 2" in s[0] and "Second test" in text(s) and f"{U}" in text(s) and "delivered" in text(s), s)
     os.write(fd, b"\t")
-    s = schermo(leggi_schermo(fd))
-    controlla("Tab: storia dal registro (o nessun evento)",
-              "consegnato a" in testo(s) or "Nessun evento nel registro" in testo(s), s)
+    s = screen(read_screen(fd))
+    check("Tab: history from the log (or no events)",
+          "delivered to" in text(s) or "No events in the system log" in text(s), s)
     os.write(fd, b"\x1b")
-    leggi(fd, 0.6)
+    read(fd, 0.6)
 
     os.write(fd, b"n")
-    leggi(fd, 0.5)
+    read(fd, 0.5)
     os.write(fd, U.encode() + b"\t")
-    leggi(fd, 0.8)
-    os.write(fd, "Prova TUI è ok".encode() + b"\t2h\t")
-    leggi(fd, 0.5)
-    os.write(fd, "prima riga\rseconda riga".encode())
-    s = schermo(leggi_schermo(fd))
-    controlla("modulo: campi, anteprima dei destinatari, testo su due righe",
-              "1 destinatario" in testo(s) and "Prova TUI è ok" in testo(s) and "prima riga" in testo(s)
-              and "seconda riga" in testo(s), s)
+    read(fd, 0.8)
+    os.write(fd, "TUI test é ok".encode() + b"\t2h\t")
+    read(fd, 0.5)
+    os.write(fd, "first line\rsecond line".encode())
+    s = screen(read_screen(fd))
+    check("form: fields, recipient preview, text on two lines",
+          "1 recipient" in text(s) and "TUI test é ok" in text(s) and "first line" in text(s)
+          and "second line" in text(s), s)
     os.write(fd, b"\x05")
-    s = schermo(leggi_schermo(fd, 1.5))
-    controlla("Ctrl+E: il testo passa dall'editor e torna", "SECONDA riga" in testo(s), s)
+    s = screen(read_screen(fd, 1.5))
+    check("Ctrl+E: the text goes through the editor and comes back", "SECOND line" in text(s), s)
     os.write(fd, b"\x13")
-    s = schermo(leggi_schermo(fd))
-    controlla("Ctrl+S: conferma con destinatari, titolo e scadenza",
-              "Inviare il messaggio?" in testo(s) and "A: " + U in testo(s) and "Scadenza: 2h" in testo(s), s)
-    os.write(fd, b"s")
-    s = schermo(leggi_schermo(fd, 1.5))
-    controlla("invio: esito del comando, una sola finestra",
-              "Messaggio 3 inviato a 1 utente." in testo(s) and testo(s).count("┌─ ") == 2, s)
+    s = screen(read_screen(fd))
+    check("Ctrl+S: confirmation with recipients, title and expiry",
+          "Send the message?" in text(s) and "To: " + U in text(s) and "Expires: 2h" in text(s), s)
+    os.write(fd, b"y")
+    s = screen(read_screen(fd, 1.5))
+    check("send: outcome of the command, a single window",
+          "Message 3 sent to 1 user." in text(s) and text(s).count("┌─ ") == 2, s)
     st = rspeak("status", "3").stdout
-    controlla("il messaggio inviato dalla TUI è nell'archivio", "Prova TUI è ok" in st and "SECONDA riga" in st, [st])
+    check("the message sent from the TUI is in the store", "TUI test é ok" in st and "SECOND line" in st, [st])
     os.write(fd, b" ")
-    s = schermo(leggi_schermo(fd))
-    controlla("dopo l'invio la lista mostra il nuovo messaggio in cima", ">  3" in testo(s), s)
+    s = screen(read_screen(fd))
+    check("after sending the list shows the new message at the top", ">  3" in text(s), s)
 
-    os.write(fd, b"s")
-    leggi(fd, 0.6)
-    os.write(fd, b"s")
-    s = schermo(leggi_schermo(fd, 1.5))
-    controlla("s: sollecito eseguito", "sollecitato 1 destinatario" in testo(s), s)
+    os.write(fd, b"m")
+    read(fd, 0.6)
+    os.write(fd, b"y")
+    s = screen(read_screen(fd, 1.5))
+    check("m: reminder done", "1 recipient reminded" in text(s), s)
     os.write(fd, b" ")
-    leggi(fd, 0.6)
+    read(fd, 0.6)
     os.write(fd, b"r")
-    s = schermo(leggi_schermo(fd))
-    controlla("r: conferma prima del ritiro", "Ritirare il messaggio 3?" in testo(s), s)
+    s = screen(read_screen(fd))
+    check("r: confirmation before revoking", "Revoke message 3?" in text(s), s)
     os.write(fd, b"n")
-    leggi(fd, 0.6)
-    controlla("n: ritiro annullato, messaggio intatto", "RITIRATO" not in rspeak("status", "3").stdout, [])
+    read(fd, 0.6)
+    check("n: revocation cancelled, message untouched", "REVOKED" not in rspeak("status", "3").stdout, [])
     os.write(fd, b"r")
-    leggi(fd, 0.6)
+    read(fd, 0.6)
     os.write(fd, b"s")
-    leggi(fd, 1.5)
+    read(fd, 0.6)
+    check("s (an Italian yes) does not confirm the revocation", "REVOKED" not in rspeak("status", "3").stdout, [])
+    os.write(fd, b"y")
+    read(fd, 1.5)
     os.write(fd, b" ")
-    s = schermo(leggi_schermo(fd))
-    controlla("ritiro: [ritirato] nella lista e nell'archivio",
-              "[ritirato]" in testo(s) and "RITIRATO" in rspeak("status", "3").stdout, s)
+    s = screen(read_screen(fd))
+    check("revocation: [revoked] in the list and in the store",
+          "[revoked]" in text(s) and "REVOKED" in rspeak("status", "3").stdout, s)
 
-    os.write(fd, b"/Manut\r")
-    s = schermo(leggi_schermo(fd))
-    controlla("/: ricerca", "Manutenzione" in testo(s) and "Seconda prova" not in testo(s), s)
+    os.write(fd, b"/Maint\r")
+    s = screen(read_screen(fd))
+    check("/: search", "Maintenance" in text(s) and "Second test" not in text(s), s)
     os.write(fd, b"\x1b")
-    leggi(fd, 0.6)
+    read(fd, 0.6)
 
     fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
-    s = schermo(leggi_schermo(fd, 1.5))
-    controlla("80x24: barra e confermati su totale", len(s) == 24 and all(len(l) == 80 for l in s)
-              and "1/1" in testo(s), s)
+    s = screen(read_screen(fd, 1.5))
+    check("80x24: bar and confirmed out of total", len(s) == 24 and all(len(l) == 80 for l in s)
+          and "1/1" in text(s), s)
 
     os.write(fd, b"q")
-    raw = leggi(fd, 1.0)
-    _, stato = os.waitpid(pid, 0)
-    controlla("q: uscita pulita", "\x1b[?1049l" in raw and os.WEXITSTATUS(stato) == 0, [repr(raw[-60:])])
+    raw = read(fd, 1.0)
+    _, st = os.waitpid(pid, 0)
+    check("q: clean exit", "\x1b[?1049l" in raw and os.WEXITSTATUS(st) == 0, [repr(raw[-60:])])
 
-    # terminale troppo piccolo: niente TUI, la guida
-    pid, fd = avvia(15, 60)
-    raw = leggi(fd, 1.5)
+    # terminal too small: no TUI, the guide
+    pid, fd = start(15, 60)
+    raw = read(fd, 1.5)
     os.write(fd, b"q")
-    leggi(fd, 0.5)
+    read(fd, 0.5)
     os.waitpid(pid, 0)
-    controlla("60x15: niente TUI, la guida", "RootSpeak · messaggi inviati" not in raw and ("rspeak — guida" in raw or "RSPEAK(1)" in raw),
-              schermo(raw)[:5])
-    # in una pipe: la guida in testo semplice
+    check("60x15: no TUI, the guide", "RootSpeak · sent messages" not in raw and ("rspeak — guide" in raw or "RSPEAK(1)" in raw),
+          screen(raw)[:5])
+    # in a pipe: the guide as plain text
     out = subprocess.run([f"{B}/rspeak"], env=ENV, capture_output=True, text=True, stdin=subprocess.DEVNULL).stdout
-    controlla("in una pipe: la guida", "SINTASSI" in out, out.splitlines()[:3])
+    check("in a pipe: the guide", "SYNOPSIS" in out, out.splitlines()[:3])
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
 
-print("OK" if not falliti else "FALLITI: " + ", ".join(falliti))
-sys.exit(1 if falliti else 0)
+print("OK" if not failed else "FAILED: " + ", ".join(failed))
+sys.exit(1 if failed else 0)

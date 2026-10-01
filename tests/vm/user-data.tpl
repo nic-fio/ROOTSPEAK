@@ -1,14 +1,14 @@
 #cloud-config
 # RootSpeak - Advanced Messaging System for Linux
-# Macchina virtuale di prova con desktop: Debian 13, GNOME su Wayland, login
-# automatico di «sara»; gli altri utenti come nel container (tests/container).
-# @CHIAVI@ viene sostituito da prepare.sh con le chiavi ssh autorizzate per root.
+# Test virtual machine with a desktop: Debian 13, GNOME on Wayland, automatic
+# login of «sara»; the other users as in the container (tests/container).
+# @KEYS@ is replaced by prepare.sh with the ssh keys authorised for root.
 hostname: rootspeak-desktop
 disable_root: false
 ssh_pwauth: false
 users:
   - name: root
-    ssh_authorized_keys: [@CHIAVI@]
+    ssh_authorized_keys: [@KEYS@]
 package_update: true
 packages:
   - gnome-core
@@ -36,7 +36,7 @@ write_files:
     content: |
       user-db:user
       system-db:local
-  - path: /etc/dconf/db/local.d/00-rootspeak-prova
+  - path: /etc/dconf/db/local.d/00-rootspeak-test
     content: |
       [org/gnome/desktop/session]
       idle-delay=uint32 0
@@ -52,13 +52,13 @@ write_files:
   - path: /etc/sudoers.d/admin
     content: "admin ALL=(ALL) NOPASSWD: ALL\n"
 runcmd:
-  - groupadd -f sviluppo
+  - groupadd -f developers
   - useradd -m -s /bin/bash -G sudo admin
-  - useradd -m -s /bin/bash -G sviluppo mario
-  - useradd -m -s /bin/bash -G sviluppo anna
+  - useradd -m -s /bin/bash -G developers mario
+  - useradd -m -s /bin/bash -G developers anna
   - useradd -m -s /bin/bash luca
   - useradd -m -s /bin/bash sara
-  - useradd -m -s /usr/sbin/nologin servizio
+  - useradd -m -s /usr/sbin/nologin service
   - install -d -m 700 -o sara -g sara /home/sara/.config
   - touch /home/sara/.config/gnome-initial-setup-done && chown sara:sara /home/sara/.config/gnome-initial-setup-done
   - dconf update
@@ -67,7 +67,7 @@ runcmd:
   - for u in admin mario anna luca sara; do install -d -m 700 -o $u -g $u /home/$u/.ssh; install -m 600 -o $u -g $u /root/.ssh/id_ed25519.pub /home/$u/.ssh/authorized_keys; done
   - printf 'Host localhost\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n  LogLevel ERROR\n' > /root/.ssh/config
   - systemctl set-default graphical.target
-  - touch /var/lib/rootspeak-prova-pronta
+  - touch /var/lib/rootspeak-test-ready
 power_state:
   mode: poweroff
   condition: true

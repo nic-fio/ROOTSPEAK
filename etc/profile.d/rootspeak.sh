@@ -1,8 +1,8 @@
 # RootSpeak - Advanced Messaging System for Linux
-# Aggancio per le shell. bash chiede la conferma a ogni prompt (rootspeak.bash); zsh
-# e fish hanno il loro aggancio (rootspeak.zsh da zshrc, rootspeak.fish da fish/conf.d);
-# le altre shell che leggono /etc/profile (sh, dash, ksh…) ricevono la domanda
-# al login. Il file è in sh semplice: lo leggono tutte.
+# Hook for the shells. bash asks for the confirmation at every prompt
+# (rootspeak.bash); zsh and fish have their own hook (rootspeak.zsh from zshrc,
+# rootspeak.fish from fish/conf.d); the other shells that read /etc/profile (sh,
+# dash, ksh…) get the question at login. The file is plain sh: they all read it.
 if [ -n "${BASH_VERSION:-}" ]; then
 	[ -r @LIBDIR@/rootspeak.bash ] && . @LIBDIR@/rootspeak.bash
 elif [ -z "${ZSH_VERSION:-}" ]; then

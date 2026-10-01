@@ -1,687 +1,669 @@
 {
  "meta": {
-  "data": "2026-10-01 09:28:55 UTC",
-  "versione": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
-  "sistema": "Debian GNU/Linux 13 (trixie), VM con GNOME, desktop di sara",
-  "ok": 66,
-  "no": 0,
-  "non_provati": 4,
-  "totale": 70,
-  "commit": "dc03ab73d5-modificato",
-  "impronta": "00d658f1b22f",
-  "solo": ""
+  "date": "2026-10-01 11:25:51 UTC",
+  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
+  "system": "Debian GNU/Linux 13 (trixie), VM with GNOME, desktop of sara",
+  "ok": 64,
+  "failed": 0,
+  "not_tested": 4,
+  "total": 68,
+  "commit": "bc6a7d46a7-modified",
+  "fingerprint": "932147779e01",
+  "only": ""
  },
- "risultati": [
+ "results": [
   {
-   "codice": "A1",
-   "area": "Accesso",
-   "descrizione": "root invia un messaggio",
-   "atteso": "invio riuscito",
-   "esito": "OK",
-   "dettagli": "Messaggio 1 inviato a 1 utente.",
-   "misure": {}
+   "code": "A1",
+   "area": "Access",
+   "description": "root sends a message",
+   "expected": "sending succeeds",
+   "outcome": "OK",
+   "details": "Message 1 sent to 1 user.",
+   "measures": {}
   },
   {
-   "codice": "A2",
-   "area": "Accesso",
-   "descrizione": "un amministratore (gruppo sudo) invia: rspeak si rilancia con sudo",
-   "atteso": "invio riuscito, mittente admin",
-   "esito": "OK",
-   "dettagli": "from: admin",
-   "misure": {
-    "secondi": 0.131
+   "code": "A2",
+   "area": "Access",
+   "description": "an administrator (sudo group) sends: rspeak re-runs itself with sudo",
+   "expected": "sending succeeds, sender admin",
+   "outcome": "OK",
+   "details": "from: admin",
+   "measures": {
+    "seconds": 0.096
    }
   },
   {
-   "codice": "A3",
-   "area": "Accesso",
-   "descrizione": "un utente normale non può eseguire rspeak",
-   "atteso": "permesso negato, nessun messaggio",
-   "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/rspeak: Permesso negato",
-   "misure": {}
+   "code": "A3",
+   "area": "Access",
+   "description": "an ordinary user cannot run rspeak",
+   "expected": "permission denied, no message",
+   "outcome": "OK",
+   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "measures": {}
   },
   {
-   "codice": "A4",
-   "area": "Accesso",
-   "descrizione": "un utente normale non può aprire nemmeno la guida",
-   "atteso": "permesso negato",
-   "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/rspeak: Permesso negato",
-   "misure": {}
+   "code": "A4",
+   "area": "Access",
+   "description": "an ordinary user cannot even open the help",
+   "expected": "permission denied",
+   "outcome": "OK",
+   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "measures": {}
   },
   {
-   "codice": "B1",
-   "area": "Destinatari",
-   "descrizione": "un utente",
-   "atteso": "mario",
-   "esito": "OK",
-   "dettagli": "['mario']",
-   "misure": {}
+   "code": "B1",
+   "area": "Recipients",
+   "description": "one user",
+   "expected": "mario",
+   "outcome": "OK",
+   "details": "['mario']",
+   "measures": {}
   },
   {
-   "codice": "B2",
-   "area": "Destinatari",
-   "descrizione": "lista con un doppione",
-   "atteso": "anna, mario (una volta)",
-   "esito": "OK",
-   "dettagli": "['anna', 'mario']",
-   "misure": {}
+   "code": "B2",
+   "area": "Recipients",
+   "description": "list with a duplicate",
+   "expected": "anna, mario (once)",
+   "outcome": "OK",
+   "details": "['anna', 'mario']",
+   "measures": {}
   },
   {
-   "codice": "B3",
-   "area": "Destinatari",
-   "descrizione": "gruppo @sviluppo",
-   "atteso": "anna, mario",
-   "esito": "OK",
-   "dettagli": "['anna', 'mario']",
-   "misure": {}
+   "code": "B3",
+   "area": "Recipients",
+   "description": "group @developers",
+   "expected": "anna, mario",
+   "outcome": "OK",
+   "details": "['anna', 'mario']",
+   "measures": {}
   },
   {
-   "codice": "B4",
-   "area": "Destinatari",
-   "descrizione": "all: utenti umani, esclusi root e chi ha nologin",
-   "atteso": "admin, anna, luca, mario, sara",
-   "esito": "OK",
-   "dettagli": "['admin', 'anna', 'luca', 'mario', 'sara']",
-   "misure": {}
+   "code": "B4",
+   "area": "Recipients",
+   "description": "all: human users, except root and whoever has nologin",
+   "expected": "admin, anna, luca, mario, sara",
+   "outcome": "OK",
+   "details": "['admin', 'anna', 'luca', 'mario', 'sara']",
+   "measures": {}
   },
   {
-   "codice": "B5",
-   "area": "Destinatari",
-   "descrizione": "online: solo chi ha una sessione aperta",
-   "atteso": "luca, sara",
-   "esito": "OK",
-   "dettagli": "['luca', 'sara']",
-   "misure": {}
+   "code": "B5",
+   "area": "Recipients",
+   "description": "online: only whoever has an open session",
+   "expected": "luca, sara",
+   "outcome": "OK",
+   "details": "['luca', 'sara']",
+   "measures": {}
   },
   {
-   "codice": "B6",
-   "area": "Destinatari",
-   "descrizione": "utente inesistente",
-   "atteso": "errore, nessun messaggio creato",
-   "esito": "OK",
-   "dettagli": "rspeak: utente inesistente: pippo",
-   "misure": {}
+   "code": "B6",
+   "area": "Recipients",
+   "description": "user that does not exist",
+   "expected": "error, no message created",
+   "outcome": "OK",
+   "details": "rspeak: no such user: nobodyhere",
+   "measures": {}
   },
   {
-   "codice": "B7",
-   "area": "Destinatari",
-   "descrizione": "gruppo senza membri",
-   "atteso": "errore «nessun destinatario»",
-   "esito": "OK",
-   "dettagli": "rspeak: nessun destinatario",
-   "misure": {}
+   "code": "B7",
+   "area": "Recipients",
+   "description": "group without members",
+   "expected": "error «no recipients»",
+   "outcome": "OK",
+   "details": "rspeak: no recipients",
+   "measures": {}
   },
   {
-   "codice": "C1a",
-   "area": "Consegna",
-   "descrizione": "utente scollegato: la copia aspetta nella casella",
-   "atteso": "consegnato",
-   "esito": "OK",
-   "dettagli": "consegnato",
-   "misure": {}
+   "code": "C1a",
+   "area": "Delivery",
+   "description": "user logged out: the copy waits in the mailbox",
+   "expected": "delivered",
+   "outcome": "OK",
+   "details": "delivered",
+   "measures": {}
   },
   {
-   "codice": "C1b",
-   "area": "Consegna",
-   "descrizione": "al login il messaggio e la domanda compaiono prima del primo prompt",
-   "atteso": "testo e domanda al login",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_dal_login": 0.471
+   "code": "C1b",
+   "area": "Delivery",
+   "description": "at login the message and the question appear before the first prompt",
+   "expected": "text and question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_from_login": 0.296
    }
   },
   {
-   "codice": "C1c",
-   "area": "Consegna",
-   "descrizione": "conferma al login",
-   "atteso": "confermato (terminale)",
-   "esito": "OK",
-   "dettagli": "confermato il 01/10 09:26 (terminale pts/2)",
-   "misure": {}
+   "code": "C1c",
+   "area": "Delivery",
+   "description": "confirmation at login",
+   "expected": "confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 11:23 (terminal pts/2)",
+   "measures": {}
   },
   {
-   "codice": "C2a",
-   "area": "Consegna",
-   "descrizione": "utente collegato: il testo compare nel suo terminale",
-   "atteso": "testo nel terminale",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_invio": 0.081,
-    "secondi_al_terminale": 0.131
+   "code": "C2a",
+   "area": "Delivery",
+   "description": "user logged in: the text appears in their terminal",
+   "expected": "text in the terminal",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_send": 0.059,
+    "seconds_to_terminal": 0.109
    }
   },
   {
-   "codice": "C2b",
-   "area": "Consegna",
-   "descrizione": "stato dopo la scrittura nel terminale",
-   "atteso": "consegnato, scritto su 1 terminale",
-   "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale",
-   "misure": {}
+   "code": "C2b",
+   "area": "Delivery",
+   "description": "state after writing to the terminal",
+   "expected": "delivered, written to 1 terminal",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal",
+   "measures": {}
   },
   {
-   "codice": "C2c",
-   "area": "Consegna",
-   "descrizione": "premendo Invio compare la domanda",
-   "atteso": "domanda al prompt successivo",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 0.052
+   "code": "C2c",
+   "area": "Delivery",
+   "description": "pressing Enter the question appears",
+   "expected": "question at the next prompt",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.051
    }
   },
   {
-   "codice": "C3",
-   "area": "Consegna",
-   "descrizione": "sessione ssh senza terminale: non viene toccata, la copia va nella casella",
-   "atteso": "invio riuscito, consegnato, nessun terminale scritto",
-   "esito": "OK",
-   "dettagli": "consegnato",
-   "misure": {}
+   "code": "C3",
+   "area": "Delivery",
+   "description": "ssh session without a terminal: it is not touched, the copy goes to the mailbox",
+   "expected": "sending succeeds, delivered, no terminal written",
+   "outcome": "OK",
+   "details": "delivered",
+   "measures": {}
   },
   {
-   "codice": "C4a",
-   "area": "Consegna",
-   "descrizione": "due sessioni aperte: il testo compare in entrambe",
-   "atteso": "testo in 2 terminali",
-   "esito": "OK",
-   "dettagli": "consegnato, scritto su 2 terminali",
-   "misure": {}
+   "code": "C4a",
+   "area": "Delivery",
+   "description": "two open sessions: the text appears in both",
+   "expected": "text in 2 terminals",
+   "outcome": "OK",
+   "details": "delivered, written to 2 terminals",
+   "measures": {}
   },
   {
-   "codice": "C4b",
-   "area": "Consegna",
-   "descrizione": "confermando in una sessione, la domanda nell'altra si ferma",
-   "atteso": "«già confermato altrove» nell'altra",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 0.952
+   "code": "C4b",
+   "area": "Delivery",
+   "description": "confirming in one session, the question in the other stops",
+   "expected": "«Message already confirmed elsewhere» in the other",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.951
    }
   },
   {
-   "codice": "D1",
-   "area": "Conferma",
-   "descrizione": "l'utente rimanda",
-   "atteso": "consegnato, rimandato il …",
-   "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 01/10 09:26",
-   "misure": {}
+   "code": "D1",
+   "area": "Confirmation",
+   "description": "the user postpones",
+   "expected": "delivered, postponed on …",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal, postponed on 01/10 11:23",
+   "measures": {}
   },
   {
-   "codice": "D2",
-   "area": "Conferma",
-   "descrizione": "dopo il rinvio, al prompt solo un promemoria",
-   "atteso": "«Hai 1 messaggio…», nessuna domanda",
-   "esito": "OK",
-   "dettagli": "true\n[RootSpeak] Hai 1 messaggio dell'amministratore da confermare.\nluca@rootspeak-desktop:~$ ",
-   "misure": {}
+   "code": "D2",
+   "area": "Confirmation",
+   "description": "after the postponement, only a reminder at the prompt",
+   "expected": "«You have 1 message…», no question",
+   "outcome": "OK",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@rootspeak-desktop:~$ ",
+   "measures": {}
   },
   {
-   "codice": "D5",
-   "area": "Conferma",
-   "descrizione": "rspeak remind dopo un rinvio: la domanda torna al prompt successivo",
-   "atteso": "«sollecitato 1 destinatario», domanda al prompt",
-   "esito": "OK",
-   "dettagli": "Messaggio 1: sollecitato 1 destinatario.",
-   "misure": {}
+   "code": "D5",
+   "area": "Confirmation",
+   "description": "rspeak remind after a postponement: the question comes back at the next prompt",
+   "expected": "«Message 1: 1 recipient reminded.», question at the prompt",
+   "outcome": "OK",
+   "details": "Message 1: 1 recipient reminded.",
+   "measures": {}
   },
   {
-   "codice": "D3",
-   "area": "Conferma",
-   "descrizione": "al login successivo il rinvio non vale: la domanda torna",
-   "atteso": "domanda al login",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "code": "D3",
+   "area": "Confirmation",
+   "description": "at the next login the postponement does not count: the question comes back",
+   "expected": "question at login",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "D4",
-   "area": "Conferma",
-   "descrizione": "conferma registrata con data e canale",
-   "atteso": "«EPOCH terminale pts/N»",
-   "esito": "OK",
-   "dettagli": "1790846778 terminale pts/7",
-   "misure": {}
+   "code": "D4",
+   "area": "Confirmation",
+   "description": "confirmation recorded with date and channel",
+   "expected": "«EPOCH terminal pts/N»",
+   "outcome": "OK",
+   "details": "1790853803 terminal pts/7",
+   "measures": {}
   },
   {
-   "codice": "E1",
-   "area": "Scadenza",
-   "descrizione": "un messaggio scaduto non viene mostrato al login",
-   "atteso": "nessun testo",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "code": "E1",
+   "area": "Expiry",
+   "description": "an expired message is not shown at login",
+   "expected": "no text",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "E2",
-   "area": "Scadenza",
-   "descrizione": "stato di un messaggio scaduto",
-   "atteso": "consegnato, non confermato (scaduto)",
-   "esito": "OK",
-   "dettagli": "consegnato, non confermato (scaduto)",
-   "misure": {}
+   "code": "E2",
+   "area": "Expiry",
+   "description": "state of an expired message",
+   "expected": "delivered, not confirmed (expired)",
+   "outcome": "OK",
+   "details": "delivered, not confirmed (expired)",
+   "measures": {}
   },
   {
-   "codice": "E3",
-   "area": "Ritiro",
-   "descrizione": "ritiro con la domanda in attesa: la domanda si interrompe",
-   "atteso": "«L'amministratore ha ritirato il messaggio»",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 1.002
+   "code": "E3",
+   "area": "Revocation",
+   "description": "revocation with the question waiting: the question stops",
+   "expected": "«The administrator has revoked the message.»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 1.001
    }
   },
   {
-   "codice": "E4",
-   "area": "Ritiro",
-   "descrizione": "stato dopo il ritiro",
-   "atteso": "consegnato, non confermato (ritirato)",
-   "esito": "OK",
-   "dettagli": "consegnato, non confermato (ritirato)",
-   "misure": {}
+   "code": "E4",
+   "area": "Revocation",
+   "description": "state after the revocation",
+   "expected": "delivered, not confirmed (revoked)",
+   "outcome": "OK",
+   "details": "delivered, not confirmed (revoked)",
+   "measures": {}
   },
   {
-   "codice": "E5",
-   "area": "Ritiro",
-   "descrizione": "un messaggio ritirato prima del login non viene mostrato",
-   "atteso": "nessun testo",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "code": "E5",
+   "area": "Revocation",
+   "description": "a message revoked before the login is not shown",
+   "expected": "no text",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "F1",
-   "area": "Guasti",
-   "descrizione": "la copia per un utente non si può scrivere: gli altri la ricevono",
-   "atteso": "errore, anna «inviato, non consegnato», mario consegnato",
-   "esito": "OK",
-   "dettagli": "rspeak: messaggio 1 non consegnato a: anna (vedi il registro; il prossimo comando rspeak riproverà) | anna: inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando rspeak riproverà)",
-   "misure": {}
+   "code": "F1",
+   "area": "Faults",
+   "description": "the copy for one user cannot be written: the others receive it",
+   "expected": "error, anna «sent, not delivered», mario delivered",
+   "outcome": "OK",
+   "details": "rspeak: message 1 not delivered to: anna (see the log; the next rspeak command will retry) | anna: sent, not delivered: the copy could not be written (see the log; the next rspeak command will retry)",
+   "measures": {}
   },
   {
-   "codice": "F2",
-   "area": "Guasti",
-   "descrizione": "guasto risolto: il comando successivo completa la consegna",
-   "atteso": "anna consegnato",
-   "esito": "OK",
-   "dettagli": "rspeak: completata la consegna del messaggio 1 a 1 destinatari",
-   "misure": {}
+   "code": "F2",
+   "area": "Faults",
+   "description": "fault fixed: the next command completes the delivery",
+   "expected": "anna delivered",
+   "outcome": "OK",
+   "details": "rspeak: completed delivery of message 1 to 1 recipients",
+   "measures": {}
   },
   {
-   "codice": "F3",
-   "area": "Guasti",
-   "descrizione": "rspeak send ucciso a metà (SIGKILL): il comando successivo completa",
-   "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
-   "esito": "OK",
-   "dettagli": "consegnati prima 5/65, dopo 65/65; rspeak: completata la consegna del messaggio 2 a 60 destinatari",
-   "misure": {
-    "consegnati_al_kill": 5,
-    "destinatari": 65,
-    "secondi_recupero": 0.117
+   "code": "F3",
+   "area": "Faults",
+   "description": "rspeak send killed halfway (SIGKILL): the next command completes",
+   "expected": "all copies delivered, no sign of an incomplete sending",
+   "outcome": "OK",
+   "details": "delivered before 3/65, after 65/65; rspeak: completed delivery of message 2 to 62 recipients",
+   "measures": {
+    "delivered_at_kill": 3,
+    "recipients": 65,
+    "seconds_recovery": 0.137
    }
   },
   {
-   "codice": "F6",
-   "area": "Guasti",
-   "descrizione": "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
-   "atteso": "consegnato",
-   "esito": "OK",
-   "dettagli": "consegnato; ",
-   "misure": {}
+   "code": "F6",
+   "area": "Faults",
+   "description": "user's folder left owned by root by an interrupted sending: the delivery fixes it",
+   "expected": "delivered",
+   "outcome": "OK",
+   "details": "delivered; ",
+   "measures": {}
   },
   {
-   "codice": "F7",
-   "area": "Guasti",
-   "descrizione": "rspeak revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
-   "atteso": "nessuna copia nelle caselle, invio interrotto",
-   "esito": "OK",
-   "dettagli": "copie rimaste: 0; consegnate prima del ritiro: 3; Messaggio 4 ritirato durante l'invio: consegna interrotta.",
-   "misure": {
-    "secondi_attesa_revoke": 0.11
+   "code": "F7",
+   "area": "Faults",
+   "description": "rspeak revoke during a sending to many users: the sending stops and no copy stays",
+   "expected": "no copy in the mailboxes, sending interrupted",
+   "outcome": "OK",
+   "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
+   "measures": {
+    "seconds_waiting_revoke": 0.1
    }
   },
   {
-   "codice": "F5",
-   "area": "Guasti",
-   "descrizione": "rspeak list ripetuto mentre rspeak send consegna: il recupero non interferisce",
-   "atteso": "una consegna per destinatario, nessun doppione, invio completo",
-   "esito": "OK",
-   "dettagli": "65 consegne annotate per 65 destinatari, 65 distinte",
-   "misure": {
-    "rspeak_list_durante_invio": 47
+   "code": "F5",
+   "area": "Faults",
+   "description": "rspeak list repeated while rspeak send delivers: the recovery does not interfere",
+   "expected": "one delivery per recipient, no duplicates, sending complete",
+   "outcome": "OK",
+   "details": "65 deliveries recorded for 65 recipients, 65 distinct",
+   "measures": {
+    "rspeak_list_during_sending": 51
    }
   },
   {
-   "codice": "F4",
-   "area": "Guasti",
-   "descrizione": "la conferma non si può scrivere: il messaggio resta e l'utente è avvisato",
-   "atteso": "avviso; stato consegnato; messaggio ancora nella casella",
-   "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale",
-   "misure": {}
+   "code": "F4",
+   "area": "Faults",
+   "description": "the confirmation cannot be written: the message stays and the user is told",
+   "expected": "notice; state delivered; message still in the mailbox",
+   "outcome": "OK",
+   "details": "delivered, written to 1 terminal",
+   "measures": {}
   },
   {
-   "codice": "G1",
-   "area": "Sicurezza",
-   "descrizione": "la casella è un collegamento a /etc: root non ci scrive",
-   "atteso": "nessun file 2 in /etc; mario «inviato, non consegnato»",
-   "esito": "OK",
-   "dettagli": "rspeak: messaggio 2 non consegnato a: mario (vedi il registro; il prossimo comando rspeak riproverà)",
-   "misure": {}
+   "code": "G1",
+   "area": "Security",
+   "description": "the mailbox is a link to /etc: root does not write there",
+   "expected": "no file 2 in /etc; mario «sent, not delivered»",
+   "outcome": "OK",
+   "details": "rspeak: message 2 not delivered to: mario (see the log; the next rspeak command will retry)",
+   "measures": {}
   },
   {
-   "codice": "G2",
-   "area": "Sicurezza",
-   "descrizione": "sequenze di escape nel testo: non arrivano al terminale",
-   "atteso": "nessun ESC nel testo ricevuto",
-   "esito": "OK",
-   "dettagli": "'Testo rosso   fine\\r\\r\\n───────────────────'",
-   "misure": {}
+   "code": "G2",
+   "area": "Security",
+   "description": "escape sequences in the text: they do not reach the terminal",
+   "expected": "no ESC in the text received",
+   "outcome": "OK",
+   "details": "'Text red   end\\r\\r\\n───────────────────────'",
+   "measures": {}
   },
   {
-   "codice": "G3",
-   "area": "Sicurezza",
-   "descrizione": "conferma fabbricata con escape e 500 byte: rspeak status resta pulito",
-   "atteso": "nessun ESC nell'uscita, al massimo 200 byte letti",
-   "esito": "OK",
-   "dettagli": "luca             confermato il 01/01 00:00 (finto00000000000000000000000000000000000000000000000000000000000000000000000",
-   "misure": {}
+   "code": "G3",
+   "area": "Security",
+   "description": "forged confirmation with escapes and 500 bytes: rspeak status stays clean",
+   "expected": "no ESC in the output, at most 200 bytes read",
+   "outcome": "OK",
+   "details": "luca             confirmed on 01/01 00:00 (fake0000000000000000000000000000000000000000000000000000000000000000000000000",
+   "measures": {}
   },
   {
-   "codice": "G4",
-   "area": "Sicurezza",
-   "descrizione": "un utente normale con RSPEAK_TEST=1 non ottiene nulla",
-   "atteso": "permesso negato",
-   "esito": "OK",
-   "dettagli": "env: ‘/usr/local/bin/rspeak’: Permesso negato",
-   "misure": {}
+   "code": "G4",
+   "area": "Security",
+   "description": "an ordinary user with RSPEAK_TEST=1 gets nothing",
+   "expected": "permission denied",
+   "outcome": "OK",
+   "details": "env: ‘/usr/local/bin/rspeak’: Permission denied",
+   "measures": {}
   },
   {
-   "codice": "J1",
-   "area": "Registro",
-   "descrizione": "rspeak log: la storia del messaggio",
-   "atteso": "invio, consegne, rinvio, conferma, ritiro",
-   "esito": "OK",
-   "dettagli": "6 eventi",
-   "misure": {}
+   "code": "J1",
+   "area": "Log",
+   "description": "rspeak log: the history of the message",
+   "expected": "sending, deliveries, postponement, confirmation, revocation",
+   "outcome": "OK",
+   "details": "6 events",
+   "measures": {}
   },
   {
-   "codice": "J2",
-   "area": "Registro",
-   "descrizione": "la conferma nel journal porta l'utente che l'ha scritta (_UID)",
-   "atteso": "_UID 1001",
-   "esito": "OK",
-   "dettagli": "1001 1001",
-   "misure": {}
+   "code": "J2",
+   "area": "Log",
+   "description": "the confirmation in the journal carries the user who wrote it (_UID)",
+   "expected": "_UID 1001",
+   "outcome": "OK",
+   "details": "1001 1001",
+   "measures": {}
   },
   {
-   "codice": "J3",
-   "area": "Registro",
-   "descrizione": "un evento scritto da un utente a nome di un altro: rspeak log lo segnala",
-   "atteso": "«non attendibile: scritto da UID 1003»",
-   "esito": "OK",
-   "dettagli": "2026-10-01 09:27:05  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
-   "misure": {}
+   "code": "J3",
+   "area": "Log",
+   "description": "an event written by a user in the name of another: rspeak log flags it",
+   "expected": "«[not trustworthy: written by UID 1003]»",
+   "outcome": "OK",
+   "details": "2026-10-01 11:24:01  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "measures": {}
   },
   {
-   "codice": "T1",
+   "code": "T1",
    "area": "TUI",
-   "descrizione": "rspeak senza argomenti come root: la lista con i destinatari nei tre stati",
-   "atteso": "«RootSpeak · messaggi inviati», «2 consegnato»",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "description": "rspeak without arguments as root: the list with the recipients in the three states",
+   "expected": "«RootSpeak · sent messages», «2 delivered»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "T2",
+   "code": "T2",
    "area": "TUI",
-   "descrizione": "dettaglio: destinatari e storia dal registro",
-   "atteso": "anna, mario; «inviato da root»",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "description": "detail: recipients and history from the log",
+   "expected": "anna, mario; «sent by root»",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "T3",
+   "code": "T3",
    "area": "TUI",
-   "descrizione": "q: la TUI esce e ridà il terminale",
-   "atteso": "uscita 0",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "description": "q: the TUI exits and gives the terminal back",
+   "expected": "exit status 0",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
   },
   {
-   "codice": "K-zsh",
-   "area": "Shell",
-   "descrizione": "zsh: utente di prova zeno",
-   "atteso": "presente",
-   "esito": "NON PROVATO",
-   "dettagli": "utente assente",
-   "misure": {}
+   "code": "K-zsh",
+   "area": "Shells",
+   "description": "zsh: test user zeno",
+   "expected": "present",
+   "outcome": "--",
+   "details": "user missing",
+   "measures": {}
   },
   {
-   "codice": "K-fish",
-   "area": "Shell",
-   "descrizione": "fish: utente di prova fabio",
-   "atteso": "presente",
-   "esito": "NON PROVATO",
-   "dettagli": "utente assente",
-   "misure": {}
+   "code": "K-fish",
+   "area": "Shells",
+   "description": "fish: test user fabio",
+   "expected": "present",
+   "outcome": "--",
+   "details": "user missing",
+   "measures": {}
   },
   {
-   "codice": "K-ksh",
-   "area": "Shell",
-   "descrizione": "ksh: utente di prova kora",
-   "atteso": "presente",
-   "esito": "NON PROVATO",
-   "dettagli": "utente assente",
-   "misure": {}
+   "code": "K-ksh",
+   "area": "Shells",
+   "description": "ksh: test user kora",
+   "expected": "present",
+   "outcome": "--",
+   "details": "user missing",
+   "measures": {}
   },
   {
-   "codice": "K-dash",
-   "area": "Shell",
-   "descrizione": "dash: utente di prova dario",
-   "atteso": "presente",
-   "esito": "NON PROVATO",
-   "dettagli": "utente assente",
-   "misure": {}
+   "code": "K-dash",
+   "area": "Shells",
+   "description": "dash: test user dario",
+   "expected": "present",
+   "outcome": "--",
+   "details": "user missing",
+   "measures": {}
   },
   {
-   "codice": "L1",
-   "area": "Lingua",
-   "descrizione": "all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente",
-   "atteso": "luca in inglese, mario in italiano, testo non tradotto",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {}
+   "code": "L5",
+   "area": "Language",
+   "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
+   "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 11:24 (terminal pts/15)",
+   "measures": {}
   },
   {
-   "codice": "L2",
-   "area": "Lingua",
-   "descrizione": "la domanda e la conferma nella lingua dell'utente",
-   "atteso": "domanda in inglese, «y» conferma",
-   "esito": "OK",
-   "dettagli": "confermato il 01/10 09:27 (terminale pts/15)",
-   "misure": {}
-  },
-  {
-   "codice": "L3",
-   "area": "Lingua",
-   "descrizione": "un amministratore in inglese legge rspeak status in inglese",
-   "atteso": "USER STATE, confirmed on … (terminal …)",
-   "esito": "OK",
-   "dettagli": "luca             confirmed on 01/10 09:27 (terminal pts/15) / mario            delivered, written to 1 terminal",
-   "misure": {}
-  },
-  {
-   "codice": "L4",
-   "area": "Lingua",
-   "descrizione": "il registro è nella lingua del sistema; rspeak log lo riscrive in quella di chi legge",
-   "atteso": "journal in italiano; rspeak log in inglese e in italiano",
-   "esito": "OK",
-   "dettagli": "2026-10-01 09:27:15  user luca: confirmed reading message 1 (terminal pts/15)",
-   "misure": {}
-  },
-  {
-   "codice": "H1",
-   "area": "Prestazioni",
-   "descrizione": "invio a tutti (55 destinatari)",
-   "atteso": "misura",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 0.36,
-    "ms_per_destinatario": 6.6
+   "code": "H1",
+   "area": "Performance",
+   "description": "sending to all (55 recipients)",
+   "expected": "measure",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.07,
+    "ms_per_recipient": 1.3
    }
   },
   {
-   "codice": "H2",
-   "area": "Prestazioni",
-   "descrizione": "rspeak list con 10 messaggi × 55 destinatari",
-   "atteso": "misura (punto 15 della revisione)",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 0.01
+   "code": "H2",
+   "area": "Performance",
+   "description": "rspeak list with 10 messages × 55 recipients",
+   "expected": "measure (item 15 of the review)",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.02
    }
   },
   {
-   "codice": "H3",
-   "area": "Prestazioni",
-   "descrizione": "rspeak status di un messaggio con 55 destinatari",
-   "atteso": "misura",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi": 0.02
+   "code": "H3",
+   "area": "Performance",
+   "description": "rspeak status of a message with 55 recipients",
+   "expected": "measure",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds": 0.16
    }
   },
   {
-   "codice": "I0",
+   "code": "I0",
    "area": "Desktop",
-   "descrizione": "sara ha una sessione grafica con l'agente di RootSpeak attivo (l'avvio dal login automatico lo verifica run.sh prima degli scenari)",
-   "atteso": "sessione grafica, agente attivo",
-   "esito": "OK",
-   "dettagli": "sessione 8",
-   "misure": {}
+   "description": "sara has a graphical session with the RootSpeak agent running (run.sh checks the start from the automatic login before the scenarios)",
+   "expected": "graphical session, agent running",
+   "outcome": "OK",
+   "details": "session 8",
+   "measures": {}
   },
   {
-   "codice": "I1",
+   "code": "I1",
    "area": "Desktop",
-   "descrizione": "la finestra compare da sola dopo l'invio, nella lingua della sessione",
-   "atteso": "finestra «RootSpeak · Messaggio dall'amministratore» (it) con titolo e testo",
-   "esito": "OK",
-   "dettagli": "RootSpeak · Messaggio dall'amministratore | RootSpeak · Messaggio dall'amministratore | Manutenzione · 01/10 09:27\n\nServer spento sabato dalle 8 alle 12.\n | Più tar",
-   "misure": {
-    "secondi_alla_finestra": 0.61
+   "description": "the dialog appears by itself after the sending",
+   "expected": "dialog «RootSpeak · Message from the administrator» with title and text",
+   "outcome": "OK",
+   "details": "RootSpeak · Message from the administrator | RootSpeak · Message from the administrator | Maintenance · 01/10 11:24\n\nServer off on Saturday from 8 to 12.\n | Later | ",
+   "measures": {
+    "seconds_to_dialog": 0.56
    }
   },
   {
-   "codice": "I2",
+   "code": "I2",
    "area": "Desktop",
-   "descrizione": "«Ho letto»: la finestra si chiude e la conferma è registrata",
-   "atteso": "confermato (desktop)",
-   "esito": "OK",
-   "dettagli": "confermato il 01/10 09:27 (desktop)",
-   "misure": {}
+   "description": "«I have read it»: the dialog closes and the confirmation is recorded",
+   "expected": "confirmed (desktop)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 11:24 (desktop)",
+   "measures": {}
   },
   {
-   "codice": "I8",
+   "code": "I12",
    "area": "Desktop",
-   "descrizione": "agente assente: rspeak send lo avvia (systemd-run) e la finestra compare",
-   "atteso": "agente attivo, finestra",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_alla_finestra": 0.57
+   "description": "desktop session in Italian: the dialog is in English",
+   "expected": "session it_IT; title «RootSpeak · Message from the administrator», button «I have read it»",
+   "outcome": "OK",
+   "details": "session language it_IT.UTF-8; title «RootSpeak · Message from the administrator»",
+   "measures": {}
+  },
+  {
+   "code": "I8",
+   "area": "Desktop",
+   "description": "agent not running: rspeak send starts it (systemd-run) and the dialog appears",
+   "expected": "agent running, dialog",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_to_dialog": 0.44
    }
   },
   {
-   "codice": "I3",
+   "code": "I3",
    "area": "Desktop",
-   "descrizione": "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
-   "atteso": "consegnato, rimandato il …",
-   "esito": "OK",
-   "dettagli": "consegnato, rimandato il 01/10 09:27",
-   "misure": {}
+   "description": "«Later»: the dialog closes, the message stays delivered",
+   "expected": "delivered, postponed on …",
+   "outcome": "OK",
+   "details": "delivered, postponed on 01/10 11:24",
+   "measures": {}
   },
   {
-   "codice": "I4",
+   "code": "I4",
    "area": "Desktop",
-   "descrizione": "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
-   "atteso": "finestra di nuovo, dopo circa 60 s",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_alla_ricomparsa": 60.32
+   "description": "after the postponement (1 minute for the test) the dialog comes back",
+   "expected": "dialog again, after about 60 s",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_to_reappearance": 60.2
    }
   },
   {
-   "codice": "I11",
+   "code": "I11",
    "area": "Desktop",
-   "descrizione": "rspeak remind dopo «Più tardi»: la finestra ricompare subito",
-   "atteso": "finestra entro pochi secondi",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_alla_ricomparsa": 0.39
+   "description": "rspeak remind after «Later»: the dialog comes back at once",
+   "expected": "dialog within a few seconds",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_to_reappearance": 0.39
    }
   },
   {
-   "codice": "I5",
+   "code": "I5",
    "area": "Desktop",
-   "descrizione": "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
-   "atteso": "finestra chiusa, confermato (terminale)",
-   "esito": "OK",
-   "dettagli": "confermato il 01/10 09:28 (terminale pts/17)",
-   "misure": {
-    "secondi_alla_chiusura": 0.42
+   "description": "confirmation from a terminal with the dialog open: the dialog closes by itself",
+   "expected": "dialog closed, confirmed (terminal)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 11:25 (terminal pts/16)",
+   "measures": {
+    "seconds_to_closing": 0.64
    }
   },
   {
-   "codice": "I6",
+   "code": "I6",
    "area": "Desktop",
-   "descrizione": "ritiro con la finestra aperta: la finestra si chiude da sola",
-   "atteso": "finestra chiusa",
-   "esito": "OK",
-   "dettagli": "",
-   "misure": {
-    "secondi_alla_chiusura": 0.7
+   "description": "revocation with the dialog open: the dialog closes by itself",
+   "expected": "dialog closed",
+   "outcome": "OK",
+   "details": "",
+   "measures": {
+    "seconds_to_closing": 0.66
    }
   },
   {
-   "codice": "I7",
+   "code": "I7",
    "area": "Desktop",
-   "descrizione": "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
-   "atteso": "«Primo di due», poi «Secondo di due», entrambi confermati",
-   "esito": "OK",
-   "dettagli": "di due\n | Più tardi | Ho letto → di due\n | Più tardi | Ho letto; confermato il 01/10 09:28 (desktop)",
-   "misure": {}
+   "description": "two messages: the dialogs appear one after the other, oldest first",
+   "expected": "«First of two», then «Second of two», both confirmed",
+   "outcome": "OK",
+   "details": " two\n | Later | I have read it →  two\n | Later | I have read it; confirmed on 01/10 11:25 (desktop)",
+   "measures": {}
   },
   {
-   "codice": "I10",
+   "code": "I10",
    "area": "Desktop",
-   "descrizione": "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
-   "atteso": "confermato (desktop)",
-   "esito": "OK",
-   "dettagli": "confermato il 01/10 09:28 (desktop)",
-   "misure": {}
+   "description": "«I have read it» and straight out of the session (0.1 s): the confirmation stays",
+   "expected": "confirmed (desktop)",
+   "outcome": "OK",
+   "details": "confirmed on 01/10 11:25 (desktop)",
+   "measures": {}
   },
   {
-   "codice": "I9",
+   "code": "I9",
    "area": "Desktop",
-   "descrizione": "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
-   "atteso": "finestra dopo il login automatico",
-   "esito": "OK",
-   "dettagli": "e | 01/10 09:28\n\nIn attesa del login\n | Più tardi | Ho letto",
-   "misure": {
-    "secondi_dal_riavvio_del_login": 2.84
+   "description": "message sent while the desktop was closed: the dialog appears at the graphical login",
+   "expected": "dialog after the automatic login",
+   "outcome": "OK",
+   "details": "01/10 11:25\n\nWaiting for the login\n | Later | I have read it",
+   "measures": {
+    "seconds_from_login_restart": 2.68
    }
   }
  ]

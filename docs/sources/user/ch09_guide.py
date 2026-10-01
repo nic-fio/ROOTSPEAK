@@ -3,24 +3,24 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import arrow, box, c, diamond, fig, key, note, p, table, term, text, tip  # noqa: E402
-from _helpers import rif, schermata_u  # noqa: E402
+from _helpers import ref, screen  # noqa: E402
 
 S1 = p("Everything needed to use " + c("rspeak") + " is also inside the command itself: " + c("rspeak --help")
        + " (or " + c("rspeak help") + " or " + c("rspeak -h") + ") opens a full-screen guide, divided into five "
-       "tabs, in the administrator's language.", lead=True) + \
-    schermata_u("guide-info", "«FIG» — The built-in help, Info tab (real screenshot, 78-column terminal)") + \
+       "tabs.", lead=True) + \
+    screen("guide-info", "«FIG» — The built-in help, Info tab (real screenshot, 78-column terminal)") + \
     table(["Tab", "Contains"], [
         ["Info", "name, syntax of all the commands, description of RootSpeak, version and path of this manual"],
-        ["Comandi (Commands)", c("rspeak") + " on its own, " + c("send") + ", " + c("list") + ", " + c("status") + ", "
+        ["Commands", c("rspeak") + " on its own, " + c("send") + ", " + c("list") + ", " + c("status") + ", "
          + c("revoke") + ", " + c("remind") + ", " + c("log") + ", " + c("purge") + ", " + c("version") + ", "
          + c("help")],
-        ["Opzioni (Options)", "the options of " + c("send") + ": recipients, title, expiry, file"],
-        ["Esempi (Examples)", "ready-to-copy commands"],
-        ["File (Files)", "where settings, messages, log and manual are"],
+        ["Options", "the options of " + c("send") + ": recipients, title, expiry, file"],
+        ["Examples", "ready-to-copy commands"],
+        ["Files", "where settings, messages, log and manual are"],
     ], "«TAB» — The tabs of the built-in help") + \
-    schermata_u("guide-options", "«FIG» — The Opzioni (Options) tab") + \
+    screen("guide-options", "«FIG» — The Options tab") + \
     note("like every " + c("rspeak") + " command, the built-in help also asks for the sudo password. The texts of the "
-         "Commands and Options tabs are the same as in the " + rif(13) + " of this manual.", "Always with sudo.")
+         "Commands and Options tabs are the same as in " + ref(13) + " of this manual.", "Always with sudo.")
 
 S2 = table(["Keys", "Action"], [
     [key("←") + " " + key("→") + ", " + key("Tab") + " " + key("Shift", "Tab") + ", " + key("h") + " " + key("l"),
@@ -32,8 +32,7 @@ S2 = table(["Keys", "Action"], [
     [key("g") + " " + key("G") + ", " + key("Home") + " " + key("End"), "start or end of the tab"],
     [key("q") + ", " + key("Esc"), "leave the built-in help"],
 ], "«TAB» — The keys of the built-in help") + \
-    p("At the bottom right the help shows which lines of the tab are being viewed, for example «righe 1-16/18» "
-      "(“lines 1-16/18” in English). Each tab remembers where you had got to. The help adapts when the window is "
+    p("At the bottom right the help shows which lines of the tab are being viewed, for example “lines 1-16/25”. Each tab remembers where you had got to. The help adapts when the window is "
       "resized; on exit the terminal goes back exactly as it was.") + \
     tip("the keys " + key("h") + " " + key("j") + " " + key("k") + " " + key("l") + " are the same as in vi and "
         "less: if you know them, you can use them here too.", "For vi users.")
@@ -58,14 +57,13 @@ S3 = p("The same guide has three forms, and " + c("rspeak") + " picks the right 
          + " to quit"],
         ["the output goes to a file or to another command", "plain text at 80 columns, without colours; compared "
          "with the tabs it also has the environment variables and the exit status of the commands ("
-         + rif(13, 5) + ")"],
+         + ref(13, 5) + ")"],
     ], "«TAB» — The built-in help in the different situations") + \
-    term("admin@server:~$ rspeak --help | grep -A2 -- '--expires DURATA'\n"
-         "       --expires DURATA\n"
-         "              Scadenza, dopo la quale il messaggio non viene più mostrato: 30m,\n"
-         "              2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole",
-         "Searching the built-in help with grep: «Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, "
-         "3d oppure data e ora» (“Expiry, after which the message is no longer shown: 30m, 2h, 3d or a date and time”)") + \
+    term("admin@server:~$ rspeak --help | grep -A2 -- '--expires DURATION'\n"
+         "       --expires DURATION\n"
+         "              Expiry, after which the message is no longer shown: 30m, 2h, 3d or\n"
+         "              a date and time (\"2026-10-04 12:00\").",
+         "Searching the built-in help with grep") + \
     note("" + c("rspeak") + " on its own, too, in a pipe or in a terminal smaller than 80 columns or 20 lines, "
          "shows the built-in help instead of the TUI.", "And rspeak on its own?")
 

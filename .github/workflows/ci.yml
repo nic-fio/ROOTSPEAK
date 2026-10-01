@@ -1,9 +1,9 @@
-# Prove di RootSpeak a ogni push e pull request, con ciò che gira su una macchina di
-# GitHub: compilazione (avvisi come errori), prove delle parti interne,
-# controlli dei manuali e tests/engine.sh in modalità di prova (senza root).
-# Le prove dal vero (tests/container/run.sh, tests/vm/run.sh) e il fuzzing
-# restano sul PC e sul server delle prove: servono podman con systemd o una VM
-# con desktop.
+# RootSpeak tests at every push and pull request, with what runs on a GitHub
+# machine: build (warnings as errors), unit tests, manual checks and
+# tests/engine.sh in test mode (without root).
+# The real-world tests (tests/container/run.sh, tests/vm/run.sh) and the fuzzing
+# stay on the PC and on the test server: they need podman with systemd or a VM
+# with a desktop.
 name: CI
 
 on:
@@ -21,20 +21,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pacchetti
+      - name: Packages
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends gcc make pkg-config libsystemd-dev gettext python3-pygments
+          sudo apt-get install -y --no-install-recommends gcc make pkg-config libsystemd-dev python3-pygments
 
-      - name: Compilazione (make)
+      - name: Build (make)
         run: make
 
-      - name: Prove delle parti interne (make prove)
-        run: make prove
+      - name: Unit tests (make unit)
+        run: make unit
 
-      # prima di tests/engine.sh, che riscrive tests/results/engine.json
-      - name: Controlli dei manuali (make docs-check)
+      # before tests/engine.sh, which rewrites tests/results/engine.json
+      - name: Manual checks (make docs-check)
         run: make docs-check
 
-      - name: Motore in modalità di prova (tests/engine.sh)
+      - name: Engine in test mode (tests/engine.sh)
         run: tests/engine.sh

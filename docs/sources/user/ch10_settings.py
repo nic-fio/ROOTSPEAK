@@ -3,34 +3,31 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import arrow, box, c, code, fig, note, p, steps, table, term, text, tip, warn  # noqa: E402
-from _helpers import rif  # noqa: E402
+from _helpers import ref  # noqa: E402
 
 S1 = p("RootSpeak has two settings, and they live in a single file, " + c("/etc/rootspeak/rootspeak.conf") + ". They are fine as "
        "installed; change them only for particular needs.", lead=True) + \
-    code("""# RootSpeak - Advanced Messaging System for Linux: configurazione
-# File di dati, non uno script: righe CHIAVE=valore con numeri interi positivi.
-# Chiavi sconosciute e valori non validi sono ignorati.
+    code("""# RootSpeak - Advanced Messaging System for Linux: configuration
+# A data file, not a script: KEY=value lines with positive whole numbers.
+# Unknown keys and invalid values are ignored.
 
-# Dopo quanti minuti riproporre un messaggio rimandato dall'utente
+# After how many minutes a message postponed by the user is shown again
 RSPEAK_REMIND_MINUTES=30
 
-# Ogni quanti secondi l'agente del desktop ricontrolla i messaggi
-# (i nuovi messaggi lo svegliano comunque subito)
-RSPEAK_AGENT_POLL=60""", "conf", "/etc/rootspeak/rootspeak.conf, as RootSpeak installs it. The comments say: “RootSpeak - Advanced Messaging "
-    "System: configuration. Data file, not a script: KEY=value lines with positive integers. Unknown keys and invalid "
-    "values are ignored.” “After how many minutes to show again a message postponed by the user.” “How often, in "
-    "seconds, the desktop agent checks the messages again (new messages wake it at once anyway).”") + \
+# Every how many seconds the desktop agent checks the messages again
+# (new messages wake it at once anyway)
+RSPEAK_AGENT_POLL=60""", "conf", "/etc/rootspeak/rootspeak.conf, as RootSpeak installs it") + \
     table(["Setting", "Default", "What it decides"], [
         [c("RSPEAK_REMIND_MINUTES"), c("30"), "after how many minutes a postponed message is asked again, in the "
-         "terminal and on the desktop; it is also the number written in «La domanda verrà riproposta tra 30 "
-         "minuti» (“You will be asked again in 30 minutes”)"],
+         "terminal and on the desktop; it is also the number written in “You will be "
+         "asked again in 30 minutes”"],
         [c("RSPEAK_AGENT_POLL"), c("60"), "how often, in seconds, the desktop agent checks the messages again as a "
          "safeguard. New messages and reminders arrive at once anyway. Lower values use slightly more "
          "battery"],
     ], "«TAB» — The settings") + \
     table(["File rule", "Example"], [
-        ["one line per setting, " + c("CHIAVE=valore") + " (“KEY=value”)", c("RSPEAK_REMIND_MINUTES=15")],
-        ["only integers greater than zero, at most six digits", c("RSPEAK_AGENT_POLL=120")],
+        ["one line per setting, " + c("KEY=value"), c("RSPEAK_REMIND_MINUTES=15")],
+        ["only whole numbers greater than zero, at most six digits", c("RSPEAK_AGENT_POLL=120")],
         ["spaces do not matter", c("RSPEAK_REMIND_MINUTES = 15")],
         ["anything after " + c("#") + " is a comment", c("RSPEAK_AGENT_POLL=30  # laptops on charge")],
         ["invalid lines, unknown keys and wrong values are ignored: the default applies",
@@ -63,7 +60,7 @@ S2 = EFFETTO + steps([
 ], "«TAB» — Recommended values") + \
     warn("the file must remain owned by root and writable only by root, as the installation leaves it: all users "
          "read it, to know when to ask the messages again.", "Permissions.") + \
-    note("an RootSpeak upgrade does not overwrite " + c("/etc/rootspeak/rootspeak.conf") + "; " + c("./install.sh --purge")
+    note("a RootSpeak upgrade does not overwrite " + c("/etc/rootspeak/rootspeak.conf") + "; " + c("./install.sh --purge")
          + " deletes it.", "Upgrades.")
 
 S3 = p("A few environment variables change the behaviour of " + c("rspeak") + " for the administrator who sets them. "
@@ -71,11 +68,9 @@ S3 = p("A few environment variables change the behaviour of " + c("rspeak") + " 
        lead=True) + \
     table(["Variable", "Effect", "Default"], [
         [c("NO_COLOR"), "if set, TUI and built-in help without colours", "colours"],
-        [c("PAGER"), "the program that pages the built-in help in small terminals (" + rif(9, 3) + ")", c("less")],
-        [c("VISUAL") + ", " + c("EDITOR"), "the editor opened with " + "Ctrl+E" + " in the new message (" + rif(5, 5)
+        [c("PAGER"), "the program that pages the built-in help in small terminals (" + ref(9, 3) + ")", c("less")],
+        [c("VISUAL") + ", " + c("EDITOR"), "the editor opened with " + "Ctrl+E" + " in the new message (" + ref(5, 5)
          + ")", c("nano") + ", then " + c("vi")],
-        [c("LANG") + " and similar", "the language of " + c("rspeak") + " and of the TUI", "kept by sudo in the "
-         "usual configurations"],
     ], "«TAB» — Environment variables") + \
     p("To have sudo keep them, add a line to its settings, always with " + c("visudo") + ":") + \
     term('admin@server:~$ sudo visudo -f /etc/sudoers.d/rootspeak\n'

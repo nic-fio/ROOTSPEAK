@@ -1,40 +1,37 @@
 /* RootSpeak - Advanced Messaging System for Linux
- * Fuzzing (libFuzzer) di ciò che legge dati non fidati: il primo byte sceglie
- * il bersaglio, il resto è il dato.
- *   0 pulizia del testo            (testo e titolo dei messaggi)
- *   1 formato dei messaggi         (copie nelle caselle, lette da rootspeak-user)
- *   2 uscita della lettura caselle (conferme e rinvii scritti dall'utente, letti da root)
- *   3 ambiente di un processo      (/proc/PID/environ di un utente, letto da root)
- *   4 configurazione
- *   5 catalogo .mo */
+ * Fuzzing (libFuzzer) of what reads untrusted data: the first byte picks
+ * the target, the rest is the data.
+ *   0 text cleaning                (text and title of messages)
+ *   1 message format               (copies in the mailboxes, read by rootspeak-user)
+ *   2 mailbox reading output       (confirmations and postponements written by the user, read by root)
+ *   3 configuration */
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "archivio.h"
-#include "comune.h"
-#include "lingua.h"
-#include "testo.h"
+#include "store.h"
+#include "common.h"
+#include "text.h"
 
-int LLVMFuzzerTestOneInput(const uint8_t *dati, size_t n);
+int LLVMFuzzerTestOneInput(const uint8_t *data_bytes, size_t n);
 
-int LLVMFuzzerTestOneInput(const uint8_t *dati, size_t n)
+int LLVMFuzzerTestOneInput(const uint8_t *data_bytes, size_t n)
 {
 	const char *s;
 	char *z;
 
 	if (n < 1)
 		return 0;
-	s = (const char *)dati + 1;
+	s = (const char *)data_bytes + 1;
 	n--;
 	z = malloc(n + 1);
 	memcpy(z, s, n);
 	z[n] = '\0';
-	switch (dati[0] % 6) {
+	switch (data_bytes[0] % 4) {
 	case 0: {
 		buf_t b = {0};
 
-		pulisci(s, n, &b);
+		clean_text(s, n, &b);
 		buf_free(&b);
 		break;
 	}
@@ -42,40 +39,26 @@ int LLVMFuzzerTestOneInput(const uint8_t *dati, size_t n)
 		msg_t m;
 		buf_t b = {0};
 
-		if (msg_da_testo(s, n, &m) == 0) {
-			msg_formatta(&m, &b);
-			msg_intestazione(&m, &b);
-			msg_libera(&m);
+		if (msg_from_text(s, n, &m) == 0) {
+			msg_format(&m, &b);
+			msg_header(&m, &b);
+			msg_free(&m);
 		}
 		buf_free(&b);
 		break;
 	}
 	case 2: {
-		casella_t c;
+		mailbox_t c;
 
-		casella_da_testo(s, n, &c);
-		casella_voce(&c, 1);
-		casella_libera(&c);
-		break;
-	}
-	case 3: {
-		char out[LINGUA_MAX];
-
-		lingua_da_environ(s, n, out);
-		break;
-	}
-	case 4: {
-		conf_t c;
-
-		conf_da_testo(z, &c);
+		mailbox_from_text(s, n, &c);
+		mailbox_item(&c, 1);
+		mailbox_free(&c);
 		break;
 	}
 	default: {
-		catalogo_t *c = catalogo_da_memoria(s, n);
+		conf_t c;
 
-		catalogo_cerca(c, "desktop");
-		catalogo_cerca(c, z);
-		catalogo_libera(c);
+		conf_from_text(z, &c);
 		break;
 	}
 	}

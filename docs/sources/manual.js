@@ -1,13 +1,13 @@
-/* Script comune dei manuali dei 7 progetti: ricerca, indice analitico, pulsante Copy. Uguale in tutti i manuali. */
-/* Ricerca nella barra laterale e indice analitico. Senza dipendenze; senza
-   JavaScript il manuale resta completo (la casella di ricerca resta nascosta). */
+/* Common script of the manuals of the 7 projects: search, index, Copy button. The same in every manual. */
+/* Sidebar search and index. No dependencies; without JavaScript the manual is
+   still complete (the search box stays hidden). */
 (function () {
   "use strict";
   var main = document.querySelector(".main");
   if (!main) return;
 
-  // Minuscole e senza accenti, carattere per carattere: la lunghezza resta
-  // uguale, così le posizioni trovate valgono anche sul testo originale.
+  // Lower case and without accents, character by character: the length stays
+  // the same, so the positions found are valid on the original text too.
   function fold(s) {
     var o = "";
     for (var i = 0; i < s.length; i++) {
@@ -26,12 +26,12 @@
     var h = sec && sec.querySelector("h3.h-sec, h2.h-ch");
     return h ? h.textContent.replace(/\s+/g, " ").trim() : "";
   }
-  function splitTitle(t) { // "5.3 · Interruzioni e ripresa" -> ["5.3", "Interruzioni e ripresa"]
+  function splitTitle(t) { // "5.3 · Interruptions and recovery" -> ["5.3", "Interruptions and recovery"]
     var m = /^([\d.]+) · (.*)$/.exec(t);
     return m ? [m[1], m[2]] : ["", t];
   }
 
-  /* ---------------- indice analitico ---------------- */
+  /* ---------------- index ---------------- */
   var list = document.getElementById("index-list");
   if (list) {
     var terms = {};
@@ -68,8 +68,8 @@
     groups.forEach(function (g) {
       out += '<div class="idx-g"><h3 class="idx-l">' + g.ch + '</h3><ul class="idx-ul">';
       g.items.forEach(function (t) {
-        // Voci da mostrare come codice: nomi di file e opzioni, piu' le parole
-        // che il manuale elenca in window.MANUAL_CODE_TERMS (prima di questo script).
+        // Entries shown as code: file names and options, plus the words the
+        // manual lists in window.MANUAL_CODE_TERMS (before this script).
         var isCode = /^[-.]|_|\.(txt|sh|example|conf|toml|json|md|py|efi|nsb)$/.test(t.name) ||
           (window.MANUAL_CODE_TERMS || []).indexOf(t.name) >= 0;
         var nm = isCode ? "<code>" + esc(t.name) + "</code>" : esc(t.name);
@@ -82,7 +82,7 @@
     list.innerHTML = out;
   }
 
-  /* ---------------- ricerca ---------------- */
+  /* ---------------- search ---------------- */
   var box = document.getElementById("srch");
   var q = document.getElementById("srch-q");
   var info = document.getElementById("srch-info");
@@ -113,7 +113,7 @@
     while (p >= 0) { n++; p = hay.indexOf(w, p + w.length); }
     return n;
   }
-  function markWords(s, fs, words) { // testo -> HTML con <mark> sulle parole cercate
+  function markWords(s, fs, words) { // text -> HTML with <mark> on the words searched for
     var ranges = [];
     words.forEach(function (w) {
       var p = fs.indexOf(w);
@@ -264,12 +264,12 @@
     q.select();
   });
 })();
-/* Pulsante Copy sui blocchi di comandi: copia le righe che iniziano con un
-   prompt, senza il prompt. Prompt riconosciuti: "$ ", "utente@macchina:percorso$ "
-   (e "#" di root in quella forma), "fs0:\> " e "Shell> " di UEFI. Un prompt senza
-   comando non conta; le righe che continuano un comando ("\" in fondo, o "... "
-   del BASIC di NESH) si copiano con lui. L'etichetta sta in CSS (data-l), cosi' non
-   entra nel testo della pagina ne' nella ricerca. */
+/* Copy button on command blocks: copies the lines that start with a prompt,
+   without the prompt. Prompts recognised: "$ ", "user@machine:path$ " (and root's
+   "#" in that form), "fs0:\> " and UEFI's "Shell> ". A prompt without a command
+   does not count; the lines that continue a command ("\" at the end, or "... " of
+   NESH's BASIC) are copied with it. The label is in CSS (data-l), so it enters
+   neither the text of the page nor the search. */
 (function () {
   "use strict";
   var pres = document.querySelectorAll(".main pre.code");
@@ -279,7 +279,7 @@
       var m = /^(?:\$|[\w.-]+@[\w.-]+:[^\s$#]*[$#]|fs\d+:[^>\s]*>|Shell>) (.*\S.*)$/.exec(lines[k]);
       if (!m) continue;
       var cmd = m[1];
-      // Il comando continua: riga che finisce con "\" (shell) o righe "... " (BASIC di NESH)
+      // The command continues: a line ending with "\" (shell) or "... " lines (NESH's BASIC)
       while (k + 1 < lines.length) {
         if (/\\\s*$/.test(cmd)) { cmd += "\n" + lines[++k]; continue; }
         var c = /^\.\.\. ?(.*)$/.exec(lines[k + 1]);
@@ -288,7 +288,7 @@
       }
       cmds.push(cmd);
     }
-    if (!cmds.length) return;              // non e' un blocco di comandi
+    if (!cmds.length) return;              // not a block of commands
     var text = cmds.join("\n");
     var wrap = document.createElement("div");
     wrap.className = "code-w";

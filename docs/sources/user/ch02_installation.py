@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import c, flow, note, p, steps, table, term, tip, tree, warn  # noqa: E402
-from _helpers import rif  # noqa: E402
+from _helpers import ref  # noqa: E402
 
 S1 = p("RootSpeak runs on a Linux distribution with systemd. It has been tested on Debian 13 with GNOME on Wayland: live, "
        "and with automated tests in a test machine and in a virtual machine with a desktop. With X11, other desktops "
@@ -15,53 +15,49 @@ S1 = p("RootSpeak runs on a Linux distribution with systemd. It has been tested 
          c("sudo") + " (group " + c("sudo") + "; on Fedora and similar " + c("wheel") + ")"],
         ["a shell: bash, zsh or fish", "the confirmation question in terminals at every prompt; with sh, dash and ksh "
          "only at login", "bash is already present"],
-        ["zenity", "the «Ho letto» (“I have read it”) / «Più tardi» (“Later”) dialog on the desktop", c("zenity")],
+        ["zenity", "the “I have read it” / “Later” dialog on the desktop", c("zenity")],
         ["notify-send (optional)", "the desktop notice when a confirmation could not be recorded",
          c("libnotify-bin")],
         ["the build tools, only for installing", "RootSpeak is written in C: " + c("install.sh") + " compiles it "
-         "if needed", c("gcc make pkg-config libsystemd-dev gettext")],
+         "if needed", c("gcc make pkg-config libsystemd-dev")],
     ], "«TAB» — Requirements") + \
-    term("admin@server:~$ sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev gettext",
+    term("admin@server:~$ sudo apt install zenity libnotify-bin gcc make pkg-config libsystemd-dev",
          "Installing the packages on Debian and Ubuntu") + \
     note("on machines without a desktop zenity is not needed: RootSpeak uses only the terminals. The installation reports "
-         "«Attenzione: manca zenity» (“Warning: zenity is missing”) but carries on.", "Servers without a desktop.")
+         "“Warning: zenity is missing” but carries on.", "Servers without a desktop.")
 
-PERCORSO = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "installs, with sudo", "navy"),
+INSTALL_PATH = flow([("make", "compiles, as a user", "dark"), ("./install.sh", "installs, with sudo", "navy"),
                  ("rspeak version", "does it answer?", "blue"), ("rspeak", "the TUI, empty", "green")],
                 "«FIG» — From the source tree to the first start", "Installation in four steps")
 
-S2 = PERCORSO + steps([
+S2 = INSTALL_PATH + steps([
     "Open a terminal in the RootSpeak folder and compile, as a normal user:" + term(
         "admin@server:~/ROOTSPEAK$ make"),
-    "Run the installation: the script restarts itself with sudo and asks for the password («password di admin», "
-    "“admin's password”). At the end it confirms «RootSpeak installato» (“RootSpeak installed”), gives the paths of the command "
-    "(usable by the sudo group) and of the manuals, and reminds that «Le sessioni già aperte ricevono i messaggi sul "
-    "terminale subito e la domanda di conferma dalla prossima shell o dal prossimo login» (“Sessions already open "
-    "receive the messages in the terminal at once, and the confirmation question from the next shell or the next "
-    "login”)." + term(
+    "Run the installation: the script restarts itself with sudo and asks for your password. At the end it confirms "
+    "“RootSpeak installed”, gives the paths of the command (usable by the sudo group) and of the manuals, and reminds "
+    "you that sessions already open get the messages in the terminal at once, and the confirmation question from the "
+    "next shell or the next login." + term(
         "admin@server:~/ROOTSPEAK$ ./install.sh\n"
-        "[sudo] password di admin:\n"
-        "RootSpeak installato. Comando: /usr/local/bin/rspeak (utilizzabile dal gruppo sudo).\n"
-        "Manuali: /usr/local/share/doc/rootspeak/User Manual.html e Technical Manual.html\n"
-        "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda\n"
-        "di conferma dalla prossima shell o dal prossimo login."),
+        "[sudo] password for admin:\n"
+        "RootSpeak installed. Command: /usr/local/bin/rspeak (usable by the sudo group).\n"
+        "Manuals: /usr/local/share/doc/rootspeak/User Manual.html and Technical Manual.html\n"
+        "Sessions already open get messages in the terminal at once, and the\n"
+        "confirmation question from the next shell or the next login."),
     "Check that the command answers:" + term("admin@server:~$ rspeak version\n"
                                              "RootSpeak - Advanced Messaging System for Linux 0.2.0"),
 ]) + tip("if " + c("make") + " has not been run, or if the programs were compiled for other folders, "
-         + c("install.sh") + " compiles on its own. If compilation fails it writes «Compilazione non riuscita: "
-         "servono gcc, make, pkg-config, libsystemd-dev e gettext» (compilation failed: gcc, make, pkg-config, "
-         "libsystemd-dev and gettext are needed).", "Automatic compilation.") + \
+         + c("install.sh") + " compiles on its own. If compilation fails it writes “Build failed: gcc, make, pkg-config and "
+         "libsystemd-dev are needed”.", "Automatic compilation.") + \
     note("users who are already logged in receive messages straight away, on the desktop too. The confirmation "
          "question in the terminal, instead, arrives from the next terminal window they open: the ones already open "
          "have not loaded RootSpeak yet.", "Users already logged in.")
 
-ALBERO = tree([
+TREE = tree([
     "/usr/local/bin/rspeak  # the administrators' command (root:sudo, 750)",
     "/usr/local/lib/rootspeak/  # the internal parts",
     "├── rootspeak-user  # shows the messages and records the confirmations, as the user",
     "├── rootspeak.bash  # bash hook",
     "└── rootspeak.zsh  # zsh hook",
-    "/usr/local/share/locale/it/LC_MESSAGES/rootspeak.mo  # the Italian translation",
     "/usr/local/share/doc/rootspeak/  # this manual and the technical manual",
     "/etc/rootspeak/rootspeak.conf  # the settings (not overwritten by an upgrade)",
     "/etc/profile.d/rootspeak.sh  # shell hook at login",
@@ -74,12 +70,12 @@ ALBERO = tree([
 
 S3 = p("The installation puts everything in the usual Linux places. Besides these files it adds a line, marked "
        + c("# RootSpeak hook") + ", at the end of " + c("/etc/bash.bashrc") + " and, if zsh is installed, to the system "
-       "zshrc: this is what makes the question appear in the desktop's terminals.", lead=True) + ALBERO + \
+       "zshrc: this is what makes the question appear in the desktop's terminals.", lead=True) + TREE + \
     table(["Where", "What it is", "Who uses it"], [
         [c("/usr/local/bin/rspeak"), "The command. Only the administrators group can run it.", "administrators"],
         [c("/usr/local/lib/rootspeak/rootspeak-user"), "The helper that shows the messages and records the confirmations. It is "
          "not a command: users never launch it, it starts on its own.", "users' shells and desktops"],
-        [c("/etc/rootspeak/rootspeak.conf"), "The settings (" + rif(10) + ").", "everyone, read-only"],
+        [c("/etc/rootspeak/rootspeak.conf"), "The settings (" + ref(10) + ").", "everyone, read-only"],
         [c("/var/lib/rootspeak/"), "The messages, the users' mailboxes, the confirmations.", "RootSpeak"],
         [c("/etc/xdg/autostart/rootspeak-agent.desktop"), "Starts the desktop agent at every graphical login.",
          "the users' desktops"],
@@ -99,13 +95,12 @@ S4 = p("The " + c("rspeak") + " command belongs to root and to the administrator
          "use RootSpeak. This is intended: sending messages to all users is an administrator's task.", "A single group.")
 
 S5 = p("Right after installation it is worth doing three checks, none of which disturbs anyone.", lead=True) + steps([
-    "Open the built-in help: " + c("rspeak --help") + " (" + rif(9) + "). Leave it with " + c("q") + ".",
-    "Check the list of messages: it is empty, because nothing has been sent yet: «Nessun messaggio inviato.» (“No "
-    "messages sent.”)." + term(
-        "admin@server:~$ rspeak list\nNessun messaggio inviato."),
-    "Open the TUI by typing " + c("rspeak") + " on its own: it shows «Nessun messaggio inviato.» (No messages sent.) "
-    "and the keys at the bottom. Leave it with " + c("q") + ".",
-    "For a complete test, send a message to yourself, as in " + rif(4) + ".",
+    "Open the built-in help: " + c("rspeak --help") + " (" + ref(9) + "). Leave it with " + c("q") + ".",
+    "Check the list of messages: it is empty, because nothing has been sent yet." + term(
+        "admin@server:~$ rspeak list\nNo messages sent."),
+    "Open the TUI by typing " + c("rspeak") + " on its own: it shows “No messages sent.” and the keys at the "
+    "bottom. Leave it with " + c("q") + ".",
+    "For a complete test, send a message to yourself, as in " + ref(4) + ".",
 ]) + tip("a message sent to yourself shows in a few seconds everything the users will see: the text in the "
          "terminal, the question at the prompt, the dialog on the desktop.", "Try it on yourself.")
 
@@ -113,14 +108,14 @@ S6 = table(["To", "Command", "What happens"], [
     ["Upgrade", c("./install.sh") + " from the folder of the new version",
      "Installs the new version; messages and settings are kept. The desktop agents of the previous version are "
      "closed: a new one starts with the first message or at the next login."],
-    ["Remove RootSpeak", c("./install.sh --uninstall"), "Removes the command, hooks, manuals and translations; messages "
+    ["Remove RootSpeak", c("./install.sh --uninstall"), "Removes the command, the hooks and the manuals; messages "
      "(" + c("/var/lib/rootspeak") + ") and settings (" + c("/etc/rootspeak") + ") are kept, for a possible reinstallation."],
     ["Remove everything", c("./install.sh --purge"), "As above, and in addition deletes the messages and the "
      "settings."],
 ], "«TAB» — Upgrading and removing") + \
     term("admin@server:~/ROOTSPEAK$ ./install.sh --uninstall\n"
-         "RootSpeak rimosso. Messaggi (/var/lib/rootspeak) e configurazione (/etc/rootspeak) conservati.",
-         "Removal: “RootSpeak removed. Messages (/var/lib/rootspeak) and configuration (/etc/rootspeak) kept.”") + \
+         "RootSpeak removed. Messages (/var/lib/rootspeak) and configuration (/etc/rootspeak) kept.",
+         "Removal: messages and settings stay") + \
     warn(c("--purge") + " also deletes the record of who confirmed what. If it needs to be kept, copy "
          + c("/var/lib/rootspeak") + " elsewhere first. The events remain in the system log in any case.",
          "Before --purge.")

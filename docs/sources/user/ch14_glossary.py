@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import arrow, box, c, dl, fig, text, zone  # noqa: E402
 
-MAPPA = fig(
+MAP = fig(
     box(30, 60, 190, 60, "Message", "number, title, text", "navy")
     + box(30, 170, 190, 60, "Properties", "expiry, revocation", "grey")
     + box(300, 60, 190, 60, "Recipients", "names, @group, all, online", "dark")
@@ -20,28 +20,28 @@ MAPPA = fig(
     + text(720, 296, "confirmation channel: desktop or terminal", 11.5, "#334155", "600"),
     900, 330, "«FIG» — The words of RootSpeak and how they fit together", "Map of the terms")
 
-S1 = MAPPA + dl([
+S1 = MAP + dl(sorted([
     ("desktop agent", "The small RootSpeak program that starts at every graphical login and shows the confirmation "
      "dialogs. It is not a command: it starts by itself."),
     ("all", "Special recipient: all the users of the machine with a UID of 1000 or above and a real shell."),
     ("message store", "The folder " + c("/var/lib/rootspeak/") + ": the reference copies of the messages and the users' "
      "mailboxes."),
-    ("channel", "Where a confirmation came from: " + c("desktop") + " or " + c("terminale pts/N") + " or "
-     + c("terminale ttyN") + " (“terminal” in an English session)."),
+    ("channel", "Where a confirmation came from: " + c("desktop") + " or " + c("terminal pts/N") + " or "
+     + c("terminal ttyN") + "."),
     ("mailbox", "The space where RootSpeak keeps a user's messages, their confirmations and their postponements. Only "
      "they (and root) can open it."),
-    ("confirmation", "The user's statement that they have read a message: a click on «Ho letto» (“I have read "
-     "it”) or the answer «s» (“y”). It is final and applies to all their sessions."),
-    ("confirmed (confermato)", "Third state of a recipient: they have stated that they read the message. It is "
+    ("confirmation", "The user's statement that they have read a message: a click on “I have read it” "
+     "or the answer “y”. It is final and applies to all their sessions."),
+    ("confirmed", "Third state of a recipient: they have stated that they read the message. It is "
      "their statement, not proof that they really read it."),
-    ("delivered (consegnato)", "Second state: the copy of the message is in the user's mailbox, and the user has "
+    ("delivered", "Second state: the copy of the message is in the user's mailbox, and the user has "
      "not confirmed yet. Whoever postpones stays delivered."),
-    ("recipients", "The users who receive a message: names, " + c("@gruppo") + " (“@group”), " + c("all") + ", "
+    ("recipients", "The users who receive a message: names, " + c("@group") + ", " + c("all") + ", "
      + c("online") + "."),
     ("event", "A fact in the history of a message (sending, delivery, postponement, reminder, confirmation, "
      "revocation, deletion), written to the system log."),
     ("built-in help", "The tabbed help that opens with " + c("rspeak --help") + "."),
-    ("sent (inviato)", "First state: the message has left, but the copy is not yet in the user's mailbox."),
+    ("sent", "First state: the message has left, but the copy is not yet in the user's mailbox."),
     ("online", "Special recipient: among the users of " + c("all") + ", those logged in at the moment of "
      "sending."),
     ("purge", "Deleting the messages older than a given duration: " + c("rspeak purge") + " or the " + c("p")
@@ -49,17 +49,17 @@ S1 = MAPPA + dl([
     ("recovery", "The automatic completion of a sending left halfway, the next time " + c("rspeak") + " is used."),
     ("system log", "The machine's log (the journal), where RootSpeak writes its events with the tag "
      + c("rspeak") + "."),
-    ("postpone", "Pressing «Più tardi» (“Later”) or answering «n»: the message is shown again after 30 minutes. "
+    ("postpone", "Pressing “Later” or answering anything other than “y”: the message is shown again after 30 minutes. "
      "It is not a state."),
     ("revoke", "Withdrawing a message with " + c("rspeak revoke") + " or the " + c("r") + " key: whoever has not seen "
-     "it will no longer see it. Revoked (ritirato) is a property of the message, not a state of the recipients."),
-    ("expiry", "The moment after which a message is no longer shown (" + c("--expires") + "). Expired (scaduto) is "
+     "it will no longer see it. Revoked is a property of the message, not a state of the recipients."),
+    ("expiry", "The moment after which a message is no longer shown (" + c("--expires") + "). Expired is "
      "a property of the message, not a state of the recipients."),
     ("session", "A user's access to the machine: the desktop, a console, an ssh connection."),
     ("remind", "Asking again, immediately, for the confirmation from those who are still delivered: "
-     + c("rspeak remind") + " or the " + c("s") + " key in the TUI."),
+     + c("rspeak remind") + " or the " + c("m") + " key in the TUI."),
     ("TUI", "The full-screen interface, inside the terminal, that opens when you type " + c("rspeak") + " on its own."),
-], cls="gloss")
+], key=lambda term: term[0].lower()), cls="gloss")
 
 CHAPTER = ("Glossary", [
     ("Terms", S1),

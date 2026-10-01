@@ -1,22 +1,22 @@
-[2m┌[0m[1;36m─ rspeak — guida [0m[2m───────────────────────────────────────────────────────────┐[0m
-[2m│[0m [7;1m Info [0m[2m Comandi [0m[2m Opzioni [0m[2m Esempi [0m[2m File [0m                                     [2m│[0m
+[2m┌[0m[1;36m─ rspeak — guide [0m[2m───────────────────────────────────────────────────────────┐[0m
+[2m│[0m [7;1m Info [0m[2m Commands [0m[2m Options [0m[2m Examples [0m[2m Files [0m                                 [2m│[0m
 [2m├────────────────────────────────────────────────────────────────────────────┤[0m
-[2m│[0m [1;33mNOME[0m                                                                       [2m│[0m
-[2m│[0m    rspeak — messaggi agli utenti con conferma di lettura                   [2m│[0m
+[2m│[0m [1;33mNAME[0m                                                                       [2m│[0m
+[2m│[0m    rspeak — messages to users with read confirmation                       [2m│[0m
 [2m│[0m                                                                            [2m│[0m
-[2m│[0m [1;33mSINTASSI[0m                                                                   [2m│[0m
-[2m│[0m    rspeak send --to DEST [opzioni] [TESTO]                                 [2m│[0m
+[2m│[0m [1;33mSYNOPSIS[0m                                                                   [2m│[0m
+[2m│[0m    rspeak send --to DEST [options] [TEXT]                                  [2m│[0m
 [2m│[0m    rspeak list                                                             [2m│[0m
 [2m│[0m    rspeak status ID                                                        [2m│[0m
 [2m│[0m    rspeak                                                                  [2m│[0m
 [2m│[0m    rspeak revoke ID                                                        [2m│[0m
 [2m│[0m    rspeak remind ID                                                        [2m│[0m
 [2m│[0m    rspeak log ID                                                           [2m│[0m
-[2m│[0m    rspeak purge DURATA                                                     [2m│[0m
+[2m│[0m    rspeak purge DURATION                                                   [2m│[0m
 [2m│[0m    rspeak version                                                          [2m│[0m
 [2m│[0m                                                                            [2m│[0m
-[2m│[0m [1;33mDESCRIZIONE[0m                                                                [2m│[0m
-[2m│[0m    RootSpeak permette agli amministratori di mandare messaggi di testo     [2m│[0m
+[2m│[0m [1;33mDESCRIPTION[0m                                                                [2m│[0m
+[2m│[0m    RootSpeak lets administrators send text messages to the users of the    [2m│[0m
 [2m├────────────────────────────────────────────────────────────────────────────┤[0m
-[2m│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci           righe 1-16/26 │[0m
+[2m│ ←/→ tabs · ↑/↓ scroll · PgUp/PgDn · g/G · q quit             lines 1-16/25 │[0m
 [2m└────────────────────────────────────────────────────────────────────────────┘[0m

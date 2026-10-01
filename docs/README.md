@@ -1,55 +1,55 @@
-# Documentazione di RootSpeak
+# RootSpeak documentation
 
-GitHub mostra i file `.html` come codice sorgente: non visualizza le pagine web
-salvate in un repository. Il repository è privato, quindi GitHub Pages non
-pubblica la documentazione: si legge dalla copia locale. Si clona il
-repository e si apre `docs/index.html` (o direttamente `docs/User Manual.html`)
-nel browser, per esempio con `xdg-open docs/index.html`. Ogni manuale è un file
-unico che contiene stile, figure e logo, quindi funziona anche senza rete, si allega
-a una email e si stampa. Dopo `./install.sh` i due manuali sono anche in
-`/usr/local/share/doc/rootspeak/`.
+GitHub shows `.html` files as source code: it does not display the web pages
+saved in a repository. The repository is private, so GitHub Pages does not
+publish the documentation: read it from the local copy. Clone the repository
+and open `docs/index.html` (or `docs/User Manual.html` directly) in the
+browser, for example with `xdg-open docs/index.html`. Each manual is a single
+file that contains its style, figures and logo, so it works without a network
+too, can be attached to an email and printed. After `./install.sh` the two
+manuals are also in `/usr/local/share/doc/rootspeak/`.
 
-I file Markdown (`decisions-and-history.md`, `adversarial-review.md`) GitHub li
-mostra già formattati.
+GitHub already shows the Markdown files (`decisions-and-history.md`,
+`adversarial-review.md`) formatted.
 
-Dentro il programma, `rspeak --help` mostra la guida integrata a schede.
+Inside the program, `rspeak --help` shows the built-in help, in tabs.
 
-## File
+## Files
 
-| File | Cosa |
+| File | What |
 |---|---|
-| `index.html` | Pagina iniziale della documentazione. |
-| `User Manual.html` | Manuale utente, in inglese: installare e usare RootSpeak; riferimento di tutti i comandi e le opzioni. |
-| `Technical Manual.html` | Manuale tecnico, in inglese: architettura, archivio, consegna, conferme, sicurezza, specifica, test, limiti. |
-| `decisions-and-history.md` | Perché RootSpeak è fatto così, e la sua storia. |
-| `adversarial-review.md` | Le due revisioni esterne e cosa è stato fatto per ogni punto. |
-| `.nojekyll` | Dice a GitHub Pages di servire i file così come sono (se un giorno la documentazione verrà pubblicata). |
-| `sources/` | I sorgenti dei due manuali: vedi sotto. |
+| `index.html` | Home page of the documentation. |
+| `User Manual.html` | User manual: installing and using RootSpeak; reference of every command and option. |
+| `Technical Manual.html` | Technical manual: architecture, message store, delivery, confirmations, security, specification, tests, limits. |
+| `decisions-and-history.md` | Why RootSpeak is the way it is, and its history. |
+| `adversarial-review.md` | The two external reviews and what was done for each point. |
+| `.nojekyll` | Tells GitHub Pages to serve the files as they are (if the documentation is ever published). |
+| `sources/` | The sources of the two manuals: see below. |
 
-## Come si rigenerano i manuali
+## How to regenerate the manuals
 
-I due manuali sono generati: non si modificano mai a mano.
+The two manuals are generated: they are never edited by hand.
 
-| Dove | Cosa |
+| Where | What |
 |---|---|
-| `sources/build.py` | Il generatore, con le funzioni per figure e tabelle. |
-| `sources/style.css` | Lo stile comune dei manuali dei 7 progetti, incorporato così com'è in ogni manuale: non si modifica qui. |
-| `sources/manual.js` | Lo script comune dei manuali (ricerca, indice analitico, pulsante Copy), incorporato così com'è. |
-| `sources/cover-logo.png` | Il logo della copertina: copia trasparente di `logos/rootspeak-logo.png`. |
-| `sources/user/` | I capitoli del manuale utente, un file per capitolo (`_helpers.py` contiene le funzioni comuni). |
-| `sources/technical/` | I capitoli del manuale tecnico, un file per capitolo. |
-| `sources/screens/` | Schermate vere della TUI, prese nella macchina di prova da `tools/tui-screenshots.sh`. |
-| `sources/user/screens/` | Altre schermate vere per il manuale utente, prese in modalità di prova da `capture.py`. |
+| `sources/build.py` | The generator, with the functions for figures and tables. |
+| `sources/style.css` | The common style of the 7 projects' manuals, embedded as it is in every manual: not to be changed here. |
+| `sources/manual.js` | The common script of the manuals (search, index, Copy button), embedded as it is. |
+| `sources/cover-logo.png` | The cover logo: a transparent copy of the logo in `logos/`. |
+| `sources/user/` | The chapters of the user manual, one file per chapter (`_helpers.py` holds the shared functions). |
+| `sources/technical/` | The chapters of the technical manual, one file per chapter. |
+| `sources/screens/` | Real TUI screenshots, taken on the test machine by `tools/tui-screenshots.sh`. |
+| `sources/user/screens/` | Other real screenshots for the user manual, taken in test mode by `capture.py`. |
 
 ```
-make docs         # python3 docs/sources/build.py: rigenera i due manuali (serve python3-pygments)
-make docs-check   # tools/check-docs.py: fallisce se i manuali non sono allineati al codice
+make docs         # python3 docs/sources/build.py: regenerates the two manuals (needs python3-pygments)
+make docs-check   # tools/check-docs.py: fails if the manuals are not aligned with the code
 ```
 
-`tools/check-docs.py` (eseguito anche da `make test` e dalla CI) controlla che i
-manuali in `docs/` coincidano con quelli rigenerati dai sorgenti, che il
-riferimento del manuale utente coincida con la guida integrata, che ogni file
-del codice sia nella mappa dei file del manuale tecnico, la versione, i link
-interni, i cataloghi delle lingue e che `tests/engine.sh` sia stato eseguito
-sul codice attuale. Il manuale tecnico riporta l'ultima esecuzione di ogni suite
-di prove: dopo `tests/engine.sh` va rigenerato.
+`tools/check-docs.py` (also run by `make test` and by the CI) checks that the
+manuals in `docs/` match the ones regenerated from the sources, that the
+reference of the user manual matches the built-in help, that every code file
+is in the file map of the technical manual, the version, the internal links,
+that `tests/engine.sh` was run on the current code, and that the old name and
+Italian do not reappear. The technical manual reports the last run of each
+test suite: after `tests/engine.sh` it must be regenerated.

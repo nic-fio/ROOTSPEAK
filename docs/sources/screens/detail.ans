@@ -1,19 +1,19 @@
-[2m┌[0m[1;36m─ Messaggio 2 · Manutenzione [0m[2m──────────────────────────────────────────────────────────[0m[90m aggiornato alle 09:04:54 ─┐[2m
-[0m[2m│[0m  [1mManutenzione[0m · 01/10 09:04 · da root[0m                                                                            [2m│[0m
-[2m│[0m  [2m│[0m Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi.[0m                                  [2m│[0m
-[2m│[0m  [2m│[0m Salvate il lavoro entro venerdì sera.[0m                                                                         [2m│[0m
+[2m┌[0m[1;36m─ Message 2 · Maintenance [0m[2m──────────────────────────────────────────────────────────────────[0m[90m updated at 11:20:20 ─┐[2m
+[0m[2m│[0m  [1mMaintenance[0m · 01/10 11:20 · from root[0m                                                                           [2m│[0m
+[2m│[0m  [2m│[0m On Saturday from 8 am to 12 noon the server will be off for disk maintenance.[0m                                 [2m│[0m
+[2m│[0m  [2m│[0m Please save your work by Friday evening.[0m                                                                      [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
-[2m│[0m  [7;1m Destinatari (8) [0m [2m Storia [0m    [32m██████[33m▒▒▒▒▒[31m░[0m  [32m4 confermato[0m · [33m3 consegnato[0m · [31m1 inviato[0m[0m                             [2m│[0m
+[2m│[0m  [7;1m Recipients (8) [0m [2m History [0m    [32m██████[33m▒▒▒▒▒[31m░[0m  [32m4 confirmed[0m · [33m3 delivered[0m · [31m1 sent[0m[0m                                  [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
-[2m│[0m  [1;33mUTENTE[0m        STATO[0m[0m                                                                                             [2m│[0m
-[2m│[0m  admin[0m         [32mconfermato il 01/10 09:04 (terminale pts/0)[0m[0m                                                       [2m│[0m
-[2m│[0m  anna[0m          [32mconfermato il 01/10 09:04 (desktop)[0m[0m                                                               [2m│[0m
-[2m│[0m  dario[0m         [31minviato, non consegnato[0m[0m                                                                           [2m│[0m
-[2m│[0m  fabio[0m         [32mconfermato il 01/10 09:04 (desktop)[0m[0m                                                               [2m│[0m
-[2m│[0m  kora[0m          [33mconsegnato, rimandato il 01/10 09:04[0m[0m                                                              [2m│[0m
-[2m│[0m  luca[0m          [33mconsegnato[0m[0m                                                                                        [2m│[0m
-[2m│[0m  mario[0m         [33mconsegnato, rimandato il 01/10 09:04[0m[0m                                                              [2m│[0m
-[2m│[0m  zeno[0m          [32mconfermato il 01/10 09:04 (terminale pts/2)[0m[0m                                                       [2m│[0m
+[2m│[0m  [1;33mUSER[0m          STATE[0m[0m                                                                                             [2m│[0m
+[2m│[0m  admin[0m         [32mconfirmed on 01/10 11:20 (terminal pts/0)[0m[0m                                                         [2m│[0m
+[2m│[0m  anna[0m          [32mconfirmed on 01/10 11:20 (desktop)[0m[0m                                                                [2m│[0m
+[2m│[0m  dario[0m         [31msent, not delivered: the copy could not be written (see the log; the next rspeak command will ret[0m [2m│[0m
+[2m│[0m  fabio[0m         [32mconfirmed on 01/10 11:20 (desktop)[0m[0m                                                                [2m│[0m
+[2m│[0m  kora[0m          [33mdelivered, postponed on 01/10 11:20[0m[0m                                                               [2m│[0m
+[2m│[0m  luca[0m          [33mdelivered[0m[0m                                                                                         [2m│[0m
+[2m│[0m  mario[0m         [33mdelivered, postponed on 01/10 11:20[0m[0m                                                               [2m│[0m
+[2m│[0m  zeno[0m          [32mconfirmed on 01/10 11:20 (terminal pts/2)[0m[0m                                                         [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
@@ -26,5 +26,5 @@
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤[0m
-[2m│[0m [1;32mTab[0m destinatari/storia   [1;32m↑/↓[0m scorri   [1;32ms[0m sollecita   [1;32mr[0m ritira   [1;32mEsc[0m indietro[0m                                      [2m│[0m
+[2m│[0m [1;32mTab[0m recipients/history   [1;32m↑/↓[0m scroll   [1;32mm[0m remind   [1;32mr[0m revoke   [1;32mEsc[0m back[0m                                             [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘[0m

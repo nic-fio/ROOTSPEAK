@@ -3,41 +3,37 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import c, esc, help_items, help_reference, note, p, table, term  # noqa: E402
-from _helpers import rif  # noqa: E402
+from _helpers import ref  # noqa: E402
 
-SINTASSI = ("admin@server:~$ rspeak --help | head -16\n"
-            "RootSpeak(1)                           Manuale di rspeak                           RootSpeak(1)\n"
+SYNOPSIS = ("admin@server:~$ rspeak --help | head -16\n"
+            "RSPEAK(1)                        rspeak manual                         RSPEAK(1)\n"
             "\n"
-            "NOME\n"
-            "       rspeak — invia messaggi agli utenti della macchina e ne segue la conferma di\n"
-            "       lettura\n"
+            "NAME\n"
+            "       rspeak — sends messages to the users of the machine and tracks their read\n"
+            "       confirmation\n"
             "\n"
-            "SINTASSI\n"
-            "       rspeak send --to DEST [opzioni] [TESTO]\n"
+            "SYNOPSIS\n"
+            "       rspeak send --to DEST [options] [TEXT]\n"
             "       rspeak list\n"
             "       rspeak status ID\n"
             "       rspeak\n"
             "       rspeak revoke ID\n"
             "       rspeak remind ID\n"
             "       rspeak log ID\n"
-            "       rspeak purge DURATA\n"
+            "       rspeak purge DURATION\n"
             "       rspeak version")
 
 S1 = p("This chapter lists all the commands and options of " + c("rspeak") + ". The texts of the commands, options "
-       "and examples are the same as those of the built-in help (" + c("rspeak --help") + ", " + rif(9) + "): this page "
-       "is generated from its English source texts, so the two cannot diverge. The help itself speaks the language "
-       "of the session; the example below comes from an Italian session.", lead=True) + \
-    term(SINTASSI, "The syntax, from the help in text form: «Manuale di rspeak» (“rspeak manual”), «NOME» (“NAME”): «rspeak — "
-         "invia messaggi agli utenti della macchina e ne segue la conferma di lettura» (“rspeak — sends messages to the "
-         "users of the machine and tracks their read confirmation”), «SINTASSI» (“SYNOPSIS”)") + \
+       "and examples are the same as those of the built-in help (" + c("rspeak --help") + ", " + ref(9) + "): this page "
+       "is generated from the same texts, so the two cannot diverge.", lead=True) + \
+    term(SYNOPSIS, "The syntax, from the help in text form") + \
     table(["Part", "Meaning"], [
         [c("ID"), "the number of a message, as it appears in the list"],
-        [c("DEST"), "the recipients: names, " + c("@gruppo") + ", " + c("all") + ", " + c("online") + ", separated "
-         "by commas without spaces (@group: a group name after the @)"],
-        [c("DURATA"), "a number followed by " + c("m") + " (minutes), " + c("h") + " (hours) or " + c("d")
-         + " (days); for " + c("--expires") + " also a date and a time (DURATION in the English help)"],
-        [c("[opzioni]") + ", " + c("[TESTO]"), "the parts in square brackets can be omitted ([options] and [TEXT] "
-         "in the English help)"],
+        [c("DEST"), "the recipients: names, " + c("@group") + ", " + c("all") + ", " + c("online") + ", separated "
+         "by commas without spaces"],
+        [c("DURATION"), "a number followed by " + c("m") + " (minutes), " + c("h") + " (hours) or " + c("d")
+         + " (days); for " + c("--expires") + " also a date and a time"],
+        [c("[options]") + ", " + c("[TEXT]"), "the parts in square brackets can be omitted"],
     ], "«TAB» — How to read the syntax") + \
     note("every command, " + c("version") + " and " + c("--help") + " included, restarts itself with sudo if it is "
          "not already root.", "Always as root.")
@@ -46,13 +42,13 @@ S2 = p("The commands of " + c("rspeak") + ", with the text of the built-in help.
     help_reference("RSPEAK_HELP_COMMANDS", "command")
 
 S3 = p("The options of " + c("rspeak send") + ". They must be written before the text of the message; in the TUI they "
-       "correspond to the fields of the new message (" + rif(5, 4) + ").", lead=True) + \
+       "correspond to the fields of the new message (" + ref(5, 4) + ").", lead=True) + \
     help_reference("RSPEAK_HELP_OPTIONS", "option") + \
     table(["Option", "TUI field"], [
-        [c("--to"), "A (“To” in English)"],
-        [c("--title"), "Titolo (“Title”)"],
-        [c("--expires"), "Scadenza (“Expires”)"],
-        [c("--file"), "Testo (“Text”), or " + "Ctrl+E" + " to open it in the editor"],
+        [c("--to"), "To"],
+        [c("--title"), "Title"],
+        [c("--expires"), "Expires"],
+        [c("--file"), "Text, or " + "Ctrl+E" + " to open it in the editor"],
     ], "«TAB» — Options and TUI fields")
 
 S4 = table(["Command", "What it does"], [[c(cmd), esc(desc)] for cmd, desc in help_items("RSPEAK_HELP_EXAMPLES")],
@@ -60,17 +56,16 @@ S4 = table(["Command", "What it does"], [[c(cmd), esc(desc)] for cmd, desc in he
 
 S5 = table(["Exit status", "Meaning"], [
     [c("0"), "Completed successfully."],
-    [c("1"), "Error: the error message, starting with «rspeak:», says which (" + rif(12, 1) + ")."],
+    [c("1"), "Error: the error message, starting with “rspeak:”, says which (" + ref(12, 1) + ")."],
 ], "«TAB» — The exit status of the commands") + \
     p("The exit status makes it possible to use " + c("rspeak") + " in scripts:") + \
-    term('admin@server:~$ rspeak send --to online --expires 15m "Riavvio alle 13:00." || echo "invio non riuscito"\n'
-         "Messaggio 7 inviato a 3 utenti.", "In a script: «Riavvio alle 13:00.» (“Reboot at 13:00.”), «invio non "
-         "riuscito» (“sending failed”), «Messaggio 7 inviato a 3 utenti.» (“Message 7 sent to 3 users.”)") + \
+    term('admin@server:~$ rspeak send --to online --expires 15m "Reboot at 1 pm." || echo "sending failed"\n'
+         "Message 7 sent to 3 users.", "In a script") + \
     table(["Variable", "Effect"], [
         [c("PAGER"), "the program that pages the help on small terminals (default: less)"],
         [c("NO_COLOR"), "if set, disables colours"],
         [c("VISUAL") + ", " + c("EDITOR"), "the editor opened with Ctrl+E in the new message"],
-    ], "«TAB» — The environment variables (they reach rspeak only if sudo keeps them, " + rif(10, 3) + ")")
+    ], "«TAB» — The environment variables (they reach rspeak only if sudo keeps them, " + ref(10, 3) + ")")
 
 CHAPTER = ("Command reference", [
     ("Syntax", S1),

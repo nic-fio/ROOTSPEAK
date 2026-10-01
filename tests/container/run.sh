@@ -1,29 +1,31 @@
 #!/bin/bash
 # RootSpeak - Advanced Messaging System for Linux
-# Prove dal vero in una macchina di prova (container con systemd, senza root):
-# costruisce l'immagine se manca, avvia la macchina, installa RootSpeak dal repository,
-# esegue gli scenari e salva i risultati in tests/container/results/.
-#   tests/container/run.sh            (--ricostruisci per rifare l'immagine)
+# Real-world tests in a test machine (container with systemd, without root):
+# builds the image if it is missing, starts the machine, installs RootSpeak from the
+# repository, runs the scenarios and saves the results in tests/container/results/.
+#   tests/container/run.sh            (--rebuild to build the image again)
 set -uo pipefail
-QUI=$(cd "$(dirname "$0")" && pwd)
-ROOT=$(cd "$QUI/../.." && pwd)
-NOME=rootspeak-prova
-mkdir -p "$QUI/results"
+HERE=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$HERE/../.." && pwd)
+NAME=rootspeak-test
+mkdir -p "$HERE/results"
 
-if [ "${1:-}" = --ricostruisci ] || ! podman image exists $NOME; then
-	echo "costruzione dell'immagine…"
-	podman build -q -t $NOME -f "$QUI/Containerfile" "$QUI" >/dev/null || exit 1
+if [ "${1:-}" = --rebuild ] || ! podman image exists $NAME; then
+	echo "building the image…"
+	podman build -q -t $NAME -f "$HERE/Containerfile" "$HERE" >/dev/null || exit 1
 fi
-podman rm -f $NOME >/dev/null 2>&1
-podman run -d --name $NOME --systemd=always \
-	-v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$QUI/results:/opt/results:Z" $NOME >/dev/null || exit 1
-trap 'podman rm -f $NOME >/dev/null 2>&1' EXIT
+podman rm -f $NAME >/dev/null 2>&1
+podman run -d --name $NAME --systemd=always \
+	-v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$HERE/results:/opt/results:Z" $NAME >/dev/null || exit 1
+trap 'podman rm -f $NAME >/dev/null 2>&1' EXIT
 for i in $(seq 1 30); do
-	s=$(podman exec $NOME systemctl is-system-running 2>/dev/null)
+	s=$(podman exec $NAME systemctl is-system-running 2>/dev/null)
 	[ "$s" = running ] || [ "$s" = degraded ] && break
 	sleep 1
 done
-echo "macchina di prova: $s"
-podman exec $NOME /opt/rootspeak-src/install.sh 2>&1 | grep -v '^Attenzione: manca zenity' | head -1
-podman exec -e LANG=it_IT.UTF-8 -e RSPEAK_PROVA_COMMIT="$("$ROOT/tools/fingerprint.sh" --commit)" \
-	-e RSPEAK_PROVA_IMPRONTA="$("$ROOT/tools/fingerprint.sh")" $NOME python3 /opt/rootspeak-src/tests/container/scenarios.py /opt/results
+echo "test machine: $s"
+podman exec $NAME /opt/rootspeak-src/install.sh 2>&1 | grep -v '^Warning: zenity is missing' | head -1
+# the system language of the test machine is Italian on purpose: RootSpeak must speak English anyway
+podman exec -e LANG=it_IT.UTF-8 -e RSPEAK_TEST_COMMIT="$("$ROOT/tools/fingerprint.sh" --commit)" \
+	-e RSPEAK_TEST_FINGERPRINT="$("$ROOT/tools/fingerprint.sh")" -e RSPEAK_TEST_ONLY="${RSPEAK_TEST_ONLY:-}" \
+	$NAME python3 /opt/rootspeak-src/tests/container/scenarios.py /opt/results

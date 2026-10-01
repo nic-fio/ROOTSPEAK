@@ -1,7 +1,8 @@
 # RootSpeak - Advanced Messaging System for Linux
-# Macchina di prova: Debian 13 con systemd acceso (logind, sshd), per provare RootSpeak
-# dal vero come root, con utenti e sessioni reali. Non tocca il sistema su cui gira.
-#   podman build -t rootspeak-prova -f tests/container/Containerfile tests/container
+# Test machine: Debian 13 with systemd running (logind, sshd), to test RootSpeak for
+# real as root, with real users and sessions. It does not touch the host system.
+# The system language is Italian on purpose: RootSpeak must speak English anyway.
+#   podman build -t rootspeak-test -f tests/container/Containerfile tests/container
 FROM docker.io/library/debian:trixie
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -11,12 +12,12 @@ RUN apt-get update \
  && systemctl enable ssh \
  && sed -i 's/^# *\(it_IT.UTF-8\|en_US.UTF-8\)/\1/' /etc/locale.gen && locale-gen >/dev/null \
  && echo 'LANG=it_IT.UTF-8' > /etc/default/locale \
- && groupadd sviluppo \
+ && groupadd developers \
  && useradd -m -s /bin/bash -G sudo admin \
- && useradd -m -s /bin/bash -G sviluppo mario \
- && useradd -m -s /bin/bash -G sviluppo anna \
+ && useradd -m -s /bin/bash -G developers mario \
+ && useradd -m -s /bin/bash -G developers anna \
  && useradd -m -s /bin/bash luca \
- && useradd -m -s /usr/sbin/nologin servizio \
+ && useradd -m -s /usr/sbin/nologin service \
  && useradd -m -s /usr/bin/zsh zeno && touch /home/zeno/.zshrc && chown zeno: /home/zeno/.zshrc \
  && useradd -m -s /usr/bin/fish fabio \
  && useradd -m -s /usr/bin/ksh kora \

@@ -1,12 +1,12 @@
 #!/bin/bash
 # RootSpeak - Advanced Messaging System for Linux
-# Gira sul server delle prove: spegne la VM di prova e ne cancella il disco di lavoro.
-#   stop.sh CARTELLA_VM
+# Runs on the test server: shuts the test VM down and deletes its working disk.
+#   stop.sh VM_FOLDER
 DIR=$1
-if [ -f "$DIR/prova.pid" ]; then
-	pid=$(cat "$DIR/prova.pid")
+if [ -f "$DIR/test.pid" ]; then
+	pid=$(cat "$DIR/test.pid")
 	kill "$pid" 2>/dev/null
 	for i in $(seq 1 20); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
-	rm -f "$DIR/prova.pid"
+	rm -f "$DIR/test.pid"
 fi
-rm -f "$DIR/prova.qcow2" "$DIR/monitor.sock"
+rm -f "$DIR/test.qcow2" "$DIR/monitor.sock"

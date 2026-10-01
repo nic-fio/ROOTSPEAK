@@ -5,7 +5,7 @@ def cap(n, s=None):
     return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
-FONTI = fig(
+SOURCES = fig(
     zone(20, 44, 280, 150, "Authoritative · root")
     + box(40, 80, 240, 90, "sent/ID/", "what, to whom, when, expiry, revocation", "navy")
     + zone(310, 44, 280, 150, "Working copy · user")
@@ -19,9 +19,9 @@ FONTI = fig(
 S1 = p("This chapter is the <b>contract</b> of RootSpeak: what any implementation must respect, regardless of how it is "
        "written. The rest of the manual describes how the C version implements it; the bash prototype (0.1.0) "
        "worked on the same message store, and the same tests apply to both. Every change to the code respects this "
-       "chapter or updates it explicitly.", lead=True) + FONTI + \
+       "chapter or updates it explicitly.", lead=True) + SOURCES + \
     table(["Source", "Authority", "Written by"], [
-        [c("sent/ID/") + " (msg, recipients, delivery, revoked, incomplete, ritiro, failed, lock)", "<b>authoritative</b>: "
+        [c("sent/ID/") + " (msg, recipients, delivery, revoked, incomplete, revoking, failed, lock)", "<b>authoritative</b>: "
          "what was sent, to whom, when, with which expiry, to whom it was delivered, whether and when it was "
          "revoked", "root only"],
         [c("users/U/") + " (inbox, read, acks, state)", "<b>working copy</b>, controlled by the user: it can be "
@@ -42,7 +42,7 @@ S1 = p("This chapter is the <b>contract</b> of RootSpeak: what any implementatio
     "expiry), only what they see changes.",
 ])
 
-STATI = fig(
+STATES = fig(
     box(20, 130, 200, 64, "SENT", "in recipients, not in delivery", "light")
     + box(300, 130, 250, 64, "DELIVERED", "in delivery, no valid confirmation", "blue")
     + box(640, 130, 240, 64, "CONFIRMED", "acks/ID with a valid date", "green")
@@ -53,78 +53,76 @@ STATI = fig(
     + text(425, 252, "postponement: state/ID.*", 11, "#92400e", "600")
     + box(560, 20, 320, 48, "Properties of the message", "REVOKED · EXPIRED", "soft", 12)
     + text(40, 88, "internal recovery marks, not states:", 11, "#475569", "400", "start")
-    + text(40, 106, "incomplete · failed · ritiro · .cancella-ID", 11, "#475569", "400", "start"),
+    + text(40, 106, "incomplete · failed · revoking · .deleting-ID", 11, "#475569", "400", "start"),
     900, 272, "«FIG» — The states of a recipient and the properties of a message", "The state machine")
 
 S2 = p("Each recipient of a message is in <b>one of three states</b>; the state is derived from the files, according "
        "to fixed rules (" + cap(10, 1) + "). There are only these three states (the owner's decision): revocation and "
-       "expiry are properties of the message, not states; " + c("incomplete") + ", " + c("failed") + ", " + c("ritiro")
-       + " and " + c(".cancella-ID") + " are internal marks with which recovery completes or cancels an interrupted "
+       "expiry are properties of the message, not states; " + c("incomplete") + ", " + c("failed") + ", " + c("revoking")
+       + " and " + c(".deleting-ID") + " are internal marks with which recovery completes or cancels an interrupted "
        "operation, and they are not shown as states. An interrupted sending shows for itself: some recipients stay "
-       "sent.", lead=True) + STATI + table(["Transition", "Precondition", "Atomic operation", "Effect",
+       "sent.", lead=True) + STATES + table(["Transition", "Precondition", "Atomic operation", "Effect",
                                                "Event"], [
     ["sending", "recipients resolved, text cleaned, at most 65536 bytes", "ID with " + c("flock") + "; lock and "
      + c("incomplete") + " before anything else; " + c("msg") + " and " + c("recipients") + " written, renamed and "
-     "flushed to disk (" + c("fsync") + ")", "all SENT", c("INVIATO") + " (at the end of sending)"],
+     "flushed to disk (" + c("fsync") + ")", "all SENT", c("SENT") + " (at the end of sending)"],
     ["delivery", "sending lock held, message not revoked", "copy written as the user and renamed, then "
      "verified; then a line in " + c("delivery") + "; at the end of sending everything to disk, then " + c("incomplete")
-     + " removed", "SENT → DELIVERED", c("CONSEGNATO") + " (or " + c("NON_CONSEGNATO") + ")"],
+     + " removed", "SENT → DELIVERED", c("DELIVERED") + " (or " + c("NOT_DELIVERED") + ")"],
     ["confirmation", "copy in " + c("inbox/") + ", not expired, no confirmation present", "temporary file + "
-     + c("link") + " (fails if it exists), then " + c("fsync"), "DELIVERED → CONFIRMED", c("CONFERMATO")],
+     + c("link") + " (fails if it exists), then " + c("fsync"), "DELIVERED → CONFIRMED", c("CONFIRMED")],
     ["postponement", "DELIVERED", "modification time of " + c("state/ID.term") + " or " + c("state/ID.gui"),
-     "stays DELIVERED", c("RINVIATO")],
-    ["revocation", "existing message", c("sent/ID/ritiro") + " and " + c("sent/ID/revoked") + " (on disk); then the lock "
-     "(waits for a sending in progress); then copies removed as the user and " + c("ritiro") + " removed", "no state "
-     "changes; it is no longer shown; later confirmations are not valid", c("RITIRATO")],
+     "stays DELIVERED", c("POSTPONED")],
+    ["revocation", "existing message", c("sent/ID/revoking") + " and " + c("sent/ID/revoked") + " (on disk); then the lock "
+     "(waits for a sending in progress); then copies removed as the user and " + c("revoking") + " removed", "no state "
+     "changes; it is no longer shown; later confirmations are not valid", c("REVOKED")],
     ["expiry", "—", "none (time passes)", "it is no longer shown; a confirmation after it is not valid", "—"],
     ["recovery", c("incomplete") + " present and lock free", "delivery of the missing copies and check of those "
-     "already recorded", "SENT → DELIVERED", c("CONSEGNATO") + ", " + c("RECUPERATO")],
-    ["revocation recovery", c("ritiro") + " present and lock free", "remaining copies removed", "—", "—"],
+     "already recorded", "SENT → DELIVERED", c("DELIVERED") + ", " + c("RECOVERED")],
+    ["revocation recovery", c("revoking") + " present and lock free", "remaining copies removed", "—", "—"],
     ["reminder", "message neither revoked nor expired", "for each DELIVERED recipient: postponements " + c("state/ID.*")
-     + " removed, agent woken up", "stays DELIVERED; the question and the dialog come back at once", c("SOLLECITATO")],
+     + " removed, agent woken up", "stays DELIVERED; the question and the dialog come back at once", c("REMINDED")],
     ["deletion", "older than the duration, lock free, complete", c("sent/ID") + " renamed to "
-     + c("sent/.cancella-ID") + "; then copies, confirmations and postponements removed as the user; then the folder removed",
-     "the message no longer exists", c("CANCELLATO")],
+     + c("sent/.deleting-ID") + "; then copies, confirmations and postponements removed as the user; then the folder removed",
+     "the message no longer exists", c("DELETED")],
 ], "«TAB» — The transitions")
 
-RIASS = fig(
+SUMMARY = fig(
     box(20, 40, 260, 56, "recipients of sent/ID", "recipients", "dark")
-    + box(330, 40, 180, 56, "stato_destinatario", "one of the three, for each", "navy")
-    + box(560, 20, 320, 40, "14 confermato · 5 consegnato · 2 inviato", "", "blue", 12)
-    + box(560, 70, 320, 40, "████████▒▒▒░  and  [ritirato] [scaduto]", "", "soft", 12)
+    + box(330, 40, 180, 56, "recipient_state", "one of the three, for each", "navy")
+    + box(560, 20, 320, 40, "14 confirmed · 5 delivered · 2 sent", "", "blue", 12)
+    + box(560, 70, 320, 40, "████████▒▒▒░  and  [revoked] [expired]", "", "soft", 12)
     + arrow(282, 68, 328, 68) + arrow(512, 60, 558, 40) + arrow(512, 76, 558, 90)
     + text(450, 138, "no other word describes the state of a message", 11.5, "#b91c1c", "700"),
-    900, 158, "«FIG» — A message is summarised by the counts of its recipients: «14 confermato · 5 consegnato · 2 "
-    "inviato» (“14 confirmed · 5 delivered · 2 sent”), the bar and the marks «[ritirato]» (“[revoked]”) and «[scaduto]» "
-    "(“[expired]”)", "The summary")
+    900, 158, "«FIG» — A message is summarised by the counts of its recipients: “14 confirmed · 5 delivered · 2 "
+    "sent”, the bar and the marks “[revoked]” and “[expired]”", "The summary")
 
 SM = p("In the message list (TUI and " + c("rspeak list") + ") a message is summarised by its recipients: "
        "how many are in each of the three states, in words and with a bar (confirmed, delivered, sent), plus the "
-       "properties revoked and expired. No other word describes the state of a message.", lead=True) + RIASS + \
+       "properties revoked and expired. No other word describes the state of a message.", lead=True) + SUMMARY + \
     ul([
-        "The phrase leaves out zero counts; if everyone has confirmed it says «tutti confermato (N)» (“all confirmed "
-        "(N)” in English).",
-        "Words such as “pending”, “complete”, “incomplete sending”, “cancelled” (in Italian «in attesa», «completo», "
-        "«invio incompleto», «annullato») are not states and do not appear: "
+        "The phrase leaves out zero counts; if everyone has confirmed it says “all confirmed (N)”.",
+        "Words such as “pending”, “complete”, “incomplete sending”, “cancelled” are not states and do not "
+        "appear: "
         + c("tests/engine.sh") + " (group 3) and " + c("tests/tui.py") + " check this.",
         "A sending cancelled before it was saved has no recipients to count: " + c("rspeak list") + " reports it "
         "with a warning line, the TUI does not show it (" + cap(10, 4) + ").",
     ])
 
-LINEA = fig(
+TIMELINE = fig(
     zone(20, 40, 860, 84, "Instants at which an operation happens for everyone")
     + box(30, 74, 160, 32, "send: rename recipients", "", "navy", 10.5)
     + box(200, 74, 160, 32, "delivery: delivery line", "", "blue", 10.5)
     + box(370, 74, 160, 32, "revoke: rename revoked", "", "amber", 10.5)
     + box(540, 74, 150, 32, "ack: link of acks/ID", "", "green", 10.5)
-    + box(700, 74, 176, 32, "purge: rename .cancella", "", "dark", 10.5)
+    + box(700, 74, 170, 32, "purge: rename .deleting", "", "dark", 10.5)
     + text(450, 150, "before that instant the operation has not happened, after it has, for any observer", 11.5,
            "#475569", "600"),
     900, 168, "«FIG» — The linearisation points of the operations that change the message store", "When it happens")
 
 S2B = p("For each command that changes the message store: which lock it holds, at which instant the operation is "
         "considered to have happened (the <b>linearisation point</b>: before that instant it has not happened, after "
-        "it has, for any observer) and what happens with other commands at the same time.", lead=True) + LINEA + \
+        "it has, for any observer) and what happens with other commands at the same time.", lead=True) + TIMELINE + \
     table(["Operation", "Lock", "Happens when", "Concurrently"], [
         [c("send"), c("sent/.seq.lock") + " for the ID; " + c("sent/ID/lock") + " exclusive for the whole delivery",
          "the message: " + c("recipients") + " renamed; each delivery: its line in " + c("delivery"),
@@ -138,7 +136,7 @@ S2B = p("For each command that changes the message store: which lock it holds, a
          "is the date written inside", "between two confirmations the first one wins; with revocation the date decides: "
          "equal or earlier is valid, later is not; without a copy in " + c("inbox/") + " there is no confirmation"],
         [c("purge"), c("sent/ID/lock") + " if free, otherwise skips", c("sent/ID") + " renamed to "
-         + c("sent/.cancella-ID"), "from that instant no command sees the message; " + c("list") + " reads what it "
+         + c("sent/.deleting-ID"), "from that instant no command sees the message; " + c("list") + " reads what it "
          "needs beforehand and skips a message that has disappeared in the meantime"],
         [c("remind"), "none", "each postponement removed", "with a confirmation that arrived in the meantime: that "
          "recipient is no longer DELIVERED and removing their postponements has no effect"],
@@ -163,10 +161,10 @@ S3 = table(["#", "Invariant"], [
     ["I11", "The wake-up signal goes only to a ready agent; the mailbox remains the authoritative queue: a lost signal "
      "delays the dialog by at most " + c("RSPEAK_AGENT_POLL") + " seconds, it does not lose it. The signal neither closes "
      "nor changes a dialog that is already open."],
-    ["I12", "A postponement is recorded only for a choice by the user («Più tardi» (“Later”), dialog closed, an answer "
+    ["I12", "A postponement is recorded only for a choice by the user (“Later”, dialog closed, an answer "
      "other than yes): a dialog closed by the system is not a postponement."],
     ["I13", "Durability: when " + c("incomplete") + " is gone, copies and " + c("delivery") + " lines are on "
-     "disk; a confirmation is on disk before the user reads «Confermato» (“Confirmed.”); " + c("revoked") + " is on "
+     "disk; a confirmation is on disk before the user reads “Confirmed.”; " + c("revoked") + " is on "
      "disk before " + c("rspeak revoke") + " touches the mailboxes. After a power failure with " + c("incomplete")
      + " present, recovery rechecks all the copies, including those already recorded."],
     ["I14", "The text is written to a terminal only if the terminal, once opened, belongs to the recipient: "
@@ -179,7 +177,7 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
     table(["Interruption", "Remaining state", "Repair"], [
         ["after the ID, before the folder", "a skipped number", "none (harmless)"],
         ["folder and " + c("incomplete") + ", without " + c("msg") + " or " + c("recipients"), "sending not saved",
-         "the next command cancels it (" + c("failed") + ", event " + c("ANNULLATO") + ")"],
+         "the next command cancels it (" + c("failed") + ", event " + c("CANCELLED") + ")"],
         ["during the deliveries", "some recipients SENT", "the next command delivers the missing copies"],
         ["after the deliveries, before removing " + c("incomplete"), "everything delivered, mark left behind",
          "the next command removes the mark"],
@@ -187,7 +185,7 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
          + ", no confirmation", "the question comes back; the temporary file is ignored"],
         ["after " + c("link") + ", before the move to " + c("read/"), "confirmation present, copy still in "
          + c("inbox/"), "whoever reads the mailbox completes the move without asking again"],
-        ["leaving the session right after «Ho letto» (“I have read it”)", "confirmation recorded: the agent waits for "
+        ["leaving the session right after “I have read it”", "confirmation recorded: the agent waits for "
          "the dialog, writes the answer as soon as it arrives and defers SIGTERM until after the write", "none "
          "(scenario I10: exit after 0.1 s)"],
         ["leaving the session with the dialog open", "no postponement recorded: the dialog comes back at the next "
@@ -195,14 +193,14 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
         ["the desktop agent dies", "lock released; one of its dialogs may stay open", c("rspeak send")
          + " or the login start a new agent; the orphaned dialog no longer records anything"],
         [c("rspeak revoke") + " after " + c("revoked") + ", before removing the copies", c("revoked") + " and "
-         + c("ritiro") + "; some copies still in the mailboxes", "the next " + c("rspeak") + " command removes the "
+         + c("revoking") + "; some copies still in the mailboxes", "the next " + c("rspeak") + " command removes the "
          "copies (until then the recipients do not see them as revoked)"],
-        ["a mailbox unreachable during revocation", c("ritiro") + " remains", "the next command retries"],
-        [c("rspeak purge") + " after the rename", c("sent/.cancella-ID") + ", some copies in the mailboxes",
+        ["a mailbox unreachable during revocation", c("revoking") + " remains", "the next command retries"],
+        [c("rspeak purge") + " after the rename", c("sent/.deleting-ID") + ", some copies in the mailboxes",
          "the next " + c("rspeak") + " command removes copies, confirmations, postponements and the folder"],
         ["power failure during sending", c("incomplete") + " on disk; copies and " + c("delivery")
          + " lines perhaps not", "recovery rewrites every missing copy, even if recorded"],
-        ["power failure after «Confermato» (“Confirmed.”)", "confirmation on disk", "none"],
+        ["power failure after “Confirmed.”", "confirmation on disk", "none"],
         ["power failure at other moments", "writes not flushed to disk may be missing: a postponement "
          "(the question comes back earlier) or the move to " + c("read/") + " (completed at the next read)",
          "none needed"],
@@ -232,38 +230,37 @@ S5 = table(["Aspect", "Rule"], [
     ["confirmations already given", "remain valid if dated no later than the revocation", "remain valid if dated no "
      "later than the expiry"],
     ["during sending", "sending stops at the next recipient", "sending continues: whoever receives the copy after the "
-     "expiry never sees it («consegnato, non confermato (scaduto)», “delivered, not confirmed (expired)”)"],
+     "expiry never sees it (“delivered, not confirmed (expired)”)"],
     ["text already written to the terminals", "stays on screen", "stays on screen"],
-    ["in " + c("rspeak status"), "«consegnato, non confermato (ritirato)» (“delivered, not confirmed (revoked)”)",
-     "«consegnato, non confermato (scaduto)» (“delivered, not confirmed (expired)”)"],
+    ["in " + c("rspeak status"), "“delivered, not confirmed (revoked)”", "“delivered, not confirmed (expired)”"],
 ], "«TAB» — Revocation and expiry")
 
 S6 = p("Message store format 1. Readers ignore header keys they do not know.", lead=True) + \
     table(["File", "Content"], [
         [c("sent/.seq"), "the last ID assigned, a number"],
-        [c("sent/ID/msg"), "header " + c("chiave: valore") + " (“key: value”; " + c("format") + ", " + c("id") + ", "
+        [c("sent/ID/msg"), "header " + c("key: value") + " (" + c("format") + ", " + c("id") + ", "
          + c("from") + ", " + c("date") + ", " + c("title") + ", " + c("expires") + "), blank line, text; UTF-8 "
          "without control characters"],
         [c("sent/ID/recipients"), "one user name per line, no duplicates"],
-        [c("sent/ID/delivery"), "one line per delivery: " + c("utente data terminali") + " (“user date terminals”), "
-         "fields separated by a space; " + c("data") + " (date) in seconds since the Unix epoch, " + c("terminali")
-         + " (terminals) the number of terminals written "
+        [c("sent/ID/delivery"), "one line per delivery: " + c("user date terminals") + ", "
+         "fields separated by a space; " + c("date") + " in seconds since the Unix epoch, " + c("terminals")
+         + " the number of terminals written "
          "(0 in recovery)"],
         [c("sent/ID/revoked"), "the revocation date, in seconds since the Unix epoch"],
         [c("sent/ID/failed"), "the cancellation date; its presence is what counts"],
-        [c("sent/ID/incomplete") + ", " + c("ritiro") + ", " + c("lock"), "marks (the content does not matter): "
+        [c("sent/ID/incomplete") + ", " + c("revoking") + ", " + c("lock"), "marks (the content does not matter): "
          "incomplete sending, revocation to be completed; " + c("lock") + " is used with " + c("flock")],
-        [c("sent/.cancella-ID/"), "a message that " + c("rspeak purge") + " is deleting"],
+        [c("sent/.deleting-ID/"), "a message that " + c("rspeak purge") + " is deleting"],
         [c("users/U/inbox/ID") + ", " + c("read/ID"), "copy of " + c("msg")],
-        [c("users/U/acks/ID"), c("data canale") + " (“date channel”): date in seconds since the Unix epoch, a space, "
-         "channel (" + c("desktop") + " or " + c("terminale pts/N") + ", “terminal pts/N”); the first line counts, at most 200 bytes"],
+        [c("users/U/acks/ID"), c("date channel") + ": date in seconds since the Unix epoch, a space, "
+         "channel (" + c("desktop") + " or " + c("terminal pts/N") + "); the first line counts, at most 200 bytes"],
         [c("users/U/state/ID.term") + ", " + c("ID.gui"), "empty; the modification time counts"],
     ], "«TAB» — The message store format")
 
 S7 = table(["", "Requirement"], [
     ["system", "Linux with systemd and logind (sessions, " + c("systemd-run --user") + ")"],
     ["libraries and tools", "glibc, libsystemd (sessions and journal), sudo, " + c("systemd-run") + " and " + c("date -d")
-     + " (GNU coreutils); to build: gcc, make, pkg-config, libsystemd-dev, gettext"],
+     + " (GNU coreutils); to build: gcc, make, pkg-config, libsystemd-dev"],
     ["desktop", "zenity; a session that runs XDG autostart (" + c("/etc/xdg/autostart") + ")"],
     ["question in the terminal", "bash, zsh or fish at every prompt; sh, dash, ksh and the other shells that read "
      + c("/etc/profile") + " at login; the text at sending time with any shell"],
@@ -272,7 +269,8 @@ S7 = table(["", "Requirement"], [
       "that it has been tested, and how. The two are distinct.") + \
     table(["Environment", "Supported", "Verified"], [
         ["Debian 13, GNOME on Wayland", "yes", "yes: the C version with the automated suite in the VM ("
-         + c("tests/vm") + "); live, on GNOME 48, only the 0.1.0 prototype"],
+         + c("tests/vm") + "); live on the user's PC with GNOME (sending, dialog, postponement, reminder), and the 0.1.0 prototype on "
+         "GNOME 48"],
         ["Debian 13 without a desktop: console, ssh, tmux", "yes", "yes: automated suite in the container ("
          + c("tests/container") + ")"],
         ["zsh, fish, ksh, dash on Debian 13", "yes", "yes: K scenarios in the container"],

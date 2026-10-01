@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """RootSpeak - Advanced Messaging System for Linux
-Scenari di prova dal vero: gira come root dentro la macchina di prova
-(tests/container), con RootSpeak installato, utenti veri e sessioni ssh vere.
+Real-world test scenarios: runs as root inside the test machine
+(tests/container), with RootSpeak installed, real users and real ssh sessions.
 
-Ogni scenario invia messaggi da root o da un amministratore agli utenti,
-simula ciò che fanno gli utenti (collegarsi, rispondere, rimandare, guastare la
-propria casella), misura i tempi e registra l'esito in RISULTATI (JSON) e in
-un rapporto leggibile (Markdown).
+Each scenario sends messages from root or from an administrator to the users,
+simulates what the users do (log in, answer, postpone, break their own
+mailbox), measures the times and records the outcome in results.json and in a
+readable report (Markdown).
 
-    python3 scenarios.py CARTELLA_RISULTATI
+    python3 scenarios.py RESULTS_FOLDER
 """
 import json
 import os
@@ -25,14 +25,23 @@ import time
 OUT = sys.argv[1] if len(sys.argv) > 1 else "/opt/results"
 VAR = "/var/lib/rootspeak"
 RSPEAK = "/usr/local/bin/rspeak"
-DESK = os.environ.get("RSPEAK_PROVA_DESKTOP")   # utente con sessione grafica (solo nella VM)
+AGENT = "/usr/local/lib/rootspeak/rootspeak-user agent"
+DESK = os.environ.get("RSPEAK_TEST_DESKTOP")   # user with a graphical session (only in the VM)
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\r")
-risultati = []
-# utenti con una shell diversa da bash, e il loro prompt
-SHELL_PROVA = {"zeno": ("zsh", r"% $"), "fabio": ("fish", r"> $"), "kora": ("ksh", r"\$ $"), "dario": ("dash", r"\$ $")}
+# what RootSpeak writes in the terminal, exactly as the program prints it
+QUESTION = r"\[RootSpeak\] Do you confirm you have read the message\? \[y/N\]"
+CONFIRMED = r"\[RootSpeak\] Confirmed\."
+HEADER = "── RootSpeak · Message from the administrator · "
+# the desktop dialog
+DLG_TITLE = "RootSpeak · Message from the administrator"
+DLG_OK = "I have read it"
+DLG_LATER = "Later"
+results = []
+# users with a shell other than bash, and their prompt
+TEST_SHELLS = {"zeno": ("zsh", r"% $"), "fabio": ("fish", r"> $"), "kora": ("ksh", r"\$ $"), "dario": ("dash", r"\$ $")}
 
 
-# ---- strumenti ----
+# ---- tools ----
 
 def sh(cmd, check=False, **kw):
     r = subprocess.run(cmd, shell=True, executable="/bin/bash", capture_output=True, text=True, **kw)
@@ -41,87 +50,93 @@ def sh(cmd, check=False, **kw):
     return r
 
 
-def rspeak(args, come="root"):
-    """Lancia rspeak da root, o da un altro utente (che passa da sudo)."""
-    pre = "" if come == "root" else f"runuser -u {come} -- "
+def rspeak(args, as_user="root"):
+    """Runs rspeak as root, or as another user (who goes through sudo)."""
+    pre = "" if as_user == "root" else f"runuser -u {as_user} -- "
     return sh(f"{pre}{RSPEAK} {args}")
 
 
-def negato(err):
-    """Permesso negato, nella lingua del sistema di prova o in inglese."""
-    return "Permission denied" in err or "Permesso negato" in err
+def as_ordinary_user(user, args):
+    """Tries to run rspeak as an ordinary user. The system's own error messages
+    (runuser, env) are asked for in English: RootSpeak is never reached."""
+    return sh(f"LC_ALL=C.UTF-8 runuser -u {user} -- {args}")
 
 
-def azzera():
-    """Chiude le sessioni degli utenti, le finestre di RootSpeak rimaste sul desktop e svuota l'archivio.
-    Le finestre vanno chiuse prima: l'archivio ricomincia dal messaggio 1, e una finestra vecchia
-    ritroverebbe un messaggio nuovo con il suo stesso numero."""
-    for u in ("mario", "anna", "luca", "admin", *SHELL_PROVA):
+def denied(r):
+    """The program could not even be started: permission denied."""
+    return r.returncode != 0 and "Permission denied" in r.stderr
+
+
+def reset():
+    """Closes the users' sessions and the RootSpeak dialogs left on the desktop, and empties the store.
+    The dialogs are closed first: the store starts again from message 1, and an old dialog
+    would find a new message with its same number."""
+    for u in ("mario", "anna", "luca", "admin", *TEST_SHELLS):
         sh(f"loginctl terminate-user {u}")
     if DESK:
-        # l'agente si ferma con le sue finestre, e riparte dopo, ad archivio vuoto
-        sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'; pkill -u {DESK} -x zenity")
+        # the agent stops with its dialogs, and starts again later, with an empty store
+        sh(f"pkill -u {DESK} -f '^(/bin/bash )?{AGENT}$'; pkill -u {DESK} -x zenity")
         time.sleep(1)
     time.sleep(0.5)
     sh(f"rm -rf {VAR}/sent/* {VAR}/sent/.seq* {VAR}/users/*")
     if DESK and sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip():
-        sh(f"systemd-run --user --machine={DESK}@.host --collect --quiet /usr/local/lib/rootspeak/rootspeak-user agent")
+        sh(f"systemd-run --user --machine={DESK}@.host --collect --quiet {AGENT}")
         time.sleep(1)
 
 
-def stato(mid, utente):
+def state(mid, user):
     out = rspeak(f"status {mid}").stdout
     for line in out.splitlines():
         parts = line.split(None, 1)
-        if parts and parts[0] == utente:
+        if parts and parts[0] == user:
             return parts[1].strip() if len(parts) > 1 else ""
     return None
 
 
-class Sessione:
-    """Una connessione ssh con terminale di un utente, come la aprirebbe una persona."""
+class Session:
+    """An ssh connection with a terminal for a user, as a person would open it."""
 
-    def __init__(self, utente, prompt=r"\$ $", comando=None):
-        self.utente = utente
+    def __init__(self, user, prompt=r"\$ $", command=None):
+        self.user = user
         self.buf = ""
         self.pid, self.fd = pty.fork()
         if self.pid == 0:
-            os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"] + ([comando] if comando else []))
-        self.leggi_fino(prompt, 15)
+            os.execvp("ssh", ["ssh", "-tt", f"{user}@localhost"] + ([command] if command else []))
+        self.read_until(prompt, 15)
 
-    def leggi(self, tempo=0.3):
-        fine = time.time() + tempo
-        while time.time() < fine:
+    def read(self, duration=0.3):
+        end = time.time() + duration
+        while time.time() < end:
             r, _, _ = select.select([self.fd], [], [], 0.05)
             if r:
                 try:
-                    dati = os.read(self.fd, 65536)
+                    data = os.read(self.fd, 65536)
                 except OSError:
                     break
-                if not dati:
+                if not data:
                     break
-                self.buf += dati.decode("utf-8", "replace")
+                self.buf += data.decode("utf-8", "replace")
         return self.buf
 
-    def leggi_fino(self, schema, tempo=10):
-        """Attende che l'uscita (senza colori) contenga lo schema; restituisce i secondi attesi."""
+    def read_until(self, pattern, duration=10):
+        """Waits until the output (without colours) contains the pattern; returns the seconds waited."""
         t0 = time.time()
-        while time.time() - t0 < tempo:
-            self.leggi(0.05)
-            if re.search(schema, ANSI.sub("", self.buf), re.M):
+        while time.time() - t0 < duration:
+            self.read(0.05)
+            if re.search(pattern, ANSI.sub("", self.buf), re.M):
                 return time.time() - t0
         return None
 
-    def scrivi(self, testo):
-        os.write(self.fd, testo.encode())
+    def write(self, text):
+        os.write(self.fd, text.encode())
 
-    def pulisci(self):
+    def clear(self):
         self.buf = ""
 
-    def testo(self):
+    def text(self):
         return ANSI.sub("", self.buf)
 
-    def chiudi(self):
+    def close(self):
         try:
             os.write(self.fd, b"exit\n")
             time.sleep(0.2)
@@ -134,13 +149,22 @@ class Sessione:
             pass
 
 
-def a_meta(p, tempo=10):
-    """Aspetta che l'invio lanciato in p sia a metà (almeno 3 consegne annotate,
-    non tutte): così un'interruzione cade davvero durante la consegna, per
-    quanto veloce sia l'invio. Restituisce l'ID del messaggio (None se l'invio
-    è finito prima)."""
+def open_session(user):
+    """An ssh session with a terminal, without waiting for the prompt (at login there may be the question)."""
+    s = Session.__new__(Session)
+    s.user, s.buf = user, ""
+    s.pid, s.fd = pty.fork()
+    if s.pid == 0:
+        os.execvp("ssh", ["ssh", "-tt", f"{user}@localhost"])
+    return s
+
+
+def halfway(p, duration=10):
+    """Waits until the sending started in p is halfway (at least 3 deliveries recorded,
+    not all): so an interruption really falls during the delivery, however fast
+    the sending is. Returns the message ID (None if the sending finished first)."""
     t0 = time.time()
-    while time.time() - t0 < tempo and p.poll() is None:
+    while time.time() - t0 < duration and p.poll() is None:
         ids = [int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit()] if os.path.isdir(f"{VAR}/sent") else []
         if ids:
             mid = max(ids)
@@ -154,789 +178,749 @@ def a_meta(p, tempo=10):
     return None
 
 
-def registra(codice, area, descrizione, atteso, ok, dettagli="", **misure):
-    """ok: True riuscito, False fallito, None non provato (non conta fra i riusciti)."""
-    esito = "NON PROVATO" if ok is None else "OK" if ok else "NO"
-    risultati.append(dict(codice=codice, area=area, descrizione=descrizione, atteso=atteso,
-                          esito=esito, dettagli=dettagli, misure=misure))
-    print(f"  {dict(OK='ok', NO='NO').get(esito, '--')}  {codice}  {descrizione}" + (f"  [{misure}]" if misure else ""))
+def record(code, area, description, expected, ok, details="", **measures):
+    """ok: True passed, False failed, None not tested (not counted among the passed)."""
+    outcome = "--" if ok is None else "OK" if ok else "NO"
+    results.append(dict(code=code, area=area, description=description, expected=expected,
+                        outcome=outcome, details=details, measures=measures))
+    print(f"  {dict(OK='ok', NO='NO').get(outcome, '--')}  {code}  {description}" + (f"  [{measures}]" if measures else ""))
 
 
 def scenario(fn):
-    """Esegue uno scenario su un archivio vuoto; un'eccezione è un esito NO."""
-    azzera()
+    """Runs a scenario on an empty store; an exception is a NO outcome."""
+    reset()
     try:
         fn()
     except Exception as e:  # noqa: BLE001
-        registra(fn.__name__, "errore", f"eccezione in {fn.__name__}", "nessuna eccezione", False, repr(e))
+        record(fn.__name__, "error", f"exception in {fn.__name__}", "no exception", False, repr(e))
 
 
-# ---- A. accesso e permessi ----
+# ---- A. access and permissions ----
 
-def a_accesso():
-    r = rspeak('send --to mario "da root"')
-    registra("A1", "Accesso", "root invia un messaggio", "invio riuscito",
-             r.returncode == 0 and "inviato a 1 utente" in r.stdout, r.stdout.strip() + r.stderr.strip())
+def a_access():
+    r = rspeak('send --to mario "from root"')
+    record("A1", "Access", "root sends a message", "sending succeeds",
+           r.returncode == 0 and "Message 1 sent to 1 user." in r.stdout, r.stdout.strip() + r.stderr.strip())
     t0 = time.time()
-    r = rspeak('send --to anna "da admin"', "admin")
+    r = rspeak('send --to anna "from admin"', "admin")
     dt = time.time() - t0
     frm = sh(f"grep '^from:' {VAR}/sent/2/msg").stdout.strip()
-    registra("A2", "Accesso", "un amministratore (gruppo sudo) invia: rspeak si rilancia con sudo",
-             "invio riuscito, mittente admin", r.returncode == 0 and frm == "from: admin", frm, secondi=round(dt, 3))
-    r = rspeak('send --to anna "da mario"', "mario")
-    registra("A3", "Accesso", "un utente normale non può eseguire rspeak", "permesso negato, nessun messaggio",
-             r.returncode != 0 and negato(r.stderr) and not os.path.exists(f"{VAR}/sent/3"),
-             r.stderr.strip())
-    r = rspeak("--help", "mario")
-    registra("A4", "Accesso", "un utente normale non può aprire nemmeno la guida", "permesso negato",
-             r.returncode != 0 and negato(r.stderr), r.stderr.strip())
+    record("A2", "Access", "an administrator (sudo group) sends: rspeak re-runs itself with sudo",
+           "sending succeeds, sender admin", r.returncode == 0 and frm == "from: admin", frm, seconds=round(dt, 3))
+    r = as_ordinary_user("mario", f'{RSPEAK} send --to anna "from mario"')
+    record("A3", "Access", "an ordinary user cannot run rspeak", "permission denied, no message",
+           denied(r) and not os.path.exists(f"{VAR}/sent/3"), r.stderr.strip())
+    r = as_ordinary_user("mario", f"{RSPEAK} --help")
+    record("A4", "Access", "an ordinary user cannot even open the help", "permission denied",
+           denied(r), r.stderr.strip())
 
 
-# ---- B. destinatari ----
+# ---- B. recipients ----
 
-def b_destinatari():
-    def dest(mid):
+def b_recipients():
+    def rcpt(mid):
         return sh(f"cat {VAR}/sent/{mid}/recipients").stdout.split()
 
-    rspeak('send --to mario "uno"')
-    registra("B1", "Destinatari", "un utente", "mario", dest(1) == ["mario"], str(dest(1)))
-    rspeak('send --to mario,anna,mario "lista"')
-    registra("B2", "Destinatari", "lista con un doppione", "anna, mario (una volta)", dest(2) == ["anna", "mario"], str(dest(2)))
-    rspeak('send --to @sviluppo "gruppo"')
-    registra("B3", "Destinatari", "gruppo @sviluppo", "anna, mario", dest(3) == ["anna", "mario"], str(dest(3)))
-    rspeak('send --to all "tutti"')
-    shell = [u for u in SHELL_PROVA if sh(f"getent passwd {u}").returncode == 0]   # solo nel container
-    tutti = sorted(["admin", "anna", "luca", "mario", *shell] + ([DESK] if DESK else []))
-    registra("B4", "Destinatari", "all: utenti umani, esclusi root e chi ha nologin",
-             ", ".join(tutti), dest(4) == tutti, str(dest(4)))
-    s = Sessione("luca")
-    rspeak('send --to online "collegati"')
+    rspeak('send --to mario "one"')
+    record("B1", "Recipients", "one user", "mario", rcpt(1) == ["mario"], str(rcpt(1)))
+    rspeak('send --to mario,anna,mario "list"')
+    record("B2", "Recipients", "list with a duplicate", "anna, mario (once)", rcpt(2) == ["anna", "mario"], str(rcpt(2)))
+    rspeak('send --to @developers "group"')
+    record("B3", "Recipients", "group @developers", "anna, mario", rcpt(3) == ["anna", "mario"], str(rcpt(3)))
+    rspeak('send --to all "everyone"')
+    shells = [u for u in TEST_SHELLS if sh(f"getent passwd {u}").returncode == 0]   # only in the container
+    everyone = sorted(["admin", "anna", "luca", "mario", *shells] + ([DESK] if DESK else []))
+    record("B4", "Recipients", "all: human users, except root and whoever has nologin",
+           ", ".join(everyone), rcpt(4) == everyone, str(rcpt(4)))
+    s = Session("luca")
+    rspeak('send --to online "logged in"')
     online = sorted(["luca"] + ([DESK] if DESK else []))
-    registra("B5", "Destinatari", "online: solo chi ha una sessione aperta", ", ".join(online), dest(5) == online, str(dest(5)))
-    s.chiudi()
-    r = rspeak('send --to pippo "x"')
-    registra("B6", "Destinatari", "utente inesistente", "errore, nessun messaggio creato",
-             r.returncode != 0 and "utente inesistente" in r.stderr and not os.path.exists(f"{VAR}/sent/6"), r.stderr.strip())
-    sh("groupadd -f vuoto")
-    r = rspeak('send --to @vuoto "x"')
-    registra("B7", "Destinatari", "gruppo senza membri", "errore «nessun destinatario»",
-             r.returncode != 0 and "nessun destinatario" in r.stderr, r.stderr.strip())
+    record("B5", "Recipients", "online: only whoever has an open session", ", ".join(online), rcpt(5) == online, str(rcpt(5)))
+    s.close()
+    r = rspeak('send --to nobodyhere "x"')
+    record("B6", "Recipients", "user that does not exist", "error, no message created",
+           r.returncode != 0 and "no such user: nobodyhere" in r.stderr and not os.path.exists(f"{VAR}/sent/6"),
+           r.stderr.strip())
+    sh("groupadd -f empty")
+    r = rspeak('send --to @empty "x"')
+    record("B7", "Recipients", "group without members", "error «no recipients»",
+           r.returncode != 0 and "no recipients" in r.stderr, r.stderr.strip())
 
 
-# ---- C. consegna secondo lo stato delle sessioni ----
+# ---- C. delivery according to the state of the sessions ----
 
-def c_consegna():
-    # C1: scollegato, poi accede
-    rspeak('send --to mario --title Manutenzione "Server spento sabato"')
-    st = stato(1, "mario")
-    registra("C1a", "Consegna", "utente scollegato: la copia aspetta nella casella", "consegnato",
-             st == "consegnato" and os.path.exists(f"{VAR}/users/mario/inbox/1"), st)
-    s = Sessione.__new__(Sessione)
-    s.utente, s.buf = "mario", ""
+def c_delivery():
+    # C1: logged out, then logs in
+    rspeak('send --to mario --title Maintenance "Server off on Saturday"')
+    st = state(1, "mario")
+    record("C1a", "Delivery", "user logged out: the copy waits in the mailbox", "delivered",
+           st == "delivered" and os.path.exists(f"{VAR}/users/mario/inbox/1"), st)
     t0 = time.time()
-    s.pid, s.fd = pty.fork()
-    if s.pid == 0:
-        os.execvp("ssh", ["ssh", "-tt", "mario@localhost"])
-    dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 15)
-    registra("C1b", "Consegna", "al login il messaggio e la domanda compaiono prima del primo prompt",
-             "testo e domanda al login", dt is not None and "Server spento sabato" in s.testo(),
-             secondi_dal_login=round(time.time() - t0, 3) if dt else None)
-    s.scrivi("s\n")
-    s.leggi_fino(r"\$ $", 5)
-    registra("C1c", "Consegna", "conferma al login", "confermato (terminale)",
-             (stato(1, "mario") or "").startswith("confermato"), stato(1, "mario"))
-    s.chiudi()
+    s = open_session("mario")
+    dt = s.read_until(QUESTION, 15)
+    record("C1b", "Delivery", "at login the message and the question appear before the first prompt",
+           "text and question at login", dt is not None and "Server off on Saturday" in s.text() and HEADER in s.text(),
+           seconds_from_login=round(time.time() - t0, 3) if dt else None)
+    s.write("y\n")
+    s.read_until(r"\$ $", 5)
+    record("C1c", "Delivery", "confirmation at login", "confirmed (terminal)",
+           (state(1, "mario") or "").startswith("confirmed"), state(1, "mario"))
+    s.close()
 
-    # C2: collegato con terminale: tempo perché il testo compaia
-    s = Sessione("anna")
-    s.pulisci()
+    # C2: logged in with a terminal: time for the text to appear
+    s = Session("anna")
+    s.clear()
     t0 = time.time()
-    rspeak('send --to anna "Riunione alle 11"')
-    dt_invio = time.time() - t0
-    dt = s.leggi_fino(r"Riunione alle 11", 5)
-    registra("C2a", "Consegna", "utente collegato: il testo compare nel suo terminale", "testo nel terminale",
-             dt is not None, secondi_invio=round(dt_invio, 3),
-             secondi_al_terminale=round(dt_invio + (dt or 0), 3) if dt is not None else None)
-    st = stato(2, "anna")
-    registra("C2b", "Consegna", "stato dopo la scrittura nel terminale", "consegnato, scritto su 1 terminale",
-             st == "consegnato, scritto su 1 terminale", st)
-    s.pulisci()
-    s.scrivi("\n")
-    dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 5)
-    registra("C2c", "Consegna", "premendo Invio compare la domanda", "domanda al prompt successivo", dt is not None,
-             secondi=round(dt, 3) if dt else None)
-    s.scrivi("s\n")
-    s.leggi_fino(r"Confermato\.", 5)
-    s.chiudi()
+    rspeak('send --to anna "Meeting at 11"')
+    dt_send = time.time() - t0
+    dt = s.read_until(r"Meeting at 11", 5)
+    record("C2a", "Delivery", "user logged in: the text appears in their terminal", "text in the terminal",
+           dt is not None, seconds_send=round(dt_send, 3),
+           seconds_to_terminal=round(dt_send + (dt or 0), 3) if dt is not None else None)
+    st = state(2, "anna")
+    record("C2b", "Delivery", "state after writing to the terminal", "delivered, written to 1 terminal",
+           st == "delivered, written to 1 terminal", st)
+    s.clear()
+    s.write("\n")
+    dt = s.read_until(QUESTION, 5)
+    record("C2c", "Delivery", "pressing Enter the question appears", "question at the next prompt", dt is not None,
+           seconds=round(dt, 3) if dt else None)
+    s.write("y\n")
+    s.read_until(CONFIRMED, 5)
+    s.close()
 
-    # C3: ssh senza terminale
+    # C3: ssh without a terminal
     p = subprocess.Popen(["ssh", "luca@localhost", "sleep 4"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1.5)
-    r = rspeak('send --to luca "Solo casella"')
+    r = rspeak('send --to luca "Mailbox only"')
     p.wait()
-    st = stato(3, "luca")
-    registra("C3", "Consegna", "sessione ssh senza terminale: non viene toccata, la copia va nella casella",
-             "invio riuscito, consegnato, nessun terminale scritto", r.returncode == 0 and st == "consegnato", st)
+    st = state(3, "luca")
+    record("C3", "Delivery", "ssh session without a terminal: it is not touched, the copy goes to the mailbox",
+           "sending succeeds, delivered, no terminal written", r.returncode == 0 and st == "delivered", st)
 
-    # C4: due sessioni dello stesso utente
-    s1, s2 = Sessione("mario"), Sessione("mario")
+    # C4: two sessions of the same user
+    s1, s2 = Session("mario"), Session("mario")
     for s in (s1, s2):
-        s.pulisci()
-    rspeak('send --to mario "Due sessioni"')
-    ok1 = s1.leggi_fino("Due sessioni", 5) is not None
-    ok2 = s2.leggi_fino("Due sessioni", 5) is not None
-    st = stato(4, "mario")
-    registra("C4a", "Consegna", "due sessioni aperte: il testo compare in entrambe", "testo in 2 terminali",
-             ok1 and ok2 and st == "consegnato, scritto su 2 terminali", st)
-    s1.pulisci(); s2.pulisci()
-    s1.scrivi("\n"); s2.scrivi("\n")
-    s1.leggi_fino(r"Confermi", 5); s2.leggi_fino(r"Confermi", 5)
+        s.clear()
+    rspeak('send --to mario "Two sessions"')
+    ok1 = s1.read_until("Two sessions", 5) is not None
+    ok2 = s2.read_until("Two sessions", 5) is not None
+    st = state(4, "mario")
+    record("C4a", "Delivery", "two open sessions: the text appears in both", "text in 2 terminals",
+           ok1 and ok2 and st == "delivered, written to 2 terminals", st)
+    s1.clear(); s2.clear()
+    s1.write("\n"); s2.write("\n")
+    s1.read_until(QUESTION, 5); s2.read_until(QUESTION, 5)
     t0 = time.time()
-    s1.scrivi("s\n")
-    dt = s2.leggi_fino(r"già confermato altrove", 5)
-    registra("C4b", "Consegna", "confermando in una sessione, la domanda nell'altra si ferma",
-             "«già confermato altrove» nell'altra", dt is not None, secondi=round(time.time() - t0, 3))
-    s1.chiudi(); s2.chiudi()
+    s1.write("y\n")
+    dt = s2.read_until(r"Message already confirmed elsewhere", 5)
+    record("C4b", "Delivery", "confirming in one session, the question in the other stops",
+           "«Message already confirmed elsewhere» in the other", dt is not None, seconds=round(time.time() - t0, 3))
+    s1.close(); s2.close()
 
 
-# ---- D. conferma, rinvio, solleciti ----
+# ---- D. confirmation, postponement, reminders ----
 
-def d_conferma():
-    s = Sessione("luca")
-    rspeak('send --to luca "Rinvio"')
-    s.pulisci(); s.scrivi("\n")
-    s.leggi_fino(r"Confermi", 5)
-    s.scrivi("n\n")
-    s.leggi_fino(r"riproposta tra", 5)
-    st = stato(1, "luca")
-    registra("D1", "Conferma", "l'utente rimanda", "consegnato, rimandato il …", (st or "").startswith("consegnato") and "rimandato" in st, st)
-    s.pulisci(); s.scrivi("true\n")
-    s.leggi_fino(r"\$ $", 5)
-    registra("D2", "Conferma", "dopo il rinvio, al prompt solo un promemoria", "«Hai 1 messaggio…», nessuna domanda",
-             "Hai 1 messaggio" in s.testo() and "Confermi" not in s.testo(), s.testo()[-160:])
+def d_confirmation():
+    s = Session("luca")
+    rspeak('send --to luca "Postpone me"')
+    s.clear(); s.write("\n")
+    s.read_until(QUESTION, 5)
+    s.write("n\n")
+    s.read_until(r"You will be asked again in", 5)
+    st = state(1, "luca")
+    record("D1", "Confirmation", "the user postpones", "delivered, postponed on …",
+           (st or "").startswith("delivered") and "postponed on" in st, st)
+    s.clear(); s.write("true\n")
+    s.read_until(r"\$ $", 5)
+    record("D2", "Confirmation", "after the postponement, only a reminder at the prompt",
+           "«You have 1 message…», no question",
+           "You have 1 message from the administrator to confirm." in s.text() and "Do you confirm" not in s.text(),
+           s.text()[-160:])
     r = rspeak("remind 1")
-    s.pulisci(); s.scrivi("\n")
-    ok = s.leggi_fino(r"Confermi", 5) is not None
-    registra("D5", "Conferma", "rspeak remind dopo un rinvio: la domanda torna al prompt successivo",
-             "«sollecitato 1 destinatario», domanda al prompt", ok and "sollecitato 1 destinatario" in r.stdout,
-             r.stdout.strip())
-    s.scrivi("n\n"); s.leggi_fino(r"riproposta tra", 5)
-    s.chiudi()
-    s = Sessione.__new__(Sessione)
-    s.utente, s.buf = "luca", ""
-    s.pid, s.fd = pty.fork()
-    if s.pid == 0:
-        os.execvp("ssh", ["ssh", "-tt", "luca@localhost"])
-    ok = s.leggi_fino(r"Confermi", 10) is not None
-    registra("D3", "Conferma", "al login successivo il rinvio non vale: la domanda torna", "domanda al login", ok)
-    s.scrivi("s\n"); s.leggi_fino(r"\$ $", 5)
+    s.clear(); s.write("\n")
+    ok = s.read_until(QUESTION, 5) is not None
+    record("D5", "Confirmation", "rspeak remind after a postponement: the question comes back at the next prompt",
+           "«Message 1: 1 recipient reminded.», question at the prompt",
+           ok and "Message 1: 1 recipient reminded." in r.stdout, r.stdout.strip())
+    s.write("n\n"); s.read_until(r"You will be asked again in", 5)
+    s.close()
+    s = open_session("luca")
+    ok = s.read_until(QUESTION, 10) is not None
+    record("D3", "Confirmation", "at the next login the postponement does not count: the question comes back",
+           "question at login", ok)
+    s.write("y\n"); s.read_until(r"\$ $", 5)
     ack = sh(f"cat {VAR}/users/luca/acks/1").stdout.strip()
-    registra("D4", "Conferma", "conferma registrata con data e canale", "«EPOCH terminale pts/N»",
-             bool(re.fullmatch(r"\d+ terminale pts/\d+", ack)), ack)
-    s.chiudi()
+    record("D4", "Confirmation", "confirmation recorded with date and channel", "«EPOCH terminal pts/N»",
+           bool(re.fullmatch(r"\d+ terminal pts/\d+", ack)), ack)
+    s.close()
 
 
-# ---- E. scadenza e ritiro ----
+# ---- E. expiry and revocation ----
 
-def e_scadenza_ritiro():
-    rspeak('send --to mario --expires 1m "Scade"')
+def e_expiry_revocation():
+    rspeak('send --to mario --expires 1m "Short-lived notice"')
     sh(f"sed -i 's/^expires: .*/expires: {int(time.time()) - 5}/' {VAR}/sent/1/msg {VAR}/users/mario/inbox/1")
-    s = Sessione("mario")
-    registra("E1", "Scadenza", "un messaggio scaduto non viene mostrato al login", "nessun testo",
-             "Scade" not in s.testo(), "")
-    st = stato(1, "mario")
-    registra("E2", "Scadenza", "stato di un messaggio scaduto", "consegnato, non confermato (scaduto)",
-             st == "consegnato, non confermato (scaduto)", st)
-    rspeak('send --to mario "Da ritirare"')
-    s.pulisci(); s.scrivi("\n")
-    s.leggi_fino(r"Confermi", 5)
+    s = Session("mario")
+    record("E1", "Expiry", "an expired message is not shown at login", "no text",
+           "Short-lived notice" not in s.text(), "")
+    st = state(1, "mario")
+    record("E2", "Expiry", "state of an expired message", "delivered, not confirmed (expired)",
+           st == "delivered, not confirmed (expired)", st)
+    rspeak('send --to mario "To be revoked"')
+    s.clear(); s.write("\n")
+    s.read_until(QUESTION, 5)
     t0 = time.time()
     rspeak("revoke 2")
-    dt = s.leggi_fino(r"ritirato il messaggio", 5)
-    registra("E3", "Ritiro", "ritiro con la domanda in attesa: la domanda si interrompe",
-             "«L'amministratore ha ritirato il messaggio»", dt is not None, secondi=round(time.time() - t0, 3))
-    st = stato(2, "mario")
-    registra("E4", "Ritiro", "stato dopo il ritiro", "consegnato, non confermato (ritirato)",
-             st == "consegnato, non confermato (ritirato)", st)
-    s.chiudi()
-    rspeak('send --to anna "Ritirato prima"')
+    dt = s.read_until(r"The administrator has revoked the message\.", 5)
+    record("E3", "Revocation", "revocation with the question waiting: the question stops",
+           "«The administrator has revoked the message.»", dt is not None, seconds=round(time.time() - t0, 3))
+    st = state(2, "mario")
+    record("E4", "Revocation", "state after the revocation", "delivered, not confirmed (revoked)",
+           st == "delivered, not confirmed (revoked)", st)
+    s.close()
+    rspeak('send --to anna "Revoked early"')
     rspeak("revoke 3")
-    s = Sessione("anna")
-    registra("E5", "Ritiro", "un messaggio ritirato prima del login non viene mostrato", "nessun testo",
-             "Ritirato prima" not in s.testo())
-    s.chiudi()
+    s = Session("anna")
+    record("E5", "Revocation", "a message revoked before the login is not shown", "no text",
+           "Revoked early" not in s.text())
+    s.close()
 
 
-# ---- F. guasti e recupero ----
+# ---- F. faults and recovery ----
 
-def f_guasti():
+def f_faults():
     sh(f"install -d -m 700 -o anna -g anna {VAR}/users/anna; "
        f"install -d -m 555 -o root {VAR}/users/anna/inbox")
-    r = rspeak('send --to mario,anna "Guasto"')
-    st = stato(1, "anna")
-    registra("F1", "Guasti", "la copia per un utente non si può scrivere: gli altri la ricevono",
-             "errore, anna «inviato, non consegnato», mario consegnato",
-             r.returncode != 0 and (st or "").startswith("inviato, non consegnato") and stato(1, "mario") == "consegnato",
-             f"{r.stderr.strip()} | anna: {st}")
+    r = rspeak('send --to mario,anna "Fault"')
+    st = state(1, "anna")
+    record("F1", "Faults", "the copy for one user cannot be written: the others receive it",
+           "error, anna «sent, not delivered», mario delivered",
+           r.returncode != 0 and (st or "").startswith("sent, not delivered") and state(1, "mario") == "delivered",
+           f"{r.stderr.strip()} | anna: {st}")
     sh(f"chown anna:anna {VAR}/users/anna/inbox; chmod 755 {VAR}/users/anna/inbox")
     r = rspeak("list")
-    registra("F2", "Guasti", "guasto risolto: il comando successivo completa la consegna", "anna consegnato",
-             stato(1, "anna") == "consegnato" and not os.path.exists(f"{VAR}/sent/1/incomplete"), r.stderr.strip())
+    record("F2", "Faults", "fault fixed: the next command completes the delivery", "anna delivered",
+           state(1, "anna") == "delivered" and not os.path.exists(f"{VAR}/sent/1/incomplete"), r.stderr.strip())
 
-    # invio interrotto davvero: SIGKILL durante la consegna a molti utenti
+    # sending really interrupted: SIGKILL during the delivery to many users
     for i in range(60):
         sh(f"id u{i:02d} >/dev/null 2>&1 || useradd -m -s /bin/bash u{i:02d}")
-    # si uccide proprio rspeak send (non una shell che lo contiene)
-    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Interrotto"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    a_meta(p)
+    # rspeak send itself is killed (not a shell containing it)
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Interrupted"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    halfway(p)
     p.kill(); p.wait()
     ids = sorted(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
     mid = ids[-1]
-    n_prima = len(sh(f"cat {VAR}/sent/{mid}/delivery 2>/dev/null").stdout.splitlines())
+    n_before = len(sh(f"cat {VAR}/sent/{mid}/delivery 2>/dev/null").stdout.splitlines())
     n_tot = len(sh(f"cat {VAR}/sent/{mid}/recipients 2>/dev/null").stdout.split())
     t0 = time.time()
     r = rspeak("list")
     dt = time.time() - t0
-    n_dopo = len(sh(f"cat {VAR}/sent/{mid}/delivery").stdout.splitlines())
-    registra("F3", "Guasti", "rspeak send ucciso a metà (SIGKILL): il comando successivo completa",
-             "tutte le copie consegnate, nessun segno di invio incompleto",
-             0 < n_prima < n_tot and n_dopo == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
-             f"consegnati prima {n_prima}/{n_tot}, dopo {n_dopo}/{n_tot}; {r.stderr.strip()[:120]}",
-             consegnati_al_kill=n_prima, destinatari=n_tot, secondi_recupero=round(dt, 3))
+    n_after = len(sh(f"cat {VAR}/sent/{mid}/delivery").stdout.splitlines())
+    record("F3", "Faults", "rspeak send killed halfway (SIGKILL): the next command completes",
+           "all copies delivered, no sign of an incomplete sending",
+           0 < n_before < n_tot and n_after == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
+           f"delivered before {n_before}/{n_tot}, after {n_after}/{n_tot}; {r.stderr.strip()[:120]}",
+           delivered_at_kill=n_before, recipients=n_tot, seconds_recovery=round(dt, 3))
 
-    # invio ucciso fra la creazione della cartella dell'utente e il suo chown
+    # sending killed between the creation of the user's folder and its chown
     sh(f"rm -rf {VAR}/users/luca && install -d -m 700 {VAR}/users/luca")
-    r = rspeak('send --to luca "Dopo la cartella a metà"')
+    r = rspeak('send --to luca "After the half-made folder"')
     mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
-    st = stato(mid, "luca")
-    registra("F6", "Guasti", "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
-             "consegnato", r.returncode == 0 and st == "consegnato", f"{st}; {r.stderr.strip()[:120]}")
+    st = state(mid, "luca")
+    record("F6", "Faults", "user's folder left owned by root by an interrupted sending: the delivery fixes it",
+           "delivered", r.returncode == 0 and st == "delivered", f"{st}; {r.stderr.strip()[:120]}")
 
-    # ritiro mentre l'invio a molti utenti è in corso: nessuna copia deve restare o ricomparire
-    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Da ritirare"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    a_meta(p)
+    # revocation while the sending to many users is in progress: no copy may stay or come back
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "To be revoked"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    halfway(p)
     mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
-    n_prima_ritiro = len(open(f"{VAR}/sent/{mid}/delivery").read().splitlines())
+    n_before_revoke = len(open(f"{VAR}/sent/{mid}/delivery").read().splitlines())
     t0 = time.time()
     rv = rspeak(f"revoke {mid}")
     dt = time.time() - t0
     out_send = p.communicate()[0]
-    copie = [u for u in os.listdir(f"{VAR}/users") if os.path.exists(f"{VAR}/users/{u}/inbox/{mid}")]
-    registra("F7", "Guasti", "rspeak revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
-             "nessuna copia nelle caselle, invio interrotto", rv.returncode == 0 and not copie
-             and not os.path.exists(f"{VAR}/sent/{mid}/ritiro") and n_prima_ritiro < len(os.listdir(f"{VAR}/users")),
-             f"copie rimaste: {len(copie)}; consegnate prima del ritiro: {n_prima_ritiro}; {out_send.strip()[:80]}",
-             secondi_attesa_revoke=round(dt, 2))
-    # invio in corso e, nello stesso momento, altri comandi rspeak che fanno il recupero
-    azzera()
-    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    giri = 0
+    copies = [u for u in os.listdir(f"{VAR}/users") if os.path.exists(f"{VAR}/users/{u}/inbox/{mid}")]
+    record("F7", "Faults", "rspeak revoke during a sending to many users: the sending stops and no copy stays",
+           "no copy in the mailboxes, sending interrupted", rv.returncode == 0 and not copies
+           and not os.path.exists(f"{VAR}/sent/{mid}/revoking") and n_before_revoke < len(os.listdir(f"{VAR}/users")),
+           f"copies left: {len(copies)}; delivered before the revocation: {n_before_revoke}; {out_send.strip()[:80]}",
+           seconds_waiting_revoke=round(dt, 2))
+    # sending in progress and, at the same time, other rspeak commands doing the recovery
+    reset()
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Concurrent"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    rounds = 0
     while p.poll() is None:
-        rspeak("list"); giri += 1
+        rspeak("list"); rounds += 1
     rspeak("list")
-    righe = sh(f"cut -d' ' -f1 {VAR}/sent/1/delivery").stdout.split()
+    lines = sh(f"cut -d' ' -f1 {VAR}/sent/1/delivery").stdout.split()
     n_tot = len(sh(f"cat {VAR}/sent/1/recipients").stdout.split())
-    registra("F5", "Guasti", "rspeak list ripetuto mentre rspeak send consegna: il recupero non interferisce",
-             "una consegna per destinatario, nessun doppione, invio completo",
-             len(righe) == n_tot == len(set(righe)) and p.returncode == 0 and not os.path.exists(f"{VAR}/sent/1/incomplete"),
-             f"{len(righe)} consegne annotate per {n_tot} destinatari, {len(set(righe))} distinte",
-             rspeak_list_durante_invio=giri)
+    record("F5", "Faults", "rspeak list repeated while rspeak send delivers: the recovery does not interfere",
+           "one delivery per recipient, no duplicates, sending complete",
+           len(lines) == n_tot == len(set(lines)) and p.returncode == 0 and not os.path.exists(f"{VAR}/sent/1/incomplete"),
+           f"{len(lines)} deliveries recorded for {n_tot} recipients, {len(set(lines))} distinct",
+           rspeak_list_during_sending=rounds)
     for i in range(60):
         sh(f"userdel -r u{i:02d} 2>/dev/null")
 
-    # conferma non scrivibile
-    azzera()
-    s = Sessione("luca")
-    rspeak('send --to luca "Conferma impossibile"')
+    # confirmation that cannot be written
+    reset()
+    s = Session("luca")
+    rspeak('send --to luca "Confirmation impossible"')
     sh(f"chown root {VAR}/users/luca/acks; chmod 555 {VAR}/users/luca/acks")
-    s.pulisci(); s.scrivi("\n"); s.leggi_fino(r"Confermi", 5)
-    s.scrivi("s\n")
-    ok = s.leggi_fino(r"Non è stato possibile registrare la conferma", 5) is not None
-    st = stato(1, "luca")
-    registra("F4", "Guasti", "la conferma non si può scrivere: il messaggio resta e l'utente è avvisato",
-             "avviso; stato consegnato; messaggio ancora nella casella",
-             ok and (st or "").startswith("consegnato") and os.path.exists(f"{VAR}/users/luca/inbox/1"), st)
-    s.chiudi()
+    s.clear(); s.write("\n"); s.read_until(QUESTION, 5)
+    s.write("y\n")
+    ok = s.read_until(r"The confirmation could not be recorded: you will be asked again\.", 5) is not None
+    st = state(1, "luca")
+    record("F4", "Faults", "the confirmation cannot be written: the message stays and the user is told",
+           "notice; state delivered; message still in the mailbox",
+           ok and (st or "").startswith("delivered") and os.path.exists(f"{VAR}/users/luca/inbox/1"), st)
+    s.close()
 
 
-# ---- G. sicurezza ----
+# ---- G. security ----
 
-def g_sicurezza():
-    rspeak('send --to mario "prima"')
+def g_security():
+    rspeak('send --to mario "first"')
     sh(f"rm -rf {VAR}/users/mario/inbox; ln -s /etc {VAR}/users/mario/inbox; chown -h mario:mario {VAR}/users/mario/inbox")
-    r = rspeak('send --to mario "attacco"')
-    registra("G1", "Sicurezza", "la casella è un collegamento a /etc: root non ci scrive",
-             "nessun file 2 in /etc; mario «inviato, non consegnato»",
-             not os.path.exists("/etc/2") and not os.path.exists("/etc/2.tmp")
-             and (stato(2, "mario") or "").startswith("inviato"), r.stderr.strip()[:160])
+    r = rspeak('send --to mario "attack"')
+    record("G1", "Security", "the mailbox is a link to /etc: root does not write there",
+           "no file 2 in /etc; mario «sent, not delivered»",
+           not os.path.exists("/etc/2") and not os.path.exists("/etc/2.tmp")
+           and (state(2, "mario") or "").startswith("sent, not delivered"), r.stderr.strip()[:160])
     sh(f"rm -f {VAR}/users/mario/inbox")
-    s = Sessione("anna")
-    s.pulisci()
-    rspeak("send --to anna $'Testo \\e[31mrosso\\e[0m \\e]0;titolo\\a \\a fine'")
-    s.leggi_fino("fine", 5)
-    registra("G2", "Sicurezza", "sequenze di escape nel testo: non arrivano al terminale", "nessun ESC nel testo ricevuto",
-             "Testo rosso" in ANSI.sub("", s.buf) and "\x1b[31m" not in s.buf and "\x1b]0;" not in s.buf and "\x07" not in s.buf.split("Testo")[-1],
-             repr(s.buf[s.buf.find("Testo"):s.buf.find("Testo") + 40]))
-    s.chiudi()
-    rspeak('send --to luca "falso"')
-    sh(f"printf '1 \\033[31mfinto\\033]0;x\\007%0500d' 0 > {VAR}/users/luca/acks/4; chown luca {VAR}/users/luca/acks/4")
+    s = Session("anna")
+    s.clear()
+    rspeak("send --to anna $'Text \\e[31mred\\e[0m \\e]0;title\\a \\a end'")
+    s.read_until("end", 5)
+    record("G2", "Security", "escape sequences in the text: they do not reach the terminal", "no ESC in the text received",
+           "Text red" in ANSI.sub("", s.buf) and "\x1b[31m" not in s.buf and "\x1b]0;" not in s.buf and "\x07" not in s.buf.split("Text")[-1],
+           repr(s.buf[s.buf.find("Text"):s.buf.find("Text") + 40]))
+    s.close()
+    rspeak('send --to luca "forged"')
+    sh(f"printf '1 \\033[31mfake\\033]0;x\\007%0500d' 0 > {VAR}/users/luca/acks/4; chown luca {VAR}/users/luca/acks/4")
     out = rspeak("status 4").stdout
-    registra("G3", "Sicurezza", "conferma fabbricata con escape e 500 byte: rspeak status resta pulito",
-             "nessun ESC nell'uscita, al massimo 200 byte letti", "\x1b" not in out and len(out) < 1000, out.splitlines()[-1][:120])
-    r = sh("runuser -u mario -- env RSPEAK_TEST=1 /usr/local/bin/rspeak list")
-    registra("G4", "Sicurezza", "un utente normale con RSPEAK_TEST=1 non ottiene nulla", "permesso negato",
-             r.returncode != 0 and negato(r.stderr), r.stderr.strip())
+    record("G3", "Security", "forged confirmation with escapes and 500 bytes: rspeak status stays clean",
+           "no ESC in the output, at most 200 bytes read", "\x1b" not in out and len(out) < 1000, out.splitlines()[-1][:120])
+    r = as_ordinary_user("mario", f"env RSPEAK_TEST=1 {RSPEAK} list")
+    record("G4", "Security", "an ordinary user with RSPEAK_TEST=1 gets nothing", "permission denied",
+           denied(r), r.stderr.strip())
 
 
-# ---- K. shell diverse da bash ----
+# ---- K. shells other than bash ----
 
-def k_shell():
-    """zsh e fish: domanda al login e a ogni prompt; ksh e dash (che leggono /etc/profile):
-    domanda al login; per tutte, il testo nel terminale all'invio."""
+def k_shells():
+    """zsh and fish: question at login and at every prompt; ksh and dash (which read /etc/profile):
+    question at login; for all of them, the text in the terminal when the message is sent."""
     mid = 0
-    for utente, (shell, prompt) in SHELL_PROVA.items():
-        if sh(f"getent passwd {utente}").returncode:
-            registra(f"K-{shell}", "Shell", f"{shell}: utente di prova {utente}", "presente", None, "utente assente")
+    for user, (shell, prompt) in TEST_SHELLS.items():
+        if sh(f"getent passwd {user}").returncode:
+            record(f"K-{shell}", "Shells", f"{shell}: test user {user}", "present", None, "user missing")
             continue
         mid += 1
-        rspeak(f'send --to {utente} "Al login con {shell}"')
-        s = Sessione.__new__(Sessione)
-        s.utente, s.buf = utente, ""
-        s.pid, s.fd = pty.fork()
-        if s.pid == 0:
-            os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
-        dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 15)
-        registra(f"K1-{shell}", "Shell", f"{shell}: al login il messaggio e la domanda", "testo e domanda al login",
-                 dt is not None and f"Al login con {shell}" in s.testo(), s.testo()[-80:] if dt is None else "")
-        s.scrivi("s\n")
-        s.leggi_fino(prompt, 8)
-        st = stato(mid, utente) or ""
-        registra(f"K2-{shell}", "Shell", f"{shell}: conferma al login", "confermato (terminale)",
-                 st.startswith("confermato"), st)
+        rspeak(f'send --to {user} "At login with {shell}"')
+        s = open_session(user)
+        dt = s.read_until(QUESTION, 15)
+        record(f"K1-{shell}", "Shells", f"{shell}: at login the message and the question", "text and question at login",
+               dt is not None and f"At login with {shell}" in s.text(), s.text()[-80:] if dt is None else "")
+        s.write("y\n")
+        s.read_until(prompt, 8)
+        st = state(mid, user) or ""
+        record(f"K2-{shell}", "Shells", f"{shell}: confirmation at login", "confirmed (terminal)",
+               st.startswith("confirmed"), st)
         mid += 1
-        s.pulisci()
-        rspeak(f'send --to {utente} "Durante la sessione {shell}"')
-        dt = s.leggi_fino(f"Durante la sessione {shell}", 5)
-        registra(f"K3-{shell}", "Shell", f"{shell}: utente collegato, il testo compare nel terminale",
-                 "testo nel terminale", dt is not None, s.testo()[-80:] if dt is None else "")
-        s.pulisci()
-        s.scrivi("\n")
+        s.clear()
+        rspeak(f'send --to {user} "During the {shell} session"')
+        dt = s.read_until(f"During the {shell} session", 5)
+        record(f"K3-{shell}", "Shells", f"{shell}: user logged in, the text appears in the terminal",
+               "text in the terminal", dt is not None, s.text()[-80:] if dt is None else "")
+        s.clear()
+        s.write("\n")
         if shell in ("zsh", "fish"):
-            dt = s.leggi_fino(r"Confermi di aver letto il messaggio\?", 5)
-            registra(f"K4-{shell}", "Shell", f"{shell}: premendo Invio compare la domanda",
-                     "domanda al prompt successivo", dt is not None, s.testo()[-80:] if dt is None else "",
-                     secondi=round(dt, 3) if dt else None)
-            s.scrivi("s\n")
-            s.leggi_fino(r"Confermato\.", 5)
-            st = stato(mid, utente) or ""
-            registra(f"K5-{shell}", "Shell", f"{shell}: conferma al prompt", "confermato (terminale)",
-                     st.startswith("confermato"), st)
+            dt = s.read_until(QUESTION, 5)
+            record(f"K4-{shell}", "Shells", f"{shell}: pressing Enter the question appears",
+                   "question at the next prompt", dt is not None, s.text()[-80:] if dt is None else "",
+                   seconds=round(dt, 3) if dt else None)
+            s.write("y\n")
+            s.read_until(CONFIRMED, 5)
+            st = state(mid, user) or ""
+            record(f"K5-{shell}", "Shells", f"{shell}: confirmation at the prompt", "confirmed (terminal)",
+                   st.startswith("confirmed"), st)
         else:
-            s.leggi_fino(prompt, 3)
-            st = stato(mid, utente) or ""
-            registra(f"K4-{shell}", "Shell", f"{shell}: al prompt nessuna domanda (arriva al login successivo)",
-                     "nessuna domanda, consegnato", "Confermi" not in s.testo() and st.startswith("consegnato"), st)
-        s.chiudi()
+            s.read_until(prompt, 3)
+            st = state(mid, user) or ""
+            record(f"K4-{shell}", "Shells", f"{shell}: no question at the prompt (it comes at the next login)",
+                   "no question, delivered", "Do you confirm" not in s.text() and st.startswith("delivered"), st)
+        s.close()
 
 
-# ---- L. lingua: ognuno legge RootSpeak nella sua ----
+# ---- L. language: RootSpeak speaks English to everyone ----
 
-def l_lingua():
-    """Il sistema è in italiano; luca lavora in inglese (la sua shell ha LANG=en_US.UTF-8)."""
-    luca = Sessione("luca", comando="LANG=en_US.UTF-8 exec bash -il")
-    mario = Sessione("mario")
-    luca.pulisci(); mario.pulisci()
-    rspeak('send --to luca,mario "Testo uguale per tutti"')
-    ok_en = luca.leggi_fino(r"Message from the administrator", 5) is not None
-    ok_it = mario.leggi_fino(r"Messaggio dall'amministratore", 5) is not None
-    registra("L1", "Lingua", "all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente",
-             "luca in inglese, mario in italiano, testo non tradotto",
-             ok_en and ok_it and "Testo uguale per tutti" in luca.testo(), luca.testo()[-100:] if not ok_en else "")
-    luca.pulisci()
-    luca.scrivi("\n")
-    ok = luca.leggi_fino(r"Do you confirm you have read the message\? \[y/N\]", 5) is not None
-    luca.scrivi("y\n")
-    ok = ok and luca.leggi_fino(r"Confirmed\.", 5) is not None
-    registra("L2", "Lingua", "la domanda e la conferma nella lingua dell'utente", "domanda in inglese, «y» conferma",
-             ok and (stato(1, "luca") or "").startswith("confermato"), stato(1, "luca") or "")
-    luca.chiudi(); mario.chiudi()
-    out = sh(f"LANG=en_US.UTF-8 {RSPEAK} status 1").stdout
-    registra("L3", "Lingua", "un amministratore in inglese legge rspeak status in inglese", "USER STATE, confirmed on … (terminal …)",
-             "USER" in out and "confirmed on" in out and "(terminal pts/" in out, " / ".join(out.splitlines()[-2:]))
-    time.sleep(1)
-    log_en = sh(f"LANG=en_US.UTF-8 {RSPEAK} log 1").stdout
-    log_it = rspeak("log 1").stdout
-    grezzo = sh("journalctl -q -o cat SYSLOG_IDENTIFIER=rspeak RSPEAK_MESSAGGIO=1 RSPEAK_EVENTO=CONFERMATO").stdout
-    registra("L4", "Lingua", "il registro è nella lingua del sistema; rspeak log lo riscrive in quella di chi legge",
-             "journal in italiano; rspeak log in inglese e in italiano",
-             "user luca: confirmed reading message 1 (terminal" in log_en
-             and "utente luca: confermata la lettura del messaggio 1 (terminale" in log_it
-             and "confermata la lettura" in grezzo, (log_en.splitlines() or [""])[-1][:120])
+def l_language():
+    """The system is in Italian and so is mario's session: RootSpeak still writes English."""
+    s = Session("mario", command="LANG=it_IT.UTF-8 LANGUAGE=it exec bash -il")
+    s.clear()
+    s.write('echo "session language: $LANG"\n')
+    italian = s.read_until(r"session language: it_IT", 5) is not None
+    s.clear()
+    rspeak('send --to mario "Same text for everyone"')
+    ok = s.read_until(r"Same text for everyone", 5) is not None and HEADER in s.text()
+    s.clear()
+    s.write("\n")
+    ok = ok and s.read_until(QUESTION, 5) is not None
+    s.write("y\n")
+    ok = ok and s.read_until(CONFIRMED, 5) is not None
+    st = state(1, "mario") or ""
+    record("L5", "Language", "a user whose session is in Italian: header, question and answer in English, «y» confirms",
+           "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
+           italian and ok and st.startswith("confirmed"), st if italian else "the session is not in Italian")
+    s.close()
 
 
-# ---- T. la TUI degli amministratori ----
+# ---- T. the administrators' TUI ----
 
 def t_tui():
-    """rspeak senza argomenti, come root, in un terminale: la TUI sull'archivio vero."""
+    """rspeak without arguments, as root, in a terminal: the TUI on the real store."""
     import fcntl, struct, termios
-    rspeak('send --to mario,anna --title Prova "Dalla TUI"')
-    s = Sessione.__new__(Sessione)
-    s.utente, s.buf = "root", ""
+    rspeak('send --to mario,anna --title Test "From the TUI"')
+    s = Session.__new__(Session)
+    s.user, s.buf = "root", ""
     s.pid, s.fd = pty.fork()
     if s.pid == 0:
         os.execvpe(RSPEAK, ["rspeak"], dict(os.environ, TERM="xterm-256color"))
     fcntl.ioctl(s.fd, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
-    ok1 = s.leggi_fino(r"2 consegnato", 10) is not None and "RootSpeak · messaggi inviati" in s.testo()
-    registra("T1", "TUI", "rspeak senza argomenti come root: la lista con i destinatari nei tre stati",
-             "«RootSpeak · messaggi inviati», «2 consegnato»", ok1, s.testo()[-120:] if not ok1 else "")
-    s.pulisci(); s.scrivi("\r")
-    ok2 = s.leggi_fino(r"anna.*consegnato", 10) is not None and "mario" in s.testo()
-    s.pulisci(); s.scrivi("\t")
-    ok3 = s.leggi_fino(r"inviato da root", 10) is not None
-    registra("T2", "TUI", "dettaglio: destinatari e storia dal registro", "anna, mario; «inviato da root»", ok2 and ok3)
-    s.scrivi("\x1b"); time.sleep(0.5); s.scrivi("q")
+    ok1 = s.read_until(r"2 delivered", 10) is not None and "RootSpeak · sent messages" in s.text()
+    record("T1", "TUI", "rspeak without arguments as root: the list with the recipients in the three states",
+           "«RootSpeak · sent messages», «2 delivered»", ok1, s.text()[-120:] if not ok1 else "")
+    s.clear(); s.write("\r")
+    ok2 = s.read_until(r"anna.*delivered", 10) is not None and "mario" in s.text()
+    s.clear(); s.write("\t")
+    ok3 = s.read_until(r"sent by root", 10) is not None
+    record("T2", "TUI", "detail: recipients and history from the log", "anna, mario; «sent by root»", ok2 and ok3)
+    s.write("\x1b"); time.sleep(0.5); s.write("q")
     try:
         _, st = os.waitpid(s.pid, 0)
     except ChildProcessError:
         st = 1
-    registra("T3", "TUI", "q: la TUI esce e ridà il terminale", "uscita 0", os.WIFEXITED(st) and os.WEXITSTATUS(st) == 0)
+    record("T3", "TUI", "q: the TUI exits and gives the terminal back", "exit status 0",
+           os.WIFEXITED(st) and os.WEXITSTATUS(st) == 0)
 
 
-# ---- J. registro degli eventi ----
+# ---- J. event log ----
 
-def j_registro():
-    s = Sessione("mario")
-    rspeak('send --to mario,anna "Storia"')
-    s.pulisci(); s.scrivi("\n"); s.leggi_fino(r"Confermi", 5)
-    s.scrivi("n\n"); s.leggi_fino(r"riproposta", 5)
-    s.chiudi()
-    s = apri("mario")
-    s.leggi_fino(r"Confermi", 10); s.scrivi("s\n"); s.leggi_fino(r"Confermato", 5)
-    s.chiudi()
+def j_log():
+    s = Session("mario")
+    rspeak('send --to mario,anna "History"')
+    s.clear(); s.write("\n"); s.read_until(QUESTION, 5)
+    s.write("n\n"); s.read_until(r"You will be asked again in", 5)
+    s.close()
+    s = open_session("mario")
+    s.read_until(QUESTION, 10); s.write("y\n"); s.read_until(CONFIRMED, 5)
+    s.close()
     rspeak("revoke 1")
     time.sleep(1)
     out = rspeak("log 1").stdout
-    attesi = ["inviato da root", "consegnato a anna", "consegnato a mario", "rimandato il messaggio 1 (terminale)",
-              "confermata la lettura del messaggio 1 (terminale", "ritirato da root"]
-    mancanti = [a for a in attesi if a not in out]
-    registra("J1", "Registro", "rspeak log: la storia del messaggio", "invio, consegne, rinvio, conferma, ritiro",
-             not mancanti, "mancano: " + ", ".join(mancanti) if mancanti else f"{len(out.splitlines()) - 1} eventi")
+    expected = ["message 1 sent by root", "message 1 delivered to anna", "message 1 delivered to mario",
+                "user mario: postponed message 1 (terminal)",
+                "user mario: confirmed reading message 1 (terminal pts/", "message 1 revoked by root"]
+    missing = [a for a in expected if a not in out]
+    record("J1", "Log", "rspeak log: the history of the message", "sending, deliveries, postponement, confirmation, revocation",
+           not missing, "missing: " + ", ".join(missing) if missing else f"{len(out.splitlines()) - 1} events")
     uid = pwd.getpwnam("mario").pw_uid
-    ev = sh(f"journalctl -q -o cat --output-fields=_UID RSPEAK_MESSAGGIO=1 RSPEAK_EVENTO=CONFERMATO RSPEAK_UTENTE=mario").stdout.split()
-    registra("J2", "Registro", "la conferma nel journal porta l'utente che l'ha scritta (_UID)",
-             f"_UID {uid}", str(uid) in ev, " ".join(ev))
-    # un utente scrive nel journal una conferma falsa a nome di un altro
-    sh("runuser -u luca -- sh -c 'printf \"MESSAGE=falso\\nSYSLOG_IDENTIFIER=rspeak\\nRSPEAK_EVENTO=CONFERMATO\\n"
-       "RSPEAK_MESSAGGIO=1\\nRSPEAK_UTENTE=anna\\nRSPEAK_CANALE=desktop\\n\" | logger --journald'")
+    ev = sh("journalctl -q -o cat --output-fields=_UID RSPEAK_MESSAGE=1 RSPEAK_EVENT=CONFIRMED RSPEAK_USER=mario").stdout.split()
+    record("J2", "Log", "the confirmation in the journal carries the user who wrote it (_UID)",
+           f"_UID {uid}", str(uid) in ev, " ".join(ev))
+    # a user writes into the journal a fake confirmation in the name of another
+    sh("runuser -u luca -- sh -c 'printf \"MESSAGE=fake\\nSYSLOG_IDENTIFIER=rspeak\\nRSPEAK_EVENT=CONFIRMED\\n"
+       "RSPEAK_MESSAGE=1\\nRSPEAK_USER=anna\\nRSPEAK_CHANNEL=desktop\\n\" | logger --journald'")
     time.sleep(1)
     out = rspeak("log 1").stdout
     luca = pwd.getpwnam("luca").pw_uid
-    falsa = [r for r in out.splitlines() if "utente anna: confermata" in r]
-    registra("J3", "Registro", "un evento scritto da un utente a nome di un altro: rspeak log lo segnala",
-             f"«non attendibile: scritto da UID {luca}»",
-             bool(falsa) and all(f"non attendibile: scritto da UID {luca}" in r for r in falsa)
-             and not any("non attendibile" in r for r in out.splitlines() if r not in falsa),
-             " / ".join(falsa)[:160])
+    fake = [r for r in out.splitlines() if "user anna: confirmed" in r]
+    record("J3", "Log", "an event written by a user in the name of another: rspeak log flags it",
+           f"«[not trustworthy: written by UID {luca}]»",
+           bool(fake) and all(f"[not trustworthy: written by UID {luca}]" in r for r in fake)
+           and not any("not trustworthy" in r for r in out.splitlines() if r not in fake),
+           " / ".join(fake)[:160])
 
 
-# ---- H. prestazioni ----
+# ---- H. performance ----
 
-def h_prestazioni():
-    n_utenti = 50
-    for i in range(n_utenti):
+def h_performance():
+    n_users = 50
+    for i in range(n_users):
         sh(f"id p{i:02d} >/dev/null 2>&1 || useradd -m -s /bin/bash p{i:02d}")
     t0 = time.time()
-    rspeak('send --to all "Misura"')
+    rspeak('send --to all "Measure"')
     t_send = time.time() - t0
     for k in range(9):
-        rspeak(f'send --to all "Misura {k}"')
-    n_dest = len(sh(f"cat {VAR}/sent/1/recipients").stdout.split())
+        rspeak(f'send --to all "Measure {k}"')
+    n_rcpt = len(sh(f"cat {VAR}/sent/1/recipients").stdout.split())
     t0 = time.time()
     rspeak("list")
     t_list = time.time() - t0
     t0 = time.time()
     rspeak("status 1")
     t_status = time.time() - t0
-    registra("H1", "Prestazioni", f"invio a tutti ({n_dest} destinatari)", "misura", True,
-             secondi=round(t_send, 2), ms_per_destinatario=round(1000 * t_send / n_dest, 1))
-    registra("H2", "Prestazioni", f"rspeak list con 10 messaggi × {n_dest} destinatari", "misura (punto 15 della revisione)", True,
-             secondi=round(t_list, 2))
-    registra("H3", "Prestazioni", f"rspeak status di un messaggio con {n_dest} destinatari", "misura", True,
-             secondi=round(t_status, 2))
-    for i in range(n_utenti):
+    record("H1", "Performance", f"sending to all ({n_rcpt} recipients)", "measure", True,
+           seconds=round(t_send, 2), ms_per_recipient=round(1000 * t_send / n_rcpt, 1))
+    record("H2", "Performance", f"rspeak list with 10 messages × {n_rcpt} recipients", "measure (item 15 of the review)", True,
+           seconds=round(t_list, 2))
+    record("H3", "Performance", f"rspeak status of a message with {n_rcpt} recipients", "measure", True,
+           seconds=round(t_status, 2))
+    for i in range(n_users):
         sh(f"userdel -r p{i:02d} 2>/dev/null")
 
 
 # ---- I. desktop ----
 
 def desk(*args):
-    """Guarda o usa le finestre di RootSpeak nella sessione grafica di DESK (tests/vm/desktop.py)."""
+    """Looks at or uses the RootSpeak dialogs in DESK's graphical session (tests/vm/desktop.py)."""
     uid = pwd.getpwnam(DESK).pw_uid
     env = f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus XDG_RUNTIME_DIR=/run/user/{uid}"
     return sh(f"runuser -u {DESK} -- env {env} python3 /opt/rootspeak-src/tests/vm/desktop.py "
               + " ".join(shlex.quote(a) for a in args)).stdout.strip()
 
 
-def n_finestre():
+def n_windows():
     try:
-        return int(desk("finestre") or 0)
+        return int(desk("windows") or 0)
     except ValueError:
         return 0
 
 
-def attendi_finestre(n, tempo):
-    """Attende che le finestre di RootSpeak aperte siano n; restituisce i secondi, o None."""
+def wait_windows(n, duration):
+    """Waits until the open RootSpeak dialogs are n; returns the seconds, or None."""
     t0 = time.time()
-    while time.time() - t0 < tempo:
-        if n_finestre() == n:
+    while time.time() - t0 < duration:
+        if n_windows() == n:
             return round(time.time() - t0, 2)
         time.sleep(0.2)
     return None
 
 
-def testo_finestra(tempo=6):
-    """Il testo della prima finestra di RootSpeak; subito dopo un login l'accessibilità di
-    GNOME può esporre la finestra prima del suo contenuto, quindi si riprova."""
+def window_text(duration=6):
+    """The text of the first RootSpeak dialog; just after a login GNOME's accessibility
+    may expose the window before its content, so it tries again."""
     t0 = time.time()
     t = ""
-    while time.time() - t0 < tempo:
-        t = desk("testo")
+    while time.time() - t0 < duration:
+        t = desk("text")
         if "|" in t:
             break
         time.sleep(0.3)
     return t
 
 
-def attendi_stato(mid, utente, prova, tempo=8):
-    """Attende che lo stato del destinatario soddisfi prova(stato): l'agente registra
-    conferme e rinvii un istante dopo la chiusura della finestra."""
+def wait_state(mid, user, test, duration=8):
+    """Waits until the recipient's state satisfies test(state): the agent records
+    confirmations and postponements a moment after the dialog closes."""
     t0 = time.time()
     st = ""
-    while time.time() - t0 < tempo:
-        st = stato(mid, utente) or ""
-        if prova(st):
+    while time.time() - t0 < duration:
+        st = state(mid, user) or ""
+        if test(st):
             break
         time.sleep(0.2)
     return st
 
 
-def cattura(nome):
-    """Chiede a tests/vm/run.sh (fuori dalla VM) una schermata, e lascia il tempo di farla."""
-    print(f"@@CATTURA {nome}", flush=True)
+def capture(name):
+    """Asks tests/vm/run.sh (outside the VM) for a screenshot, and leaves it the time to take it."""
+    print(f"@@CAPTURE {name}", flush=True)
     time.sleep(2.5)
 
 
-def agente_attivo():
-    return sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'").returncode == 0
+def agent_pids():
+    return sh(f"pgrep -u {DESK} -f '^(/bin/bash )?{AGENT}$'").stdout.split()
 
 
-def apri(utente):
-    """Una sessione ssh con terminale, senza attendere il prompt (al login può esserci la domanda)."""
-    s = Sessione.__new__(Sessione)
-    s.utente, s.buf = utente, ""
-    s.pid, s.fd = pty.fork()
-    if s.pid == 0:
-        os.execvp("ssh", ["ssh", "-tt", f"{utente}@localhost"])
-    return s
+def agent_running():
+    return bool(agent_pids())
 
 
-ETICHETTE = {}
-
-
-def lingua_ambiente(env):
-    """La lingua che RootSpeak sceglie per un ambiente (/proc/PID/environ), con le sue regole."""
-    v = dict(x.split("=", 1) for x in env.decode("utf-8", "replace").split("\0") if "=" in x)
-    loc = v.get("LC_ALL") or v.get("LC_MESSAGES") or v.get("LANG") or ""
-    if re.split(r"[.@]", loc)[0] in ("", "C", "POSIX"):
-        return "en"
-    for x in v.get("LANGUAGE", "").split(":") + [loc]:
-        l = re.split(r"[_.@:]", x)[0]
-        if l == "en" or (re.fullmatch(r"[a-z]{2,3}", l) and os.path.exists(f"/usr/local/share/locale/{l}/LC_MESSAGES/rootspeak.mo")):
-            return l
-    return "en"
-
-
-def testi(lingua):
-    """I testi della finestra nella lingua data: in inglese quelli di partenza,
-    altrimenti le traduzioni di po/LINGUA.po."""
-    t = {"dlg_title": "RootSpeak · Message from the administrator", "dlg_ok": "I have read it", "dlg_later": "Later"}
-    if lingua == "en":
-        return t
-    po = open(f"/opt/rootspeak-src/po/{lingua}.po").read()
-    for k, msgid in list(t.items()):
-        m = re.search(r'^msgid "' + re.escape(msgid) + r'"\nmsgstr "((?:[^"\\]|\\.)*)"', po, re.M)
-        if m and m.group(1):
-            t[k] = m.group(1).replace('\\"', '"')
-    return t
+def agent_language():
+    """The locale of the graphical session, read from the agent's environment."""
+    pids = agent_pids()
+    if not pids:
+        return ""
+    try:
+        env = open(f"/proc/{pids[0]}/environ", "rb").read().decode("utf-8", "replace")
+    except OSError:
+        return ""
+    v = dict(x.split("=", 1) for x in env.split("\0") if "=" in x)
+    return v.get("LC_ALL") or v.get("LC_MESSAGES") or v.get("LANG") or ""
 
 
 def i_desktop():
     if not DESK:
-        registra("I1", "Desktop", "finestra di conferma nella sessione grafica", "finestra «Ho letto»",
-                 None, "il container non ha una sessione grafica: la finestra si prova nella VM (tests/vm)")
+        record("I1", "Desktop", "confirmation dialog in the graphical session", f"dialog «{DLG_OK}»",
+               None, "the container has no graphical session: the dialog is tested in the VM (tests/vm)")
         return
-    grafica = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
-    # la finestra è nella lingua della sessione grafica, cioè dell'ambiente dell'agente
-    pid = sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'").stdout.split()
-    lingua = lingua_ambiente(open(f"/proc/{pid[0]}/environ", "rb").read()) if pid else "en"
-    ETICHETTE.update(testi(lingua))
-    registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di RootSpeak attivo "
-             "(l'avvio dal login automatico lo verifica run.sh prima degli scenari)",
-             "sessione grafica, agente attivo", bool(grafica) and agente_attivo(), f"sessione {grafica}")
+    graphical = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
+    desktop_lang = agent_language()
+    record("I0", "Desktop", f"{DESK} has a graphical session with the RootSpeak agent running "
+           "(run.sh checks the start from the automatic login before the scenarios)",
+           "graphical session, agent running", bool(graphical) and agent_running(), f"session {graphical}")
 
     t0 = time.time()
-    rspeak(f'send --to {DESK} --title Manutenzione "Server spento sabato dalle 8 alle 12."')
-    dt = attendi_finestre(1, 20)
-    testo = testo_finestra()
-    titolo = desk("titolo")
-    registra("I1", "Desktop", "la finestra compare da sola dopo l'invio, nella lingua della sessione",
-             f"finestra «{ETICHETTE['dlg_title']}» ({lingua}) con titolo e testo",
-             dt is not None and "Server spento sabato" in testo and titolo == ETICHETTE["dlg_title"],
-             f"{titolo} | {testo[:120]}",
-             secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
-    cattura("I1-window")
-    desk("clicca", ETICHETTE["dlg_ok"])
-    chiusa = attendi_finestre(0, 10)
-    st = attendi_stato(1, DESK, lambda x: x.startswith("confermato"))
-    registra("I2", "Desktop", "«Ho letto»: la finestra si chiude e la conferma è registrata",
-             "confermato (desktop)", chiusa is not None and st.startswith("confermato") and st.endswith("(desktop)"), st)
+    rspeak(f'send --to {DESK} --title Maintenance "Server off on Saturday from 8 to 12."')
+    dt = wait_windows(1, 20)
+    text = window_text()
+    title = desk("title")
+    record("I1", "Desktop", "the dialog appears by itself after the sending",
+           f"dialog «{DLG_TITLE}» with title and text",
+           dt is not None and "Server off on Saturday" in text and title == DLG_TITLE,
+           f"{title} | {text[:120]}",
+           seconds_to_dialog=round(time.time() - t0, 2) if dt is not None else None)
+    capture("I1-window")
+    clicked = desk("click", DLG_OK) == "pressed"
+    closed = wait_windows(0, 10)
+    st = wait_state(1, DESK, lambda x: x.startswith("confirmed"))
+    record("I2", "Desktop", f"«{DLG_OK}»: the dialog closes and the confirmation is recorded",
+           "confirmed (desktop)", closed is not None and st.startswith("confirmed") and st.endswith("(desktop)"), st)
+    record("I12", "Desktop", "desktop session in Italian: the dialog is in English",
+           f"session it_IT; title «{DLG_TITLE}», button «{DLG_OK}»",
+           desktop_lang.startswith("it") and title == DLG_TITLE and clicked,
+           f"session language {desktop_lang or 'unknown'}; title «{title}»")
 
-    # solleciti rapidi per la prova; l'agente riparte e rilegge la configurazione
+    # quick reminders for the test; the agent restarts and reads the configuration again
     sh("printf 'RSPEAK_REMIND_MINUTES=1\nRSPEAK_AGENT_POLL=5\n' > /etc/rootspeak/rootspeak.conf")
-    sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'")
+    sh(f"pkill -u {DESK} -f '^(/bin/bash )?{AGENT}$'")
     time.sleep(1)
     t0 = time.time()
-    rspeak(f'send --to {DESK} "Secondo messaggio"')
-    dt = attendi_finestre(1, 30)
-    registra("I8", "Desktop", "agente assente: rspeak send lo avvia (systemd-run) e la finestra compare",
-             "agente attivo, finestra", dt is not None and agente_attivo(),
-             secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
-    desk("clicca", ETICHETTE["dlg_later"])
-    attendi_finestre(0, 10)
-    st = attendi_stato(2, DESK, lambda x: "rimandato" in x)
-    registra("I3", "Desktop", "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
-             "consegnato, rimandato il …", st.startswith("consegnato") and "rimandato" in st, st)
+    rspeak(f'send --to {DESK} "Second message"')
+    dt = wait_windows(1, 30)
+    record("I8", "Desktop", "agent not running: rspeak send starts it (systemd-run) and the dialog appears",
+           "agent running, dialog", dt is not None and agent_running(),
+           seconds_to_dialog=round(time.time() - t0, 2) if dt is not None else None)
+    desk("click", DLG_LATER)
+    wait_windows(0, 10)
+    st = wait_state(2, DESK, lambda x: "postponed on" in x)
+    record("I3", "Desktop", f"«{DLG_LATER}»: the dialog closes, the message stays delivered",
+           "delivered, postponed on …", st.startswith("delivered") and "postponed on" in st, st)
     t0 = time.time()
-    dt = attendi_finestre(1, 120)
-    registra("I4", "Desktop", "dopo il rinvio (1 minuto per la prova) la finestra ricompare",
-             "finestra di nuovo, dopo circa 60 s", dt is not None, secondi_alla_ricomparsa=dt)
-    desk("clicca", ETICHETTE["dlg_later"])
-    attendi_finestre(0, 10)
-    # il sollecito arriva dopo il rinvio, come quando lo chiede un amministratore
-    attendi_stato(2, DESK, lambda x: "rimandato" in x)
+    dt = wait_windows(1, 120)
+    record("I4", "Desktop", "after the postponement (1 minute for the test) the dialog comes back",
+           "dialog again, after about 60 s", dt is not None, seconds_to_reappearance=dt)
+    desk("click", DLG_LATER)
+    wait_windows(0, 10)
+    # the reminder comes after the postponement, as when an administrator asks for it
+    wait_state(2, DESK, lambda x: "postponed on" in x)
     t0 = time.time()
     rspeak("remind 2")
-    dt = attendi_finestre(1, 20)
+    dt = wait_windows(1, 20)
     diag = "" if dt is not None else " | ".join([
-        sh(f"{RSPEAK} remind 2").stdout.strip(), stato(2, DESK) or "", sh(f"ls -la {VAR}/users/{DESK}/state {VAR}/users/{DESK}/inbox").stdout.replace("\n", " "),
+        sh(f"{RSPEAK} remind 2").stdout.strip(), state(2, DESK) or "", sh(f"ls -la {VAR}/users/{DESK}/state {VAR}/users/{DESK}/inbox").stdout.replace("\n", " "),
         sh(f"pgrep -a -u {DESK} rootspeak-user").stdout.replace("\n", " "), sh(f"pgrep -a -u {DESK} zenity").stdout.replace("\n", " "),
-        sh(f"cat /run/user/$(id -u {DESK})/rootspeak-agent.pronto").stdout.strip()])
-    registra("I11", "Desktop", "rspeak remind dopo «Più tardi»: la finestra ricompare subito", "finestra entro pochi secondi",
-             dt is not None, diag, secondi_alla_ricomparsa=round(time.time() - t0, 2) if dt is not None else None)
-    desk("clicca", ETICHETTE["dlg_ok"])
-    attendi_finestre(0, 10)
+        sh(f"cat /run/user/$(id -u {DESK})/rootspeak-agent.ready").stdout.strip()])
+    record("I11", "Desktop", f"rspeak remind after «{DLG_LATER}»: the dialog comes back at once", "dialog within a few seconds",
+           dt is not None, diag, seconds_to_reappearance=round(time.time() - t0, 2) if dt is not None else None)
+    desk("click", DLG_OK)
+    wait_windows(0, 10)
 
-    rspeak(f'send --to {DESK} "Confermato dal terminale"')
-    attendi_finestre(1, 20)
-    s = apri(DESK)
-    s.leggi_fino(r"Confermi", 15)
+    rspeak(f'send --to {DESK} "Confirmed from the terminal"')
+    wait_windows(1, 20)
+    s = open_session(DESK)
+    s.read_until(QUESTION, 15)
     t0 = time.time()
-    s.scrivi("s\n")
-    dt = attendi_finestre(0, 10)
-    st = attendi_stato(3, DESK, lambda x: x.startswith("confermato"))
-    registra("I5", "Desktop", "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
-             "finestra chiusa, confermato (terminale)", dt is not None and "(terminale" in st, st,
-             secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
-    s.chiudi()
+    s.write("y\n")
+    dt = wait_windows(0, 10)
+    st = wait_state(3, DESK, lambda x: x.startswith("confirmed"))
+    record("I5", "Desktop", "confirmation from a terminal with the dialog open: the dialog closes by itself",
+           "dialog closed, confirmed (terminal)", dt is not None and "(terminal" in st, st,
+           seconds_to_closing=round(time.time() - t0, 2) if dt is not None else None)
+    s.close()
 
-    rspeak(f'send --to {DESK} "Da ritirare"')
-    attendi_finestre(1, 20)
+    rspeak(f'send --to {DESK} "To be revoked"')
+    wait_windows(1, 20)
     t0 = time.time()
     rspeak("revoke 4")
-    dt = attendi_finestre(0, 10)
-    registra("I6", "Desktop", "ritiro con la finestra aperta: la finestra si chiude da sola", "finestra chiusa",
-             dt is not None, secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
+    dt = wait_windows(0, 10)
+    record("I6", "Desktop", "revocation with the dialog open: the dialog closes by itself", "dialog closed",
+           dt is not None, seconds_to_closing=round(time.time() - t0, 2) if dt is not None else None)
 
-    rspeak(f'send --to {DESK} "Primo di due"')
-    rspeak(f'send --to {DESK} "Secondo di due"')
-    attendi_finestre(1, 20)
-    t1 = testo_finestra()
-    desk("clicca", ETICHETTE["dlg_ok"])
+    rspeak(f'send --to {DESK} "First of two"')
+    rspeak(f'send --to {DESK} "Second of two"')
+    wait_windows(1, 20)
+    t1 = window_text()
+    desk("click", DLG_OK)
     time.sleep(1)
-    dt = attendi_finestre(1, 15)
-    t2 = testo_finestra()
-    desk("clicca", ETICHETTE["dlg_ok"])
-    st = attendi_stato(6, DESK, lambda x: x.startswith("confermato"))
-    registra("I7", "Desktop", "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
-             "«Primo di due», poi «Secondo di due», entrambi confermati",
-             "Primo di due" in t1 and dt is not None and "Secondo di due" in t2 and st.startswith("confermato"),
-             f"{t1[-30:]} → {t2[-30:]}; {st}")
-    attendi_finestre(0, 10)
+    dt = wait_windows(1, 15)
+    t2 = window_text()
+    desk("click", DLG_OK)
+    st = wait_state(6, DESK, lambda x: x.startswith("confirmed"))
+    record("I7", "Desktop", "two messages: the dialogs appear one after the other, oldest first",
+           "«First of two», then «Second of two», both confirmed",
+           "First of two" in t1 and dt is not None and "Second of two" in t2 and st.startswith("confirmed"),
+           f"{t1[-30:]} → {t2[-30:]}; {st}")
+    wait_windows(0, 10)
 
-    # «Ho letto» e uscita immediata dalla sessione: la conferma non deve perdersi
-    rspeak(f'send --to {DESK} "Clic e via"')
-    attendi_finestre(1, 20)
-    desk("clicca", ETICHETTE["dlg_ok"])
+    # «I have read it» and leaving the session at once: the confirmation must not get lost
+    rspeak(f'send --to {DESK} "Click and go"')
+    wait_windows(1, 20)
+    desk("click", DLG_OK)
     time.sleep(0.1)
     sh(f"loginctl terminate-user {DESK}")
     time.sleep(2)
-    st = stato(7, DESK) or ""
-    registra("I10", "Desktop", "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
-             "confermato (desktop)", st.startswith("confermato"), st)
+    st = state(7, DESK) or ""
+    record("I10", "Desktop", f"«{DLG_OK}» and straight out of the session (0.1 s): the confirmation stays",
+           "confirmed (desktop)", st.startswith("confirmed"), st)
 
-    # messaggio in attesa, poi login grafico
+    # message waiting, then graphical login
     time.sleep(1)
-    rspeak(f'send --to {DESK} "In attesa del login"')
+    rspeak(f'send --to {DESK} "Waiting for the login"')
     t0 = time.time()
     sh("systemctl restart gdm")
-    dt = attendi_finestre(1, 90)
-    t9 = testo_finestra()
-    registra("I9", "Desktop", "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
-             "finestra dopo il login automatico", dt is not None and "In attesa del login" in t9, t9[-60:],
-             secondi_dal_riavvio_del_login=round(time.time() - t0, 2) if dt is not None else None)
-    cattura("I9-login")
-    desk("clicca", ETICHETTE["dlg_ok"])
-    attendi_finestre(0, 10)
+    dt = wait_windows(1, 90)
+    t9 = window_text()
+    record("I9", "Desktop", "message sent while the desktop was closed: the dialog appears at the graphical login",
+           "dialog after the automatic login", dt is not None and "Waiting for the login" in t9, t9[-60:],
+           seconds_from_login_restart=round(time.time() - t0, 2) if dt is not None else None)
+    capture("I9-login")
+    desk("click", DLG_OK)
+    wait_windows(0, 10)
     sh("printf 'RSPEAK_REMIND_MINUTES=30\nRSPEAK_AGENT_POLL=60\n' > /etc/rootspeak/rootspeak.conf")
 
 
-# ---- rapporto ----
+# ---- report ----
 
-def rapporto():
+def report():
     os.makedirs(OUT, exist_ok=True)
-    meta = dict(data=time.strftime("%Y-%m-%d %H:%M:%S %Z"), versione=sh(f"{RSPEAK} version").stdout.strip(),
-                sistema=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
-                + (f", VM con GNOME, desktop di {DESK}" if DESK else ", container con systemd"),
-                ok=sum(r["esito"] == "OK" for r in risultati), no=sum(r["esito"] == "NO" for r in risultati),
-                non_provati=sum(r["esito"] == "NON PROVATO" for r in risultati), totale=len(risultati),
-                commit=os.environ.get("RSPEAK_PROVA_COMMIT", "sconosciuto"),
-                impronta=os.environ.get("RSPEAK_PROVA_IMPRONTA", "sconosciuta"),
-                solo=os.environ.get("RSPEAK_PROVA_SOLO", ""))
+    meta = dict(date=time.strftime("%Y-%m-%d %H:%M:%S %Z"), version=sh(f"{RSPEAK} version").stdout.strip(),
+                system=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
+                + (f", VM with GNOME, desktop of {DESK}" if DESK else ", container with systemd"),
+                ok=sum(r["outcome"] == "OK" for r in results), failed=sum(r["outcome"] == "NO" for r in results),
+                not_tested=sum(r["outcome"] == "--" for r in results), total=len(results),
+                commit=os.environ.get("RSPEAK_TEST_COMMIT", "unknown"),
+                fingerprint=os.environ.get("RSPEAK_TEST_FINGERPRINT", "unknown"),
+                only=os.environ.get("RSPEAK_TEST_ONLY", ""))
     with open(f"{OUT}/results.json", "w") as f:
-        json.dump(dict(meta=meta, risultati=risultati), f, ensure_ascii=False, indent=1)
-    righe = [f"# Prove di RootSpeak {'nella VM con desktop' if DESK else 'nella macchina di prova'}\n",
-             f"- Data: {meta['data']}", f"- {meta['versione']}", f"- Sistema: {meta['sistema']}",
-             f"- Codice: commit {meta['commit']}, impronta {meta['impronta']}",
-             f"- Esito: **{meta['ok']} riusciti, {meta['no']} falliti, {meta['non_provati']} non provati** "
-             f"su {meta['totale']} scenari\n",
-             "| Codice | Area | Scenario | Atteso | Esito | Misure / dettagli |", "|---|---|---|---|---|---|"]
-    for r in risultati:
-        mis = ", ".join(f"{k} {v}" for k, v in r["misure"].items() if v is not None)
-        det = (mis + ("; " if mis and r["dettagli"] else "") + (r["dettagli"] or "")).replace("|", "¦").replace("\n", " ")
-        righe.append(f"| {r['codice']} | {r['area']} | {r['descrizione']} | {r['atteso']} | {r['esito']} | {det[:200]} |")
+        json.dump(dict(meta=meta, results=results), f, ensure_ascii=False, indent=1)
+    lines = [f"# RootSpeak tests {'in the VM with a desktop' if DESK else 'in the test machine'}\n",
+             f"- Date: {meta['date']}", f"- {meta['version']}", f"- System: {meta['system']}",
+             f"- Code: commit {meta['commit']}, fingerprint {meta['fingerprint']}",
+             f"- Outcome: **{meta['ok']} passed, {meta['failed']} failed, {meta['not_tested']} not tested** "
+             f"out of {meta['total']} scenarios\n",
+             "| Code | Area | Scenario | Expected | Outcome | Measures / details |", "|---|---|---|---|---|---|"]
+    for r in results:
+        mes = ", ".join(f"{k} {v}" for k, v in r["measures"].items() if v is not None)
+        det = (mes + ("; " if mes and r["details"] else "") + (r["details"] or "")).replace("|", "¦").replace("\n", " ")
+        lines.append(f"| {r['code']} | {r['area']} | {r['description']} | {r['expected']} | {r['outcome']} | {det[:200]} |")
     with open(f"{OUT}/report.md", "w") as f:
-        f.write("\n".join(righe) + "\n")
-    print(f"\n{meta['ok']} riusciti, {meta['no']} falliti, {meta['non_provati']} non provati su {meta['totale']}; "
-          f"risultati in {OUT}")
-    return meta["no"] == 0
+        f.write("\n".join(lines) + "\n")
+    print(f"\n{meta['ok']} passed, {meta['failed']} failed, {meta['not_tested']} not tested out of {meta['total']}; "
+          f"results in {OUT}")
+    return meta["failed"] == 0
 
 
 if __name__ == "__main__":
-    solo = os.environ.get("RSPEAK_PROVA_SOLO", "").split(",")   # per esempio i_desktop
-    for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
-               j_registro, t_tui, k_shell, l_lingua, h_prestazioni, i_desktop):
-        if solo != [""] and fn.__name__ not in solo:
+    only = os.environ.get("RSPEAK_TEST_ONLY", "").split(",")   # for example i_desktop
+    for fn in (a_access, b_recipients, c_delivery, d_confirmation, e_expiry_revocation, f_faults, g_security,
+               j_log, t_tui, k_shells, l_language, h_performance, i_desktop):
+        if only != [""] and fn.__name__ not in only:
             continue
         print(fn.__name__)
         scenario(fn)
-    sys.exit(0 if rapporto() else 1)
+    sys.exit(0 if report() else 1)

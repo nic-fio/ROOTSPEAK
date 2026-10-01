@@ -1,8 +1,8 @@
-[2m┌[0m[1;36m─ RootSpeak · messaggi inviati [0m[2m────────────────────────────────────────────────────────[0m[90m aggiornato alle 11:05:29 ─┐[2m
+[2m┌[0m[1;36m─ RootSpeak · sent messages [0m[2m────────────────────────────────────────────────────────────────[0m[90m updated at 12:49:20 ─┐[2m
 [0m[2m│[0m [0m                                                                                                                 [2m│[0m
-[2m│[0m  [1;33m ID  DATA         MESSAGGIO[0m                            DESTINATARI[0m[0m                                              [2m│[0m
-[2m│[0m [7;1m>  2  01/10 11:05  Manutenzione · Sabato dalle 8 alle   ██████▒▒▒▒▒▒  1 confermato · 1 consegnato[0m               [0m [2m│[0m
-[2m│[0m    1  01/10 11:05  [1mAggiornamento del server[0m · Stanotte[0m  [32m████████████[33m[31m[0m  [32mtutti confermato (2)[0m[0m                       [2m│[0m
+[2m│[0m  [1;33m ID  DATE         MESSAGE[0m                              RECIPIENTS[0m[0m                                               [2m│[0m
+[2m│[0m [7;1m>  2  01/10 12:49  Maintenance · On Saturday from 8 am  ██████▒▒▒▒▒▒  1 confirmed · 1 delivered[0m                 [0m [2m│[0m
+[2m│[0m    1  01/10 12:49  [1mServer update[0m · Tonight at 11 pm th[0m  [32m████████████[33m[31m[0m  [32mall confirmed (2)[0m[0m                          [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
@@ -24,7 +24,7 @@
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
 [2m│[0m [0m                                                                                                                 [2m│[0m
-[2m│[0m [32m█[0m confermato   [33m▒[0m consegnato   [31m░[0m inviato      [90mricerca: «server» (Esc per toglierla)[0m[0m                               [2m│[0m
+[2m│[0m [32m█[0m confirmed   [33m▒[0m delivered   [31m░[0m sent      [90msearch: «server» (Esc to clear)[0m[0m                                          [2m│[0m
 [2m├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤[0m
-[2m│[0m [1;32mInvio[0m apri   [1;32mn[0m nuovo   [1;32mr[0m ritira   [1;32ms[0m sollecita   [1;32mp[0m pulizia   [1;32m/[0m cerca   [1;32m?[0m tasti   [1;32mq[0m esci[0m                           [2m│[0m
+[2m│[0m [1;32mEnter[0m open   [1;32mn[0m new   [1;32mr[0m revoke   [1;32mm[0m remind   [1;32mp[0m purge   [1;32m/[0m search   [1;32m?[0m keys   [1;32mq[0m quit[0m                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘[0m

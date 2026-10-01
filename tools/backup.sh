@@ -1,14 +1,15 @@
 #!/bin/sh
-# Impacchetta tutto il progetto in un solo file: un git bundle con ogni ramo,
-# ogni tag e la storia completa. Si ripristina senza rete e senza GitHub:
+# Packs the whole project into a single file: a git bundle with every branch,
+# every tag and the complete history. It is restored without network and
+# without GitHub:
 #
-#     tools/backup.sh ~/backup                 # scrive rootspeak-AAAA-MM-GG.bundle
-#     git clone rootspeak-2026-09-30.bundle RootSpeak
+#     tools/backup.sh ~/backup                 # writes rspeak-YYYY-MM-DD.bundle
+#     git clone rspeak-2026-09-30.bundle RootSpeak
 #     cd RootSpeak && tools/setup-dev.sh --install && make test
 #
-# RootSpeak non ha file personali fuori dal repository: il bundle basta. Il disco
-# base della VM di prova sta sul server delle prove e si rifà con
-# tests/vm/run.sh --prepara.
+# RootSpeak has no personal files outside the repository: the bundle is enough.
+# The base disk of the test VM lives on the test server and is rebuilt with
+# tests/vm/run.sh --prepare.
 set -eu
 
 DEST=${1:-.}
@@ -21,13 +22,13 @@ git -C "$ROOT" bundle create "$OUT" --all
 git -C "$ROOT" bundle verify "$OUT" >/dev/null
 
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
-    echo "attenzione: le modifiche non ancora registrate NON sono nel bundle:"
+    echo "warning: the changes not yet committed are NOT in the bundle:"
     git -C "$ROOT" status --short
 fi
 if [ -n "$(git -C "$ROOT" log --oneline '@{upstream}..HEAD' 2>/dev/null)" ]; then
-    echo "nota: il bundle ha commit che non sono ancora su GitHub."
+    echo "note: the bundle has commits that are not on GitHub yet."
 fi
 
-printf '%s: %s, %s commit, tag: %s\n' "$OUT" "$(du -h "$OUT" | cut -f1)" \
+printf '%s: %s, %s commits, tags: %s\n' "$OUT" "$(du -h "$OUT" | cut -f1)" \
     "$(git -C "$ROOT" rev-list --count HEAD)" \
     "$(git -C "$ROOT" tag | tr '\n' ' ')"

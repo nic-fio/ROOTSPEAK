@@ -1,26 +1,26 @@
-"""Generatore dei manuali di RootSpeak, nello stile comune dei manuali dei 7 progetti.
+"""Generator of the RootSpeak manuals, in the common style of the 7 projects' manuals.
 
-Produce due file HTML autosufficienti (nessun file esterno: stile, logo e script
-sono incorporati):
-  "docs/User Manual.html"       dai capitoli in user/chNN_*.py
-  "docs/Technical Manual.html"  dai capitoli in technical/chNN_*.py
+It produces two self-contained HTML files (no external files: style, logo and
+script are embedded):
+  "docs/User Manual.html"       from the chapters in user/chNN_*.py
+  "docs/Technical Manual.html"  from the chapters in technical/chNN_*.py
 
-I manuali sono in inglese: testi dei capitoli, didascalie ed etichette qui sotto.
+The manuals are in English: chapter texts, captions and the labels below.
 
-Ogni capitolo espone CHAPTER = (titolo, [(titolo_sezione, html), ...]).
-I segnaposto «FIG» e «TAB» nelle didascalie diventano «Figure N.M» e
-«Table N.M», numerati per capitolo.
+Each chapter exposes CHAPTER = (title, [(section_title, html), ...]).
+The placeholders «FIG» and «TAB» in the captions become «Figure N.M» and
+«Table N.M», numbered per chapter.
 
-Stile comune (uguale in tutti i manuali dei 7 progetti, da non modificare qui):
-  style.css       lo stile, incorporato per primo e identico byte per byte;
-  manual.js       ricerca nella barra laterale, indice analitico, pulsante Copy;
-  cover-logo.png  il logo di logos/rootspeak-logo.png con lo sfondo trasparente, per la copertina.
-Le sole regole di RootSpeak stanno in RSPEAK_CSS, qui sotto.
+Common style (the same in all the manuals of the 7 projects, not to be changed here):
+  style.css       the style, embedded first and identical byte for byte;
+  manual.js       sidebar search, index, Copy button;
+  cover-logo.png  the logo with a transparent background, for the cover.
+The rules of RootSpeak alone live in RSPEAK_CSS, below.
 
-    python3 docs/sources/build.py            rigenera i due manuali
-    python3 docs/sources/build.py CARTELLA   li scrive in CARTELLA (usato da tools/check-docs.py)
+    python3 docs/sources/build.py            regenerates the two manuals
+    python3 docs/sources/build.py FOLDER     writes them into FOLDER (used by tools/check-docs.py)
 
-Serve la libreria pygments (pacchetto python3-pygments).
+It needs the pygments library (package python3-pygments).
 """
 import base64
 import html
@@ -33,7 +33,7 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 DATE = "October 2026"
-VERSION = re.search(r'^#define RSPEAK_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
+VERSION = re.search(r'^#define RSPEAK_VERSION "([^"]+)"', (ROOT / "src/common.h").read_text(), re.M).group(1)
 
 MANUALS = {
     "user": dict(file="User Manual.html", title="User Manual — RootSpeak", h1="User Manual", index=False),
@@ -41,19 +41,19 @@ MANUALS = {
                       index=True),
 }
 
-# Il piè di pagina comune (RootSpeak non ha una licenza: niente «Licence»).
+# The common footer (RootSpeak has no licence: no «Licence»).
 FOOTER = "RootSpeak · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo"
 
-# Parole dell'indice analitico da mostrare come codice (window.MANUAL_CODE_TERMS di manual.js).
+# Index words to show as code (window.MANUAL_CODE_TERMS of manual.js).
 CODE_TERMS = ["zenity"]
 
-# Solo per RootSpeak: regole per elementi che esistono solo nei manuali di RootSpeak, dopo style.css.
+# RootSpeak only: rules for elements that exist only in the RootSpeak manuals, after style.css.
 RSPEAK_CSS = """
-/* Solo per RootSpeak: schermate vere della TUI, tasti, terminali, finestre di esempio, albero, stati, glossario */
-.code.schermo{background:#111827;color:#e5e7eb;line-height:1.15;font-size:10.2px;overflow-x:auto;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
-.schermo .a-b{font-weight:700;color:#fff}.schermo .a-d{color:#6b7280}.schermo .a-v{background:#e5e7eb;color:#111827;font-weight:700}
-.schermo .a-32{color:#4ade80}.schermo .a-33{color:#facc15}.schermo .a-31{color:#f87171}.schermo .a-36{color:#22d3ee}
-.schermo .a-90{color:#9ca3af}.schermo .a-b.a-32{color:#86efac}.schermo .a-b.a-33{color:#fde047}.schermo .a-b.a-36{color:#67e8f9}
+/* RootSpeak only: real TUI screenshots, keys, terminals, sample dialogs, tree, states, glossary */
+.code.tui-screen{background:#111827;color:#e5e7eb;line-height:1.15;font-size:10.2px;overflow-x:auto;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
+.tui-screen .a-b{font-weight:700;color:#fff}.tui-screen .a-d{color:#6b7280}.tui-screen .a-v{background:#e5e7eb;color:#111827;font-weight:700}
+.tui-screen .a-32{color:#4ade80}.tui-screen .a-33{color:#facc15}.tui-screen .a-31{color:#f87171}.tui-screen .a-36{color:#22d3ee}
+.tui-screen .a-90{color:#9ca3af}.tui-screen .a-b.a-32{color:#86efac}.tui-screen .a-b.a-33{color:#fde047}.tui-screen .a-b.a-36{color:#67e8f9}
 .key{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;font-weight:700;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:5px;padding:.05em .42em;white-space:nowrap}
 .steps .code,.steps .code-w{margin:10px 0 4px} .steps .code-w>.code{margin:0}
 .code .pr{color:#93c5fd} .code .cmd{color:#fff;font-weight:700} .code .am{color:#fdba74;font-weight:600}
@@ -81,7 +81,7 @@ RSPEAK_CSS = """
 .gloss dt[id]{scroll-margin-top:16px}
 """
 
-# ── Testo ───────────────────────────────────────────────────────────────
+# ── Text ────────────────────────────────────────────────────────────────
 def esc(t):
     return html.escape(t, quote=False)
 
@@ -91,7 +91,7 @@ def c(t):
 
 
 def ui(label):
-    """Etichetta esatta di una finestra o di un pulsante."""
+    """The exact label of a dialog or of a button."""
     return f'<span class="ui">{esc(label)}</span>'
 
 
@@ -172,13 +172,13 @@ PROMPT = re.compile(r"^((?:[\w.-]+@[\w.-]+:[^$#\n]*[$#]|[$#])(?: |$))(.*)$")
 
 
 def term(text, title="", tui=False):
-    """Una sessione di terminale: prompt, comandi, righe di RootSpeak, errori."""
+    """A terminal session: prompts, commands, RootSpeak lines, errors."""
     lines = []
     for line in text.strip("\n").split("\n"):
         m = PROMPT.match(line)
         if m:
             lines.append(f'<span class="pr">{esc(m.group(1))}</span><span class="cmd">{esc(m.group(2))}</span>')
-        elif line.startswith("rspeak: ") or "Permesso negato" in line:
+        elif line.startswith("rspeak: ") or "Permission denied" in line:
             lines.append(f'<span class="er">{esc(line)}</span>')
         elif line.startswith("[RootSpeak]"):
             lines.append(f'<span class="am">{esc(line)}</span>')
@@ -192,7 +192,7 @@ def term(text, title="", tui=False):
 
 
 def tree(lines, cap):
-    """Albero di cartelle: righe 'percorso  # commento'."""
+    """A folder tree: lines 'path  # comment'."""
     out = []
     for line in lines:
         path, _, comment = line.partition("  #")
@@ -208,7 +208,7 @@ def dialog(title, heading, body, cap):
     return (f'<figure class="fig"><div class="shot"><div class="dlg" role="img" aria-label="{esc(title)}">'
             f'<div class="dlg-t">{esc(title)}</div><div class="dlg-b"><div class="dlg-i"><span>?</span></div>'
             f'<div class="dlg-x"><div>{esc(heading)}</div><div>{esc(body)}</div></div></div>'
-            f'<div class="dlg-k"><span>Più tardi</span><span>Ho letto</span></div></div></div>'
+            f'<div class="dlg-k"><span>Later</span><span>I have read it</span></div></div></div>'
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 
 
@@ -218,7 +218,7 @@ def notification(title, body, cap):
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 
 
-# ── Figure SVG nello stile di IR_Service ───────────────────────────────
+# ── SVG figures in the style of IR_Service ─────────────────────────────
 COL = {"dark": "#475569", "blue": "#0050C0", "light": "#3b82f6", "navy": "#003a90", "soft": "#eef2f7",
        "green": "#16a34a", "amber": "#d97706", "grey": "#94a3b8", "white": "#ffffff"}
 FONT = 'font-family="Outfit,Segoe UI,Arial,sans-serif"'
@@ -265,7 +265,7 @@ def arrow(x1, y1, x2, y2, color="#0050C0", dash=False, label="", lx=None, ly=Non
 
 
 def path(points, color="#0050C0", dash=False, label="", lx=0, ly=0):
-    """Spezzata con freccia finale: points = [(x, y), ...]."""
+    """A polyline with an arrowhead at the end: points = [(x, y), ...]."""
     d = " ".join(("M" if i == 0 else "L") + f"{x} {y}" for i, (x, y) in enumerate(points))
     dd = ' stroke-dasharray="5 4"' if dash else ""
     (xa, ya), (xb, yb) = points[-2], points[-1]
@@ -277,7 +277,7 @@ def path(points, color="#0050C0", dash=False, label="", lx=0, ly=0):
 
 
 def text(x, y, t, size=12, color="#334155", weight="400", anchor="middle", halo=True):
-    """Etichetta; il contorno chiaro la stacca dalle linee che attraversa."""
+    """A label; the light outline sets it apart from the lines it crosses."""
     h = ' stroke="#f8fafc" stroke-width="4" stroke-linejoin="round" paint-order="stroke"' if halo else ""
     return (f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-size="{size}" font-weight="{weight}" '
             f'fill="{color}"{h}>{esc(t)}</text>')
@@ -288,119 +288,30 @@ def zone(x, y, w, h, title, color="#e8eef7"):
             + text(x + 14, y + 20, title, 11.5, "#003a90", "700", "start", False))
 
 
-# Le scritte italiane delle schermate, con la traduzione inglese (quella di po/rootspeak.pot quando
-# esiste): schermata() le aggiunge alla didascalia, perché il contenuto resta uguale allo schermo.
-_DISTESO = ("the text: «Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi. Salvate il lavoro "
-            "entro venerdì sera.» (“On Saturday from 8 to 12 the server will be switched off for disk maintenance. "
-            "Save your work by Friday evening.”)")
-_MESSAGGIO = ("«Messaggio 2 · Manutenzione» (“Message 2 · Maintenance”), «aggiornato alle» (“updated at”), «da root» "
-              "(“from root”); " + _DISTESO + "; tabs «Destinatari (8)» (“Recipients (8)”) and «Storia» (“History”); "
-              "«4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”)")
-_TASTI_MESSAGGIO = ("keys «Tab destinatari/storia» (“recipients/history”), «↑/↓ scorri» (“scroll”), «s sollecita» "
-                    "(“remind”), «r ritira» (“revoke”), «Esc indietro» (“back”)")
-_CONFERMA = "«s Conferma» (“Confirm”), «n Annulla» (“Cancel”); key line «s conferma · n o Esc annulla» (“confirm · n or Esc cancel”)"
-_INVIO_ESC = "key line «Invio conferma» (“Enter confirm”), «Esc annulla» (“cancel”)"
-TRADUZIONI_SCHERMATE = {
-    "list": "«RootSpeak · messaggi inviati» (“RootSpeak · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» "
-             "(“DATE”), «MESSAGGIO» (“MESSAGE”), «DESTINATARI» (“RECIPIENTS”); the example titles «Riavvio» "
-             "(“Reboot”), «Il tuo account scade venerdì» (“Your account expires on Friday”), «Manutenzione» "
-             "(“Maintenance”), «Aggiornamento del server · Stanotte» (“Server update · Tonight”); «[ritirato]» "
-             "(“[revoked]”); «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”), "
-             "«tutti confermato (3)» (“all confirmed (3)”); keys «Invio apri» (“Enter open”), «n nuovo» (“new”), "
-             "«r ritira» (“revoke”), «s sollecita» (“remind”), «p pulizia» (“purge”), «/ cerca» (“search”), "
-             "«? tasti» (“keys”), «q esci» (“quit”)",
-    "detail": _MESSAGGIO + "; columns «UTENTE» (“USER”) and «STATO» (“STATE”); «confermato il 30/09 18:58 "
-                 "(terminale pts/0)» (“confirmed on 30/09 18:58 (terminal pts/0)”), «inviato, non consegnato» (“sent, "
-                 "not delivered”), «consegnato, rimandato il 30/09 18:58» (“delivered, postponed on 30/09 18:58”); "
-                 + _TASTI_MESSAGGIO,
-    "history": _MESSAGGIO + "; the events «messaggio 2 consegnato a admin (terminali scritti: 0)» (“message 2 delivered "
-              "to admin (terminals written: 0)”) and «messaggio 2 inviato da root a: …» (“message 2 sent by root to: "
-              "…”); " + _TASTI_MESSAGGIO,
-    "new": "«Nuovo messaggio» (“New message”); fields «A» (“To”), «Titolo» (“Title”), «Scadenza» (“Expires”), «Testo» "
-             "(“Text”); hints «2 destinatari» (“2 recipients”), «facoltativo, una riga» (“optional, one line”), "
-             "«facoltativa: 30m, 2h,» (“optional: 30m, 2h,”); the text: «Sabato dalle 8 alle 12 il server sarà spento. "
-             "Salvate il lavoro entro venerdì sera.» (“On Saturday from 8 to 12 the server will be switched off. Save "
-             "your work by Friday evening.”); «85 di 65536 byte» (“85 of 65536 bytes”); keys «Tab campo successivo» "
-             "(“next field”), «Ctrl+E apri nell'editor» (“open in the editor”), «Ctrl+S invia» (“send”), «Esc "
-             "annulla» (“cancel”)",
-    "send": "over the new message, «Inviare il messaggio?» (“Send the message?”) with «A: @sviluppo (2 destinatari)» "
-             "(“To: @sviluppo (2 recipients)”), «Titolo» (“Title”), «Scadenza» (“Expires”), «Testo: 85 byte» (“Text: "
-             "85 bytes”); " + _CONFERMA,
-    "reminder": "over the list, «Sollecitare il messaggio 2?» (“Remind message 2?”), «3 destinatari non hanno ancora "
-                 "confermato.» (“3 recipients have not confirmed yet.”), «La domanda torna subito: al prompt successivo "
-                 "e con la finestra sul desktop.» (“They are asked again now: at the next prompt and with the dialog on "
-                 "the desktop.”); " + _CONFERMA,
-    "../user/screens/help": "over the list, «Tasti» (“Keys”): «scorre la lista» (“move through the list”), «Invio» "
-                                 "(Enter) «apre il messaggio: destinatari e storia» (“open the message: recipients and "
-                                 "history”), «scrive e invia un messaggio nuovo» (“write and send a new message”), «ritira "
-                                 "il messaggio scelto» (“revoke the selected message”), «sollecita chi non ha confermato» "
-                                 "(“remind whoever has not confirmed”), «cancella i messaggi vecchi» (“delete old "
-                                 "messages”), «cerca i messaggi per testo o titolo» (“search the messages by text or "
-                                 "title”), «esci» (“quit”); «La lista si aggiorna da sola ogni 3 secondi.» (“The list "
-                                 "updates by itself every 3 seconds.”), «La guida completa: rspeak --help.» (“The complete "
-                                 "guide: rspeak --help.”), «un tasto per continuare» (“any key to continue”)",
-    "../user/screens/search": "over the list, «Cerca» (“Search”), «Mostra solo i messaggi che contengono:» (“Show only "
-                                 "the messages containing:”); " + _INVIO_ESC,
-    "../user/screens/search-results": "at the bottom, «ricerca: «server» (Esc per toglierla)» (“search: «server» (Esc to "
-                                   "clear)”)",
-    "../user/screens/purge": "over the list, «Cancellare i messaggi vecchi» (“Delete old messages”), «Cancellare i "
-                                   "messaggi inviati da più di (per esempio 90d, 12h):» (“Delete the messages sent more "
-                                   "than (for example 90d, 12h):”); " + _INVIO_ESC,
-    "../user/screens/revoke": "over the list, «Ritirare il messaggio 2?» (“Revoke message 2?”), ««Manutenzione» · 1 "
-                                  "confermato · 1 consegnato» (“«Maintenance» · 1 confirmed · 1 delivered”), «Chi non "
-                                  "l'ha ancora visto non lo vedrà più; finestre e domande aperte si chiudono da sole.» "
-                                  "(“Whoever has not seen it yet will not see it; open dialogs and questions close by "
-                                  "themselves.”); " + _CONFERMA,
-    "../user/screens/guide-info": "«rspeak — guida» (“rspeak — guide”); tabs «Comandi» (“Commands”), «Opzioni» "
-                                      "(“Options”), «Esempi» (“Examples”), «File» (“Files”); «NOME» (“NAME”): «rspeak — "
-                                      "messaggi agli utenti con conferma di lettura» (“rspeak — messages to users with read "
-                                      "confirmation”); «SINTASSI» (“SYNOPSIS”), with «[opzioni] [TESTO]» (“[options] "
-                                      "[TEXT]”) and «DURATA» (“DURATION”); «DESCRIZIONE» (“DESCRIPTION”): «RootSpeak permette "
-                                      "agli amministratori di mandare messaggi di testo agli…» (“RootSpeak lets administrators "
-                                      "send text messages to the…”); «←/→ schede · ↑/↓ scorri · … · q esci» (“←/→ tabs · "
-                                      "↑/↓ scroll · … · q quit”), «righe 1-16/26» (“lines 1-16/26”)",
-    "../user/screens/guide-options": "«Opzioni di send» (“Send options”); «--to DEST: Destinatari, separati da "
-                                         "virgole senza spazi: un utente (mario), un gruppo Unix (@sviluppo), all (tutti "
-                                         "gli utenti umani) oppure online (solo quelli collegati adesso).» (“Recipients, "
-                                         "separated by commas without spaces: a user (mario), a Unix group, all (every "
-                                         "human user) or online (only those logged in now).”); «--title TITOLO: Titolo "
-                                         "mostrato nell'intestazione del messaggio e nella finestra del desktop.» (“TITLE: "
-                                         "Title shown in the message header and in the desktop dialog.”); «--expires "
-                                         "DURATA: Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, "
-                                         "3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole vanno in "
-                                         "inglese).» (“DURATION: Expiry, after which the message is no longer shown: "
-                                         "30m, 2h, 3d or a date and time; dates in words must be in English.”)",
-}
-
-
-def schermata(nome, cap):
-    """Una schermata vera della TUI (docs/sources/screens/NOME.ans, catturata da
-    tools/tui-screenshots.sh), con i suoi colori. Il contenuto resta uguale allo schermo;
-    la traduzione delle scritte (TRADUZIONI_SCHERMATE) va nella didascalia."""
-    if nome in TRADUZIONI_SCHERMATE:
-        cap = cap.rstrip(".") + ". On screen: " + TRADUZIONI_SCHERMATE[nome] + "."
-    raw = (HERE / "screens" / f"{nome}.ans").read_bytes().decode("utf-8", "replace")
+def tui_screen(name, cap):
+    """A real TUI screenshot (docs/sources/screens/NAME.ans, captured by
+    tools/tui-screenshots.sh), with its colours, exactly as on the screen."""
+    raw = (HERE / "screens" / f"{name}.ans").read_bytes().decode("utf-8", "replace")
     raw = re.sub(r"\x1b\[\?[0-9;]*[a-zA-Z]|\x1b\[[0-9]*;[0-9]*H|\x1b\[J|\r", "", raw)
-    stato, out = set(), []
-    for pezzo in re.split(r"(\x1b\[[0-9;]*m)", raw):
-        m = re.fullmatch(r"\x1b\[([0-9;]*)m", pezzo)
+    classes, out = set(), []
+    for piece in re.split(r"(\x1b\[[0-9;]*m)", raw):
+        m = re.fullmatch(r"\x1b\[([0-9;]*)m", piece)
         if m:
-            for cod in (m.group(1) or "0").split(";"):
-                if cod in ("0", ""):
-                    stato = set()
-                elif cod == "1":
-                    stato.add("a-b")
-                elif cod == "2":
-                    stato.add("a-d")
-                elif cod == "7":
-                    stato.add("a-v")
-                elif cod in ("31", "32", "33", "36", "90"):
-                    stato = {x for x in stato if not x.startswith("a-3") and x != "a-90"} | {f"a-{cod}"}
+            for sgr in (m.group(1) or "0").split(";"):
+                if sgr in ("0", ""):
+                    classes = set()
+                elif sgr == "1":
+                    classes.add("a-b")
+                elif sgr == "2":
+                    classes.add("a-d")
+                elif sgr == "7":
+                    classes.add("a-v")
+                elif sgr in ("31", "32", "33", "36", "90"):
+                    classes = {x for x in classes if not x.startswith("a-3") and x != "a-90"} | {f"a-{sgr}"}
             continue
-        if pezzo:
-            out.append(f'<span class="{" ".join(sorted(stato))}">{esc(pezzo)}</span>' if stato else esc(pezzo))
-    assert nome in TRADUZIONI_SCHERMATE, f"schermata {nome}: manca la traduzione delle scritte"
-    return (f'<figure class="fig"><pre class="code schermo"><code>{"".join(out)}</code></pre>'
+        if piece:
+            out.append(f'<span class="{" ".join(sorted(classes))}">{esc(piece)}</span>' if classes else esc(piece))
+    return (f'<figure class="fig"><pre class="code tui-screen"><code>{"".join(out)}</code></pre>'
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 
 
@@ -412,7 +323,7 @@ def fig(body, width, height, cap, title=""):
 
 
 def flow(nodes, cap, title="", width=900):
-    """Flusso orizzontale: nodes = [(titolo, sottotitolo, colore)]."""
+    """A horizontal flow: nodes = [(title, subtitle, colour)]."""
     n = len(nodes)
     gap = 36
     w = (width - 40 - gap * (n - 1)) / n
@@ -428,10 +339,10 @@ def flow(nodes, cap, title="", width=900):
 
 
 def seq(actors, events, cap, title="", width=900):
-    """Diagramma di sequenza.
-    actors = [(nome, sottotitolo, colore)];
-    events = (da, a, testo[, tratteggio]) per un messaggio, ("nota", i, testo) per una nota,
-             ("sep", testo) per una separazione con testo."""
+    """A sequence diagram.
+    actors = [(name, subtitle, colour)];
+    events = (from, to, text[, dashed]) for a message, ("note", i, text) for a note,
+             ("sep", text) for a separator with a text."""
     n = len(actors)
     top = 50 if title else 22
     colw = (width - 40) / n
@@ -440,7 +351,7 @@ def seq(actors, events, cap, title="", width=900):
     y = top + bh + 34
     body = []
     for ev in events:
-        if ev[0] == "nota":
+        if ev[0] == "note":
             _, i, t = ev
             tw = max(len(t) * 6.6 + 24, 90)
             body.append(f'<rect x="{xs[i] - tw / 2}" y="{y - 15}" width="{tw}" height="26" rx="6" fill="#fff7ed" stroke="#fdba74"/>')
@@ -466,6 +377,9 @@ def seq(actors, events, cap, title="", width=900):
                 x1, x2 = xs[a], xs[b]
                 off = 5 if x2 > x1 else -5
                 body.append(arrow(x1 + off, y, x2 - off, y, color, dash))
+                # a light background, so that the lifelines it crosses do not run through the label
+                tw = len(t) * 6.0 + 10
+                body.append(f'<rect x="{(x1 + x2) / 2 - tw / 2}" y="{y - 21}" width="{tw}" height="17" rx="3" fill="#f8fafc"/>')
                 body.append(text((x1 + x2) / 2, y - 8, t, 11, "#334155"))
                 y += 42
     height = y + 10
@@ -477,7 +391,7 @@ def seq(actors, events, cap, title="", width=900):
 
 
 def file_map(rows, cap):
-    """Mappa dei file: rows = [(percorso, ruolo)]; le righe si contano a ogni generazione."""
+    """The file map: rows = [(path, role)]; the lines are counted at every generation."""
     out = []
     for f, role in rows:
         n = len((ROOT / f).read_text().splitlines())
@@ -485,72 +399,58 @@ def file_map(rows, cap):
     return table(["File", "Lines", "Role"], out, cap, "file-map")
 
 
-# ── I risultati delle prove, letti dai file che le prove scrivono ────────
-def impronta_attuale():
+# ── Test results, read from the files the tests write ──────────────────
+def current_fingerprint():
     import subprocess
     return subprocess.run([str(ROOT / "tools/fingerprint.sh")], capture_output=True, text=True).stdout.strip()
 
 
-def risultati_prove():
-    """Una riga per suite: esito, data, commit, impronta e se l'impronta è quella del codice attuale."""
+def test_results():
+    """One row per suite: outcome, date, commit, fingerprint and whether the fingerprint is the current code's."""
     import json
-    attuale = impronta_attuale()
-    righe = []
-    for nome, f, unita in (("tests/engine.sh", "tests/results/engine.json", "checks"),
-                           ("tests/container/run.sh", "tests/container/results/results.json", "scenarios"),
-                           ("tests/vm/run.sh", "tests/vm/results/results.json", "scenarios")):
+    current = current_fingerprint()
+    rows = []
+    for name, f, unit in (("tests/engine.sh", "tests/results/engine.json", "checks"),
+                          ("tests/container/run.sh", "tests/container/results/results.json", "scenarios"),
+                          ("tests/vm/run.sh", "tests/vm/results/results.json", "scenarios")):
         path = ROOT / f
         if not path.exists():
-            righe.append([c(nome), "never run", "", "", "", ""])
+            rows.append([c(name), "never run", "", "", "", ""])
             continue
         d = json.loads(path.read_text())
         m = d.get("meta", d)
-        esito = f"{m['ok']} of {m['totale']} {unita} passed"
-        if m.get("no"):
-            esito += f", <b>{m['no']} failed</b>"
-        if m.get("non_provati"):
-            esito += f", {m['non_provati']} not tested"
-        if m.get("solo"):
-            esito += f" (only {m['solo']})"
-        imp = m.get("impronta", "unknown")
-        righe.append([c(nome), esito, m.get("data", ""), c(m.get("commit", "unknown")), c(imp),
-                      "yes" if imp == attuale else "<b>no</b>: code changed after the run"])
-    return table(["Suite", "Result", "Date", "Commit", "Fingerprint", "Valid for the current code"], righe,
+        outcome = f"{m['ok']} of {m['total']} {unit} passed"
+        if m.get("failed"):
+            outcome += f", <b>{m['failed']} failed</b>"
+        if m.get("not_tested"):
+            outcome += f", {m['not_tested']} not tested"
+        if m.get("only"):
+            outcome += f" (only {m['only']})"
+        fp = m.get("fingerprint", "unknown")
+        rows.append([c(name), outcome, m.get("date", ""), c(m.get("commit", "unknown")), c(fp),
+                     "yes" if fp == current else "<b>no</b>: code changed after the run"])
+    return table(["Suite", "Result", "Date", "Commit", "Fingerprint", "Valid for the current code"], rows,
                  "«TAB» — The last run of each suite (" + c("tests/*/results/") + "); fingerprint of the current "
-                 "code: " + c(attuale))
+                 "code: " + c(current))
 
 
-# ── La guida integrata come fonte del riferimento ───────────────────────
-def po_voci(path):
-    """Le voci di un catalogo gettext: (contesto, testo di partenza, traduzione), nell'ordine."""
-    def testo(parti):
-        return re.sub(r'\\(.)', lambda m: {"n": "\n", "t": "\t"}.get(m.group(1), m.group(1)), "".join(parti))
-    voci = []
-    for blocco in path.read_text().split("\n\n"):
-        parti, cur = {"msgctxt": [], "msgid": [], "msgstr": []}, None
-        for riga in blocco.splitlines():
-            m = re.match(r'^(msgctxt|msgid|msgstr) "(.*)"$', riga)
-            if m:
-                cur = m.group(1)
-                parti[cur].append(m.group(2))
-            elif riga.startswith('"') and cur:
-                parti[cur].append(riga[1:-1])
-        if parti["msgid"]:
-            voci.append((testo(parti["msgctxt"]), testo(parti["msgid"]), testo(parti["msgstr"])))
-    return voci
-
-
-GUIDA_CONTESTI = {"RSPEAK_HELP_COMMANDS": "guida-comandi", "RSPEAK_HELP_OPTIONS": "guida-opzioni",
-                  "RSPEAK_HELP_EXAMPLES": "guida-esempi", "RSPEAK_HELP_FILES": "guida-file"}
+# ── The built-in help as the source of the reference ───────────────────
+# The groups of the built-in help, as they are named in src/help.c.
+HELP_GROUPS = {"RSPEAK_HELP_COMMANDS": "COMMANDS", "RSPEAK_HELP_OPTIONS": "OPTIONS",
+               "RSPEAK_HELP_EXAMPLES": "EXAMPLES", "RSPEAK_HELP_FILES": "FILES"}
 
 
 def help_items(name):
-    """Le voci «etichetta¦descrizione» di un gruppo della guida, in inglese come i
-    manuali: i testi di partenza di po/rootspeak.pot (estratti da src/guida.c con make pot)
-    con il contesto del gruppo, nell'ordine di src/guida.c. tools/check-docs.py li
-    confronta con quelli estratti in quel momento dal codice."""
-    ctx = GUIDA_CONTESTI[name]
-    return [tuple(mid.split("¦", 1)) for c, mid, _ in po_voci(ROOT / "po/rootspeak.pot") if c == ctx]
+    """The «label¦description» items of a group of the built-in help, read from
+    the array of the same group in src/help.c, in its order. The manuals use
+    them as they are: tools/check-docs.py checks that they match."""
+    src = (ROOT / "src" / "help.c").read_text()
+    m = re.search(r"static const char \*const " + HELP_GROUPS[name] + r"\[\] = \{(.*?)\n\};", src, re.S)
+    items = []
+    for lit in re.findall(r'^\s*((?:"(?:[^"\\]|\\.)*"\s*)+),?\s*$', m.group(1), re.M):
+        s = "".join(re.findall(r'"((?:[^"\\]|\\.)*)"', lit))
+        items.append(re.sub(r"\\(.)", lambda x: {"n": "\n", "t": "\t"}.get(x.group(1), x.group(1)), s))
+    return [tuple(i.split("¦", 1)) for i in items]
 
 
 def help_reference(name, kind):
@@ -560,7 +460,7 @@ def help_reference(name, kind):
     return dl(pairs, attrs)
 
 
-# ── Assemblaggio ─────────────────────────────────────────────────────────
+# ── Assembly ─────────────────────────────────────────────────────────────
 def load_chapters(folder):
     chapters = []
     sys.path.insert(0, str(HERE))
@@ -591,10 +491,10 @@ def number(doc):
 
 
 def glossary_index(doc, gloss_ch):
-    """L'indice analitico del manuale tecnico viene dal glossario, senza voci nuove: ogni
-    termine del glossario (il nome inglese, senza «(it. …)») rimanda alla sua definizione
-    e ai capitoli e alle sezioni che la definizione stessa cita. manual.js costruisce
-    l'indice dagli attributi data-index."""
+    """The index of the technical manual comes from the glossary, with no new entries: each
+    glossary term (its name, without a trailing note in brackets) points to its definition
+    and to the chapters and sections that the definition itself cites. manual.js builds
+    the index from the data-index attributes."""
     start = doc.index(f'<section class="chapter" id="{gloss_ch}">')
     end = doc.index('<section class="chapter"', start + 1) if '<section class="chapter"' in doc[start + 1:] else len(doc)
     part, targets, slugs = doc[start:end], {}, set()
@@ -602,7 +502,7 @@ def glossary_index(doc, gloss_ch):
     def term(m):
         name = re.sub(r"\s*\(it\. [^)]*\)$", "", html.unescape(re.sub(r"<[^>]+>", "", m.group(1)))).strip()
         slug = "g-" + re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-        assert slug not in slugs, f"glossario: due termini con lo stesso id {slug}"
+        assert slug not in slugs, f"glossary: two terms with the same id {slug}"
         slugs.add(slug)
         for ref in dict.fromkeys(re.findall(r'href="#(ch\d+(?:s\d+)?)"', m.group(2))):
             targets.setdefault(ref, []).append(name)
@@ -683,4 +583,4 @@ if __name__ == "__main__":
     outdir = sys.argv[1] if len(sys.argv) > 1 else ROOT / "docs"
     for k in MANUALS:
         f, n = build(k, outdir)
-        print("scritto", f, n, "byte")
+        print("written", f, n, "bytes")

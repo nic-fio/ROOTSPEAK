@@ -1,99 +1,100 @@
-# Revisione avversariale del 30 settembre 2026
+# Adversarial review of 30 September 2026
 
-Il progetto è stato sottoposto a due revisioni critiche indipendenti, fatte da
-due modelli linguistici di frontiera sul manuale tecnico della versione 0.1.0:
+The project went through two independent critical reviews, made by two
+frontier language models on the technical manual of version 0.1.0:
 
-- **Revisione A** — «Relazione critica su AMS 0.1.0» (AMS was RootSpeak's former name) (24 punti e piano di risanamento);
-- **Revisione B** — «Relazione critica senza sconti — AMS v0.1.0» (file ricevuto
-  troncato: si interrompe al punto 5.1).
+- **Revisione A** — «Relazione critica su AMS 0.1.0» (AMS was RootSpeak's former name) [Critical report on AMS 0.1.0] (24 points and a remediation plan);
+- **Revisione B** — «Relazione critica senza sconti — AMS v0.1.0» [Critical report with no discounts — AMS v0.1.0] (the file was received truncated: it stops at point 5.1).
 
-I punti sulla lingua dell'interfaccia sono esclusi da questo elenco: sono stati
-trattati a parte (decisione del 30 settembre, fatta: italiano e inglese). Ogni affermazione concreta è stata verificata sul codice
-prima di essere accolta. Le voci [2] del README restano congelate finché i
-gruppi A–D non sono chiusi (revisione A, punto 23).
+The points about the interface language are left out of this list: they were
+handled separately (decision of 30 September, done: Italian and English; on
+1 October 2026 the translations were removed and RootSpeak now speaks English
+only). Every concrete statement was checked against the code before being
+accepted. The [2] items of the README stay frozen until groups A–D are closed
+(review A, point 23).
 
-Stato: **aperto**, **fatto**, **non accolto**.
+Status: **open**, **done**, **not accepted**.
 
-**Al 30 settembre 2026 tutti i punti accolti sono fatti, compresi l'aggancio per tutte le shell e la lingua di ciascun utente decisi il 30 settembre; la risposta dell'utente all'amministratore non è prevista (decisione dell'utente).** Le suite dal vero hanno trovato altri difetti, corretti e descritti qui sotto e nel manuale tecnico (capitoli 5, 7 e 14).
+**As of 30 September 2026 every accepted point is done, including the hook for all shells and each user's own language decided on 30 September (the languages were later removed, on 1 October); replies from users to the administrator are not planned (the user's decision).** The live suites found further defects, fixed and described below and in the technical manual (chapters «The message store», «Receiving in the terminal» and the specification).
 
-## A. Difetti reali, verificati nel codice
+## A. Real defects, checked in the code
 
-| # | Punto | Fonte | Stato |
+| # | Point | Source | Status |
 |---|---|---|---|
-| 1 | Se la conferma non si poteva scrivere (disco pieno, permessi), RootSpeak la trattava come «già confermata»: il messaggio passava tra i letti senza conferma e l'utente leggeva «Confermato». Ora la conferma è pubblicata con `ln` (esclusivo), un fallimento lascia il messaggio nella casella, avvisa l'utente e va nel registro. Test: `tests/engine.sh`, gruppo 1 (fallisce con il codice precedente). | B 3.1, A 20 | fatto |
-| 2 | Un `rspeak send` interrotto a metà lasciava destinatari senza copia, mai recuperati. Ora ogni consegna è verificata e annotata per destinatario; `sent/ID/incomplete` resta finché manca una copia e il comando `rspeak` successivo completa l'invio; un guasto per un destinatario non ferma gli altri; nuovo stato «non consegnato», distinto da «da confermare»; un invio interrotto prima del salvataggio viene annullato. Test: `tests/engine.sh`, gruppo 2 (6 controlli falliscono con il codice precedente). La suite dal vero ha poi trovato che il recupero, lanciato durante un invio ancora in corso, consegnava in parallelo e annotava doppioni: ora `rspeak send` tiene un lock (`sent/ID/lock`) e il recupero salta gli invii in corso (scenari F3 e F5; 2 controlli di `tests/engine.sh`). | A 4 | fatto |
-| 3 | Un agente appena partito moriva se svegliato mentre partiva (20 su 20 in una prova). Ora prepara la ricezione del segnale come prima istruzione e, quando è pronto, scrive il suo PID in `rootspeak-agent.pronto`; `rspeak send` sveglia solo quel PID (con `pkill -F` e la riga di comando esatta, come l'utente) e altrimenti avvia un agente. Test: `tests/engine.sh`, gruppo 5. | A 11 | fatto |
-| 4 | Una finestra o una domanda aperte prima della scadenza accettavano la conferma dopo. Ora alla scadenza si chiudono; `ack` rifiuta un messaggio scaduto; `rspeak status` non conta una conferma con ora successiva alla scadenza della copia di riferimento (`sent/`), anche se l'utente ha alterato la propria copia. Test: `tests/engine.sh`, gruppo 4. | A 15 | fatto |
+| 1 | If the confirmation could not be written (full disk, permissions), RootSpeak treated it as «already confirmed»: the message moved among the read ones without a confirmation and the user read «Confirmed». Now the confirmation is published with `ln` (exclusive); a failure leaves the message in the mailbox, warns the user and goes into the log. Test: `tests/engine.sh`, group 1 (fails with the previous code). | B 3.1, A 20 | done |
+| 2 | An `rspeak send` interrupted halfway left recipients without a copy, never recovered. Now every delivery is checked and noted per recipient; `sent/ID/incomplete` stays as long as a copy is missing and the next `rspeak` command completes the sending; a failure for one recipient does not stop the others; new state «not delivered», distinct from «to be confirmed»; a sending interrupted before it is saved is cancelled. Test: `tests/engine.sh`, group 2 (6 checks fail with the previous code). The live suite then found that the recovery, started during a sending still in progress, delivered in parallel and noted duplicates: now `rspeak send` holds a lock (`sent/ID/lock`) and the recovery skips the sendings in progress (scenarios F3 and F5; 2 checks of `tests/engine.sh`). | A 4 | done |
+| 3 | A desktop agent that had just started died if woken while starting (20 out of 20 in one test). Now it sets up the reception of the signal as its first instruction and, when it is ready, writes its PID in `rootspeak-agent.ready`; `rspeak send` wakes only that PID (with `pkill -F` and the exact command line, as the user) and otherwise starts an agent. Test: `tests/engine.sh`, group 5. | A 11 | done |
+| 4 | A dialog or a question opened before the expiry accepted the confirmation after it. Now they close at the expiry; `ack` refuses an expired message; `rspeak status` does not count a confirmation with a time later than the expiry of the reference copy (`sent/`), even if the user altered their own copy. Test: `tests/engine.sh`, group 4. | A 15 | done |
 
-## B. Specifica e modello
+## B. Specification and model
 
-| # | Punto | Fonte | Stato |
+| # | Point | Source | Status |
 |---|---|---|---|
-| 5 | Macchina a stati formale, invarianti, comportamento dopo un crash, formato dell'archivio: capitolo «Specifica» del manuale tecnico (stati e transizioni con precondizioni, operazioni atomiche ed eventi; 11 invarianti; tabella delle interruzioni e delle riparazioni; formato 1 dell'archivio). Scrivendola è emerso e si è corretto un caso: conferma scritta ma messaggio non ancora spostato, che veniva ripresentato. | A 2, 4, 13, 22; B 3.4 | fatto |
-| 6 | Distinguere consegnato, mostrato e confermato. Risolto semplificando, per decisione dell'utente: ogni messaggio chiede la conferma e ogni destinatario ha tre stati, inviato, consegnato (copia nella casella), confermato; lo stato «mostrato» e il livello `info` spariscono. Test: `tests/engine.sh`, gruppo 3. | A 3; B 4.1 | fatto |
-| 7 | Registro degli eventi per messaggio: eventi strutturati nel journal (`RSPEAK_EVENTO`, `RSPEAK_MESSAGGIO`, `RSPEAK_UTENTE`, `RSPEAK_CANALE`, più `_UID` messo dal journal) per invio, consegna, mancata consegna, recupero, annullamento, rinvio, conferma, conferma fallita, ritiro; nuovo comando `rspeak log ID`. Scenari J1 e J2. | A 5 | fatto |
-| 8 | La casella dell'utente non è la fonte autorevole: specifica, «Fonti autorevoli»; applicato anche alla scadenza (punto 4). | A 7 | fatto |
-| 9 | Semantica di ritiro, scadenza e orologio: specifica, «Tempo, ritiro e scadenza». | A 14, 15, 16 | fatto |
-| 10 | Versione del formato dei messaggi: ogni messaggio inizia con `format: 1`. Test: `tests/engine.sh`, gruppo 5. | B 3.3 | fatto |
+| 5 | Formal state machine, invariants, behaviour after a crash, store format: the «Specification» chapter of the technical manual (states and transitions with preconditions, atomic operations and events; 11 invariants; table of interruptions and repairs; store format 1). Writing it brought out, and fixed, one case: a confirmation written but a message not yet moved, which was shown again. | A 2, 4, 13, 22; B 3.4 | done |
+| 6 | Tell delivered, shown and confirmed apart. Solved by simplifying, by the user's decision: every message asks for confirmation and every recipient has three states, sent, delivered (copy in the mailbox), confirmed; the «shown» state and the `info` level are gone. Test: `tests/engine.sh`, group 3. | A 3; B 4.1 | done |
+| 7 | Per-message event log: structured events in the journal (`RSPEAK_EVENT`, `RSPEAK_MESSAGE`, `RSPEAK_USER`, `RSPEAK_CHANNEL`, plus `_UID` set by the journal) for sending, delivery, failed delivery, recovery, cancellation, postponement, confirmation, failed confirmation, revocation; new command `rspeak log ID`. Scenarios J1 and J2. | A 5 | done |
+| 8 | The user's mailbox is not the authoritative source: specification, «Authoritative sources»; applied to the expiry too (point 4). | A 7 | done |
+| 9 | Semantics of revocation, expiry and the clock: specification, «Time, revocation and expiry». | A 14, 15, 16 | done |
+| 10 | Version of the message format: every message starts with `format: 1`. Test: `tests/engine.sh`, group 5. | B 3.3 | done |
 
-## C. Robustezza e configurazione
+## C. Robustness and configuration
 
-| # | Punto | Fonte | Stato |
+| # | Point | Source | Status |
 |---|---|---|---|
-| 11 | Configurazione come dati: `rspeak_load_conf` accetta solo le chiavi note con interi positivi e non esegue nulla. Test: gruppo 5 (un file con `$(…)` non viene eseguito). | A 18 | fatto |
-| 12 | L'agente rilegge la configurazione a ogni giro. | A 19 | fatto |
-| 13 | Perimetro supportato: specifica, «Perimetro supportato», e manuale utente, «Cosa serve». | A 9 | fatto |
-| 14 | Pulizia: nuovo comando `rspeak purge DURATA`, che cancella i messaggi più vecchi con copie, conferme e rinvii nelle caselle (come l'utente) e lascia l'evento nel registro; salta gli invii incompleti o in corso. Test: `tests/engine.sh`, gruppo 6. | B 2 | fatto |
-| 15 | `list` e `status` lenti. Misurato (scenari H), poi corretto leggendo ogni casella una volta sola per utente (un solo `runuser` per tutte le sue conferme e i suoi rinvii) e le consegne una volta per messaggio: `list` da circa 6 s a circa 0,7 s per 10 messaggi a 54 destinatari, `status` da circa 1,3 s a circa 0,7 s. Non è servito copiare le conferme lato root. | A 8 | fatto |
+| 11 | Configuration as data: the configuration reader (`rspeak_load_conf` in the prototype, `conf_read` in C) accepts only the known keys with positive whole numbers and runs nothing. Test: group 5 (a file with `$(…)` is not run). | A 18 | done |
+| 12 | The desktop agent reads the configuration again at every round. | A 19 | done |
+| 13 | Supported scope: specification, «Supported and verified scope», and user manual, «Requirements». | A 9 | done |
+| 14 | Cleanup: new command `rspeak purge DURATION`, which deletes the older messages with their copies, confirmations and postponements in the mailboxes (as the user) and leaves the event in the log; it skips incomplete sendings and those in progress. Test: `tests/engine.sh`, group 6. | B 2 | done |
+| 15 | `list` and `status` slow. Measured (scenarios H), then fixed by reading each mailbox only once per user (a single `runuser` for all their confirmations and postponements) and the deliveries once per message: `list` from about 6 s to about 0.7 s for 10 messages to 54 recipients, `status` from about 1.3 s to about 0.7 s. Copying the confirmations on the root side was not needed. | A 8 | done |
 
-## D. Test
+## D. Tests
 
-| # | Punto | Fonte | Stato |
+| # | Point | Source | Status |
 |---|---|---|---|
-| 16 | Test automatici del motore: `tests/engine.sh` più le suite dal vero nel container e nella VM (i numeri aggiornati sono nel manuale tecnico, capitolo 11, letti dai risultati). Coperti concorrenza, gare, interruzioni, file e caselle alterati, strumenti che falliscono, sicurezza. | A 20 | fatto |
-| 17 | Ambiente riproducibile per le prove dal vivo. (La VM ha poi trovato un terzo difetto: un'uscita dalla sessione subito dopo «Ho letto» poteva perdere la conferma; scenario I10.) Fatto in due forme: un container Debian 13 con systemd (`tests/container/run.sh`) e una VM con GNOME su Wayland sul server delle prove (`tests/vm/run.sh` compresi quelli della finestra sul desktop). Esiti e misure in `tests/*/risultati/`. La VM ha trovato due difetti: `online` includeva root e gli account di sistema; il lock dell'agente passava ai processi figli (vedi sotto). | A 21 | fatto |
+| 16 | Automatic tests of the engine: `tests/engine.sh` plus the live suites in the container and in the VM (the current numbers are in the technical manual, chapter «Tests and checks», read from the results). Covered: concurrency, races, interruptions, altered files and mailboxes, failing tools, security. | A 20 | done |
+| 17 | A reproducible environment for the live tests. (The VM then found a third defect: leaving the session right after «I have read it» could lose the confirmation; scenario I10.) Done in two forms: a Debian 13 container with systemd (`tests/container/run.sh`) and a VM with GNOME on Wayland on the test server (`tests/vm/run.sh`, including the desktop dialog scenarios). Outcomes and measures in `tests/*/results/`. The VM found two defects: `online` included root and the system accounts; the agent's lock passed to its child processes (see below). | A 21 | done |
 
-## E. Critiche non accolte
+## E. Criticisms not accepted
 
-| Punto | Fonte | Perché |
+| Point | Source | Why |
 |---|---|---|
-| L'aggancio della shell si aggira; la conferma non prova la lettura. | B 4.2 | Conseguenza voluta della decisione «mai bloccare»: la conferma è dichiaratamente una dichiarazione dell'utente. |
-| Se il terminale è bloccato il messaggio non arriva. | B 4.1 | Inesatto: la casella fa da coda, il messaggio arriva al prompt successivo o al login. |
-| Lock rimasti bloccati. | B 4.3 | **Respinta per errore, poi accolta.** Il kernel rilascia il lock alla morte del processo, ma la VM di prova ha mostrato che il lock dell'agente passava ai suoi figli (`sleep`, `zenity`): un figlio orfano lo teneva fino a 60 s e il nuovo agente usciva subito. Corretto (`9>&-`). |
-| Solo bash. | A 10; B 4.2 | Decisione dell'utente del 30 settembre: la domanda di conferma va portata in tutte le shell (bash, zsh, fish a ogni prompt; al login per le shell che leggono `/etc/profile`). Fatto: agganci per bash, zsh, fish e sh; scenari K nella macchina di prova. |
-| Riscrivere subito in un linguaggio compilato. | B 3 | Si segue la revisione A: prima la specifica, poi un'eventuale riscrittura. |
-| `rspeak` sempre root. | B 5.1 | Decisione esplicita dell'utente. |
+| The shell hook can be bypassed; the confirmation is no proof of reading. | B 4.2 | An intended consequence of the decision «never block»: the confirmation is, by design, a statement by the user. |
+| If the terminal is busy the message does not arrive. | B 4.1 | Inaccurate: the mailbox acts as a queue, the message arrives at the next prompt or at login. |
+| Locks left stuck. | B 4.3 | **Rejected by mistake, then accepted.** The kernel releases the lock when the process dies, but the test VM showed that the agent's lock passed to its children (`sleep`, `zenity`): an orphan child held it for up to 60 s and the new agent exited at once. Fixed (`9>&-`). |
+| Bash only. | A 10; B 4.2 | The user's decision of 30 September: the confirmation question must reach every shell (bash, zsh, fish at every prompt; at login for the shells that read `/etc/profile`). Done: hooks for bash, zsh, fish and sh; scenarios K on the test machine. |
+| Rewrite at once in a compiled language. | B 3 | Review A is followed: first the specification, then a possible rewrite (done later: version 0.2.0 is in C). |
+| `rspeak` always root. | B 5.1 | An explicit decision of the user. |
 
-# Seconda revisione (30 settembre 2026)
+# Second review (30 September 2026)
 
-Due revisori hanno esaminato il manuale tecnico con la nota di accompagnamento
-(senza il codice): **revisione C** (12 rilievi, G-01…L-03) e **revisione D**
-(7 rilievi più 2 note di chiarezza). Ogni rilievo è stato verificato sul codice
-o con una prova prima di essere accolto; per ogni correzione c'è una prova che
-fallisce con il codice precedente (gruppo 9 di `tests/engine.sh`, scenari F7 e
-J3), salvo dove indicato.
+Two reviewers examined the technical manual with its covering note (without
+the code): **review C** (12 findings, G-01…L-03) and **review D** (7 findings
+plus 2 notes on clarity). Every finding was checked against the code or with a
+test before being accepted; for every fix there is a test that fails with the
+previous code (group 9 of `tests/engine.sh`, scenarios F7 and J3), except where
+stated.
 
-| # | Rilievo | Fonte | Verifica | Stato |
+| # | Finding | Source | Check | Status |
 |---|---|---|---|---|
-| 18 | `rspeak revoke` non aspettava un `rspeak send` in corso: una copia poteva arrivare dopo il ritiro. Ora il ritiro scrive `revoked` (su disco), attende il lock dell'invio, che si ferma al destinatario successivo, poi toglie le copie; `sent/ID/ritiro` resta finché non sono tolte tutte e il comando successivo completa. | C G-01, C M-03 | fondato (codice) | fatto |
-| 19 | Conferma e ritiro senza un ordine: una conferma poteva nascere dopo il ritiro. Ora `ack` non conferma senza copia nella casella (esito 3) e `rspeak status` non conta una conferma con data successiva a `sent/ID/revoked` (stesso secondo: vale). La prova sulla domanda interrotta passa anche con il codice precedente, che se ne accorgeva già: la correzione riguarda la finestra fra controllo e `ln`, provata con la regola della data. | C G-02 | fondato (codice) | fatto |
-| 20 | Terminale riassegnato fra la ricerca e la scrittura: il testo poteva finire sul terminale di un altro utente. Ora `write_term` apre il terminale e controlla il proprietario del terminale aperto (`/dev/fd/5`), non del nome. | C G-03 | fondato (gara reale, finestra breve) | fatto |
-| 21 | Nessuna garanzia dopo un'interruzione di corrente. Ora `sync` di messaggio, destinatari e segno prima delle consegne, `syncfs` prima di togliere `incomplete`, conferma su disco prima di «Confermato», ritiro su disco prima di toccare le caselle; il recupero ricontrolla anche le copie già annotate. Un'interruzione di corrente vera non è provata; la copia sparita è simulata. | C G-04, C L-03 | fondato | fatto |
-| 22 | Numeri delle prove nel manuale vecchi e non collegati al codice. Ora ogni suite registra commit e impronta del codice (`tools/fingerprint.sh`); il capitolo 11 legge i risultati e dice se valgono per il codice attuale; `tools/check-docs.py` fallisce se `tests/engine.sh` non è stato eseguito sul codice attuale. | C M-01, C L-01 | fondato | fatto |
-| 23 | Perimetro «supportato» confuso con «verificato». Ora la specifica li separa. | C M-02 | fondato (documento) | fatto |
-| 24 | `_UID` presentato come «non falsificabile»: dice chi ha scritto un evento, non che sia vero. Testo corretto; `rspeak log` segnala come non attendibile un evento scritto dall'utente sbagliato (scenario J3). | C M-04 | fondato | fatto |
-| 25 | «Confermato» va letto come dichiarazione dell'utente, anche negli audit: scritto nella specifica e nel glossario. | C M-05 | fondato (documento) | fatto |
-| 26 | Punti di linearizzazione non definiti: nuovo paragrafo «Operazioni concorrenti» nella specifica. | C L-02 | fondato (documento) | fatto |
-| 27 | `rspeak purge` insieme a `rspeak list`: un messaggio poteva sparire a metà lettura. Ora `purge` rinomina `sent/ID` in `sent/.cancella-ID` (un colpo solo) e `list` legge prima ciò che gli serve; una cancellazione interrotta la completa il comando successivo. | D 1.2, C M-03 | fondato | fatto |
-| 28 | Migliaia di file finti in `acks/` rallentavano `rspeak list` (5000 file: 3,9 s). Ora si leggono solo i messaggi esistenti in `sent/`, con un tempo massimo: 25 ms. | D 1.4 | fondato (misurato) | fatto |
-| 29 | Testi oltre 128 KiB: zenity non può riceverli come argomento. Ora `rspeak send` rifiuta oltre 65536 byte. | D 1.6 | fondato | fatto |
-| 30 | Messaggio che scade durante l'invio: comportamento scritto nella specifica (le copie successive si consegnano, nessuno le vede). | D 1.7 | fondato (documento) | fatto |
-| 31 | Chiarezza: costo del controllo al prompt (capitolo 6.1) e formato dei campi dell'archivio (capitolo 14). | D, note | fondato | fatto |
+| 18 | `rspeak revoke` did not wait for an `rspeak send` in progress: a copy could arrive after the revocation. Now the revocation writes `revoked` (on disk), waits for the sending's lock, which stops at the next recipient, then removes the copies; `sent/ID/revoking` stays until they are all removed and the next command completes the job. | C G-01, C M-03 | founded (code) | done |
+| 19 | Confirmation and revocation without an order: a confirmation could appear after the revocation. Now `ack` does not confirm without a copy in the mailbox (exit code 3) and `rspeak status` does not count a confirmation dated after `sent/ID/revoked` (same second: it counts). The test on the interrupted question passes with the previous code too, which already noticed it: the fix concerns the window between the check and `ln`, tested with the date rule. | C G-02 | founded (code) | done |
+| 20 | A terminal reassigned between the lookup and the writing: the text could end up on another user's terminal. Now the terminal is opened first and the owner of the opened terminal is checked, not the owner of the name (`write_term` with `/dev/fd/5` in the prototype, `write_terminal` in C). | C G-03 | founded (real race, short window) | done |
+| 21 | No guarantee after a power cut. Now `sync` of message, recipients and marker before the deliveries, `syncfs` before removing `incomplete`, the confirmation on disk before «Confirmed», the revocation on disk before touching the mailboxes; the recovery checks the copies already noted too. A real power cut is not tested; the vanished copy is simulated. | C G-04, C L-03 | founded | done |
+| 22 | Test numbers in the manual old and not tied to the code. Now every suite records the commit and the fingerprint of the code (`tools/fingerprint.sh`); the chapter «Tests and checks» reads the results and says whether they apply to the current code; `tools/check-docs.py` fails if `tests/engine.sh` was not run on the current code. | C M-01, C L-01 | founded | done |
+| 23 | «Supported» scope confused with «verified». Now the specification keeps them apart («Supported and verified scope»). | C M-02 | founded (document) | done |
+| 24 | `_UID` presented as «unforgeable»: it says who wrote an event, not that the event is true. Text corrected; `rspeak log` flags as unreliable an event written by the wrong user (scenario J3). | C M-04 | founded | done |
+| 25 | «Confirmed» must be read as a statement by the user, in audits too: written in the specification and in the glossary. | C M-05 | founded (document) | done |
+| 26 | Linearisation points not defined: new paragraph «Concurrent operations» in the specification. | C L-02 | founded (document) | done |
+| 27 | `rspeak purge` together with `rspeak list`: a message could vanish halfway through the reading. Now `purge` renames `sent/ID` to `sent/.deleting-ID` (in one step) and `list` first reads what it needs; an interrupted deletion is completed by the next command. | D 1.2, C M-03 | founded | done |
+| 28 | Thousands of fake files in `acks/` slowed down `rspeak list` (5000 files: 3.9 s). Now only the messages that exist in `sent/` are read, with a time limit: 25 ms. | D 1.4 | founded (measured) | done |
+| 29 | Texts over 128 KiB: zenity cannot receive them as an argument. Now `rspeak send` refuses texts over 65536 bytes. | D 1.6 | founded | done |
+| 30 | A message that expires during the sending: the behaviour is written in the specification (the later copies are delivered, nobody sees them). | D 1.7 | founded (document) | done |
+| 31 | Clarity: cost of the check at the prompt (chapter «Receiving in the terminal») and format of the store fields (chapter «The message store»). | D, notes | founded | done |
 
-**Non accolti**
+**Not accepted**
 
-| Rilievo | Fonte | Perché |
+| Finding | Source | Why |
 |---|---|---|
-| Una pipe al posto di `acks/ID` blocca `rspeak status` | D 1.1 | Inesatto: si leggono solo file normali; provato, `rspeak status` risponde in 0,03 s. Resta una prova nel gruppo 9. |
-| Un commento a fine riga in `rootspeak.conf` invalida il valore | D 1.5 | Inesatto: commenti e spazi sono gestiti; provato, resta una prova nel gruppo 9. |
-| Collegamento simbolico `/var/lib/rootspeak` creato prima dell'installazione | D 1.3 | Fuori dal modello: in `/var/lib` scrive solo root, che è già fidato. |
+| A pipe in place of `acks/ID` blocks `rspeak status` | D 1.1 | Inaccurate: only regular files are read; tested, `rspeak status` answers in 0.03 s. A test remains in group 9. |
+| A comment at the end of a line in `rootspeak.conf` invalidates the value | D 1.5 | Inaccurate: comments and spaces are handled; tested, a test remains in group 9. |
+| A symbolic link `/var/lib/rootspeak` created before the installation | D 1.3 | Outside the model: only root writes in `/var/lib`, and root is already trusted. |

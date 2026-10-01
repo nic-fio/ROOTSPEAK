@@ -1,18 +1,18 @@
 # RootSpeak - Advanced Messaging System for Linux
-# Aggancio per fish interattiva (/etc/fish/conf.d/rootspeak.fish): prima di ogni
-# prompt mostra i messaggi dell'amministratore e chiede la conferma di lettura.
+# Hook for interactive fish (/etc/fish/conf.d/rootspeak.fish): before every
+# prompt it shows the administrator's messages and asks for the read confirmation.
 if status is-interactive; and not set -q __rspeak_hook; and test -x @LIBDIR@/rootspeak-user
 	set -g __rspeak_hook 1
 	set -g __rspeak_inbox @VARDIR@/users/(id -un)/inbox
 	function __rspeak_prompt --on-event fish_prompt
-		# con la casella vuota non si lancia nulla (set ammette glob senza
-		# risultati; fish non ha [0-9] nei glob, da qui string match)
+		# with an empty mailbox nothing is run (set accepts globs without
+		# results; fish has no [0-9] in globs, hence string match)
 		set -l f $__rspeak_inbox/*
 		if string match -rq '/[0-9][^/]*$' -- $f
 			@LIBDIR@/rootspeak-user prompt
 		end
 	end
-	# Al login la domanda viene fatta subito, anche se era stata rimandata.
+	# At login the question is asked at once, even if it had been postponed.
 	if status is-login
 		set -l f $__rspeak_inbox/*
 		if string match -rq '/[0-9][^/]*$' -- $f

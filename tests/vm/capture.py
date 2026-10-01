@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RootSpeak - Advanced Messaging System for Linux
-Gira sul server delle prove: cattura lo schermo della VM di prova dal monitor di
-QEMU (formato PPM).    capture.py SOCKET_MONITOR FILE.ppm"""
+Runs on the test server: captures the screen of the test VM from the QEMU
+monitor (PPM format).    capture.py MONITOR_SOCKET FILE.ppm"""
 import socket
 import sys
 import time

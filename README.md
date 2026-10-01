@@ -1,186 +1,192 @@
 # RootSpeak - Advanced Messaging System for Linux
 
-Strumento con cui gli amministratori di una macchina Linux inviano messaggi
-testuali agli utenti e sanno chi ha confermato di averli letti.
+A tool with which the administrators of a Linux machine send text messages to
+the users and know who has confirmed reading them.
 
-A differenza di `wall` e `write`, RootSpeak:
+Unlike `wall` and `write`, RootSpeak:
 
-- raggiunge sia i terminali (tty, ssh, tmux) sia le sessioni grafiche (X11 e Wayland);
-- conserva i messaggi per gli utenti non collegati e li mostra al login successivo;
-- registra la conferma di lettura di ogni utente, con data e ora;
-- sollecita chi non ha confermato, **senza mai bloccare il lavoro né disconnettere nessuno**.
+- reaches both the terminals (tty, ssh, tmux) and the graphical sessions (X11 and Wayland);
+- keeps the messages for the users who are not logged in and shows them at their next login;
+- records each user's read confirmation, with date and time;
+- reminds whoever has not confirmed, **without ever blocking their work or logging anybody out**.
 
-> Nota: la conferma registra che l'utente *dichiara* di aver letto il messaggio,
-> come le spunte di lettura di un'app di messaggistica. Non prova la lettura effettiva.
+> Note: the confirmation records that the user *states* they have read the message,
+> like the read ticks of a messaging app. It is no proof that they actually read it.
 
-## Perimetro
+## Scope
 
-- Una sola macchina: niente rete, niente invio tra host.
-- Il comando `rspeak` è riservato agli amministratori, cioè ai membri del gruppo admin già esistente
-  (`sudo` su Debian/Ubuntu, `wheel` su Fedora/RHEL/Arch). RootSpeak non crea gruppi né ha permessi propri.
-- Gli utenti non hanno alcun comando: ricevono e confermano soltanto, in modo automatico.
-- Le sessioni non interattive (cron, scp, rsync, ssh senza terminale, servizi) non vengono mai toccate.
+- One machine only: no network, no sending between hosts.
+- The `rspeak` command is reserved to the administrators, that is the members of the admin group that
+  already exists (`sudo` on Debian/Ubuntu, `wheel` on Fedora/RHEL/Arch). RootSpeak creates no groups and has
+  no permissions of its own.
+- Users have no command at all: they only receive and confirm, automatically.
+- Non-interactive sessions (cron, scp, rsync, ssh without a terminal, services) are never touched.
+- RootSpeak speaks English, whatever the language of the session.
 
-## Conferma e stati
+## Confirmation and states
 
-Ogni messaggio chiede la conferma di lettura e insiste finché l'utente non conferma: finestra sul
-desktop, domanda nel terminale e al login, solleciti ogni 30 minuti. Non blocca mai. Per ogni
-destinatario un messaggio è **inviato** (la copia non è ancora nella sua casella), **consegnato**
-(la copia è nella casella) o **confermato**. Scadenza e ritiro sono proprietà del messaggio: per gli
-avvisi che valgono solo per poco si usa `--expires`.
+Every message asks for a read confirmation and insists until the user confirms: a dialog on the
+desktop, a question in the terminal and at login, reminders every 30 minutes. It never blocks. For each
+recipient a message is **sent** (the copy is not yet in their mailbox), **delivered** (the copy is in
+the mailbox) or **confirmed**. Expiry and revocation are properties of the message: for notices that
+only matter for a short time use `--expires`.
 
-## Interfacce
+## Interfaces
 
-| Ruolo | Interfaccia |
+| Role | Interface |
 |---|---|
-| Amministratore | `rspeak`: comandi e, da solo in un terminale, la TUI (solo gruppo admin) |
-| Utente nel terminale | Nessun comando: messaggio e domanda di conferma automatici |
-| Utente nel desktop | Finestra minima con il pulsante "Ho letto" |
+| Administrator | `rspeak`: commands and, on its own in a terminal, the TUI (admin group only) |
+| User in the terminal | No command: message and confirmation question appear automatically |
+| User on the desktop | A minimal dialog with the "I have read it" button |
 
-## Funzionalità
+## Features
 
-Legenda: **[1]** prima versione · **[2]** seconda versione · **[?]** da decidere
+Legend: **[1]** first version · **[2]** second version · **[?]** to be decided
 
-### Invio (amministratore)
-- [1] Destinatari: utente, lista di utenti, gruppo Unix (`@gruppo`), `all` (tutti gli utenti umani), `online` (solo i collegati)
-- [1] Conferma sempre richiesta; tre stati per destinatario: inviato, consegnato, confermato
-- [1] Testo da argomento, file o stdin; titolo opzionale
-- [1] Scadenza (`--expires 2h`)
-- [2] Invio programmato (`--at "sabato 08:00"`)
-- [2] Modelli di messaggio riutilizzabili
-- [?] Risposta dell'utente all'amministratore
+### Sending (administrator)
+- [1] Recipients: a user, a list of users, a Unix group (`@group`), `all` (every human user), `online` (only those logged in)
+- [1] Confirmation always requested; three states per recipient: sent, delivered, confirmed
+- [1] Text from an argument, a file or stdin; optional title
+- [1] Expiry (`--expires 2h`)
+- [2] Scheduled sending (`--at "saturday 08:00"`)
+- [2] Reusable message templates
+- [?] Replies from the user to the administrator
 
-### Gestione e controllo (amministratore)
-- [1] `rspeak list`: messaggi inviati con il conteggio delle conferme
-- [1] `rspeak status <id>`: stato per utente (consegnato / confermato, data e ora, tipo di sessione)
-- [1] `rspeak revoke <id>`: ritiro di un messaggio
-- [1] `rspeak remind <id>`: sollecito a chi non ha confermato (la domanda e la finestra tornano subito)
-- [2] Esportazione in CSV o JSON per audit
-- [1] TUI per l'amministratore: `rspeak` da solo apre la lista dei messaggi con i destinatari nei tre stati, dettaglio e storia, scrittura e invio, ritiro, sollecito e pulizia con conferma, aggiornamento automatico
+### Management and control (administrator)
+- [1] `rspeak list`: the messages sent, with the count of the confirmations
+- [1] `rspeak status <id>`: state per user (delivered / confirmed, date and time, type of session)
+- [1] `rspeak revoke <id>`: revokes a message
+- [1] `rspeak remind <id>`: reminds whoever has not confirmed (the question and the dialog come back at once)
+- [2] Export to CSV or JSON for audits
+- [1] TUI for the administrator: `rspeak` on its own opens the list of the messages with the recipients in the
+  three states, detail and history, writing and sending, revoke (`r`), remind (`m`) and purge (`p`) with
+  a confirmation (`y`), automatic refresh
 
-### Consegna
-- [1] Terminale: scrittura su tutte le tty e pts attive, individuate tramite logind (non utmp)
-- [1] Hook della shell (bash, zsh, fish; sh, dash, ksh al login): messaggi in sospeso al login e domanda di conferma automatica al prompt
-- [1] Desktop: finestra con il pulsante "Ho letto" (X11 e Wayland)
-- [1] Coda per gli utenti non collegati, con consegna al login successivo
-- [1] Finestra ripetuta ogni N minuti sul desktop finché l'utente non conferma
+### Delivery
+- [1] Terminal: writing to every active tty and pts, found through logind (not utmp)
+- [1] Shell hook (bash, zsh, fish; sh, dash, ksh at login): pending messages at login and automatic
+  confirmation question at the prompt
+- [1] Desktop: dialog with the "I have read it" button (X11 and Wayland)
+- [1] Queue for the users who are not logged in, with delivery at their next login
+- [1] Dialog repeated every N minutes on the desktop until the user confirms
 
-### Ricezione (utente)
+### Receiving (user)
 
-La ricezione è automatica: l'utente non deve conoscere né digitare alcun comando.
+Receiving is automatic: the user does not need to know or type any command.
 
-- [1] **Desktop**: compare da sola una finestra con il testo e i pulsanti **[Più tardi]** e **[Ho letto]**;
-  con "Più tardi" la finestra ricompare dopo N minuti, finché l'utente non conferma.
-- [1] **Terminale**: il testo completo compare nel terminale nel momento dell'invio; al prompt
-  successivo RootSpeak chiede da solo «Confermi di averlo letto? [s/N]». Se l'utente risponde no,
-  vede una riga di promemoria a ogni prompt e la domanda viene riproposta dopo N minuti.
-- [1] **Utente non collegato**: messaggio e domanda compaiono da soli al login successivo.
-- [1] Basta confermare una volta, in una qualsiasi sessione, perché il messaggio sparisca ovunque.
-- L'utente non ha comandi: una volta confermato, il messaggio non si può rileggere
-  (il testo completo è visibile nel momento della conferma).
+- [1] **Desktop**: a dialog with the text and the **[Later]** and **[I have read it]** buttons appears on its own;
+  with "Later" the dialog comes back after N minutes, until the user confirms.
+- [1] **Terminal**: the full text appears in the terminal at the moment of sending; at the next prompt
+  RootSpeak asks on its own “Do you confirm you have read the message? [y/N]”. If the user answers no,
+  they see a reminder line at every prompt and the question comes back after N minutes.
+- [1] **User not logged in**: message and question appear on their own at the next login.
+- [1] Confirming once, in any session, is enough for the message to disappear everywhere.
+- The user has no commands: once confirmed, the message cannot be read again
+  (the full text is visible at the moment of the confirmation).
 
-### Sicurezza (tutto [1])
-- `rspeak` è installato come `root:<gruppo admin>` con permessi `750`: gli altri utenti non possono eseguirlo.
-- Se lanciato da un amministratore non root, `rspeak` si rilancia da solo con sudo (password come per ogni
-  operazione amministrativa). Chi entra o esce dal gruppo admin ottiene o perde subito l'accesso.
-- Ogni utente vede e conferma solo i propri messaggi, grazie ai permessi della sua cartella.
-- Il testo viene ripulito dai caratteri di controllo, per impedire l'iniezione di sequenze di escape nei terminali.
-- Ogni operazione viene registrata nel journal di sistema.
+### Security (all [1])
+- `rspeak` is installed as `root:<admin group>` with permissions `750`: other users cannot run it.
+- If started by an administrator who is not root, `rspeak` re-runs itself with sudo (password as for any
+  administrative operation). Whoever joins or leaves the admin group gains or loses access at once.
+- Each user sees and confirms only their own messages, thanks to the permissions of their folder.
+- The text is cleaned of control characters, to prevent the injection of escape sequences into terminals.
+- Every operation is recorded in the system journal.
 
-### Configurazione e distribuzione
-- [1] `/etc/rootspeak/rootspeak.conf`: intervallo dei solleciti, controllo dell'agente del desktop
-- [1] Script di installazione
-- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sources/` con lo stile comune dei manuali dei 7 progetti
-- [1] Guida integrata interattiva (`rspeak --help`), sul modello di MTERM: schede, pagina in stile manuale
-  se il terminale è piccolo, testo semplice in una pipe. Niente man page.
-- [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
-- [2] Pacchetti deb e rpm
-- [1] Ognuno nella sua lingua: interfaccia per utenti e amministratori in italiano e inglese (cataloghi gettext in `po/`), inglese di ripiego; il testo dei messaggi non si traduce
+### Configuration and distribution
+- [1] `/etc/rootspeak/rootspeak.conf`: interval of the reminders, check interval of the desktop agent
+- [1] Installation script
+- [1] User manual and technical manual in HTML (one file each), generated from `docs/sources/` with the
+  common style of the 7 projects' manuals
+- [1] Interactive built-in help (`rspeak --help`), modelled on MTERM's: tabs, a manual-style page
+  if the terminal is small, plain text in a pipe. No man page.
+- [1] `tools/check-docs.py`: fails if the built-in help and the manual diverge; `tests/help-tui.py` tests the help
+- [2] deb and rpm packages
 
-## Scelte escluse
+## Choices left out
 
-- **Blocco a schermo intero** delle sessioni grafiche: troppo invasivo e non realizzabile su GNOME Wayland.
-- **Blocco al login** con disconnessione forzata di chi non conferma: troppo estremo.
-- **GUI per l'amministratore**: gli amministratori lavorano da terminale.
-- **Gruppo `rspeak` dedicato**: duplicherebbe il gruppo admin e andrebbe tenuto allineato. Da riconsiderare solo
-  se servirà far inviare messaggi a chi non è amministratore.
-- **Comandi per l'utente** (`rspeak read`, `rspeak ack`, `rspeak history`): la ricezione è automatica e il comando resta riservato a root.
+- **Full-screen lock** of the graphical sessions: too invasive and not feasible on GNOME Wayland.
+- **Lock at login** with forced logout of whoever does not confirm: too extreme.
+- **GUI for the administrator**: administrators work from the terminal.
+- **Dedicated `rspeak` group**: it would duplicate the admin group and would have to be kept aligned with it.
+  To be reconsidered only if non-administrators ever need to send messages.
+- **Commands for the user** (`rspeak read`, `rspeak ack`, `rspeak history`): receiving is automatic and the
+  command stays reserved to root.
+- **Translations**: RootSpeak is for administrators and speaks English only (decision of 1 October 2026).
 
-## Architettura
+## Architecture
 
-Nessun demone: ogni pezzo usa strumenti già presenti nel sistema. I dettagli sono nel
-[manuale tecnico](docs/Technical%20Manual.html) (in inglese).
+No daemon: every piece uses tools already present on the system. The details are in the
+[technical manual](docs/Technical%20Manual.html).
 
-- `rspeak` gira sempre come root (si rilancia con sudo): salva il messaggio e lo consegna subito alle
-  sessioni attive, scrivendo sui terminali e svegliando l'agente del desktop con un segnale
-  (se l'agente manca, lo avvia con `systemd-run --user`).
-- `/usr/local/lib/rootspeak/rootspeak-user`: helper interno, fuori dal PATH e non documentato come comando.
-  Gira come utente e lo usano solo l'hook e l'agente per mostrare i messaggi e registrare la conferma.
-- L'hook in `/etc/profile.d` mostra i messaggi in sospeso e i promemoria nel terminale.
-- Un piccolo agente avviato automaticamente nella sessione grafica (`/etc/xdg/autostart`)
-  mostra la finestra di conferma e la ripropone finché serve.
-- Archivio:
-  - `/var/lib/rootspeak/sent/` — copia di riferimento dei messaggi e dei destinatari, accessibile solo a root;
-  - `/var/lib/rootspeak/users/<utente>/` — messaggi dell'utente e sue conferme, accessibile solo a lui e a root.
-  `rspeak status` calcola lo stato confrontando le due parti. Se un utente cancella un messaggio
-  dalla propria cartella, il messaggio risulta semplicemente non confermato.
+- `rspeak` always runs as root (it re-runs itself with sudo): it saves the message and delivers it at once to
+  the active sessions, writing to the terminals and waking the desktop agent with a signal
+  (if the agent is missing, it starts one with `systemd-run --user`).
+- `/usr/local/lib/rootspeak/rootspeak-user`: internal helper, outside the PATH and not documented as a command.
+  It runs as the user and only the hook and the agent use it, to show the messages and record the confirmation.
+- The hook in `/etc/profile.d` shows the pending messages and the reminders in the terminal.
+- A small agent started automatically in the graphical session (`/etc/xdg/autostart`)
+  shows the confirmation dialog and shows it again as long as needed.
+- Message store:
+  - `/var/lib/rootspeak/sent/` — reference copy of the messages and of the recipients, accessible to root only;
+  - `/var/lib/rootspeak/users/<user>/` — the user's messages and confirmations, accessible only to them and to root.
+  `rspeak status` works out the state by comparing the two parts. If a user deletes a message
+  from their own folder, the message simply shows as not confirmed.
 
-Il primo prototipo (0.1.0) era in shell, per validare il flusso; dalla versione 0.2.0 RootSpeak
-è scritto in C, con le stesse prove e lo stesso formato dell'archivio.
+The first prototype (0.1.0) was a shell script, to validate the flow; from version 0.2.0 RootSpeak
+is written in C, with the same tests and the same store format.
 
-## Installazione
+## Installation
 
-Servono `gcc make pkg-config libsystemd-dev gettext` per compilare e `zenity` per il desktop;
-`tools/setup-dev.sh` dice quali mancano (con `--install` li installa). `tools/backup.sh` salva tutto il
-repository, con la storia, in un solo file.
+Building needs `gcc make pkg-config libsystemd-dev`, and the desktop needs `zenity`;
+`tools/setup-dev.sh` says which ones are missing (with `--install` it installs them). `tools/backup.sh` saves
+the whole repository, with its history, in a single file.
 
 ```
-make                      # compila in build/
-./install.sh              # installa (chiede la password di sudo)
-./install.sh --uninstall  # rimuove, conservando messaggi e configurazione
-./install.sh --purge      # rimuove tutto
+make                      # builds in build/
+./install.sh              # installs (asks for the sudo password)
+./install.sh --uninstall  # removes, keeping messages and configuration
+./install.sh --purge      # removes everything
 ```
 
-| File | Ruolo |
+| File | Role |
 |---|---|
-| `/usr/local/bin/rspeak` | Comando per gli amministratori (`root:sudo`, permessi 750) |
-| `/usr/local/lib/rootspeak/` | Helper interno `rootspeak-user` e agganci di bash e zsh |
-| `/usr/local/share/locale/*/LC_MESSAGES/rootspeak.mo` | Traduzioni |
-| `/etc/rootspeak/rootspeak.conf` | Configurazione |
-| `/etc/profile.d/rootspeak.sh` | Hook delle shell che leggono `/etc/profile` (richiamato anche da `/etc/bash.bashrc`); rimanda bash a `lib/rootspeak/rootspeak.bash` |
-| `/usr/local/lib/rootspeak/rootspeak.zsh` | Hook di zsh (richiamato dallo zshrc di sistema) |
-| `/etc/fish/conf.d/rootspeak.fish` | Hook di fish |
-| `/etc/xdg/autostart/rootspeak-agent.desktop` | Avvio automatico dell'agente del desktop |
-| `/var/lib/rootspeak/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
-| `/usr/local/share/doc/rootspeak/` | Manuale utente e manuale tecnico (`User Manual.html`, `Technical Manual.html`) |
+| `/usr/local/bin/rspeak` | The administrators' command (`root:sudo`, permissions 750) |
+| `/usr/local/lib/rootspeak/` | Internal helper `rootspeak-user` and the bash and zsh hooks |
+| `/etc/rootspeak/rootspeak.conf` | Configuration |
+| `/etc/profile.d/rootspeak.sh` | Hook of the shells that read `/etc/profile` (also called from `/etc/bash.bashrc`); hands bash over to `lib/rootspeak/rootspeak.bash` |
+| `/usr/local/lib/rootspeak/rootspeak.zsh` | zsh hook (called from the system zshrc) |
+| `/etc/fish/conf.d/rootspeak.fish` | fish hook |
+| `/etc/xdg/autostart/rootspeak-agent.desktop` | Automatic start of the desktop agent |
+| `/var/lib/rootspeak/` | Messages sent (`sent/`) and the users' folders (`users/`) |
+| `/usr/local/share/doc/rootspeak/` | User manual and technical manual (`User Manual.html`, `Technical Manual.html`) |
 
-## Documentazione
+## Documentation
 
-| Documento | Per chi |
+| Document | For whom |
 |---|---|
-| [`docs/User Manual.html`](docs/User%20Manual.html) | Gli amministratori che usano RootSpeak (in inglese) |
-| [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa RootSpeak: architettura, archivio, sicurezza, test (in inglese) |
-| [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Perché RootSpeak è fatto così |
-| [`NOTICE.md`](NOTICE.md) | Copyright e componenti di terzi |
-| [`logos/rootspeak-logo.png`](logos/rootspeak-logo.png) | Il logo di RootSpeak (i file di logo stanno in `logos/`) |
-| [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
-| `rspeak --help` | La guida integrata, a schede |
+| [`docs/User Manual.html`](docs/User%20Manual.html) | The administrators who use RootSpeak |
+| [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Whoever develops RootSpeak: architecture, message store, security, tests |
+| [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Why RootSpeak is the way it is |
+| [`NOTICE.md`](NOTICE.md) | Copyright and third-party components |
+| [`logos/rootspeak-logo.png`](logos/rootspeak-logo.png) | The RootSpeak logo (the logo files are in `logos/`) |
+| [`CLAUDE.md`](CLAUDE.md) | Working agreements and decisions not to reopen |
+| `rspeak --help` | The built-in help, in tabs |
 
-I due manuali sono file HTML autosufficienti: si aprono con un doppio clic o con
-`xdg-open "docs/User Manual.html"`, si allegano a una email e si stampano. GitHub non li
-mostra impaginati (mostra il codice sorgente): scaricarli o aprirli dalla copia locale.
-Dopo l'installazione sono anche in `/usr/local/share/doc/rootspeak/`.
+The two manuals are self-contained HTML files: they open with a double click or with
+`xdg-open "docs/User Manual.html"`, can be attached to an email and printed. GitHub does not show
+them laid out (it shows the source code): download them or open them from the local copy.
+After the installation they are also in `/usr/local/share/doc/rootspeak/`.
 
-Sono generati: si modificano i capitoli in `docs/sources/user/` e `docs/sources/technical/`
-e si rigenerano con `make docs` (serve `python3-pygments`); `make docs-check` controlla che siano allineati.
-In `docs/` c'è anche `index.html`, la pagina iniziale della documentazione ([`docs/README.md`](docs/README.md)).
+They are generated: edit the chapters in `docs/sources/user/` and `docs/sources/technical/`
+and regenerate them with `make docs` (needs `python3-pygments`); `make docs-check` checks that they are aligned.
+`docs/` also holds `index.html`, the home page of the documentation ([`docs/README.md`](docs/README.md)).
 
-Esempi:
+Examples:
 
 ```
-rspeak send --to mario "Sabato dalle 8 alle 12 il server sarà spento."
-rspeak send --to @sviluppo --title "Policy" --expires 3d --file policy.txt
-rspeak send --to online --expires 15m "Riavvio del servizio web alle 13:00."
+rspeak send --to mario "On Saturday from 8 am to 12 noon the server will be off."
+rspeak send --to @developers --title "Policy" --expires 3d --file policy.txt
+rspeak send --to online --expires 15m "The web service restarts at 13:00."
 rspeak list
 rspeak status 12
 rspeak revoke 12

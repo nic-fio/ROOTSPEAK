@@ -3,15 +3,15 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import box, c, fig, note, p, table, term, text, tip, tree, ul, warn, zone  # noqa: E402
-from _helpers import CONFERMATO, rif  # noqa: E402
+from _helpers import CONFIRMED, ref  # noqa: E402
 
 S1 = p("Only the machine's administrators can use " + c("rspeak") + ": the members of the " + c("sudo")
        + " group (" + c("wheel") + " on Fedora and similar systems). RootSpeak keeps no list of its own: whoever joins or "
-       "leaves the group gains or loses access from their next login to the machine (" + rif(2, 4) + ").",
+       "leaves the group gains or loses access from their next login to the machine (" + ref(2, 4) + ").",
        lead=True) + term(
     "mario@server:~$ rspeak list\n"
-    "bash: /usr/local/bin/rspeak: Permesso negato",
-    "An ordinary user cannot even start the command: «Permesso negato» (“Permission denied”)") + \
+    "bash: /usr/local/bin/rspeak: Permission denied",
+    "An ordinary user cannot even start the command") + \
     ul([
         c("rspeak") + " always works as administrator, even to show the help or the version: if it is not already "
         "root, it restarts itself with sudo, which asks for the password.",
@@ -59,13 +59,12 @@ S2 = p("Each user sees only the messages sent to them. The message store in " + 
 S3 = p("The confirmation records that the user <b>states</b> they have read the message, with date, time and channel, "
        "like the read receipts of a messaging app. It cannot prove that they really read it.", lead=True) + \
     table(["The confirmation says", "The confirmation does not say"], [
-        ["that the user pressed «Ho letto» (“I have read it” on an English desktop) or answered «s» (“y” in "
-         "English)", "that they read it carefully"],
+        ["that the user pressed “I have read it” or answered “y”", "that they read it carefully"],
         ["when (day and time) and from where (desktop or which terminal)", "who was in front of the screen"],
         ["that the message had neither expired nor been revoked at that moment", "that they understood the content"],
     ], "«TAB» — What a confirmation is worth") + \
     note("the mailbox belongs to the user: an expert user could record a confirmation without opening the dialog. "
-         "It is still their own statement, like the click on «Ho letto» (“I have read it”).", "A statement.") + \
+         "It is still their own statement, like the click on “I have read it”.", "A statement.") + \
     tip("for notices that require a real commitment (a rule to follow, an authorisation) the RootSpeak confirmation "
         "is a reminder, not a signature: a separate document is needed.", "When more is needed.")
 
@@ -95,20 +94,19 @@ S5 = p("The system log is a convenient trail, but anyone on the machine can writ
        + c("rspeak") + " into it. That is why " + c("rspeak log") + " and the TUI check who really wrote each event and "
        "flag the suspicious ones.", lead=True) + term(
     "admin@server:~$ rspeak log 3\n"
-    "Messaggio 3 · Nuova regola per le password · 30/09 19:05\n"
-    "2026-09-30 19:05:12  messaggio 3 consegnato a anna (terminali scritti: 1)\n"
-    "2026-09-30 19:05:12  messaggio 3 inviato da admin a: anna luca\n"
-    "2026-09-30 19:06:40  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 3 (desktop)",
-    "A forged confirmation: Luca (UID 1003) wrote a line in Anna's name. «Nuova regola per le password» (“New rule for "
-    "passwords”); «[non attendibile: scritto da UID 1003]» (“[not trustworthy: written by UID 1003]”); the other "
-    "lines are those of the history in chapter 6.4: delivered, sent, «confermata la lettura» (“confirmed reading”)") + \
+    "Message 3 · New password rule · 30/09 19:05\n"
+    "2026-09-30 19:05:12  message 3 delivered to anna (terminals written: 1)\n"
+    "2026-09-30 19:05:12  message 3 sent by admin to: anna luca\n"
+    "2026-09-30 19:06:40  [not trustworthy: written by UID 1003] user anna: confirmed reading message 3 (desktop)",
+    "A forged confirmation: Luca (UID 1003) wrote a line in Anna's name; the other lines are ordinary ones, "
+    "like those in chapter 6.4") + \
     table(["Event", "Must have been written by"], [
         ["sending, delivery, reminder, revocation, deletion", "root (that is, " + c("rspeak") + ")"],
         ["postponement, confirmation, confirmation not recorded", "the user it refers to"],
     ], "«TAB» — Who writes each event") + \
-    warn("a line marked «non attendibile» (“not trustworthy” in English) must be disregarded. The true state of a "
+    warn("a line marked “not trustworthy” must be disregarded. The true state of a "
          "recipient is the one shown in the message details and by " + c("rspeak status") + ", which comes not from "
-         "the log but from the message store: there " + CONFERMATO
+         "the log but from the message store: there " + CONFIRMED
          + " means that the confirmation is in the user's mailbox.", "Trust the state.")
 
 CHAPTER = ("Security and privacy", [
