@@ -172,8 +172,10 @@ English-only change: `./install.sh`, `rspeak send --to user` to the account
 dialog, `status` «confirmed … (desktop)»; a second message postponed with
 «Later», brought back with `rspeak remind` and confirmed; `remind` on a
 message confirmed by everyone. Not yet tested live with the C version: the
-question in the terminal and over ssh, `revoke`, expiry, and the English-only
-build. The bash prototype was tested live on 29–30 September (window, terminal
+question in the terminal and over ssh, `revoke`, expiry. The English-only build
+was tested live the same day: `./install.sh` (English messages), `rspeak send`
+to `user`, dialog in English, «Later» (`delivered, postponed on …`),
+`rspeak remind`, «I have read it» (`confirmed on … (desktop)`). The bash prototype was tested live on 29–30 September (window, terminal
 also over ssh, single confirmation across channels).
 
 The adversarial review of 30 September 2026
