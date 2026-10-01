@@ -91,7 +91,9 @@ Order agreed with the user; each step recorded in its own commit.
    cloned on this PC): the mentions of AMS in their `CLAUDE.md` (8 lines), and
    the English comments of the common `docs/sources/style.css` and
    `docs/sources/manual.js` (translated here on 1 October: the files must be
-   the same in all 7 projects).
+   the same in all 7 projects). The user chose to do it in a dedicated session
+   in each project (a session here cannot change the other repositories); the
+   task text was given to the user on 1 October.
 8. **Licence**: commercial licence, `NOTICE.md`, a «Licence» section in the
    README and in the manuals.
 
