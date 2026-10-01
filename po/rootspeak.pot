@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: RootSpeak 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 11:02+0200\n"
+"POT-Creation-Date: 2026-10-01 12:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -781,61 +781,66 @@ msgstr ""
 msgid "Message %lld revoked."
 msgstr ""
 
-#: src/rspeak.c:1160
+#: src/rspeak.c:1161
 #, c-format
 msgid "message %lld has been revoked: nobody to remind"
 msgstr ""
 
-#: src/rspeak.c:1162
+#: src/rspeak.c:1163
 #, c-format
 msgid "message %lld has expired: nobody to remind"
 msgstr ""
 
-#: src/rspeak.c:1179
+#: src/rspeak.c:1182
+#, c-format
+msgid "Message %lld: everyone has already confirmed, nobody to remind."
+msgstr ""
+
+#: src/rspeak.c:1184
 #, c-format
 msgid "Message %lld: 1 recipient reminded."
 msgstr ""
 
-#: src/rspeak.c:1181
+#: src/rspeak.c:1186
 #, c-format
 msgid "Message %lld: %d recipients reminded."
 msgstr ""
 
-#: src/rspeak.c:1206
+#: src/rspeak.c:1211
 msgid "missing duration, for example 90d"
 msgstr ""
 
-#: src/rspeak.c:1213
+#: src/rspeak.c:1218
 #, c-format
 msgid "invalid duration: %s (for example 90d, 12h, 30m)"
 msgstr ""
 
-#: src/rspeak.c:1263
+#: src/rspeak.c:1268
 #, c-format
 msgid "No messages older than %s."
 msgstr ""
 
-#: src/rspeak.c:1265
+#: src/rspeak.c:1270
 #, c-format
 msgid "Deleted 1 message older than %s."
 msgstr ""
 
-#: src/rspeak.c:1267
+#: src/rspeak.c:1272
 #, c-format
 msgid "Deleted %d messages older than %s."
 msgstr ""
 
-#: src/rspeak.c:1307 src/tui.c:912
+#: src/rspeak.c:1312 src/tui.c:912
 #, c-format
 msgid "Message %lld · %s"
 msgstr ""
 
-#: src/rspeak.c:1339
+#: src/rspeak.c:1344
 #, c-format
 msgid "[not trustworthy: written by UID %s] "
 msgstr ""
 
-#: src/rspeak.c:1414
+#: src/rspeak.c:1419
 #, c-format
 msgid "unknown command: %s (rspeak --help for the guide)"
 msgstr ""

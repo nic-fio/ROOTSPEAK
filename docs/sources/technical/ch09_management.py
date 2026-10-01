@@ -67,8 +67,10 @@ S2 = p(c("rspeak remind ID") + " brings the question back at once to those who h
     "(“message N has been revoked: nobody to remind”; " + c("tests/engine.sh") + ", group 10).",
     "The recipients' state comes from " + c("destinatari") + ", the same function used by " + c("rspeak status")
     + ": the reminder goes to those who are <b>delivered</b>. Those who are sent do not have the copy (recovery will "
-    "complete it), those who have confirmed must not be disturbed («sollecitati 0 destinatari», “0 recipients "
-    "reminded”).",
+    "complete it), those who have confirmed must not be disturbed. If everyone has already confirmed, the command says so "
+    "(«Messaggio N: hanno già confermato tutti, nessuno da sollecitare», “Message N: everyone has already confirmed, "
+    "nobody to remind”) instead of «0 recipients reminded», which looked like a fault in the first live test "
+    "(" + c("tests/engine.sh") + ", group 10).",
     "For each of them, as the user, " + c("state/ID.term") + " and " + c("state/ID.gui") + " are removed; then "
     + c("sveglia_agente") + ". The question comes back at the next prompt (scenario D5); the dialog reappears at once "
     "(scenario I11: 0.37 s in the last recorded run).",

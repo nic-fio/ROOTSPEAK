@@ -1152,7 +1152,8 @@ void cmd_remind(const char *arg)
 	long long id = id_da(arg);
 	msg_t m;
 	destinatari_t d;
-	int n = 0;
+	int n = 0, confermati = 0;
+	size_t tot;
 	char det[24];
 
 	carica_msg(id, arg, &m);
@@ -1161,9 +1162,11 @@ void cmd_remind(const char *arg)
 	if (msg_scaduto(&m, adesso()))
 		die(T("message %lld has expired: nobody to remind"), id);
 	destinatari(id, &m, &d);
+	tot = d.n;
 	for (size_t k = 0; k < d.n; k++) {
 		utente_t u;
 
+		confermati += d.v[k].stato == CONFERMATO;
 		if (d.v[k].stato != CONSEGNATO || !utente_cerca(d.v[k].utente, &u))
 			continue;
 		if (togli_rinvii(&u, id)) {
@@ -1175,7 +1178,9 @@ void cmd_remind(const char *arg)
 	destinatari_libera(&d);
 	snprintf(det, sizeof det, "%d", n);
 	evento("SOLLECITATO", id, "", "", det, autore());
-	if (n == 1)
+	if (n == 0 && tot > 0 && (size_t)confermati == tot)
+		printf(T("Message %lld: everyone has already confirmed, nobody to remind."), id);
+	else if (n == 1)
 		printf(T("Message %lld: 1 recipient reminded."), id);
 	else
 		printf(T("Message %lld: %d recipients reminded."), id, n);
