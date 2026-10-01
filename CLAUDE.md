@@ -203,7 +203,9 @@ tested live on the user's PC on 1 October 2026: `./install.sh` on Debian 13
 with GNOME, `rspeak send --to user` from the administrator's session to the
 account `user` logged in on the desktop, `status` «delivered», then «I have
 read it» in the window and `status` «confirmed … (desktop)» a minute after
-sending. Not yet tested live with the C version: the question in the
+sending; a second message postponed with «Later» (`status` «delivered,
+postponed on …», not confirmed), brought back with `rspeak remind` and then
+confirmed on the desktop. Not yet tested live with the C version: the question in the
 terminal and over ssh, `revoke`, expiry. The [2] items of
 the README were frozen until the review was closed; restart from there only
 when the user says so.
