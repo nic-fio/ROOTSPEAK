@@ -15,7 +15,7 @@ Stile comune (uguale in tutti i manuali dei 7 progetti, da non modificare qui):
   style.css       lo stile, incorporato per primo e identico byte per byte;
   manual.js       ricerca nella barra laterale, indice analitico, pulsante Copy;
   cover-logo.png  il logo di logos/ams-logo.png con lo sfondo trasparente, per la copertina.
-Le sole regole di AMS stanno in AMS_CSS e AMS_JS, qui sotto.
+Le sole regole di AMS stanno in AMS_CSS, qui sotto.
 
     python3 docs/sources/build.py            rigenera i due manuali
     python3 docs/sources/build.py CARTELLA   li scrive in CARTELLA (usato da tools/check-docs.py)
@@ -79,58 +79,6 @@ AMS_CSS = """
 .p-off{background:#e2e8f0;color:#475569} .p-info{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
 .gloss{margin:12px 0} .gloss dt{font-weight:700;color:#003a90;font-size:15px;margin-top:12px} .gloss dd{margin:2px 0 0;color:#334155;font-size:14px}
 .gloss dt[id]{scroll-margin-top:16px}
-"""
-
-# Solo per AMS: il pulsante Copy di manual.js riconosce il prompt «$ »; i terminali di AMS
-# hanno il prompt completo («admin@server:~$ »). Stesso pulsante, stesse classi, per i
-# blocchi che manual.js ha lasciato senza (eseguito dopo manual.js).
-AMS_JS = r"""/* Solo per AMS: pulsante Copy anche per i prompt «utente@macchina:cartella$ ». */
-(function () {
-  "use strict";
-  var pres = document.querySelectorAll(".main pre.code");
-  for (var i = 0; i < pres.length; i++) (function (pre) {
-    if (pre.parentNode.classList.contains("code-w")) return;
-    var lines = pre.textContent.replace(/\s+$/, "").split("\n"), cmds = [];
-    for (var k = 0; k < lines.length; k++) {
-      var m = /^[\w.-]+@[\w.-]+:[^$#]*\$ (.+)$/.exec(lines[k]);
-      if (m) cmds.push(m[1]);
-    }
-    if (!cmds.length) return;
-    var text = cmds.join("\n"), s = cmds.length > 1 ? "s" : "";
-    var wrap = document.createElement("div");
-    wrap.className = "code-w";
-    pre.parentNode.insertBefore(wrap, pre);
-    wrap.appendChild(pre);
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "copy";
-    btn.setAttribute("data-l", "Copy");
-    btn.setAttribute("aria-label", "Copy the command" + s);
-    btn.title = "Copy the command" + s;
-    var t = null;
-    function done() {
-      btn.setAttribute("data-l", "Copied");
-      btn.classList.add("ok");
-      clearTimeout(t);
-      t = setTimeout(function () { btn.setAttribute("data-l", "Copy"); btn.classList.remove("ok"); }, 1400);
-    }
-    function fallback() {
-      var ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      try { if (document.execCommand("copy")) done(); } catch (e) {}
-      document.body.removeChild(ta);
-    }
-    btn.addEventListener("click", function () {
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
-      else fallback();
-    });
-    wrap.appendChild(btn);
-  })(pres[i]);
-})();
 """
 
 # ── Testo ───────────────────────────────────────────────────────────────
@@ -724,8 +672,6 @@ def build(kind, outdir):
 <script>window.MANUAL_CODE_TERMS={terms};</script>
 <script>
 {js}</script>
-<script>
-{AMS_JS}</script>
 </body></html>
 """
     out = pathlib.Path(outdir) / meta["file"]
