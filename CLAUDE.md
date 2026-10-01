@@ -174,14 +174,17 @@ English-only change: `./install.sh`, `rspeak send --to user` to the account
 dialog, `status` «confirmed … (desktop)»; a second message postponed with
 «Later», brought back with `rspeak remind` and confirmed; `remind` on a
 message confirmed by everyone. Not yet tested live with the C version:
-`revoke`, expiry, the question in a terminal opened over ssh. The English-only build
+expiry, the question in a terminal opened over ssh. The English-only build
 was tested live the same day: `./install.sh` (English messages), `rspeak send`
 to `user`, dialog in English, «Later» (`delivered, postponed on …`),
 `rspeak remind`, «I have read it» (`confirmed on … (desktop)`). Then a send
 from an administrator connected over ssh (from Android, `user` with sudo; the
 store records `from: user`, as designed) to `nicfio`: dialog on GNOME,
 confirmed there (message 4); a second one confirmed with `y` in a desktop
-terminal, stored as `terminal pts/2` (message 5). The bash prototype was tested live on 29–30 September (window, terminal
+terminal, stored as `terminal pts/2` (message 5); `rspeak revoke 6` before any
+answer («Message 6 revoked.», `list` «[revoked] … 1 delivered», the copy gone
+from the mailbox); the TUI opened over ssh from the phone (Termius), list,
+bars and keys as expected. The bash prototype was tested live on 29–30 September (window, terminal
 also over ssh, single confirmation across channels).
 
 The adversarial review of 30 September 2026
