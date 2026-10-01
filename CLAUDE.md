@@ -241,6 +241,14 @@ message store format, visible names and commands, manuals updated with
 packages and supported distributions, the last live tests (expiry, the
 question in a terminal over ssh); (4) commercial licence, `NOTICE.md`,
 «Licence» in README and manuals.
+**Next session** (the user, 1 October 2026, end of the day): the two open
+points, in this order: (a) two editions of the program — a **trial** limited
+to one week and a **full** one without limits for those who buy; how the full
+one is unlocked (licence key from the payment platform, or a separate build)
+and how the week is counted are to be decided with the user before writing
+code; (b) the **packaging and installation** procedure (`.deb`/`.rpm`, step 2
+of the road to sale). Done the same day: tests on 22 distributions and 5
+desktops, the landing page chosen (`site/landing/`).
 **Budget** (the user, 1 October 2026): no spending except a domain; the user
 already has a VPS. Hence: product site, manuals, downloads and the `apt`/`dnf`
 package repository on that VPS with the new domain (`rootspeak` was free in
