@@ -90,7 +90,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 ### Configurazione e distribuzione
 - [1] `/etc/ams/ams.conf`: intervallo dei solleciti, controllo dell'agente del desktop
 - [1] Script di installazione
-- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sources/` con lo stile dei manuali di IR_Service
+- [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sources/` con lo stile comune dei manuali dei 7 progetti
 - [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida

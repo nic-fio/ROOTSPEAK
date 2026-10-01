@@ -5,7 +5,7 @@ salvate in un repository. Il repository è privato, quindi GitHub Pages non
 pubblica la documentazione: si legge dalla copia locale. Si clona il
 repository e si apre `docs/index.html` (o direttamente `docs/User Manual.html`)
 nel browser, per esempio con `xdg-open docs/index.html`. Ogni manuale è un file
-unico che contiene stile e figure, quindi funziona anche senza rete, si allega
+unico che contiene stile, figure e logo, quindi funziona anche senza rete, si allega
 a una email e si stampa. Dopo `./install.sh` i due manuali sono anche in
 `/usr/local/share/doc/ams/`.
 
@@ -33,7 +33,9 @@ I due manuali sono generati: non si modificano mai a mano.
 | Dove | Cosa |
 |---|---|
 | `sources/build.py` | Il generatore, con le funzioni per figure e tabelle. |
-| `sources/style.css` | Lo stile, lo stesso dei manuali di IR_Service. |
+| `sources/style.css` | Lo stile comune dei manuali dei 7 progetti, incorporato così com'è in ogni manuale: non si modifica qui. |
+| `sources/manual.js` | Lo script comune dei manuali (ricerca, indice analitico, pulsante Copy), incorporato così com'è. |
+| `sources/cover-logo.png` | Il logo della copertina: copia trasparente di `logos/ams-logo.png`. |
 | `sources/user/` | I capitoli del manuale utente, un file per capitolo (`_helpers.py` contiene le funzioni comuni). |
 | `sources/technical/` | I capitoli del manuale tecnico, un file per capitolo. |
 | `sources/screens/` | Schermate vere della TUI, prese nella macchina di prova da `tools/tui-screenshots.sh`. |

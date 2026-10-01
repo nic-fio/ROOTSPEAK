@@ -1,4 +1,4 @@
-from build import arrow, box, c, code, file_map, fig, flow, note, p, steps, table, text, tree, warn
+from build import arrow, box, c, code, file_map, fig, flow, note, p, steps, table, text, tree, ui, warn
 
 
 def cap(n, s=None):
@@ -87,7 +87,10 @@ S1 = p("The repository contains the C code, the language catalogs, the files to 
      + c("--install") + " installs the packages."),
     ("tools/backup.sh", "The whole repository, with its history, in a single git bundle."),
     ("docs/sources/build.py", "Generator of the two manuals and functions for figures and tables."),
-    ("docs/sources/style.css", "The style of the manuals, the same as IR_Service's."),
+    ("docs/sources/style.css", "The common style of the manuals of the seven projects, embedded unchanged in every "
+     "manual; the rules that only AMS needs are in " + c("build.py") + "."),
+    ("docs/sources/manual.js", "The common script of the manuals: search in the sidebar, index, " + ui("Copy")
+     + " button on the command boxes."),
 ], "«TAB» — File map") + \
     p("The chapters of the manuals are in " + c("docs/sources/user/") + " and " + c("docs/sources/technical/")
       + ", one file per chapter; " + c("docs/decisions-and-history.md") + " and " + c("CLAUDE.md") + " collect the "

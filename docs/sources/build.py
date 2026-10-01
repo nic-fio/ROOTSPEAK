@@ -1,6 +1,7 @@
-"""Generatore dei manuali di AMS, sul modello dei manuali di IR_Service.
+"""Generatore dei manuali di AMS, nello stile comune dei manuali dei 7 progetti.
 
-Produce due file HTML autosufficienti (nessuno script, nessun file esterno):
+Produce due file HTML autosufficienti (nessun file esterno: stile, logo e script
+sono incorporati):
   "docs/User Manual.html"       dai capitoli in user/chNN_*.py
   "docs/Technical Manual.html"  dai capitoli in technical/chNN_*.py
 
@@ -8,13 +9,20 @@ I manuali sono in inglese: testi dei capitoli, didascalie ed etichette qui sotto
 
 Ogni capitolo espone CHAPTER = (titolo, [(titolo_sezione, html), ...]).
 I segnaposto «FIG» e «TAB» nelle didascalie diventano «Figure N.M» e
-«Table N.M», numerati per capitolo. Lo stile è in style.css.
+«Table N.M», numerati per capitolo.
+
+Stile comune (uguale in tutti i manuali dei 7 progetti, da non modificare qui):
+  style.css       lo stile, incorporato per primo e identico byte per byte;
+  manual.js       ricerca nella barra laterale, indice analitico, pulsante Copy;
+  cover-logo.png  il logo di logos/ams-logo.png con lo sfondo trasparente, per la copertina.
+Le sole regole di AMS stanno in AMS_CSS e AMS_JS, qui sotto.
 
     python3 docs/sources/build.py            rigenera i due manuali
     python3 docs/sources/build.py CARTELLA   li scrive in CARTELLA (usato da tools/check-docs.py)
 
 Serve la libreria pygments (pacchetto python3-pygments).
 """
+import base64
 import html
 import importlib.util
 import math
@@ -28,37 +36,30 @@ DATE = "September 2026"
 VERSION = re.search(r'^#define AMS_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
 
 MANUALS = {
-    "user": dict(file="User Manual.html", title="User Manual — AMS", kicker="User documentation",
-                   h1="User Manual",
-                   sub="AMS — Advanced Messaging System · Messages from administrators to users, "
-                       "with read confirmation"),
-    "technical": dict(file="Technical Manual.html", title="Technical Manual — AMS", kicker="Technical documentation",
-                    h1="Technical Manual",
-                    sub="AMS — Advanced Messaging System · Architecture, message store, "
-                        "delivery, confirmations and security"),
+    "user": dict(file="User Manual.html", title="User Manual — AMS", h1="User Manual", index=False),
+    "technical": dict(file="Technical Manual.html", title="Technical Manual — AMS", h1="Technical Manual",
+                      index=True),
 }
 
-# Aggiunte allo stile di IR: procedure, etichette, terminali, finestre di esempio.
-EXTRA_CSS = """
-/* AMS: schermate vere della TUI, con i loro colori */
+# Il piè di pagina comune (AMS non ha una licenza: niente «Licence»).
+FOOTER = "AMS · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo"
+
+# Parole dell'indice analitico da mostrare come codice (window.MANUAL_CODE_TERMS di manual.js).
+CODE_TERMS = ["zenity"]
+
+# Solo per AMS: regole per elementi che esistono solo nei manuali di AMS, dopo style.css.
+AMS_CSS = """
+/* Solo per AMS: schermate vere della TUI, tasti, terminali, finestre di esempio, albero, stati, glossario */
 .code.schermo{background:#111827;color:#e5e7eb;line-height:1.15;font-size:10.2px;overflow-x:auto;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
 .schermo .a-b{font-weight:700;color:#fff}.schermo .a-d{color:#6b7280}.schermo .a-v{background:#e5e7eb;color:#111827;font-weight:700}
 .schermo .a-32{color:#4ade80}.schermo .a-33{color:#facc15}.schermo .a-31{color:#f87171}.schermo .a-36{color:#22d3ee}
 .schermo .a-90{color:#9ca3af}.schermo .a-b.a-32{color:#86efac}.schermo .a-b.a-33{color:#fde047}.schermo .a-b.a-36{color:#67e8f9}
-/* AMS: etichette di finestre e pulsanti, procedure a passi */
-.ui{font-weight:600;color:#003a90;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:.02em .4em;font-size:.93em;white-space:nowrap}
 .key{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;font-weight:700;color:#0f172a;background:#fff;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:5px;padding:.05em .42em;white-space:nowrap}
-.steps{counter-reset:st;list-style:none;margin:14px 0;padding:0}
-.steps>li{counter-increment:st;position:relative;padding:8px 0 8px 44px;margin:0;border-left:2px solid #dbeafe;margin-left:15px}
-.steps>li:before{content:counter(st);position:absolute;left:-16px;top:6px;width:30px;height:30px;border-radius:50%;background:#0050C0;color:#fff;font-weight:800;text-align:center;line-height:30px;font-size:14px}
-.steps>li:last-child{border-left-color:transparent}
-.steps .code{margin:10px 0 4px}
-/* terminali: prompt, righe di AMS, errori, cornici */
+.steps .code,.steps .code-w{margin:10px 0 4px} .steps .code-w>.code{margin:0}
 .code .pr{color:#93c5fd} .code .cmd{color:#fff;font-weight:700} .code .am{color:#fdba74;font-weight:600}
 .code .er{color:#fca5a5} .code .bx{color:#7dd3fc} .code .dim{color:#94a3b8}
 .code.tui{line-height:1.12;font-size:12.5px;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
 .code-t{display:block;font-family:Outfit,Segoe UI,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin:16px 0 -8px}
-/* finestra di conferma e notifica, disegnate come su GNOME */
 .shot{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start;padding:10px 0 4px}
 .dlg{width:410px;max-width:100%;background:#fafafa;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.14),0 12px 30px rgba(0,0,0,.16);padding:20px 20px 18px;color:#2e3436;text-align:left;font-family:Cantarell,Outfit,Segoe UI,Arial,sans-serif}
 .dlg-t{text-align:center;font-weight:700;font-size:15.5px;margin-bottom:16px}
@@ -71,15 +72,65 @@ EXTRA_CSS = """
 .ntf{width:360px;max-width:100%;background:#fafafa;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 22px rgba(0,0,0,.14);padding:12px 16px;color:#2e3436;text-align:left;font-family:Cantarell,Outfit,Segoe UI,Arial,sans-serif;font-size:14px}
 .ntf-a{font-size:11.5px;color:#6b7785;margin-bottom:3px} .ntf b{display:block}
 .shot-c{font-size:12px;color:#64748b;text-align:center;margin-top:10px}
-/* archivio a albero */
 .tree{background:transparent;border:0;padding:4px 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;color:#0f172a;overflow-x:auto;margin:0;text-align:left}
 .tree .d{color:#0050C0;font-weight:700} .tree .m{color:#64748b}
-/* stati: pastiglie colorate */
 .pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:.1em .65em;white-space:nowrap}
 .p-ok{background:#dcfce7;color:#166534} .p-wait{background:#dbeafe;color:#1e40af} .p-snooze{background:#fef3c7;color:#92400e}
 .p-off{background:#e2e8f0;color:#475569} .p-info{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
-.main{max-width:1030px}
 .gloss{margin:12px 0} .gloss dt{font-weight:700;color:#003a90;font-size:15px;margin-top:12px} .gloss dd{margin:2px 0 0;color:#334155;font-size:14px}
+.gloss dt[id]{scroll-margin-top:16px}
+"""
+
+# Solo per AMS: il pulsante Copy di manual.js riconosce il prompt «$ »; i terminali di AMS
+# hanno il prompt completo («admin@server:~$ »). Stesso pulsante, stesse classi, per i
+# blocchi che manual.js ha lasciato senza (eseguito dopo manual.js).
+AMS_JS = r"""/* Solo per AMS: pulsante Copy anche per i prompt «utente@macchina:cartella$ ». */
+(function () {
+  "use strict";
+  var pres = document.querySelectorAll(".main pre.code");
+  for (var i = 0; i < pres.length; i++) (function (pre) {
+    if (pre.parentNode.classList.contains("code-w")) return;
+    var lines = pre.textContent.replace(/\s+$/, "").split("\n"), cmds = [];
+    for (var k = 0; k < lines.length; k++) {
+      var m = /^[\w.-]+@[\w.-]+:[^$#]*\$ (.+)$/.exec(lines[k]);
+      if (m) cmds.push(m[1]);
+    }
+    if (!cmds.length) return;
+    var text = cmds.join("\n"), s = cmds.length > 1 ? "s" : "";
+    var wrap = document.createElement("div");
+    wrap.className = "code-w";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy";
+    btn.setAttribute("data-l", "Copy");
+    btn.setAttribute("aria-label", "Copy the command" + s);
+    btn.title = "Copy the command" + s;
+    var t = null;
+    function done() {
+      btn.setAttribute("data-l", "Copied");
+      btn.classList.add("ok");
+      clearTimeout(t);
+      t = setTimeout(function () { btn.setAttribute("data-l", "Copy"); btn.classList.remove("ok"); }, 1400);
+    }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { if (document.execCommand("copy")) done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    btn.addEventListener("click", function () {
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback);
+      else fallback();
+    });
+    wrap.appendChild(btn);
+  })(pres[i]);
+})();
 """
 
 # ── Testo ───────────────────────────────────────────────────────────────
@@ -561,12 +612,6 @@ def help_reference(name, kind):
     return dl(pairs, attrs)
 
 
-# ── Copertina ──────────────────────────────────────────────────────────
-LOGO = """<div class="cover-logo"><svg viewBox="0 0 700 100" width="364" height="52" xmlns="http://www.w3.org/2000/svg" aria-label="AMS - Advanced Messaging System">
-<text x="8" y="78" font-size="70" font-weight="800" fill="#ffffff">AMS</text>
-<text x="176" y="78" font-size="38" font-weight="500" fill="#cfe0ff">Advanced Messaging System</text></svg></div>"""
-
-
 # ── Assemblaggio ─────────────────────────────────────────────────────────
 def load_chapters(folder):
     chapters = []
@@ -597,11 +642,41 @@ def number(doc):
     return "".join(out)
 
 
+def glossary_index(doc, gloss_ch):
+    """L'indice analitico del manuale tecnico viene dal glossario, senza voci nuove: ogni
+    termine del glossario (il nome inglese, senza «(it. …)») rimanda alla sua definizione
+    e ai capitoli e alle sezioni che la definizione stessa cita. manual.js costruisce
+    l'indice dagli attributi data-index."""
+    start = doc.index(f'<section class="chapter" id="{gloss_ch}">')
+    end = doc.index('<section class="chapter"', start + 1) if '<section class="chapter"' in doc[start + 1:] else len(doc)
+    part, targets, slugs = doc[start:end], {}, set()
+
+    def term(m):
+        name = re.sub(r"\s*\(it\. [^)]*\)$", "", html.unescape(re.sub(r"<[^>]+>", "", m.group(1)))).strip()
+        slug = "g-" + re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+        assert slug not in slugs, f"glossario: due termini con lo stesso id {slug}"
+        slugs.add(slug)
+        for ref in dict.fromkeys(re.findall(r'href="#(ch\d+(?:s\d+)?)"', m.group(2))):
+            targets.setdefault(ref, []).append(name)
+        return f'<dt id="{slug}" data-index="{html.escape(name)}">{m.group(1)}</dt><dd>{m.group(2)}</dd>'
+    part = re.sub(r"<dt>(.*?)</dt><dd>(.*?)</dd>", term, part, flags=re.S)
+    doc = doc[:start] + part + doc[end:]
+    for ref, names in targets.items():
+        tag = re.search(rf'<section class="(chapter|sec)" id="{ref}">', doc).group(0)
+        doc = doc.replace(tag, tag[:-1] + f' data-index="{html.escape(";".join(names))}">', 1)
+    return doc
+
+
 def build(kind, outdir):
     meta = MANUALS[kind]
-    css = (HERE / "style.css").read_text() + EXTRA_CSS
-    toc, body = [], []
-    for ci, (ctitle, sections) in enumerate(load_chapters(kind), 1):
+    css = (HERE / "style.css").read_text() + AMS_CSS
+    js = (HERE / "manual.js").read_text()
+    logo = base64.b64encode((HERE / "cover-logo.png").read_bytes()).decode()
+    toc, body, gloss_ch = [], [], None
+    chapters = load_chapters(kind)
+    for ci, (ctitle, sections) in enumerate(chapters, 1):
+        if ctitle == "Glossary":
+            gloss_ch = f"ch{ci}"
         toc.append(f'<li class="toc-ch"><a href="#ch{ci}"><span class="toc-n">{ci}</span><span class="toc-t">{esc(ctitle)}</span></a></li>')
         body.append(f'<section class="chapter" id="ch{ci}"><div class="ch-head"><span class="ch-kick">Chapter {ci}</span>'
                     f'<h2 class="h-ch">{esc(ctitle)}</h2></div>')
@@ -611,29 +686,47 @@ def build(kind, outdir):
             body.append(f'<section class="sec" id="{sid}"><h3 class="h-sec">{ci}.{si} · {esc(stitle)}</h3>{shtml}</section>')
         body.append("</section>")
     doc = number("".join(body))
+    if meta["index"]:
+        doc = glossary_index(doc, gloss_ch)
+        ni = len(chapters) + 1
+        toc.append(f'<li class="toc-ch"><a href="#index"><span class="toc-n">{ni}</span><span class="toc-t">Index</span></a></li>')
+        doc += (f'<section class="chapter" id="index"><div class="ch-head"><span class="ch-kick">Chapter {ni}</span>'
+                f'<h2 class="h-ch">Index</h2></div>'
+                f'<p class="lead">The terms of the <a href="#{gloss_ch}">glossary</a>, in alphabetical order, with their '
+                f'definition and the chapters that the definition refers to.</p>'
+                f'<div id="index-list" class="idx"><noscript><div class="callout c-info"><div class="callout-i">i</div>'
+                f'<div><b>Note.</b> The index is built by the browser and requires JavaScript. Without it, use the '
+                f'chapter contents and the <a href="#{gloss_ch}">glossary</a>.</div></div></noscript></div></section>')
+    search = ('<div class="srch" id="srch" hidden><label class="toc-head" for="srch-q">Search</label>'
+              '<input type="search" id="srch-q" class="srch-q" placeholder="A word, an option…  ( / )" '
+              'autocomplete="off" spellcheck="false"><div class="srch-info" id="srch-info" aria-live="polite"></div>'
+              '<ol class="srch-res" id="srch-res"></ol></div>')
+    terms = "[" + ",".join(f'"{t}"' for t in CODE_TERMS) + "]"
     page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{meta["title"]}</title>
 <style>{css}</style></head>
 <body>
 <div class="doc">
-  <section class="cover">
-    {LOGO}
-    <div class="cover-kicker">{meta["kicker"]}</div>
+  <section class="cover cover-w">
+    <div class="cover-logo"><img src="data:image/png;base64,{logo}" alt="AMS"></div>
     <h1 class="cover-title">{meta["h1"]}</h1>
-    <div class="cover-sub">{meta["sub"]}</div>
     <div class="cover-meta">
       <div><span>Version</span><b>{VERSION}</b></div>
       <div><span>Date</span><b>{DATE}</b></div>
-      <div><span>Status</span><b>Confidential</b></div>
     </div>
-    <div class="cover-swoosh"></div>
   </section>
   <div class="with-side">
-    <aside class="side"><div class="side-inner"><h2 class="toc-head">Contents</h2><ul class="toc-list">{"".join(toc)}</ul></div></aside>
+    <aside class="side"><div class="side-inner">{search}<h2 class="toc-head">Contents</h2><ul class="toc-list" id="toc">{"".join(toc)}</ul></div></aside>
     <main class="main">{doc}</main>
   </div>
-  <footer class="doc-foot">AMS — Advanced Messaging System · {meta["h1"]} v{VERSION} · {DATE} · Confidential document · Copyright (c) 2026 nic-fio</footer>
-</div></body></html>
+  <footer class="doc-foot">{FOOTER.format(manual=meta["h1"], version=VERSION, date=DATE)}</footer>
+</div>
+<script>window.MANUAL_CODE_TERMS={terms};</script>
+<script>
+{js}</script>
+<script>
+{AMS_JS}</script>
+</body></html>
 """
     out = pathlib.Path(outdir) / meta["file"]
     out.write_text(page, encoding="utf-8")

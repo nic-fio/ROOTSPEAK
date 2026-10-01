@@ -11,7 +11,10 @@ Fallisce se:
     i testi di partenza), o il manuale documenta una voce che non esiste;
   - un file di codice manca dalla mappa dei file del manuale tecnico, o la
     mappa cita un file che non esiste;
-  - la versione di src/comune.h non compare nei due manuali;
+  - la versione di src/comune.h non compare nella copertina e nel piè di pagina
+    dei due manuali;
+  - un manuale non incorpora lo stile e lo script comuni (docs/sources/style.css
+    in testa al blocco <style>, docs/sources/manual.js) così come sono;
   - un link interno #ancora di uno dei due manuali non porta a nessun id;
   - un catalogo po/*.po non passa msgfmt --check (stessi %s dell'originale),
     ha traduzioni da rivedere, o manca di testi presenti nei sorgenti;
@@ -89,7 +92,7 @@ for f in sorted(set(wanted) & set(documented)):
 fmap = tech[tech.index('id="file-map"'):]
 fmap = fmap[:fmap.index("</table>")]
 rows = set(re.findall(r"<tr><td><code>([\w./-]+)</code></td><td>\d+</td>", fmap))
-code_files = {"install.sh", "Makefile", "docs/sources/build.py", "docs/sources/style.css"}
+code_files = {"install.sh", "Makefile", "docs/sources/build.py", "docs/sources/style.css", "docs/sources/manual.js"}
 code_files |= {str(p.relative_to(ROOT)) for d in ("src", "po", "etc", "tests", "tools")
                for p in (ROOT / d).rglob("*") if p.is_file() and "results" not in p.parts
                and "__pycache__" not in p.parts}
@@ -98,11 +101,19 @@ for f in sorted(code_files - rows):
 for f in sorted(rows - code_files):
     errors.append(f"manuale tecnico: {f} è nella mappa dei file ma non esiste")
 
-# ---- versione e link ----
+# ---- versione, stile comune e link ----
 version = build.VERSION
-for where, text in (("manuale utente", user), ("manuale tecnico", tech)):
-    if version not in text:
-        errors.append(f"{where}: manca la versione {version}")
+css = (DOCS / "sources" / "style.css").read_text()
+js = (DOCS / "sources" / "manual.js").read_text()
+for where, text, title in (("manuale utente", user, "User Manual"), ("manuale tecnico", tech, "Technical Manual")):
+    if f"<span>Version</span><b>{version}</b>" not in text:
+        errors.append(f"{where}: la copertina non riporta la versione {version}")
+    if f"AMS · {title} · Version {version} · " not in text:
+        errors.append(f"{where}: il piè di pagina non riporta la versione {version}")
+    if not text.split("<style>", 1)[-1].startswith(css):
+        errors.append(f"{where}: il blocco <style> non comincia con docs/sources/style.css")
+    if f"<script>\n{js}</script>" not in text:
+        errors.append(f"{where}: manca docs/sources/manual.js, incorporato così com'è")
     ids = set(re.findall(r'\bid="([^"]+)"', text))
     for anchor in sorted(set(re.findall(r'href="#([^"]+)"', text))):
         if anchor not in ids:
