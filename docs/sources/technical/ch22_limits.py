@@ -58,12 +58,15 @@ S1 = p("The limits below are known and accepted: they stem from the project's de
     ], "«TAB» — Known limits")
 
 S2 = table(["Item", "Status"], [
-    ["live test of the C version on the user's PC", "done on 1 October 2026 for sending, the dialog, postponement "
-     "and reminder on the desktop; still to do: the question in the terminal and over ssh, revocation, expiry"],
+    ["live test of the C version on the user's PC", "done on 1 October 2026: sending (also from an ssh session), the "
+     "dialog, postponement, reminder, the question in a desktop terminal, revocation, the TUI over ssh; still to "
+     "do: expiry, the question in a terminal opened over ssh"],
     ["scheduled sending (" + c("--at") + ")", "planned, second version"],
     ["reusable message templates", "planned, second version"],
     ["CSV or JSON export for audit", "planned, second version"],
-    ["deb and rpm packages", "planned, second version"],
+    ["deb and rpm packages", "planned for version 1.0"],
+    ["tests on other distributions and desktops", "done: 22 distributions and 5 desktops (" + cap(20, 4) + ", "
+     + cap(20, 3) + ")"],
     [c("rspeak remind") + ": manual reminder", "done (" + cap(9, 2) + ")"],
     ["tabbed interface for the administrator", "done: the TUI (" + cap(14) + ")"],
     ["rewrite in a compiled language", "done: version 0.2.0 in C (decision of 30 September)"],

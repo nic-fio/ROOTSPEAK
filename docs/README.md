@@ -52,4 +52,5 @@ reference of the user manual matches the built-in help, that every code file
 is in the file map of the technical manual, the version, the internal links,
 that `tests/engine.sh` was run on the current code, and that the old name and
 Italian do not reappear. The technical manual reports the last run of each
-test suite: after `tests/engine.sh` it must be regenerated.
+test suite, read from their results (the container, `tests/distros` with one row per
+distribution, `tests/vm` with one row per desktop): after running any of them it must be regenerated.

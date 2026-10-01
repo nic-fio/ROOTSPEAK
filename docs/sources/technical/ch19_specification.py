@@ -260,7 +260,8 @@ S6 = p("Message store format 1. Readers ignore header keys they do not know.", l
 S7 = table(["", "Requirement"], [
     ["system", "Linux with systemd and logind (sessions, " + c("systemd-run --user") + ")"],
     ["libraries and tools", "glibc, libsystemd (sessions and journal), sudo, " + c("systemd-run") + " and " + c("date -d")
-     + " (GNU coreutils); to build: gcc, make, pkg-config, libsystemd-dev"],
+     + " (GNU coreutils); to build: gcc, make, pkg-config and the systemd development files (" + c("libsystemd-dev") + " or "
+     + c("systemd-devel") + ")"],
     ["desktop", "zenity; a session that runs XDG autostart (" + c("/etc/xdg/autostart") + ")"],
     ["question in the terminal", "bash, zsh or fish at every prompt; sh, dash, ksh and the other shells that read "
      + c("/etc/profile") + " at login; the text at sending time with any shell"],
@@ -268,14 +269,17 @@ S7 = table(["", "Requirement"], [
     p("<b>Supported</b> means that the requirements are met and RootSpeak is designed to work; <b>verified</b> "
       "that it has been tested, and how. The two are distinct.") + \
     table(["Environment", "Supported", "Verified"], [
-        ["Debian 13, GNOME on Wayland", "yes", "yes: the C version with the automated suite in the VM ("
-         + c("tests/vm") + "); live on the user's PC with GNOME (sending, dialog, postponement, reminder), and the 0.1.0 prototype on "
-         "GNOME 48"],
-        ["Debian 13 without a desktop: console, ssh, tmux", "yes", "yes: automated suite in the container ("
-         + c("tests/container") + ")"],
-        ["zsh, fish, ksh, dash on Debian 13", "yes", "yes: K scenarios in the container"],
-        ["other distributions with systemd (Ubuntu, Fedora, Arch…)", "yes", "no"],
-        ["X11; desktops other than GNOME (KDE, XFCE…)", "yes, with zenity and XDG autostart", "no"],
+        ["Debian 13, GNOME on Wayland", "yes", "yes: the automated suite in the VM (" + c("tests/vm")
+         + "); live on the user's PC with GNOME (sending, dialog, postponement, reminder, revocation, the question "
+         "in a desktop terminal, sending and the TUI from an ssh session), and the 0.1.0 prototype on GNOME 48"],
+        ["22 distributions with systemd without a desktop: Debian, Ubuntu, Fedora, CentOS Stream, RHEL, Rocky, "
+         "Alma, Oracle, openSUSE, SLES, Arch", "yes", "yes: the automated suite in a container on each, built there "
+         "(" + c("tests/distros") + ", " + cap(20, 4) + ")"],
+        ["zsh, fish, ksh, dash", "yes", "yes: K scenarios in the containers, where the distribution packages the shell"],
+        ["other desktops: GNOME on Ubuntu and Rocky (SELinux enforcing), KDE Plasma on Fedora, Cinnamon; Wayland and "
+         "X11", "yes, with zenity and XDG autostart", "yes: the automated suite in a VM for each (" + c("tests/vm/desktops")
+         + ")"],
+        ["XFCE, MATE and other desktops", "yes, with zenity and XDG autostart", "no"],
         ["systems without systemd (sysvinit, OpenRC)", "no", "—"],
     ], "«TAB» — The scope: supported and verified")
 

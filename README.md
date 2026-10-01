@@ -137,7 +137,10 @@ is written in C, with the same tests and the same store format.
 
 ## Installation
 
-Building needs `gcc make pkg-config libsystemd-dev`, and the desktop needs `zenity`;
+RootSpeak needs a distribution with systemd. Building needs gcc, make, pkg-config and the systemd
+development files (`libsystemd-dev` on Debian and Ubuntu, `systemd-devel` on Fedora, RHEL and SUSE),
+and the desktop needs `zenity`; the user manual lists the packages of each family. It is tested on 22
+distributions (`tests/distros`) and on GNOME, KDE Plasma and Cinnamon, on Wayland and X11 (`tests/vm`).
 `tools/setup-dev.sh` says which ones are missing (with `--install` it installs them). `tools/backup.sh` saves
 the whole repository, with its history, in a single file.
 

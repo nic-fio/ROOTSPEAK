@@ -223,8 +223,10 @@ S6 = p("Before the rewrite in C, the 0.1.0 prototype was tested <b>live</b> on D
        "(Debian 13 with GNOME, after " + c("./install.sh") + "): sending from the administrator's session to the "
        "account " + c("user") + " logged in on the desktop, the dialog, “I have read it” and " + c("rspeak status")
        + " “confirmed … (desktop)”; a second message postponed with “Later”, brought back with " + c("rspeak remind")
-       + " and then confirmed. Not yet tested live with the C version: the question in the terminal and over ssh, "
-       + c("revoke") + ", expiry.", lead=True) + table(["Tested (0.1.0 prototype)", "How"], [
+       + " and then confirmed. The same day, with the English-only build: the question in a desktop terminal, confirmed "
+       "with “y” (" + c("terminal pts/2") + "); a sending from an administrator connected over ssh; " + c("rspeak revoke")
+       + " before any answer; the TUI opened over ssh from a phone. Not yet tested live with the C version: expiry, "
+       "and the question in a terminal opened over ssh.", lead=True) + table(["Tested (0.1.0 prototype)", "How"], [
     ["immediate dialog for a logged-in user", "live"],
     ["dialog at login for a user who was not logged in", "live, with a second account"],
     ["text and question in the terminal, also over ssh", "live, with " + c("ssh user@localhost")],
