@@ -395,7 +395,7 @@ check "rspeak remind: sollecita chi non ha confermato" '[[ $out == "Messaggio 1:
 out=$(prompt s)
 check "dopo il sollecito la domanda torna al prompt successivo" '[[ $out == *"Confermi"* ]] && [[ "$(state_of 1 "$U")" == confermato* ]]'
 out=$("$RSPEAK" remind 1)
-check "rspeak remind: chi ha confermato non viene sollecitato, e il comando lo dice" '[[ $out == "Messaggio 1: hanno già confermato tutti, nessuno da sollecitare." ]]'
+check "rspeak remind: whoever has confirmed is not reminded, and the command says so" '[[ $out == "Messaggio 1: hanno già confermato tutti, nessuno da sollecitare." ]]'
 send "da ritirare"
 "$RSPEAK" revoke 2 >/dev/null
 out=$("$RSPEAK" remind 2 2>&1)

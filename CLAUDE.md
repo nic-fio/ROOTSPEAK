@@ -104,7 +104,12 @@ Order agreed with the user; each step is recorded in its own commit.
 5. **Language pass**: code, comments, identifiers, file names, `Makefile`
    targets, tests, tools and documents into English, file by file, in a
    separate commit from the rename. **No Italian may remain** outside
-   `po/it.po` and the history of decisions.
+   `po/it.po` and the history of decisions. The manuals still quote the
+   program's output in Italian with the English in brackets, «…» (“…”):
+   about 240 times in the user manual and 190 in the technical one, plus the
+   Italian TUI screenshots. They must quote the English output, which is what
+   an English reader sees. New text is written that way from now on (rule
+   broken and corrected on 1 October with `remind`).
 6. **Manuals**: regenerated with the new name, logo and TUI screenshots;
    every page checked.
 7. **Repository**: done on 1 October 2026 by the user's choice: a new private

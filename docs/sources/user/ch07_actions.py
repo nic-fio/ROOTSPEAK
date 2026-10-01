@@ -57,8 +57,8 @@ S2 = p("Whoever postponed sees the message again after 30 minutes. If it is need
         "A " + RITIRATO + " or " + SCADUTO + " message cannot be reminded: the command replies «il messaggio 4 è "
         "stato ritirato: nessuno da sollecitare» (“message 4 has been revoked: nobody to remind”) or «… è scaduto: "
         "nessuno da sollecitare» (“… has expired: nobody to remind”).",
-        "If everyone has already confirmed, nobody is disturbed and the command says so: «Messaggio 2: hanno già "
-        "confermato tutti, nessuno da sollecitare» (“Message 2: everyone has already confirmed, nobody to remind”).",
+        "If everyone has already confirmed, nobody is disturbed and the command says so: “Message 2: everyone has "
+        "already confirmed, nobody to remind.”",
         "The reminder is recorded in the message's history and in the log, together with who asked for it.",
         "For users who are not logged in, a reminder changes nothing: they will see the message at their next login "
         "anyway.",
