@@ -99,8 +99,8 @@ Order agreed with the user; each step is recorded in its own commit.
    fuzzing, VM, manuals regenerated with the new logo and screenshots. The
    journal identifier stays the command name (`journalctl -t rspeak`). The
    legacy clean-up of the bash prototype was removed from `install.sh`
-   (nobody has an AMS installation to upgrade). **Still to do**: the live
-   test by the user after `./install.sh`.
+   (nobody has an AMS installation to upgrade). Live test by the user on
+   1 October 2026 (see «Where things stand»).
 5. **Language pass**: code, comments, identifiers, file names, `Makefile`
    targets, tests, tools and documents into English, file by file, in a
    separate commit from the rename. **No Italian may remain** outside
@@ -198,10 +198,14 @@ two remaining decisions were taken on 30 September: the confirmation question
 in all shells (bash, zsh, fish at every prompt; at login for the shells that
 read `/etc/profile`), no replies from users, interface in each user's
 language. Shells and languages are done (scenarios K and L; gettext
-catalogues in `po/`, English as fallback). **The C version has not yet been
-tested live on the user's PC**: it must be before any sale. The [2] items of
+catalogues in `po/`, English as fallback). The C version (as RootSpeak) was
+tested live on the user's PC on 1 October 2026: `./install.sh` on Debian 13
+with GNOME, `rspeak send --to user` from the administrator's session to the
+account `user` logged in on the desktop, `status` «delivered», then «I have
+read it» in the window and `status` «confirmed … (desktop)» a minute after
+sending. Not yet tested live with the C version: the question in the
+terminal and over ssh, `revoke`, expiry. The [2] items of
 the README were frozen until the review was closed; restart from there only
 when the user says so.
 
-On 1 October 2026 the rename to RootSpeak was done in the repository (step 4,
-see above); the live test by the user is pending.
+On 1 October 2026 the rename to RootSpeak was done (step 4, see above).
