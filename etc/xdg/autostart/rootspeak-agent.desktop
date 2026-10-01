@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=RootSpeak
+Comment=Messaggi dell'amministratore (RootSpeak - Advanced Messaging System for Linux)
+Exec=@LIBDIR@/rootspeak-user agent
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

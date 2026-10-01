@@ -1,7 +1,7 @@
-/* AMS - Advanced Messaging System
- * ams: invio e gestione dei messaggi. Riservato agli amministratori: gira
+/* RootSpeak - Advanced Messaging System for Linux
+ * rspeak: invio e gestione dei messaggi. Riservato agli amministratori: gira
  * sempre come root, anche per la guida e la versione, e si rilancia da solo
- * con sudo. AMS_TEST=1 permette di provarlo senza root su una cartella di prova. */
+ * con sudo. RSPEAK_TEST=1 permette di provarlo senza root su una cartella di prova. */
 #include "comune.h"
 
 #include <dirent.h>
@@ -18,7 +18,7 @@
 #include <systemd/sd-journal.h>
 #include <unistd.h>
 
-#include "ams.h"
+#include "rspeak.h"
 #include "archivio.h"
 #include "evento.h"
 #include "guida.h"
@@ -31,20 +31,20 @@ static char vuota[1];
 
 static char *sent_dir(void)
 {
-	return xasprintf("%s/sent", ams_var);
+	return xasprintf("%s/sent", rspeak_var);
 }
 
 static char *msg_dir(long long id)
 {
-	return xasprintf("%s/sent/%lld", ams_var, id);
+	return xasprintf("%s/sent/%lld", rspeak_var, id);
 }
 
 static char *in_msg(long long id, const char *nome)
 {
-	return xasprintf("%s/sent/%lld/%s", ams_var, id, nome);
+	return xasprintf("%s/sent/%lld/%s", rspeak_var, id, nome);
 }
 
-/* Chi sta usando ams: l'amministratore che è passato da sudo, o chi lo lancia. */
+/* Chi sta usando rspeak: l'amministratore che è passato da sudo, o chi lo lancia. */
 static const char *autore(void)
 {
 	static char nome[64];
@@ -184,7 +184,7 @@ static void annota_consegna(long long id, const char *u, int nterm)
 static bool leggi_testo_msg(long long id, buf_t *out)
 {
 	char *p = in_msg(id, "msg");
-	bool ok = leggi_file(p, AMS_MAX_MSG, true, out) == 0 && out->n > 0;
+	bool ok = leggi_file(p, RSPEAK_MAX_MSG, true, out) == 0 && out->n > 0;
 
 	free(p);
 	return ok;
@@ -319,7 +319,7 @@ void recupera(void)
 				consegne_libera(&cons);
 				msg_libera(&m);
 				if (!mancano) {
-					char *users = xasprintf("%s/users", ams_var);
+					char *users = xasprintf("%s/users", rspeak_var);
 
 					syncfs_path(users);
 					sync_path(dir);
@@ -334,7 +334,7 @@ void recupera(void)
 					avviso(T("completed delivery of message %lld to %d recipients"), id, nuove);
 				}
 				if (mancano)
-					avviso(T("message %lld still not delivered to %d recipients (see ams status %lld)"), id,
+					avviso(T("message %lld still not delivered to %d recipients (see rspeak status %lld)"), id,
 					       mancano, id);
 			}
 			strv_free(&dest);
@@ -453,7 +453,7 @@ static long long scadenza_da(const char *s)
  * sequenza tornata indietro dopo un'interruzione di corrente), si va avanti. */
 static long long prossimo_id(void)
 {
-	char *seq = xasprintf("%s/sent/.seq", ams_var), *lockp = xasprintf("%s/sent/.seq.lock", ams_var);
+	char *seq = xasprintf("%s/sent/.seq", rspeak_var), *lockp = xasprintf("%s/sent/.seq.lock", rspeak_var);
 	int fd = open(lockp, O_WRONLY | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0600);
 	buf_t b = {0};
 	long long n = 0;
@@ -492,13 +492,13 @@ static long long prossimo_id(void)
 
 static void prepara_archivio(void)
 {
-	char *users = xasprintf("%s/users", ams_var), *sd = sent_dir();
+	char *users = xasprintf("%s/users", rspeak_var), *sd = sent_dir();
 
-	mkdir(ams_var, 0755);
+	mkdir(rspeak_var, 0755);
 	mkdir(users, 0755);
 	mkdir(sd, 0700);
 	if (!e_cartella(users) || !e_cartella(sd))
-		die("%s: %s", ams_var, strerror(errno));
+		die("%s: %s", rspeak_var, strerror(errno));
 	free(users);
 	free(sd);
 }
@@ -511,7 +511,7 @@ static void testo_terminale(const msg_t *m, const char *lingua, buf_t *out)
 
 	msg_intestazione(m, &h);
 	buf_adds(&t, "\n");
-	buf_printf(&t, tl(lingua, "── AMS · Message from the administrator · %s ──"), h.s);
+	buf_printf(&t, tl(lingua, "── RootSpeak · Message from the administrator · %s ──"), h.s);
 	buf_printf(&t, "\n%s", m->body);
 	buf_adds(&t, "────────────────────────────────────────\n");
 	for (size_t i = 0; i < t.n; i++) {
@@ -591,8 +591,8 @@ void cmd_send(int argc, char **argv)
 		if (vuoto)
 			die("%s", T("empty message"));
 	}
-	if (pulito.n > AMS_MAX_BYTES)
-		die(T("message too long: %zu bytes (at most %d)"), pulito.n, AMS_MAX_BYTES);
+	if (pulito.n > RSPEAK_MAX_BYTES)
+		die(T("message too long: %zu bytes (at most %d)"), pulito.n, RSPEAK_MAX_BYTES);
 
 	risolvi_destinatari(to, &dest);
 	if (!dest.n)
@@ -602,7 +602,7 @@ void cmd_send(int argc, char **argv)
 	id = prossimo_id();
 	dir = msg_dir(id);
 	/* Il lock dice «invio in corso» a recupero, ritiro e cancellazione per
-	 * tutta la consegna; se ams muore, anche con SIGKILL, il kernel lo rilascia. */
+	 * tutta la consegna; se rspeak muore, anche con SIGKILL, il kernel lo rilascia. */
 	if ((lock = prendi_lock(id, false)) < 0)
 		die("%s: %s", dir, strerror(errno));
 	/* Il segno resta finché tutte le copie non sono consegnate e su disco. */
@@ -643,7 +643,7 @@ void cmd_send(int argc, char **argv)
 		int nterm = 0;
 		char det[16];
 
-		/* ritirato durante l'invio (ams revoke aspetta il lock): non si consegna altro */
+		/* ritirato durante l'invio (rspeak revoke aspetta il lock): non si consegna altro */
 		if (segno(id, "revoked"))
 			break;
 		if (!utente_cerca(dest.v[k], &u) || !consegna_copia(&u, id, &msgtxt)) {
@@ -687,11 +687,11 @@ void cmd_send(int argc, char **argv)
 			buf_printf(&l, " %s", non.v[k]);
 		printf(T("Message %lld delivered to %zu of %zu recipients."), id, dest.n - (size_t)falliti, dest.n);
 		putchar('\n');
-		die(T("message %lld not delivered to:%s (see the log; the next ams command will retry)"), id, l.s);
+		die(T("message %lld not delivered to:%s (see the log; the next rspeak command will retry)"), id, l.s);
 	}
 	/* copie e consegne su disco prima di togliere il segno: finché c'è, il
 	 * recupero ricontrolla ogni copia */
-	users = xasprintf("%s/users", ams_var);
+	users = xasprintf("%s/users", rspeak_var);
 	syncfs_path(users);
 	sync_path(dir);
 	togli_segno(id, "incomplete");
@@ -835,7 +835,7 @@ void elenco_messaggi(strv_t *ids)
 }
 
 /* Tutto ciò che serve si legge prima: un messaggio cancellato nel frattempo
- * da ams purge sparisce invece di uscire a metà. */
+ * da rspeak purge sparisce invece di uscire a metà. */
 bool riassumi(long long id, riassunto_t *r)
 {
 	char *p;
@@ -993,7 +993,7 @@ static void carica_msg(long long id, const char *arg, msg_t *m)
 	free(p);
 }
 
-/* La riga di stato di ogni destinatario, come in ams status. */
+/* La riga di stato di ogni destinatario, come in rspeak status. */
 void destinatari(long long id, const msg_t *m, destinatari_t *out)
 {
 	strv_t dest = {0};
@@ -1014,12 +1014,12 @@ void destinatari(long long id, const msg_t *m, destinatari_t *out)
 		if (s.stato == CONFERMATO) {
 			buf_t ch = {0};
 
-			canale_testo(ams_lingua, s.canale, &ch);
+			canale_testo(rspeak_lingua, s.canale, &ch);
 			data_breve((time_t)s.quando, data);
 			buf_printf(&riga, T("confirmed on %s (%s)"), data, ch.s ? ch.s : "");
 			buf_free(&ch);
 		} else if (s.stato == INVIATO) {
-			buf_adds(&riga, incompleto ? T("sent, not delivered: the copy could not be written (see the log; the next ams command will retry)")
+			buf_adds(&riga, incompleto ? T("sent, not delivered: the copy could not be written (see the log; the next rspeak command will retry)")
 						   : T("sent, not delivered"));
 		} else {
 			buf_adds(&riga, T("delivered"));
@@ -1131,7 +1131,7 @@ void cmd_revoke(const char *arg)
 	if ((lock = prendi_lock(id, false)) < 0)
 		die("%s: %s", dir, strerror(errno));
 	if (!togli_copie(id))
-		die(T("message %lld revoked, but some copies could not be removed from the mailboxes: the next ams command will retry"),
+		die(T("message %lld revoked, but some copies could not be removed from the mailboxes: the next rspeak command will retry"),
 		    id);
 	printf(T("Message %lld revoked."), id);
 	putchar('\n');
@@ -1244,7 +1244,7 @@ void cmd_purge(const char *dur)
 			continue;
 		/* Il messaggio sparisce in un colpo solo (rinomina): gli altri comandi
 		 * lo vedono intero o non lo vedono. La pulizia delle caselle segue, e
-		 * se si interrompe la completa il comando ams successivo. */
+		 * se si interrompe la completa il comando rspeak successivo. */
 		p = msg_dir(id);
 		nuovo = xasprintf("%s/.cancella-%lld", sd, id);
 		if (rename(p, nuovo) == 0) {
@@ -1288,8 +1288,8 @@ static char *campo(sd_journal *j, const char *nome)
 	}
 }
 
-/* Gli eventi con AMS_MESSAGGIO=ID dalla data dell'invio (un archivio azzerato
- * riusa i numeri, il journal no), riscritti dai campi AMS_* nella lingua di
+/* Gli eventi con RSPEAK_MESSAGGIO=ID dalla data dell'invio (un archivio azzerato
+ * riusa i numeri, il journal no), riscritti dai campi RSPEAK_* nella lingua di
  * chi legge. Chiunque può scrivere nel journal un evento con quei campi: il
  * journal registra _UID, chi l'ha scritto davvero, e un evento scritto
  * dall'utente sbagliato viene segnalato. */
@@ -1300,7 +1300,7 @@ void cmd_log(const char *arg)
 	sd_journal *j;
 	buf_t h = {0};
 	char match[64];
-	uid_t radm = ams_test ? getuid() : 0;
+	uid_t radm = rspeak_test ? getuid() : 0;
 
 	carica_msg(id, arg, &m);
 	msg_intestazione(&m, &h);
@@ -1309,14 +1309,14 @@ void cmd_log(const char *arg)
 	fflush(stdout);
 	if (sd_journal_open(&j, 0) < 0)
 		return;
-	snprintf(match, sizeof match, "AMS_MESSAGGIO=%lld", id);
-	sd_journal_add_match(j, "SYSLOG_IDENTIFIER=ams", 0);
+	snprintf(match, sizeof match, "RSPEAK_MESSAGGIO=%lld", id);
+	sd_journal_add_match(j, "SYSLOG_IDENTIFIER=rspeak", 0);
 	sd_journal_add_match(j, match, 0);
 	sd_journal_seek_realtime_usec(j, (uint64_t)(m.date > 0 ? m.date - 1 : 0) * 1000000u);
 	while (sd_journal_next(j) > 0) {
 		uint64_t usec;
-		char *ev = campo(j, "AMS_EVENTO"), *u = campo(j, "AMS_UTENTE"), *ch = campo(j, "AMS_CANALE"),
-		     *det = campo(j, "AMS_DETTAGLI"), *aut = campo(j, "AMS_AUTORE"), *msg = campo(j, "MESSAGE"),
+		char *ev = campo(j, "RSPEAK_EVENTO"), *u = campo(j, "RSPEAK_UTENTE"), *ch = campo(j, "RSPEAK_CANALE"),
+		     *det = campo(j, "RSPEAK_DETTAGLI"), *aut = campo(j, "RSPEAK_AUTORE"), *msg = campo(j, "MESSAGE"),
 		     *uid = campo(j, "_UID");
 		buf_t riga = {0}, pulita = {0};
 		long long atteso = radm, scritto = -1;
@@ -1337,7 +1337,7 @@ void cmd_log(const char *arg)
 		buf_printf(&riga, "%s  ", data);
 		if (!leggi_numero(uid, &scritto) || scritto != atteso)
 			buf_printf(&riga, T("[not trustworthy: written by UID %s] "), *uid ? uid : "?");
-		if (!evento_testo(ams_lingua, ev, id, u, ch, det, aut, &riga))
+		if (!evento_testo(rspeak_lingua, ev, id, u, ch, det, aut, &riga))
 			buf_adds(&riga, msg);
 		pulisci(riga.s, riga.n, &pulita);
 		printf("%s\n", pulita.s ? pulita.s : "");
@@ -1386,32 +1386,32 @@ int main(int argc, char **argv)
 {
 	const char *cmd = argc > 1 ? argv[1] : "";
 
-	ams_init("ams");
+	rspeak_init("rspeak");
 	lingua_init();
-	/* Da amministratore non root, ams si rilancia con sudo, anche per la
+	/* Da amministratore non root, rspeak si rilancia con sudo, anche per la
 	 * guida e la versione. */
-	if (geteuid() != 0 && !ams_test)
+	if (geteuid() != 0 && !rspeak_test)
 		rilancia_con_sudo(argv);
 	umask(022);
 
-	/* ams da solo in un terminale apre la TUI; in una pipe, o con un
+	/* rspeak da solo in un terminale apre la TUI; in una pipe, o con un
 	 * terminale troppo piccolo, la guida */
 	if (!*cmd && isatty(0) && isatty(1)) {
 		recupera();
-		if (ams_tui())
+		if (rspeak_tui())
 			return 0;
 	}
 	if (!*cmd || !strcmp(cmd, "help") || !strcmp(cmd, "-h") || !strcmp(cmd, "--help")) {
-		ams_guida();
+		rspeak_guida();
 		return 0;
 	}
 	if (!strcmp(cmd, "version") || !strcmp(cmd, "--version")) {
-		printf("AMS - Advanced Messaging System %s\n", AMS_VERSION);
+		printf("RootSpeak - Advanced Messaging System for Linux %s\n", RSPEAK_VERSION);
 		return 0;
 	}
 	if (strcmp(cmd, "send") && strcmp(cmd, "list") && strcmp(cmd, "status") && strcmp(cmd, "revoke") &&
 	    strcmp(cmd, "remind") && strcmp(cmd, "log") && strcmp(cmd, "purge"))
-		die(T("unknown command: %s (ams --help for the guide)"), cmd);
+		die(T("unknown command: %s (rspeak --help for the guide)"), cmd);
 	if (strcmp(cmd, "purge"))
 		recupera();
 	if (!strcmp(cmd, "send"))

@@ -26,23 +26,23 @@ MAPPA = fig(
            "600"),
     900, 316, "«FIG» — The data structures and how they fit together", "Structures")
 
-S1 = p("This appendix collects the data structures of AMS, with the file that defines each one and the chapter "
+S1 = p("This appendix collects the data structures of RootSpeak, with the file that defines each one and the chapter "
        "that covers it in depth. They are the “contracts” that run through the code. None is written to disk as "
        "it is: only the text formats of " + cap(20, 8) + " go into files.", lead=True) + MAPPA + table(
     ["Structure", "Defined in", "Role", "Chapter"], [
         [c("msg_t"), c("src/testo.h"), "a message that has been read or is to be written", cap(5, 2)],
         [c("conf_t"), c("src/testo.h"), "the configuration", cap(4, 5)],
-        [c("stato_e"), c("src/ams.h"), "the three states of a recipient", cap(10, 1)],
-        [c("riassunto_t"), c("src/ams.h"), "a message with its recipients counted in the three states", cap(10, 3)],
-        [c("destinatario_t") + ", " + c("destinatari_t"), c("src/ams.h"), "the recipients with the line from "
-         + c("ams status"), cap(10, 4)],
+        [c("stato_e"), c("src/rspeak.h"), "the three states of a recipient", cap(10, 1)],
+        [c("riassunto_t"), c("src/rspeak.h"), "a message with its recipients counted in the three states", cap(10, 3)],
+        [c("destinatario_t") + ", " + c("destinatari_t"), c("src/rspeak.h"), "the recipients with the line from "
+         + c("rspeak status"), cap(10, 4)],
         [c("voce_casella_t") + ", " + c("casella_t"), c("src/archivio.h"), "confirmations and postponements read from a mailbox",
          cap(10, 2)],
         [c("utente_t"), c("src/utente.h"), "a user: name, UID, primary group", cap(7, 2)],
         [c("come_utente_fn"), c("src/utente.h"), "the function run in the child", cap(7, 2)],
         [c("op_t"), c("src/archivio.c"), "argument of the mailbox operations", cap(7, 4)],
-        [c("consegne_t"), c("src/ams.c"), "the " + c("delivery") + " lines of a message", cap(10, 1)],
-        [c("stato_t"), c("src/ams.c"), "the state of a recipient, with date and channel of the confirmation", cap(10, 1)],
+        [c("consegne_t"), c("src/rspeak.c"), "the " + c("delivery") + " lines of a message", cap(10, 1)],
+        [c("stato_t"), c("src/rspeak.c"), "the state of a recipient, with date and channel of the confirmation", cap(10, 1)],
         [c("catalogo_t"), c("src/lingua.c"), "a " + c(".mo") + " catalog in memory", cap(16, 3)],
         [c("buf_t") + ", " + c("strv_t"), c("src/comune.h"), "growing texts and lists of strings", cap(5, 5)],
         [c("schermo_t") + ", " + c("elenco_t") + ", " + c("modulo_t") + ", " + c("lancio_t"), c("src/tui.c"),
@@ -80,14 +80,14 @@ typedef struct {
 typedef struct {
 	char *utente;
 	stato_e stato;
-	char *riga;        /* la riga di ams status, nella lingua di chi legge */
-} destinatario_t;""", "c", "src/ams.h") + dl([
+	char *riga;        /* la riga di rspeak status, nella lingua di chi legge */
+} destinatario_t;""", "c", "src/rspeak.h") + dl([
     (c("stato_e"), "the only place in the code where the states are enumerated. Revoked and expired are not "
      "there: they are the two " + c("bool") + " fields of " + c("riassunto_t") + "."),
     (c("riassunto_t"), "produced by " + c("riassumi") + "; " + c("confermato + consegnato + inviato") + " is the "
      "number of recipients. " + c("riassunto_libera") + " frees the message it contains."),
-    (c("destinatario_t"), "produced by " + c("destinatari") + " for " + c("ams status") + ", for the TUI and for "
-     + c("ams remind") + ", which reminds those with " + c("stato == CONSEGNATO") + "."),
+    (c("destinatario_t"), "produced by " + c("destinatari") + " for " + c("rspeak status") + ", for the TUI and for "
+     + c("rspeak remind") + ", which reminds those with " + c("stato == CONSEGNATO") + "."),
 ])
 
 S4 = code("""typedef struct {

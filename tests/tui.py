@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System
-Prova la TUI degli amministratori (ams senza argomenti) su un terminale
+"""RootSpeak - Advanced Messaging System for Linux
+Prova la TUI degli amministratori (rspeak senza argomenti) su un terminale
 virtuale, in modalità di prova su un archivio temporaneo: la apre, preme dei
 tasti come farebbe una persona e controlla lo schermo e l'archivio dopo ognuno.
     tests/tui.py [-v]        (-v stampa gli schermi)
-Usa i programmi in build/ (AMS_BUILD per un'altra cartella)."""
+Usa i programmi in build/ (RSPEAK_BUILD per un'altra cartella)."""
 import fcntl, os, pty, re, select, shutil, struct, subprocess, sys, tempfile, termios, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-B = os.environ.get("AMS_BUILD", os.path.join(ROOT, "build"))
+B = os.environ.get("RSPEAK_BUILD", os.path.join(ROOT, "build"))
 VERBOSE = "-v" in sys.argv
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 U = subprocess.run(["id", "-un"], capture_output=True, text=True).stdout.strip()
 TMP = tempfile.mkdtemp()
-ENV = dict(os.environ, AMS_TEST="1", AMS_VAR=f"{TMP}/var", AMS_LIB=B, AMS_LOCALEDIR=f"{B}/locale",
-           AMS_CONF="/dev/null", AMS_TEST_TTY="", LANG="it_IT.UTF-8", TERM="xterm-256color",
+ENV = dict(os.environ, RSPEAK_TEST="1", RSPEAK_VAR=f"{TMP}/var", RSPEAK_LIB=B, RSPEAK_LOCALEDIR=f"{B}/locale",
+           RSPEAK_CONF="/dev/null", RSPEAK_TEST_TTY="", LANG="it_IT.UTF-8", TERM="xterm-256color",
            EDITOR="sed -i s/seconda/SECONDA/")
 ENV.pop("LANGUAGE", None), ENV.pop("LC_ALL", None), ENV.pop("LC_MESSAGES", None)
 falliti = []
 
 
-def ams(*args, stdin=None):
-    return subprocess.run([f"{B}/ams", *args], env=ENV, input=stdin, capture_output=True, text=True)
+def rspeak(*args, stdin=None):
+    return subprocess.run([f"{B}/rspeak", *args], env=ENV, input=stdin, capture_output=True, text=True)
 
 
 def avvia(righe, colonne):
     pid, fd = pty.fork()
     if pid == 0:
-        os.execvpe(f"{B}/ams", ["ams"], ENV)
+        os.execvpe(f"{B}/rspeak", ["rspeak"], ENV)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", righe, colonne, 0, 0))
     return pid, fd
 
@@ -75,23 +75,23 @@ def testo(righe):
 
 
 try:
-    ams("send", "--to", U, "--title", "Manutenzione", "Sabato dalle 8 alle 12 il server sarà spento.")
-    ams("send", "--to", U, "Seconda prova")
-    subprocess.run(["script", "-qec", f"{B}/ams-user prompt", "/dev/null"], env=ENV, input="s\n",
+    rspeak("send", "--to", U, "--title", "Manutenzione", "Sabato dalle 8 alle 12 il server sarà spento.")
+    rspeak("send", "--to", U, "Seconda prova")
+    subprocess.run(["script", "-qec", f"{B}/rootspeak-user prompt", "/dev/null"], env=ENV, input="s\n",
                    capture_output=True, text=True)
 
     pid, fd = avvia(28, 120)
     raw = leggi_schermo(fd, 1.5)
     s = schermo(raw)
     controlla("apertura: lista con barra e frase, dimensioni giuste",
-              "\x1b[?1049h" in raw and s[0].startswith("┌─ AMS · messaggi inviati") and len(s) == 28
+              "\x1b[?1049h" in raw and s[0].startswith("┌─ RootSpeak · messaggi inviati") and len(s) == 28
               and all(len(l) == 120 for l in s) and "tutti confermato (1)" in testo(s) and "1 consegnato" in testo(s)
               and "█ confermato" in testo(s), s)
     controlla("nessuno stato inventato", not re.search(r"in attesa|completo|incompleto|annullato", testo(s)), s)
 
     os.write(fd, b"\r")
     s = schermo(leggi_schermo(fd))
-    controlla("Invio: dettaglio con i destinatari e lo stato di ams status",
+    controlla("Invio: dettaglio con i destinatari e lo stato di rspeak status",
               "Messaggio 2" in s[0] and "Seconda prova" in testo(s) and f"{U}" in testo(s) and "consegnato" in testo(s), s)
     os.write(fd, b"\t")
     s = schermo(leggi_schermo(fd))
@@ -122,7 +122,7 @@ try:
     s = schermo(leggi_schermo(fd, 1.5))
     controlla("invio: esito del comando, una sola finestra",
               "Messaggio 3 inviato a 1 utente." in testo(s) and testo(s).count("┌─ ") == 2, s)
-    st = ams("status", "3").stdout
+    st = rspeak("status", "3").stdout
     controlla("il messaggio inviato dalla TUI è nell'archivio", "Prova TUI è ok" in st and "SECONDA riga" in st, [st])
     os.write(fd, b" ")
     s = schermo(leggi_schermo(fd))
@@ -140,7 +140,7 @@ try:
     controlla("r: conferma prima del ritiro", "Ritirare il messaggio 3?" in testo(s), s)
     os.write(fd, b"n")
     leggi(fd, 0.6)
-    controlla("n: ritiro annullato, messaggio intatto", "RITIRATO" not in ams("status", "3").stdout, [])
+    controlla("n: ritiro annullato, messaggio intatto", "RITIRATO" not in rspeak("status", "3").stdout, [])
     os.write(fd, b"r")
     leggi(fd, 0.6)
     os.write(fd, b"s")
@@ -148,7 +148,7 @@ try:
     os.write(fd, b" ")
     s = schermo(leggi_schermo(fd))
     controlla("ritiro: [ritirato] nella lista e nell'archivio",
-              "[ritirato]" in testo(s) and "RITIRATO" in ams("status", "3").stdout, s)
+              "[ritirato]" in testo(s) and "RITIRATO" in rspeak("status", "3").stdout, s)
 
     os.write(fd, b"/Manut\r")
     s = schermo(leggi_schermo(fd))
@@ -172,10 +172,10 @@ try:
     os.write(fd, b"q")
     leggi(fd, 0.5)
     os.waitpid(pid, 0)
-    controlla("60x15: niente TUI, la guida", "AMS · messaggi inviati" not in raw and ("ams — guida" in raw or "AMS(1)" in raw),
+    controlla("60x15: niente TUI, la guida", "RootSpeak · messaggi inviati" not in raw and ("rspeak — guida" in raw or "RSPEAK(1)" in raw),
               schermo(raw)[:5])
     # in una pipe: la guida in testo semplice
-    out = subprocess.run([f"{B}/ams"], env=ENV, capture_output=True, text=True, stdin=subprocess.DEVNULL).stdout
+    out = subprocess.run([f"{B}/rspeak"], env=ENV, capture_output=True, text=True, stdin=subprocess.DEVNULL).stdout
     controlla("in una pipe: la guida", "SINTASSI" in out, out.splitlines()[:3])
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

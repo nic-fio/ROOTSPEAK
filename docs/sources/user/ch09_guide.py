@@ -5,13 +5,13 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import arrow, box, c, diamond, fig, key, note, p, table, term, text, tip  # noqa: E402
 from _helpers import rif, schermata_u  # noqa: E402
 
-S1 = p("Everything needed to use " + c("ams") + " is also inside the command itself: " + c("ams --help")
-       + " (or " + c("ams help") + " or " + c("ams -h") + ") opens a full-screen guide, divided into five "
+S1 = p("Everything needed to use " + c("rspeak") + " is also inside the command itself: " + c("rspeak --help")
+       + " (or " + c("rspeak help") + " or " + c("rspeak -h") + ") opens a full-screen guide, divided into five "
        "tabs, in the administrator's language.", lead=True) + \
     schermata_u("guide-info", "«FIG» — The built-in help, Info tab (real screenshot, 78-column terminal)") + \
     table(["Tab", "Contains"], [
-        ["Info", "name, syntax of all the commands, description of AMS, version and path of this manual"],
-        ["Comandi (Commands)", c("ams") + " on its own, " + c("send") + ", " + c("list") + ", " + c("status") + ", "
+        ["Info", "name, syntax of all the commands, description of RootSpeak, version and path of this manual"],
+        ["Comandi (Commands)", c("rspeak") + " on its own, " + c("send") + ", " + c("list") + ", " + c("status") + ", "
          + c("revoke") + ", " + c("remind") + ", " + c("log") + ", " + c("purge") + ", " + c("version") + ", "
          + c("help")],
         ["Opzioni (Options)", "the options of " + c("send") + ": recipients, title, expiry, file"],
@@ -19,7 +19,7 @@ S1 = p("Everything needed to use " + c("ams") + " is also inside the command its
         ["File (Files)", "where settings, messages, log and manual are"],
     ], "«TAB» — The tabs of the built-in help") + \
     schermata_u("guide-options", "«FIG» — The Opzioni (Options) tab") + \
-    note("like every " + c("ams") + " command, the built-in help also asks for the sudo password. The texts of the "
+    note("like every " + c("rspeak") + " command, the built-in help also asks for the sudo password. The texts of the "
          "Commands and Options tabs are the same as in the " + rif(13) + " of this manual.", "Always with sudo.")
 
 S2 = table(["Keys", "Action"], [
@@ -50,8 +50,8 @@ FORME = fig(
     + arrow(630, 150, 698, 184, "#475569", False, "no", 664, 180),
     900, 316, "«FIG» — The help picks by itself the form that suits where it is shown", "Three forms of the same guide")
 
-S3 = p("The same guide has three forms, and " + c("ams") + " picks the right one by itself.", lead=True) + FORME + \
-    table(["Situation", "What " + c("ams --help") + " shows"], [
+S3 = p("The same guide has three forms, and " + c("rspeak") + " picks the right one by itself.", lead=True) + FORME + \
+    table(["Situation", "What " + c("rspeak --help") + " shows"], [
         ["a normal terminal", "the tabbed guide"],
         ["a very small terminal (fewer than 44 columns or 10 lines)", "the same guide as a single page, to "
          "scroll through with the pager: " + c("less") + ", or the program set in " + c("PAGER") + "; " + key("q")
@@ -60,14 +60,14 @@ S3 = p("The same guide has three forms, and " + c("ams") + " picks the right one
          "with the tabs it also has the environment variables and the exit status of the commands ("
          + rif(13, 5) + ")"],
     ], "«TAB» — The built-in help in the different situations") + \
-    term("admin@server:~$ ams --help | grep -A2 -- '--expires DURATA'\n"
+    term("admin@server:~$ rspeak --help | grep -A2 -- '--expires DURATA'\n"
          "       --expires DURATA\n"
          "              Scadenza, dopo la quale il messaggio non viene più mostrato: 30m,\n"
          "              2h, 3d oppure data e ora (\"2026-10-04 12:00\"; le date a parole",
          "Searching the built-in help with grep: «Scadenza, dopo la quale il messaggio non viene più mostrato: 30m, 2h, "
          "3d oppure data e ora» (“Expiry, after which the message is no longer shown: 30m, 2h, 3d or a date and time”)") + \
-    note("" + c("ams") + " on its own, too, in a pipe or in a terminal smaller than 80 columns or 20 lines, "
-         "shows the built-in help instead of the TUI.", "And ams on its own?")
+    note("" + c("rspeak") + " on its own, too, in a pipe or in a terminal smaller than 80 columns or 20 lines, "
+         "shows the built-in help instead of the TUI.", "And rspeak on its own?")
 
 CHAPTER = ("The built-in help", [
     ("Opening the built-in help", S1),

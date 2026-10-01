@@ -6,8 +6,8 @@ from build import arrow, box, c, fig, key, note, p, path, schermata, table, text
 from _helpers import CONFERMATO, CONSEGNATO, INVIATO, RITIRATO, SCADUTO, barra, mono, numero, rif, riquadro, schermata_u  # noqa: E402
 
 DUE_MODI = fig(
-    zone(20, 44, 400, 250, "In the TUI: ams, on its own")
-    + zone(480, 44, 400, 250, "With commands: ams COMMAND")
+    zone(20, 44, 400, 250, "In the TUI: rspeak, on its own")
+    + zone(480, 44, 400, 250, "With commands: rspeak COMMAND")
     + box(44, 80, 170, 42, "n", "write and send", "blue")
     + box(226, 80, 170, 42, "Enter", "recipients and history", "blue")
     + box(44, 134, 170, 42, "r", "revoke", "blue")
@@ -22,29 +22,29 @@ DUE_MODI = fig(
     + box(686, 188, 170, 42, "version · --help", "version, help", "dark")
     + text(220, 262, "you see everything, it updates itself", 11.5, "#003a90", "600")
     + text(680, 262, "handy in scripts and over ssh", 11.5, "#003a90", "600")
-    + box(290, 318, 320, 50, "The same AMS actions", "same result, same trace in the log", "navy")
+    + box(290, 318, 320, 50, "The same RootSpeak actions", "same result, same trace in the log", "navy")
     + path([(220, 294), (220, 343), (286, 343)], "#0050C0")
     + path([(680, 294), (680, 343), (614, 343)], "#0050C0"),
-    900, 390, "«FIG» — Two ways of using AMS; every TUI key runs the corresponding command",
+    900, 390, "«FIG» — Two ways of using RootSpeak; every TUI key runs the corresponding command",
     "The TUI and the commands")
 
-S1 = p("AMS can be used in two ways, which do exactly the same things. Typed on its own in a terminal, " + c("ams")
+S1 = p("RootSpeak can be used in two ways, which do exactly the same things. Typed on its own in a terminal, " + c("rspeak")
        + " opens the <b>TUI</b>, a full-screen interface inside the terminal: the list of messages, the state of "
-       "every recipient, the keys to act. Followed by a command (" + c("ams send") + ", " + c("ams status")
+       "every recipient, the keys to act. Followed by a command (" + c("rspeak send") + ", " + c("rspeak status")
        + "…) it does one single thing and returns to the prompt.", lead=True) + DUE_MODI + \
     table(["Situation", "Better to use"], [
         ["following a message while the confirmations come in", "the TUI: it updates itself every 3 seconds"],
         ["writing a long message calmly", "the TUI, with your own editor (" + key("Ctrl", "E") + ")"],
-        ["sending a notice from a script or from cron", c("ams send")],
-        ["copying the state into a report or an email", c("ams status") + " or " + c("ams log")],
-        ["a small terminal (fewer than 80 columns or 20 lines)", "the commands: " + c("ams") + " on its own shows the help"],
+        ["sending a notice from a script or from cron", c("rspeak send")],
+        ["copying the state into a report or an email", c("rspeak status") + " or " + c("rspeak log")],
+        ["a small terminal (fewer than 80 columns or 20 lines)", "the commands: " + c("rspeak") + " on its own shows the help"],
     ], "«TAB» — When to use the TUI and when the commands") + \
     note("every TUI action runs the corresponding command and shows its answer: what you learn in one way "
          "also applies to the other.", "Same commands.")
 
 ANATOMIA = fig(
     riquadro(40, 40, 820, 300, "#111827", "#334155", 8)
-    + mono(58, 64, "┌─ AMS · messaggi inviati ──────────────", 12, "#67e8f9", "700")
+    + mono(58, 64, "┌─ RootSpeak · messaggi inviati ──────────────", 12, "#67e8f9", "700")
     + mono(842, 64, "aggiornato alle 16:55:57 ─┐", 12, "#9ca3af", "400", "end")
     + mono(62, 96, "  ID  DATA         MESSAGGIO", 12, "#fde047", "700")
     + mono(420, 96, "DESTINATARI", 12, "#fde047", "700")
@@ -60,8 +60,8 @@ ANATOMIA = fig(
     + mono(62, 322, "Invio apri  n nuovo  r ritira  s sollecita  p pulizia  / cerca  ? tasti  q esci", 12, "#e5e7eb")
     + numero(30, 60, 1) + numero(870, 60, 2) + numero(30, 96, 3) + numero(30, 146, 4) + numero(870, 146, 5)
     + numero(30, 258, 6) + numero(30, 318, 7),
-    900, 360, "«FIG» — The parts of the main screen (the same as in the real screenshot below). On screen: «AMS · "
-    "messaggi inviati» (“AMS · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» (“DATE”), «MESSAGGIO» "
+    900, 360, "«FIG» — The parts of the main screen (the same as in the real screenshot below). On screen: «RootSpeak · "
+    "messaggi inviati» (“RootSpeak · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» (“DATE”), «MESSAGGIO» "
     "(“MESSAGE”), «DESTINATARI» (“RECIPIENTS”); the example titles «Il tuo account scade…» (“Your account expires…”), "
     "«Manutenzione · Sabato…» (“Maintenance · Saturday…”), «Aggiornamento del…» (“Update of the…”); «1 consegnato» "
     "(“1 delivered”), «4 confermato · 3 consegnato · 1 inviato» (“4 confirmed · 3 delivered · 1 sent”), «tutti "
@@ -70,13 +70,13 @@ ANATOMIA = fig(
     "(“quit”)",
     "")
 
-S2 = p("The main screen of the TUI is the list of sent messages. All AMS screens have the same frame: the title "
+S2 = p("The main screen of the TUI is the list of sent messages. All RootSpeak screens have the same frame: the title "
        "at the top left, the time of the last update at the top right, the content in the middle and, at the "
        "bottom, the line of keys that can be pressed at that moment.", lead=True) + ANATOMIA + \
     table(["", "Part", "What it shows"], [
-        ["1", "Title", "Where you are: " + c("AMS · messaggi inviati") + " (“AMS · sent messages”), "
+        ["1", "Title", "Where you are: " + c("RootSpeak · messaggi inviati") + " (“RootSpeak · sent messages”), "
          + c("Messaggio 2 · Manutenzione") + " (“Message 2 · Maintenance”), " + c("Nuovo messaggio") + " (“New message”)."],
-        ["2", "Update", "The time at which AMS last reread the message store. It changes every 3 seconds: if it "
+        ["2", "Update", "The time at which RootSpeak last reread the message store. It changes every 3 seconds: if it "
          "stops, the TUI is no longer receiving updates."],
         ["3", "Header", "The columns: message number, date and time of sending, title and first line of the text, "
          "recipients."],
@@ -106,7 +106,7 @@ STATI = fig(
     + '<path d="M410 172 C 410 232, 490 232, 490 172" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>'
     + text(450, 250, "postpones («Più tardi», «n»): stays delivered", 11.5, "#92400e", "600")
     + zone(30, 276, 840, 64, "Properties of the message, not states of the recipients")
-    + text(250, 322, "revoked: ams revoke, key r", 12, "#475569", "600")
+    + text(250, 322, "revoked: rspeak revoke, key r", 12, "#475569", "600")
     + text(650, 322, "expired: the --expires time has passed", 12, "#475569", "600")
     + text(450, 70, "for each recipient, exactly one of the three states", 12, "#003a90", "700"),
     900, 360, "«FIG» — The three states of a recipient; revocation and expiry stop the message without changing the states. "
@@ -125,11 +125,11 @@ BARRA = fig(
     900, 180, "«FIG» — How to read the bar of a message with 8 recipients; the phrase «4 confermato · 3 consegnato · 1 "
     "inviato» means “4 confirmed · 3 delivered · 1 sent”", "The bar and the phrase")
 
-S3 = p("There is only one concept you need to know to use AMS: every recipient of every message is in one of "
+S3 = p("There is only one concept you need to know to use RootSpeak: every recipient of every message is in one of "
        "<b>three states</b>. There are no others.", lead=True) + STATI + \
-    table(["State", "What it means", "What AMS does"], [
+    table(["State", "What it means", "What RootSpeak does"], [
         [INVIATO, "The message has left, but the copy is not yet in the user's mailbox: usually because it "
-         "could not be written, for example with a full disk.", "Retries by itself the next time " + c("ams") + " is used: a command such as " + c("list") + " or " + c("status")
+         "could not be written, for example with a full disk.", "Retries by itself the next time " + c("rspeak") + " is used: a command such as " + c("list") + " or " + c("status")
          + ", or opening the TUI."],
         [CONSEGNATO, "The copy is in the user's mailbox: they see it at once if logged in, otherwise at the next "
          "login. They have not confirmed yet.", "Shows the message to them again until they confirm; if they "
@@ -148,25 +148,25 @@ S3 = p("There is only one concept you need to know to use AMS: every recipient o
         "they last postponed (" + rif(6, 2) + ").", "What about those who postpone?")
 
 S4 = table(["I want to…", "In the TUI", "With a command", "Where"], [
-    ["send a message", key("n") + ", then " + key("Ctrl", "S"), c("ams send --to … \"testo\"") + " (testo: “text”)",
+    ["send a message", key("n") + ", then " + key("Ctrl", "S"), c("rspeak send --to … \"testo\"") + " (testo: “text”)",
      rif(5)],
-    ["see all messages", "the main screen", c("ams list"), rif(6, 1)],
-    ["see who has confirmed", key("Enter") + " on the message", c("ams status ID"), rif(6, 2)],
-    ["see the history of a message", key("Enter") + ", then " + key("Tab"), c("ams log ID"), rif(6, 4)],
+    ["see all messages", "the main screen", c("rspeak list"), rif(6, 1)],
+    ["see who has confirmed", key("Enter") + " on the message", c("rspeak status ID"), rif(6, 2)],
+    ["see the history of a message", key("Enter") + ", then " + key("Tab"), c("rspeak log ID"), rif(6, 4)],
     ["find a message", key("/"), "—", rif(6, 6)],
-    ["revoke a message", key("r"), c("ams revoke ID"), rif(7, 1)],
-    ["remind whoever has not confirmed", key("s"), c("ams remind ID"), rif(7, 2)],
-    ["delete old messages", key("p"), c("ams purge 90d"), rif(7, 3)],
+    ["revoke a message", key("r"), c("rspeak revoke ID"), rif(7, 1)],
+    ["remind whoever has not confirmed", key("s"), c("rspeak remind ID"), rif(7, 2)],
+    ["delete old messages", key("p"), c("rspeak purge 90d"), rif(7, 3)],
     ["the list of keys", key("?"), "—", rif(3, 4)],
-    ["the complete help", "—", c("ams --help"), rif(9)],
+    ["the complete help", "—", c("rspeak --help"), rif(9)],
     ["quit", key("q"), "—", ""],
-], "«TAB» — All of AMS in one table") + \
+], "«TAB» — All of RootSpeak in one table") + \
     p("In the TUI the " + key("?") + " key opens the list of keys over the message list; any key closes it. "
       "In the key line the entry is called «tasti» (“keys” in English); the complete list of commands is in "
-      + c("ams --help") + ".") + \
+      + c("rspeak --help") + ".") + \
     schermata_u("help", "«FIG» — The list of TUI keys (key ?)")
 
-CHAPTER = ("AMS at a glance", [
+CHAPTER = ("RootSpeak at a glance", [
     ("Two ways of working", S1),
     ("How the TUI is laid out", S2),
     ("The three states of a recipient", S3),

@@ -1,8 +1,8 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Fuzzing (libFuzzer) di ciò che legge dati non fidati: il primo byte sceglie
  * il bersaglio, il resto è il dato.
  *   0 pulizia del testo            (testo e titolo dei messaggi)
- *   1 formato dei messaggi         (copie nelle caselle, lette da ams-user)
+ *   1 formato dei messaggi         (copie nelle caselle, lette da rootspeak-user)
  *   2 uscita della lettura caselle (conferme e rinvii scritti dall'utente, letti da root)
  *   3 ambiente di un processo      (/proc/PID/environ di un utente, letto da root)
  *   4 configurazione

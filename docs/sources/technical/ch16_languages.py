@@ -11,7 +11,7 @@ LINGUE = fig(
     + box(20, 210, 210, 54, "shell, agent", "their environment", "dark")
     + box(20, 290, 210, 54, "journal", "/etc/default/locale", "dark")
     + box(330, 170, 200, 54, "lingua_scegli", "gettext rules", "navy")
-    + box(640, 80, 240, 54, "LINGUA/LC_MESSAGES/ams.mo", "read by lingua.c", "blue", 12)
+    + box(640, 80, 240, 54, "LINGUA/LC_MESSAGES/rootspeak.mo", "read by lingua.c", "blue", 12)
     + box(640, 170, 240, 54, "English", "the texts in the code", "light")
     + box(640, 260, 240, 54, "message text", "never translated", "soft")
     + arrow(232, 77, 328, 185) + arrow(232, 157, 328, 192) + arrow(232, 237, 328, 204) + arrow(232, 317, 328, 216)
@@ -20,8 +20,8 @@ LINGUE = fig(
     900, 362, "«FIG» — Where the reader's language comes from, and where the texts are (LINGUA: “LANGUAGE”)",
     "Everyone in their own language")
 
-S1 = p("Everyone reads AMS in their own language: the administrator the commands, each user the question, the "
-       "dialog and the buttons. The text of the messages is never translated. Today AMS has Italian and English; "
+S1 = p("Everyone reads RootSpeak in their own language: the administrator the commands, each user the question, the "
+       "dialog and the buttons. The text of the messages is never translated. Today RootSpeak has Italian and English; "
        "English is the language of the texts in the code and the fallback language.", lead=True) + LINGUE + table(["Who reads", "Language",
                                                                                      "Taken from"], [
     ["the administrator: output, errors, help, TUI", "their own", "their environment: sudo usually keeps "
@@ -29,11 +29,11 @@ S1 = p("Everyone reads AMS in their own language: the administrator the commands
     ["the user, at sending time: the header in the terminal", "the terminal's", "the environment of the first "
      "process of the terminal, usually the shell; if root cannot read it, the user reads it themselves (" + cap(7, 4) + "); "
      "with no processes, the system language"],
-    ["the user, at the prompt: question and answers", "the shell's", "the environment of " + c("ams-user prompt")],
+    ["the user, at the prompt: question and answers", "the shell's", "the environment of " + c("rootspeak-user prompt")],
     ["the user, on the desktop: dialog, buttons, notification", "the graphical session's", "the agent's environment"],
     ["the journal (" + c("MESSAGE") + ")", "the system's", c("/etc/default/locale") + " or "
      + c("/etc/locale.conf")],
-    [c("ams log") + ", TUI history", "the reader's", "rewritten from the " + c("AMS_*") + " fields (" + cap(18, 4)
+    [c("rspeak log") + ", TUI history", "the reader's", "rewritten from the " + c("RSPEAK_*") + " fields (" + cap(18, 4)
      + ")"],
 ], "«TAB» — Who reads in which language") + ul([
     "What is saved stays <b>language-neutral</b>: the channel of a confirmation is " + c("terminale pts/N")
@@ -82,7 +82,7 @@ MO = fig(
            "#166534", "600")
     + text(450, 160, "context: «context\\004text» in the original · empty translation = not translated", 11,
            "#475569"),
-    900, 180, "«FIG» — What a .mo catalog looks like, and how AMS reads it", "The catalog reader")
+    900, 180, "«FIG» — What a .mo catalog looks like, and how RootSpeak reads it", "The catalog reader")
 
 S3 = p("The catalogs are in the gettext format (" + c(".mo") + "), but they are read by " + c("src/lingua.c") + ", not by "
        "libintl. This decision was made after a test: with libintl, a language not installed on the system stays "
@@ -93,23 +93,23 @@ S3 = p("The catalogs are in the gettext format (" + c(".mo") + "), but they are 
      "that the two tables fit in the file; otherwise no catalog"],
     [c("catalogo_cerca"), "binary search among the originals; every entry must fit in the file and end with a zero; "
      "an empty translation means “not translated”"],
-    [c("catalogo(lingua)") + " (“catalog(language)”)", "reads " + c("LOCALEDIR/LINGUA/LC_MESSAGES/ams.mo")
+    [c("catalogo(lingua)") + " (“catalog(language)”)", "reads " + c("LOCALEDIR/LINGUA/LC_MESSAGES/rootspeak.mo")
      + " (LINGUA: “LANGUAGE”; at most 4 MiB) the first time, "
      "then keeps it in memory (up to 8 languages per process)"],
     [c("T(testo)") + ", " + c("TC(contesto, testo)") + " (testo: “text”, contesto: “context”)", "the translation in the language of whoever uses the process"],
-    [c("tl(lingua, testo)") + " (lingua: “language”), " + c("tlc(…)"), "the translation in a given language: this is how " + c("ams send")
+    [c("tl(lingua, testo)") + " (lingua: “language”), " + c("tlc(…)"), "the translation in a given language: this is how " + c("rspeak send")
      + " writes to every terminal in its own language"],
 ], "«TAB» — The catalog reader") + \
     note("the catalogs are root's files, but the reader treats them as arbitrary data: fuzzing also tries "
          "arbitrary catalogs (" + cap(21, 7) + ").")
 
-S4 = flow([("src/*.c", "T(\"…\"), TC, tl, tlc", "dark"), ("make pot", "xgettext → ams.pot", "navy"),
+S4 = flow([("src/*.c", "T(\"…\"), TC, tl, tlc", "dark"), ("make pot", "xgettext → rootspeak.pot", "navy"),
            ("po/it.po", "msgmerge, then translate", "blue"), ("make", "msgfmt --check → .mo", "navy"),
            ("check-docs", "catalog complete?", "green")], "«FIG» — From the texts in the code to the catalogs") + ul([
-    "In the code, the texts for AMS users are in English inside " + c("T(\"…\")") + " (or " + c("TC(contesto, \"…\")")
+    "In the code, the texts for RootSpeak users are in English inside " + c("T(\"…\")") + " (or " + c("TC(contesto, \"…\")")
     + ", " + c("tl(lingua, \"…\")") + " for a given language; " + c("N_(…)") + " for texts translated later). "
     "Names, comments and developer notes are in Italian.",
-    c("make pot") + " extracts them into " + c("po/ams.pot") + " with " + c("xgettext") + " (with the "
+    c("make pot") + " extracts them into " + c("po/rootspeak.pot") + " with " + c("xgettext") + " (with the "
     + c("TRADUTTORI") + " (“TRANSLATORS”) comments) and updates the " + c(".po") + " files with " + c("msgmerge") + "; " + c("make") + " compiles them "
     "with " + c("msgfmt --check") + ", which also checks that every translation has the same " + c("%s") + ".",
     c("tools/check-docs.py") + " fails if a catalog does not pass " + c("msgfmt --check") + ", has translations to "

@@ -26,7 +26,7 @@ S1 = p("The project went through two external critical reviews, carried out by l
     TEMPI + table(["Review", "On what", "What came out of it"], [
         ["first (A and B), on version 0.1.0", "real defects, specification, robustness, tests", "confirmations never "
          "silently lost; verified delivery with recovery; three states for every message, without levels; "
-         "structured events and " + c("ams log") + "; " + c("ams purge") + "; configuration as data; the "
+         "structured events and " + c("rspeak log") + "; " + c("rspeak purge") + "; configuration as data; the "
          "“Specification” chapter; the real-world suites in the container and in the VM"],
         ["second (C and D), on the manual with the covering note", "races, durability, boundaries", "revocation "
          "serialised with sending; confirmations later than the revocation not valid; terminal checked after "
@@ -36,9 +36,9 @@ S1 = p("The project went through two external critical reviews, carried out by l
     ], "«TAB» — The two reviews") + ul([
     "Criticisms not accepted, with the reason: “the confirmation does not prove reading” (intended: never block, "
     + cap(20, 1) + "); “if the terminal is blocked the message does not arrive” (inaccurate: the mailbox acts as a "
-    "queue); “rewrite in a compiled language right away” (the specification first; the rewrite came later); " + c("ams")
-    + " always as root (the user's decision); a pipe in place of " + c("acks/ID") + " blocking " + c("ams status")
-    + " and an end-of-line comment in " + c("ams.conf") + " (inaccurate, tested); a " + c("/var/lib/ams")
+    "queue); “rewrite in a compiled language right away” (the specification first; the rewrite came later); " + c("rspeak")
+    + " always as root (the user's decision); a pipe in place of " + c("acks/ID") + " blocking " + c("rspeak status")
+    + " and an end-of-line comment in " + c("rootspeak.conf") + " (inaccurate, tested); a " + c("/var/lib/rootspeak")
     + " prepared before installation (outside the model).",
     "A criticism rejected by mistake and then accepted: locks left stuck. The kernel releases the lock when the "
     "process dies, but the test VM showed that the agent's lock was inherited by its children.",
@@ -47,10 +47,10 @@ S1 = p("The project went through two external critical reviews, carried out by l
 S2 = table(["Defect", "Found by", "Fix", "Where"], [
     ["an unwritable confirmation was treated as “already confirmed”: the message disappeared without a confirmation",
      "review A", "publication with an exclusive " + c("link") + "; exit status 1, the message stays", cap(13, 1)],
-    ["an interrupted " + c("ams send") + " left recipients without a copy, never recovered", "review A",
+    ["an interrupted " + c("rspeak send") + " left recipients without a copy, never recovered", "review A",
      "delivery verified and recorded; " + c("incomplete") + "; recovery", cap(8, 6)],
     ["an agent woken up while starting died (20 out of 20)", "review A, test", "handler for " + c("SIGUSR1")
-     + " as the first instruction; " + c("ams-agent.pronto"), cap(12, 2)],
+     + " as the first instruction; " + c("rootspeak-agent.pronto"), cap(12, 2)],
     ["open dialogs and questions accepted the confirmation after the expiry", "review A", "they close at the "
      "expiry; confirmation rejected; date compared with " + c("sent/"), cap(20, 7)],
     ["recovery, during a long sending, delivered in parallel and recorded duplicates", "container, F3 and F5",
@@ -67,7 +67,7 @@ S2 = table(["Defect", "Found by", "Fix", "Where"], [
      cap(12, 3)],
     ["a reminder within one second of «Più tardi» (“Later”) was lost", "VM, I11", "the answer is recorded as soon as "
      "zenity closes (" + c("SIGCHLD") + ")", cap(12, 3)],
-    [c("ams revoke") + " did not wait for a sending in progress", "review C", "revocation on disk, then the lock",
+    [c("rspeak revoke") + " did not wait for a sending in progress", "review C", "revocation on disk, then the lock",
      cap(9, 1)],
     ["a confirmation could come into being after the revocation", "review C", "no confirmation without a copy; date "
      "compared with the revocation", cap(13, 1)],
@@ -75,9 +75,9 @@ S2 = table(["Defect", "Found by", "Fix", "Where"], [
      cap(8, 4)],
     ["no guarantee after a power loss", "review C", c("fsync") + ", " + c("syncfs")
      + ", recorded copies checked again", cap(20, 6)],
-    [c("ams purge") + " together with " + c("ams list") + ": a message disappeared halfway through reading",
+    [c("rspeak purge") + " together with " + c("rspeak list") + ": a message disappeared halfway through reading",
      "review D", "rename to " + c(".cancella-ID") + "; read before use", cap(9, 3)],
-    ["5000 fake files in " + c("acks/") + ": " + c("ams list") + " took 3.9 s", "review D", "only the messages in "
+    ["5000 fake files in " + c("acks/") + ": " + c("rspeak list") + " took 3.9 s", "review D", "only the messages in "
      + c("sent/") + ", with a time limit", cap(10, 2)],
     ["texts over 128 KiB did not reach the dialog", "review D", "limit of 65536 bytes on sending", cap(8, 1)],
     ["the TUI's sending child never saw the end of the text", c("tests/tui.py"), "it closes the pipe end it does "
@@ -106,7 +106,7 @@ S3 = p("Version 0.2.0 is a complete rewrite in C of the bash prototype, decided 
     [c("sed") + " and " + c("tr") + " for text cleaning", c("pulisci") + ", with the same result on 2000 "
      "random texts (" + cap(8, 7) + ")"],
     ["configuration read with " + c("source"), "data file, two keys (" + cap(4, 5) + ")"],
-    ["language texts in shell files", "gettext catalogs read by AMS (" + cap(16, 3) + ")"],
+    ["language texts in shell files", "gettext catalogs read by RootSpeak (" + cap(16, 3) + ")"],
     [c("wait") + " interrupted by the wake-up", c("ppoll") + " with signals blocked outside the waits ("
      + cap(12, 2) + ")"],
 ], "«TAB» — From bash to C") + \

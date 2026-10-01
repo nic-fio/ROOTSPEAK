@@ -11,12 +11,12 @@ FONTI = fig(
     + zone(310, 44, 280, 150, "Working copy · user")
     + box(330, 80, 240, 90, "users/U/", "copy, confirmation, postponements", "blue")
     + zone(600, 44, 280, 150, "History · journal")
-    + box(620, 80, 240, 90, "AMS_* events", "with the _UID of whoever wrote them", "soft")
+    + box(620, 80, 240, 90, "RSPEAK_* events", "with the _UID of whoever wrote them", "soft")
     + text(450, 222, "a recipient's state: sent/ compared with users/U; never from the journal", 11.5, "#003a90",
            "700"),
     900, 240, "«FIG» — The three sources and their authority", "Sources of truth")
 
-S1 = p("This chapter is the <b>contract</b> of AMS: what any implementation must respect, regardless of how it is "
+S1 = p("This chapter is the <b>contract</b> of RootSpeak: what any implementation must respect, regardless of how it is "
        "written. The rest of the manual describes how the C version implements it; the bash prototype (0.1.0) "
        "worked on the same message store, and the same tests apply to both. Every change to the code respects this "
        "chapter or updates it explicitly.", lead=True) + FONTI + \
@@ -26,9 +26,9 @@ S1 = p("This chapter is the <b>contract</b> of AMS: what any implementation must
          "revoked", "root only"],
         [c("users/U/") + " (inbox, read, acks, state)", "<b>working copy</b>, controlled by the user: it can be "
          "deleted or altered, and the system must stay consistent", "the user (and root, as the user)"],
-        ["journal (" + c("SYSLOG_IDENTIFIER=ams") + ")", "<b>history</b>: events with a date and " + c("_UID")
+        ["journal (" + c("SYSLOG_IDENTIFIER=rspeak") + ")", "<b>history</b>: events with a date and " + c("_UID")
          + ", the user who wrote them (set by the journal). Anyone can write an event with the "
-         + c("AMS_*") + " fields: " + c("_UID") + " says who wrote it, not that it is true; " + c("ams log") + " flags "
+         + c("RSPEAK_*") + " fields: " + c("_UID") + " says who wrote it, not that it is true; " + c("rspeak log") + " flags "
          "as not trustworthy an event written by the wrong user. States are derived from the message store, never from "
          "the journal", "root and the user"],
     ], "«TAB» — The sources of truth") + ul([
@@ -36,8 +36,8 @@ S1 = p("This chapter is the <b>contract</b> of AMS: what any implementation must
     "root's message store: its date must not be later than the expiry written in " + c("sent/ID/msg") + " nor than the revocation ("
     + c("sent/ID/revoked") + ").",
     "<b>“Confirmed” means</b>: the mailbox contains a valid read statement from the user. It is not an action "
-    "observed by AMS, nor proof of reading: the user controls their own mailbox and could write it themselves. "
-    "Anyone using " + c("ams status") + " for an audit must read it this way.",
+    "observed by RootSpeak, nor proof of reading: the user controls their own mailbox and could write it themselves. "
+    "Anyone using " + c("rspeak status") + " for an audit must read it this way.",
     "If the user deletes their own copy, the message simply shows as not confirmed; if they alter it (text, "
     "expiry), only what they see changes.",
 ])
@@ -98,7 +98,7 @@ RIASS = fig(
     "inviato» (“14 confirmed · 5 delivered · 2 sent”), the bar and the marks «[ritirato]» (“[revoked]”) and «[scaduto]» "
     "(“[expired]”)", "The summary")
 
-SM = p("In the message list (TUI and " + c("ams list") + ") a message is summarised by its recipients: "
+SM = p("In the message list (TUI and " + c("rspeak list") + ") a message is summarised by its recipients: "
        "how many are in each of the three states, in words and with a bar (confirmed, delivered, sent), plus the "
        "properties revoked and expired. No other word describes the state of a message.", lead=True) + RIASS + \
     ul([
@@ -107,7 +107,7 @@ SM = p("In the message list (TUI and " + c("ams list") + ") a message is summari
         "Words such as “pending”, “complete”, “incomplete sending”, “cancelled” (in Italian «in attesa», «completo», "
         "«invio incompleto», «annullato») are not states and do not appear: "
         + c("tests/engine.sh") + " (group 3) and " + c("tests/tui.py") + " check this.",
-        "A sending cancelled before it was saved has no recipients to count: " + c("ams list") + " reports it "
+        "A sending cancelled before it was saved has no recipients to count: " + c("rspeak list") + " reports it "
         "with a warning line, the TUI does not show it (" + cap(10, 4) + ").",
     ])
 
@@ -134,7 +134,7 @@ S2B = p("For each command that changes the message store: which lock it holds, a
         [c("revoke"), c("sent/ID/lock") + " waited for after writing " + c("revoked"), c("sent/ID/revoked")
          + " renamed into place", "the sending in progress delivers nothing more; confirmations with a later date are "
          "not valid; the copies are removed once the sending has released the lock"],
-        ["confirmation (" + c("ams-user") + ")", "none: exclusive " + c("link"), c("acks/ID") + " created; what counts "
+        ["confirmation (" + c("rootspeak-user") + ")", "none: exclusive " + c("link"), c("acks/ID") + " created; what counts "
          "is the date written inside", "between two confirmations the first one wins; with revocation the date decides: "
          "equal or earlier is valid, later is not; without a copy in " + c("inbox/") + " there is no confirmation"],
         [c("purge"), c("sent/ID/lock") + " if free, otherwise skips", c("sent/ID") + " renamed to "
@@ -155,24 +155,24 @@ S3 = table(["#", "Invariant"], [
     ["I4", "A confirmation comes into being whole or not at all, and once written it does not change: the first one counts."],
     ["I5", "A valid confirmation has a date no later than the expiry of the reference copy nor than the revocation."],
     ["I6", "A message with " + c("incomplete") + " and a free lock is an interrupted sending: the first subsequent "
-     + c("ams") + " command completes it or, if it had not been saved, cancels it."],
+     + c("rspeak") + " command completes it or, if it had not been saved, cancels it."],
     ["I7", "Root never reads or writes the contents of a mailbox with its own identity: always as the user."],
     ["I8", "The saved text and title contain no control characters or escape sequences."],
     ["I9", "IDs always increase (a sequence with " + c("flock") + "); they are reused only if the message store is reset."],
-    ["I10", "AMS never locks a session and does not touch sessions without a terminal."],
+    ["I10", "RootSpeak never locks a session and does not touch sessions without a terminal."],
     ["I11", "The wake-up signal goes only to a ready agent; the mailbox remains the authoritative queue: a lost signal "
-     "delays the dialog by at most " + c("AMS_AGENT_POLL") + " seconds, it does not lose it. The signal neither closes "
+     "delays the dialog by at most " + c("RSPEAK_AGENT_POLL") + " seconds, it does not lose it. The signal neither closes "
      "nor changes a dialog that is already open."],
     ["I12", "A postponement is recorded only for a choice by the user («Più tardi» (“Later”), dialog closed, an answer "
      "other than yes): a dialog closed by the system is not a postponement."],
     ["I13", "Durability: when " + c("incomplete") + " is gone, copies and " + c("delivery") + " lines are on "
      "disk; a confirmation is on disk before the user reads «Confermato» (“Confirmed.”); " + c("revoked") + " is on "
-     "disk before " + c("ams revoke") + " touches the mailboxes. After a power failure with " + c("incomplete")
+     "disk before " + c("rspeak revoke") + " touches the mailboxes. After a power failure with " + c("incomplete")
      + " present, recovery rechecks all the copies, including those already recorded."],
     ["I14", "The text is written to a terminal only if the terminal, once opened, belongs to the recipient: "
      "the name " + c("/dev/pts/N") + " does not identify a session."],
     ["I15", "No root command reads from the mailboxes more than what concerns the messages in " + c("sent/")
-     + ", and every read has a time limit: an abnormal mailbox neither blocks nor slows down " + c("ams") + "."],
+     + ", and every read has a time limit: an abnormal mailbox neither blocks nor slows down " + c("rspeak") + "."],
 ], "«TAB» — The invariants")
 
 S4 = p("For each point at which a process can be interrupted, the state that remains and who repairs it.", lead=True) + \
@@ -192,14 +192,14 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
          "(scenario I10: exit after 0.1 s)"],
         ["leaving the session with the dialog open", "no postponement recorded: the dialog comes back at the next "
          "login", "none"],
-        ["the desktop agent dies", "lock released; one of its dialogs may stay open", c("ams send")
+        ["the desktop agent dies", "lock released; one of its dialogs may stay open", c("rspeak send")
          + " or the login start a new agent; the orphaned dialog no longer records anything"],
-        [c("ams revoke") + " after " + c("revoked") + ", before removing the copies", c("revoked") + " and "
-         + c("ritiro") + "; some copies still in the mailboxes", "the next " + c("ams") + " command removes the "
+        [c("rspeak revoke") + " after " + c("revoked") + ", before removing the copies", c("revoked") + " and "
+         + c("ritiro") + "; some copies still in the mailboxes", "the next " + c("rspeak") + " command removes the "
          "copies (until then the recipients do not see them as revoked)"],
         ["a mailbox unreachable during revocation", c("ritiro") + " remains", "the next command retries"],
-        [c("ams purge") + " after the rename", c("sent/.cancella-ID") + ", some copies in the mailboxes",
-         "the next " + c("ams") + " command removes copies, confirmations, postponements and the folder"],
+        [c("rspeak purge") + " after the rename", c("sent/.cancella-ID") + ", some copies in the mailboxes",
+         "the next " + c("rspeak") + " command removes copies, confirmations, postponements and the folder"],
         ["power failure during sending", c("incomplete") + " on disk; copies and " + c("delivery")
          + " lines perhaps not", "recovery rewrites every missing copy, even if recorded"],
         ["power failure after «Confermato» (“Confirmed.”)", "confirmation on disk", "none"],
@@ -208,7 +208,7 @@ S4 = p("For each point at which a process can be interrupted, the state that rem
          "none needed"],
     ], "«TAB» — Behaviour after an interruption") + \
     note("the repairs are tested: interruptions simulated in " + c("tests/engine.sh") + " (groups 1, 2 and 9: "
-         "copy gone after an interruption, interrupted revocation and deletion), an " + c("ams send")
+         "copy gone after an interruption, interrupted revocation and deletion), an " + c("rspeak send")
          + " actually killed with SIGKILL (scenario F3) and a revocation during a sending to many users (scenario F7). "
          "A real power failure is not tested: durability relies on " + c("fsync") + " of files and "
          "folders and on " + c("syncfs") + " at the end of sending.")
@@ -217,14 +217,14 @@ S5 = table(["Aspect", "Rule"], [
     ["reference", "all dates are seconds since the Unix epoch on the machine's clock; users and root use the "
      "same clock"],
     ["expiry", "compared with the current time when a message is about to be shown, while a question or a "
-     "dialog is open (every second), and when the confirmation is recorded; in " + c("ams status") + " with the date "
+     "dialog is open (every second), and when the confirmation is recorded; in " + c("rspeak status") + " with the date "
      "of the confirmation"],
-    ["postponement", "lasts " + c("AMS_REMIND_MINUTES") + " from the modification time of " + c("state/ID.term") + " or "
+    ["postponement", "lasts " + c("RSPEAK_REMIND_MINUTES") + " from the modification time of " + c("state/ID.term") + " or "
      + c("state/ID.gui") + ", each for its own channel; in the terminal, the postponement does not apply at login; for "
      "the dialog it applies even after a new graphical login"],
     ["clock set back", "expiries and postponements last longer; no message is lost"],
     ["clock set forward", "expiries and postponements arrive earlier"],
-    ["suspend and resume", "the agent resumes at the next round (at most " + c("AMS_AGENT_POLL") + " seconds); the "
+    ["suspend and resume", "the agent resumes at the next round (at most " + c("RSPEAK_AGENT_POLL") + " seconds); the "
      "elapsed time counts for expiries and postponements"],
 ], "«TAB» — Time") + table(["Situation", "Revocation", "Expiry"], [
     ["copy not yet shown", "removed from the mailbox; not shown", "stays; no longer shown"],
@@ -234,7 +234,7 @@ S5 = table(["Aspect", "Rule"], [
     ["during sending", "sending stops at the next recipient", "sending continues: whoever receives the copy after the "
      "expiry never sees it («consegnato, non confermato (scaduto)», “delivered, not confirmed (expired)”)"],
     ["text already written to the terminals", "stays on screen", "stays on screen"],
-    ["in " + c("ams status"), "«consegnato, non confermato (ritirato)» (“delivered, not confirmed (revoked)”)",
+    ["in " + c("rspeak status"), "«consegnato, non confermato (ritirato)» (“delivered, not confirmed (revoked)”)",
      "«consegnato, non confermato (scaduto)» (“delivered, not confirmed (expired)”)"],
 ], "«TAB» — Revocation and expiry")
 
@@ -253,7 +253,7 @@ S6 = p("Message store format 1. Readers ignore header keys they do not know.", l
         [c("sent/ID/failed"), "the cancellation date; its presence is what counts"],
         [c("sent/ID/incomplete") + ", " + c("ritiro") + ", " + c("lock"), "marks (the content does not matter): "
          "incomplete sending, revocation to be completed; " + c("lock") + " is used with " + c("flock")],
-        [c("sent/.cancella-ID/"), "a message that " + c("ams purge") + " is deleting"],
+        [c("sent/.cancella-ID/"), "a message that " + c("rspeak purge") + " is deleting"],
         [c("users/U/inbox/ID") + ", " + c("read/ID"), "copy of " + c("msg")],
         [c("users/U/acks/ID"), c("data canale") + " (“date channel”): date in seconds since the Unix epoch, a space, "
          "channel (" + c("desktop") + " or " + c("terminale pts/N") + ", “terminal pts/N”); the first line counts, at most 200 bytes"],
@@ -268,7 +268,7 @@ S7 = table(["", "Requirement"], [
     ["question in the terminal", "bash, zsh or fish at every prompt; sh, dash, ksh and the other shells that read "
      + c("/etc/profile") + " at login; the text at sending time with any shell"],
 ], "«TAB» — Requirements") + \
-    p("<b>Supported</b> means that the requirements are met and AMS is designed to work; <b>verified</b> "
+    p("<b>Supported</b> means that the requirements are met and RootSpeak is designed to work; <b>verified</b> "
       "that it has been tested, and how. The two are distinct.") + \
     table(["Environment", "Supported", "Verified"], [
         ["Debian 13, GNOME on Wayland", "yes", "yes: the C version with the automated suite in the VM ("

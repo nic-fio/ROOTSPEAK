@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Fuzzing con libFuzzer (clang) in un container Debian 13, senza toccare il
 # sistema: compila tests/fuzz/fuzz.c con AddressSanitizer e UBSan e lo lancia
 # per ogni bersaglio. Un difetto ferma il fuzzing e lascia il caso in
@@ -9,7 +9,7 @@ set -uo pipefail
 QUI=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$QUI/../.." && pwd)
 SEC=${1:-60}
-IMG=ams-fuzz
+IMG=rootspeak-fuzz
 mkdir -p "$QUI/results"
 if ! podman image exists $IMG; then
 	printf 'FROM docker.io/library/debian:trixie\nRUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends clang libclang-rt-dev libsystemd-dev pkg-config libc6-dev && rm -rf /var/lib/apt/lists/*\n' |

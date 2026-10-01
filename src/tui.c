@@ -1,12 +1,12 @@
-/* AMS - Advanced Messaging System
- * La TUI per gli amministratori: ams senza argomenti in un terminale.
+/* RootSpeak - Advanced Messaging System for Linux
+ * La TUI per gli amministratori: rspeak senza argomenti in un terminale.
  *
- * Legge l'archivio con le stesse funzioni di ams list e ams status, e ogni
+ * Legge l'archivio con le stesse funzioni di rspeak list e rspeak status, e ogni
  * azione (invio, ritiro, sollecito, pulizia) è il comando stesso, eseguito in
  * un processo figlio di cui si mostra l'uscita: la TUI non ha un modo suo di
  * fare le cose, e non ha stati suoi (solo inviato, consegnato, confermato;
  * ritirato e scaduto come proprietà). */
-#include "ams.h"
+#include "rspeak.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -1125,10 +1125,10 @@ static void anteprime(modulo_t *m)
 	buf_free(&o);
 }
 
-/* Apre il testo nell'editor di chi usa ams (SUDO_USER), fuori dalla TUI. */
+/* Apre il testo nell'editor di chi usa rspeak (SUDO_USER), fuori dalla TUI. */
 static void editor(modulo_t *m)
 {
-	char path[] = "/tmp/ams-testo-XXXXXX";
+	char path[] = "/tmp/rootspeak-testo-XXXXXX";
 	int fd = mkstemp(path);
 	buf_t t = {0};
 	const char *chi = getenv("SUDO_USER");
@@ -1170,7 +1170,7 @@ static void editor(modulo_t *m)
 	{
 		buf_t b = {0};
 
-		if (leggi_file(path, (size_t)AMS_MAX_BYTES * 2, true, &b) == 0) {
+		if (leggi_file(path, (size_t)RSPEAK_MAX_BYTES * 2, true, &b) == 0) {
 			while (b.n && b.s[b.n - 1] == '\n')
 				b.s[--b.n] = '\0';
 			testo_da(m, b.s ? b.s : "");
@@ -1334,8 +1334,8 @@ static bool nuovo_messaggio(long long *nuovo)
 				buf_t t = {0};
 
 				modulo_testo(&m, &t);
-				buf_printf(&b, "%*s%s", 12, "", t.n > AMS_MAX_BYTES ? RO : GR);
-				buf_printf(&b, T("%zu of %d bytes"), t.n, AMS_MAX_BYTES);
+				buf_printf(&b, "%*s%s", 12, "", t.n > RSPEAK_MAX_BYTES ? RO : GR);
+				buf_printf(&b, T("%zu of %d bytes"), t.n, RSPEAK_MAX_BYTES);
 				buf_adds(&b, R_);
 				strv_add(&s.righe, b.s);
 				buf_clear(&b);
@@ -1544,7 +1544,7 @@ static void aiuto(schermo_t *s)
 	}
 	strv_add(&t, "");
 	strv_add(&t, T("The list updates by itself every 3 seconds."));
-	strv_add(&t, T("The complete guide: ams --help."));
+	strv_add(&t, T("The complete guide: rspeak --help."));
 	{
 		char car[8];
 
@@ -1557,7 +1557,7 @@ static void aiuto(schermo_t *s)
 
 /* ---- ciclo principale ---- */
 
-bool ams_tui(void)
+bool rspeak_tui(void)
 {
 	elenco_t e = {0};
 	size_t sel = 0, primo = 0;
@@ -1591,7 +1591,7 @@ bool ams_tui(void)
 			primo = sel;
 		if (area > 0 && sel >= primo + (size_t)area)
 			primo = sel - (size_t)area + 1;
-		s.titolo = xstrdup(T("AMS · sent messages"));
+		s.titolo = xstrdup(T("RootSpeak · sent messages"));
 		s.destra = xasprintf(T("updated at %s"), e.ora);
 		righe_lista(&s, &e, sel, primo, filtro);
 		tasti_lista(&s);

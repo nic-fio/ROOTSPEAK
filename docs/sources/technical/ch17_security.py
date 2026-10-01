@@ -7,8 +7,8 @@ def cap(n, s=None):
 
 TRUST = fig(
     zone(20, 44, 270, 220, "Trusted: administrators")
-    + box(44, 84, 222, 56, "ams (root)", "sudo, admin group, 750", "navy")
-    + box(44, 158, 222, 56, "sent/ · ams.conf · .mo", "only root writes", "dark")
+    + box(44, 84, 222, 56, "rspeak (root)", "sudo, admin group, 750", "navy")
+    + box(44, 158, 222, 56, "sent/ · rootspeak.conf · .mo", "only root writes", "dark")
     + zone(330, 44, 240, 220, "Boundary")
     + box(352, 84, 196, 56, "come_utente", "child with U's identity", "green")
     + box(352, 158, 196, 56, "pulisci, limits", "texts, 200 bytes, times", "green")
@@ -18,9 +18,9 @@ TRUST = fig(
     + arrow(268, 112, 350, 112) + arrow(550, 112, 632, 112)
     + arrow(632, 186, 550, 186, "#d97706") + arrow(350, 186, 268, 186, "#d97706")
     + text(450, 238, "everything that crosses", 11.5, "#166534", "700") + text(450, 254, "the boundary goes through here", 11.5, "#166534", "700"),
-    900, 282, "«FIG» — The AMS trust model", "Who is trusted")
+    900, 282, "«FIG» — The RootSpeak trust model", "Who is trusted")
 
-S1 = p("Administrators are trusted: they can already do anything on the machine, and AMS does not protect them from "
+S1 = p("Administrators are trusted: they can already do anything on the machine, and RootSpeak does not protect them from "
        "themselves. Users are <b>not</b> trusted: they control their own mailbox, their own terminals, the environment "
        "of their own processes, and they can write to the journal. Everything that goes from root to a user, or comes "
        "back from a user to root, crosses a controlled boundary.", lead=True) + TRUST + table(["Direction", "What crosses", "Control"], [
@@ -33,15 +33,15 @@ S1 = p("Administrators are trusted: they can already do anything on the machine,
      + cap(10, 2) + ")"],
     ["process → root", "the environment for the language", "at most 1 MiB; valid language codes only ("
      + cap(16, 2) + ")"],
-    ["journal → root", "events with the " + c("AMS_*") + " fields", c("_UID") + " compared with who was supposed to "
+    ["journal → root", "events with the " + c("RSPEAK_*") + " fields", c("_UID") + " compared with who was supposed to "
      "write them; states never taken from the journal (" + cap(18, 4) + ")"],
 ], "«TAB» — The boundary, direction by direction")
 
 S2 = table(["Risk", "Countermeasure", "Test"], [
-    ["an ordinary user runs " + c("ams"), "permissions " + c("750 root:gruppo admin") + " (gruppo admin: “admin "
+    ["an ordinary user runs " + c("rspeak"), "permissions " + c("750 root:gruppo admin") + " (gruppo admin: “admin "
      "group”); re-launch with sudo, which "
      "applies its own rules", "scenarios A3, A4"],
-    [c("AMS_TEST") + " used to bypass sudo", "it grants nothing: without root a user keeps their own permissions; "
+    [c("RSPEAK_TEST") + " used to bypass sudo", "it grants nothing: without root a user keeps their own permissions; "
      "the test variables apply only in test mode", "scenario G4"],
     ["symbolic links in the mailbox", "every access by root to the mailboxes happens in a child with the user's "
      "identity, with a time limit", "scenario G1"],
@@ -51,7 +51,7 @@ S2 = table(["Risk", "Countermeasure", "Test"], [
      "scenario G2"],
     ["forged confirmations", "read as the user, at most 200 bytes, cleaned; a confirmation remains a statement "
      "by the user, not a proof", "scenario G3"],
-    ["fake events in the journal", "the journal adds " + c("_UID") + "; " + c("ams log") + " flags as «non "
+    ["fake events in the journal", "the journal adds " + c("_UID") + "; " + c("rspeak log") + " flags as «non "
      "attendibile» (“not trustworthy”) an event written by the wrong user; states are read from the message store", "scenario J3"],
     ["text meant for one user written to another user's terminal", "the owner of the terminal is checked "
      "after opening it, not the name " + c("/dev/pts/N"), c("engine.sh") + ", group 9"],
@@ -60,7 +60,7 @@ S2 = table(["Risk", "Countermeasure", "Test"], [
     ["a stuck terminal halts sending", "non-blocking write, at most 3 s per terminal", "—"],
     ["a user stops root's child (" + c("SIGSTOP") + ")", "time limit even after the output has ended, then "
      + c("SIGKILL"), "—"],
-    ["configuration as code", c("ams.conf") + " is a data file: two keys, positive integers", c("engine.sh")
+    ["configuration as code", c("rootspeak.conf") + " is a data file: two keys, positive integers", c("engine.sh")
      + ", group 5"],
     ["an editor opened as root from the TUI", "the editor runs with the identity of the administrator in "
      + c("SUDO_USER"), "—"],
@@ -70,7 +70,7 @@ S2 = table(["Risk", "Countermeasure", "Test"], [
     ["memory errors in a root program", "compiler hardening, static analysis, sanitizers, "
      "fuzzing (" + cap(17, 3) + ")", cap(21, 7)],
 ], "«TAB» — Risks and countermeasures") + \
-    note("outside the model: a symbolic link " + c("/var/lib/ams") + " created before installation. "
+    note("outside the model: a symbolic link " + c("/var/lib/rootspeak") + " created before installation. "
          "Only root writes in " + c("/var/lib") + ", and root is already trusted (second review, finding not accepted).")
 
 S3 = p("A root program in C that reads user data must not have memory errors. Besides the coding rules "

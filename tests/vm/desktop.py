@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System
+"""RootSpeak - Advanced Messaging System for Linux
 Gira dentro la VM di prova, con l'identità dell'utente del desktop e il suo bus
-di sessione: guarda e usa le finestre di AMS attraverso l'accessibilità di GNOME
+di sessione: guarda e usa le finestre di RootSpeak attraverso l'accessibilità di GNOME
 (AT-SPI), come farebbe una persona, anche su Wayland.
 
-    desktop.py finestre             numero di finestre di AMS aperte
+    desktop.py finestre             numero di finestre di RootSpeak aperte
     desktop.py titolo               titolo della prima finestra
     desktop.py testo                testo della prima finestra
     desktop.py clicca ETICHETTA     preme il pulsante ETICHETTA nella prima finestra
@@ -14,11 +14,11 @@ import sys
 import pyatspi
 
 # il titolo cambia con la lingua della sessione, ma comincia sempre così
-TITOLO = "AMS · "
+TITOLO = "RootSpeak · "
 
 
 def finestre():
-    """Le finestre di dialogo di AMS: applicazioni zenity con il titolo di AMS (in ogni lingua)."""
+    """Le finestre di dialogo di RootSpeak: applicazioni zenity con il titolo di RootSpeak (in ogni lingua)."""
     out = []
     desktop = pyatspi.Registry.getDesktop(0)
     for app in desktop:
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         print(" | ".join(testi(wins[0], [])) if wins else "")
     elif cmd == "clicca":
         if not wins:
-            sys.exit("nessuna finestra di AMS")
+            sys.exit("nessuna finestra di RootSpeak")
         bottone = cerca(wins[0], "push button", sys.argv[2]) or cerca(wins[0], "button", sys.argv[2])
         if bottone is None:
             sys.exit(f"pulsante «{sys.argv[2]}» non trovato")

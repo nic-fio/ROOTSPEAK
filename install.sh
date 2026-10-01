@@ -1,24 +1,24 @@
 #!/bin/bash
-# AMS - Advanced Messaging System: installazione e rimozione.
+# RootSpeak - Advanced Messaging System for Linux: installazione e rimozione.
 #   ./install.sh              installa
-#   ./install.sh --uninstall  rimuove (i messaggi in /var/lib/ams restano)
+#   ./install.sh --uninstall  rimuove (i messaggi in /var/lib/rootspeak restano)
 #   ./install.sh --purge      rimuove anche i messaggi
 # Installa la versione in C compilata in build/ (make); se manca, la compila.
 set -euo pipefail
 
 PREFIX=${PREFIX:-/usr/local}
-LIBDIR=$PREFIX/lib/ams
+LIBDIR=$PREFIX/lib/rootspeak
 BINDIR=$PREFIX/bin
-VARDIR=/var/lib/ams
-DOCDIR=$PREFIX/share/doc/ams
+VARDIR=/var/lib/rootspeak
+DOCDIR=$PREFIX/share/doc/rootspeak
 BASHRC=/etc/bash.bashrc
 ZSHRC=$( [ -d /etc/zsh ] && echo /etc/zsh/zshrc || echo /etc/zshrc )
-FISHCONF=/etc/fish/conf.d/ams.fish
-MARK='# AMS hook'
+FISHCONF=/etc/fish/conf.d/rootspeak.fish
+MARK='# RootSpeak hook'
 SRC=$(dirname "$(readlink -f "$0")")
 LOCALEDIR=$PREFIX/share/locale
-# l'agente del desktop: quello in C e quello del prototipo in bash
-AGENT_RE="^(/bin/bash )?$LIBDIR/ams-user agent\$"
+# l'agente del desktop
+AGENT_RE="^$LIBDIR/rootspeak-user agent\$"
 
 [ "$(id -u)" -eq 0 ] || exec sudo -- "$(readlink -f "$0")" "$@"
 
@@ -42,79 +42,73 @@ do_install() {
 
 	# I programmi compilati con le cartelle di questa installazione: se mancano
 	# o sono stati compilati per un'altra, si compilano.
-	if ! [ -x "$SRC/build/ams" ] || ! [ -x "$SRC/build/ams-user" ] ||
-		! grep -qaF "$LIBDIR" "$SRC/build/ams"; then
+	if ! [ -x "$SRC/build/rspeak" ] || ! [ -x "$SRC/build/rootspeak-user" ] ||
+		! grep -qaF "$LIBDIR" "$SRC/build/rspeak"; then
 		make -C "$SRC" PREFIX="$PREFIX" all >/dev/null ||
 			{ echo "Compilazione non riuscita: servono gcc, make, pkg-config, libsystemd-dev e gettext" >&2; exit 1; }
 	fi
-	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/ams /etc/profile.d /etc/xdg/autostart
-	install -m 755 "$SRC/build/ams-user" "$LIBDIR/ams-user"
-	# il prototipo in bash e le sue lingue non servono più
-	rm -rf "$LIBDIR/lingue" "$LIBDIR/ams-common.sh" "$LIBDIR/ams-help.sh"
-	for mo in "$SRC"/build/locale/*/LC_MESSAGES/ams.mo; do
+	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/rootspeak /etc/profile.d /etc/xdg/autostart
+	install -m 755 "$SRC/build/rootspeak-user" "$LIBDIR/rootspeak-user"
+	for mo in "$SRC"/build/locale/*/LC_MESSAGES/rootspeak.mo; do
 		[ -e "$mo" ] || continue
 		l=${mo#"$SRC"/build/locale/}
 		l=${l%%/*}
 		install -d -m 755 "$LOCALEDIR/$l/LC_MESSAGES"
-		install -m 644 "$mo" "$LOCALEDIR/$l/LC_MESSAGES/ams.mo"
+		install -m 644 "$mo" "$LOCALEDIR/$l/LC_MESSAGES/rootspeak.mo"
 	done
-	# Le versioni precedenti installavano in sbin, che su Debian non è nel PATH degli utenti.
-	rm -f "$PREFIX/sbin/ams"
-	install -m 750 -o root -g "$group" "$SRC/build/ams" "$BINDIR/ams"
-	[ -e /etc/ams/ams.conf ] || install -m 644 "$SRC/etc/ams/ams.conf" /etc/ams/ams.conf
-	# manuali in un solo file ciascuno; via i nomi e gli asset delle versioni precedenti
+	install -m 750 -o root -g "$group" "$SRC/build/rspeak" "$BINDIR/rspeak"
+	[ -e /etc/rootspeak/rootspeak.conf ] || install -m 644 "$SRC/etc/rootspeak/rootspeak.conf" /etc/rootspeak/rootspeak.conf
+	# manuali in un solo file ciascuno
 	install -d -m 755 "$DOCDIR"
-	rm -rf "$DOCDIR/assets" "$DOCDIR/user-manual.html" "$DOCDIR/manuale-utente.html" "$DOCDIR/manuale-tecnico.html" \
-		"$DOCDIR/AMS_Manuale_Utente.html" "$DOCDIR/AMS_Manuale_Tecnico.html"
 	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$DOCDIR/"
-	subst "$SRC/etc/profile.d/ams.sh" >/etc/profile.d/ams.sh
-	subst "$SRC/etc/ams.bash" >"$LIBDIR/ams.bash"
-	subst "$SRC/etc/ams.zsh" >"$LIBDIR/ams.zsh"
-	chmod 644 "$LIBDIR/ams.bash" "$LIBDIR/ams.zsh"
+	subst "$SRC/etc/profile.d/rootspeak.sh" >/etc/profile.d/rootspeak.sh
+	subst "$SRC/etc/rootspeak.bash" >"$LIBDIR/rootspeak.bash"
+	subst "$SRC/etc/rootspeak.zsh" >"$LIBDIR/rootspeak.zsh"
+	chmod 644 "$LIBDIR/rootspeak.bash" "$LIBDIR/rootspeak.zsh"
 	# zsh: un richiamo nello zshrc di sistema, se zsh è installata (se lo sarà
 	# dopo, basta rilanciare install.sh); fish: un file in conf.d, che fish
 	# legge anche se viene installata dopo
 	if [ -f "$ZSHRC" ] && ! grep -qF "$MARK" "$ZSHRC"; then
-		echo "[ -r $LIBDIR/ams.zsh ] && . $LIBDIR/ams.zsh  $MARK" >>"$ZSHRC"
+		echo "[ -r $LIBDIR/rootspeak.zsh ] && . $LIBDIR/rootspeak.zsh  $MARK" >>"$ZSHRC"
 	fi
 	install -d -m 755 "$(dirname "$FISHCONF")"
-	subst "$SRC/etc/ams.fish" >"$FISHCONF"
+	subst "$SRC/etc/rootspeak.fish" >"$FISHCONF"
 	chmod 644 "$FISHCONF"
-	subst "$SRC/etc/xdg/autostart/ams-agent.desktop" >/etc/xdg/autostart/ams-agent.desktop
-	chmod 644 /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
+	subst "$SRC/etc/xdg/autostart/rootspeak-agent.desktop" >/etc/xdg/autostart/rootspeak-agent.desktop
+	chmod 644 /etc/profile.d/rootspeak.sh /etc/xdg/autostart/rootspeak-agent.desktop
 
 	# Su Debian e Ubuntu le shell non di login (es. i terminali del desktop)
 	# non leggono /etc/profile.d: l'hook va richiamato da bash.bashrc.
 	if [ -f "$BASHRC" ] && ! grep -qF "$MARK" "$BASHRC"; then
-		echo "[ -r /etc/profile.d/ams.sh ] && . /etc/profile.d/ams.sh  $MARK" >>"$BASHRC"
+		echo "[ -r /etc/profile.d/rootspeak.sh ] && . /etc/profile.d/rootspeak.sh  $MARK" >>"$BASHRC"
 	fi
 
 	install -d -m 755 "$VARDIR" "$VARDIR/users"
 	install -d -m 700 "$VARDIR/sent"
 
 	# Gli agenti del desktop di una versione precedente vanno chiusi: il primo
-	# `ams send` o il prossimo login ne avviano uno aggiornato.
+	# `rspeak send` o il prossimo login ne avviano uno aggiornato.
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 
-	echo "AMS installato. Comando: $BINDIR/ams (utilizzabile dal gruppo $group)."
+	echo "RootSpeak installato. Comando: $BINDIR/rspeak (utilizzabile dal gruppo $group)."
 	echo "Manuali: $DOCDIR/User Manual.html e Technical Manual.html"
 	echo "Le sessioni già aperte ricevono i messaggi sul terminale subito e la domanda"
 	echo "di conferma dalla prossima shell o dal prossimo login."
 }
 
 do_uninstall() {
-	rm -f "$BINDIR/ams" "$PREFIX/sbin/ams" /etc/profile.d/ams.sh /etc/xdg/autostart/ams-agent.desktop
+	rm -f "$BINDIR/rspeak" /etc/profile.d/rootspeak.sh /etc/xdg/autostart/rootspeak-agent.desktop
 	rm -rf "$LIBDIR" "$DOCDIR"
-	rm -f "$LOCALEDIR"/*/LC_MESSAGES/ams.mo
+	rm -f "$LOCALEDIR"/*/LC_MESSAGES/rootspeak.mo
 	if [ -f "$BASHRC" ]; then sed -i "\|$MARK|d" "$BASHRC"; fi
 	if [ -f "$ZSHRC" ]; then sed -i "\|$MARK|d" "$ZSHRC"; fi
 	rm -f "$FISHCONF"
 	pkill -f "$AGENT_RE" 2>/dev/null || true
 	if [ "${1:-}" = purge ]; then
-		rm -rf "$VARDIR" /etc/ams
-		echo "AMS rimosso, insieme ai messaggi e alla configurazione."
+		rm -rf "$VARDIR" /etc/rootspeak
+		echo "RootSpeak rimosso, insieme ai messaggi e alla configurazione."
 	else
-		echo "AMS rimosso. Messaggi ($VARDIR) e configurazione (/etc/ams) conservati."
+		echo "RootSpeak rimosso. Messaggi ($VARDIR) e configurazione (/etc/rootspeak) conservati."
 	fi
 }
 

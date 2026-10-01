@@ -27,7 +27,7 @@ FLUSSO = fig(
     900, 300, "«FIG» — conferma(ID, CANALE) (CANALE: “CHANNEL”): the checks and the exclusive publication",
     "How a confirmation is born")
 
-S1 = p(c("conferma(ID, CANALE)") + " (“confirm(ID, CHANNEL)”) in " + c("src/ams-user.c") + " is the only place where a confirmation is born. "
+S1 = p(c("conferma(ID, CANALE)") + " (“confirm(ID, CHANNEL)”) in " + c("src/rootspeak-user.c") + " is the only place where a confirmation is born. "
        "It writes it to a temporary file, flushes it to disk and publishes it with " + c("link") + ", which fails if "
        + c("acks/ID") + " already exists: the confirmation is born <b>whole or not at all</b>, and “already confirmed” "
        "stays distinct from “write failed”.", lead=True) + FLUSSO + code("""static int conferma(long long id, const char *canale)
@@ -48,7 +48,7 @@ S1 = p(c("conferma(ID, CANALE)") + " (“confirm(ID, CHANNEL)”) in " + c("src/
 	segna_letto(id);
 	evento("CONFERMATO", id, U, canale, "", "");
 	return 0;
-}""", "c", "src/ams-user.c (in short)") + table(["Case", "Result", "What happens"], [
+}""", "c", "src/rootspeak-user.c (in short)") + table(["Case", "Result", "What happens"], [
     ["confirmation written", "0", "the message moves to " + c("read/") + ", the postponements are removed; event in the log"],
     [c("acks/ID") + " already present", "0", "moves to " + c("read/") + "; the first confirmation stays"],
     ["write failed (disk full, permissions)", "1", "<b>stays in " + c("inbox/") + "</b>; the user is told, "
@@ -63,7 +63,7 @@ S1 = p(c("conferma(ID, CANALE)") + " (“confirm(ID, CHANNEL)”) in " + c("src/
     "The temporary file " + c("acks/.ID.PID") + " starts with a dot: it is never mistaken for a confirmation. If "
     "an interruption leaves it behind, it is ignored.",
     "If the revocation arrives between the check of " + c("inbox/ID") + " and " + c("link") + ", the confirmation is "
-    "born, but " + c("ams status") + " does not count it: its date is later than " + c("sent/ID/revoked") + " ("
+    "born, but " + c("rspeak status") + " does not count it: its date is later than " + c("sent/ID/revoked") + " ("
     + cap(10, 1) + ").",
     c("segna_letto") + " renames " + c("inbox/ID") + " to " + c("read/ID") + " and removes the postponements. If it "
     "is interrupted between the confirmation and the move, whoever reads the mailbox next completes the move without "
@@ -87,14 +87,14 @@ S2 = p("A user may have the dialog open on the desktop and the question in two t
     "Two almost simultaneous confirmations produce a single record: " + c("link") + " succeeds only once; "
     "the other finds " + c("acks/ID") + " and only moves the message.",
     "The questions and dialogs still open notice it at their next check (within a second) and "
-    "close: «[AMS] Messaggio già confermato altrove (per esempio dal desktop).» (“[AMS] Message already confirmed "
+    "close: «[RootSpeak] Messaggio già confermato altrove (per esempio dal desktop).» (“[RootSpeak] Message already confirmed "
     "elsewhere (for example on the desktop).”) in the terminal, while the dialog "
     "closes by itself (scenarios C4b and I5).",
     "This rule came from a live test of the prototype: the user had to confirm twice, from the "
     "dialog and from the terminal.",
 ])
 
-S3 = p(c("ams status") + " reads the confirmations from the mailbox, which the user controls. That is why it treats "
+S3 = p(c("rspeak status") + " reads the confirmations from the mailbox, which the user controls. That is why it treats "
        "them as <b>untrusted data</b>, and their meaning is deliberately limited.", lead=True) + table(
     ["Risk", "Rule"], [
         ["a symbolic link " + c("acks/ID") + " pointing to a restricted file", "the read happens as the user "
@@ -106,8 +106,8 @@ S3 = p(c("ams status") + " reads the confirmations from the mailbox, which the u
          + c("sent/")],
     ], "«TAB» — The confirmations read by root") + \
     note("<b>“Confirmed” means</b>: the mailbox holds a valid declaration of reading by the user. It is not "
-         "an action observed by AMS nor a proof of reading: the user controls their own mailbox and could "
-         "write it themselves, just as they could press «Ho letto» (“I have read it”) without reading. Whoever uses " + c("ams status")
+         "an action observed by RootSpeak nor a proof of reading: the user controls their own mailbox and could "
+         "write it themselves, just as they could press «Ho letto» (“I have read it”) without reading. Whoever uses " + c("rspeak status")
          + " for an audit must read it this way (" + cap(20, 1) + ").")
 
 CHAPTER = ("Confirmations", [

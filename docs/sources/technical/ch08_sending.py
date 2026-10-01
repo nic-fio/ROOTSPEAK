@@ -5,7 +5,7 @@ def cap(n, s=None):
     return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
-S1 = p(c("cmd_send") + " in " + c("src/ams.c") + " checks everything it can check <b>before</b> "
+S1 = p(c("cmd_send") + " in " + c("src/rspeak.c") + " checks everything it can check <b>before</b> "
        "writing to the message store: options, text, expiry, recipients. An error at this stage ends with "
        + c("die") + " and leaves nothing behind.", lead=True) + table(["Option", "Value", "Check"], [
     [c("--to DEST"), "recipients separated by commas", "mandatory («manca --to», “missing --to”); resolved after the text ("
@@ -16,7 +16,7 @@ S1 = p(c("cmd_send") + " in " + c("src/ams.c") + " checks everything it can chec
     [c("--file FILE"), "the text from a file", "read up to 64 MiB; it counts only if there is no text on the command "
      "line"],
     [c("--"), "—", "end of options: whatever follows is text even if it starts with " + c("-")],
-], "«TAB» — The options of ams send") + ul([
+], "«TAB» — The options of rspeak send") + ul([
     "Options end at the first argument that is not an option: from there on the arguments, joined by a "
     "space, are the text. Without text and without " + c("--file") + " the text is read from stdin (at most 64 MiB).",
     "An unknown option («opzione sconosciuta: --level», “unknown option: --level”) or one without a value («manca il "
@@ -56,13 +56,13 @@ INVIO = fig(
     + arrow(145, 262, 145, 298) + arrow(272, 328, 328, 328)
     + arrow(512, 328, 558, 328, "#475569", False, "yes", 535, 318)
     + path([(420, 360), (420, 372), (805, 372), (805, 358)], "#16a34a", False, "no", 610, 366),
-    900, 390, "«FIG» — The sequence of ams send", "A send, step by step")
+    900, 390, "«FIG» — The sequence of rspeak send", "A send, step by step")
 
 S2 = p("After the checks, sending is a fixed sequence. The order is chosen so that every interruption leaves a "
        "state that the next command can recognise and repair.", lead=True) + INVIO + table(["Step", "What",
                                                                                                "Why here"], [
-    ["1", c("prepara_archivio") + ": creates " + c("/var/lib/ams") + ", " + c("users/") + " (" + c("755") + ") and "
-     + c("sent/") + " (" + c("700") + ") if missing", "AMS also works without " + c("install.sh")
+    ["1", c("prepara_archivio") + ": creates " + c("/var/lib/rootspeak") + ", " + c("users/") + " (" + c("755") + ") and "
+     + c("sent/") + " (" + c("700") + ") if missing", "RootSpeak also works without " + c("install.sh")
      + " (test mode)"],
     ["2", c("prossimo_id") + ": the number and the folder " + c("sent/ID/"), "under flock: unique numbers ("
      + cap(5, 3) + ")"],
@@ -82,7 +82,7 @@ S2 = p("After the checks, sending is a fixed sequence. The order is chosen so th
      + ", " + c("incomplete") + " removed, " + c("fsync") + " again", "when the marker disappears, copies and "
      "deliveries are on disk"],
 ], "«TAB» — The steps of sending") + term(
-    "admin@server:~$ sudo ams send --to @sviluppo --title Manutenzione --expires 2d \"Sabato dalle 8 alle 12 il server sarà spento.\"\n"
+    "admin@server:~$ sudo rspeak send --to @sviluppo --title Manutenzione --expires 2d \"Sabato dalle 8 alle 12 il server sarà spento.\"\n"
     "Messaggio 12 inviato a 2 utenti.",
     "A successful send: title «Manutenzione» (“Maintenance”), text «Sabato dalle 8 alle 12 il server sarà spento.» (“On "
     "Saturday from 8 to 12 the server will be switched off.”); «Messaggio 12 inviato a 2 utenti.» (“Message 12 sent to "
@@ -104,24 +104,24 @@ CONS = fig(
 
 S3 = p("«Delivered» means that the copy <b>was</b> in the mailbox, verified, at the time of delivery. "
        + c("consegna_copia") + " in " + c("src/archivio.c") + " writes and checks in the same child process; "
-       "only if it succeeds does " + c("ams send") + " record the line in " + c("delivery") + ".", lead=True) + CONS + ul([
+       "only if it succeeds does " + c("rspeak send") + " record the line in " + c("delivery") + ".", lead=True) + CONS + ul([
     "Root prepares only " + c("users/U") + " (" + cap(7, 1) + "); the subfolders and the copy are written by the "
     "child with U's identity.",
     "If the message is already in " + c("read/") + " or " + c("acks/") + " the copy is not rewritten: recovery does "
     "not present again to a user a message already read or confirmed (" + c("tests/engine.sh") + ", group 2).",
     "The copy is born as " + c("inbox/ID.tmp") + " and becomes " + c("inbox/ID") + " through a rename: "
-    + c("ams-user") + ", which lists only names made of digits, never sees a half-written file.",
+    + c("rootspeak-user") + ", which lists only names made of digits, never sees a half-written file.",
     "A failure for one recipient (mailbox not writable, link to " + c("/etc") + ", timeout) does not "
     "stop the others: the event " + c("NON_CONSEGNATO") + " goes to the log and sending continues (scenario F1).",
 ])
 
-S4 = p("For each terminal from " + c("terminali_utente") + " (" + cap(6, 3) + "), " + c("ams send") + " writes the "
+S4 = p("For each terminal from " + c("terminali_utente") + " (" + cap(6, 3) + "), " + c("rspeak send") + " writes the "
        "formatted text in the language of whoever uses <b>that</b> terminal. Writing to the terminal does not count "
        "as confirmation: the question comes at the next prompt.", lead=True) + term(
-    "\n── AMS · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
+    "\n── RootSpeak · Messaggio dall'amministratore · Manutenzione · 30/09 16:55 ──\n"
     "Sabato dalle 8 alle 12 il server sarà spento.\n"
     "────────────────────────────────────────",
-    "The text written to the terminal of an Italian-speaking user: «AMS · Messaggio dall'amministratore» (“AMS · Message "
+    "The text written to the terminal of an Italian-speaking user: «RootSpeak · Messaggio dall'amministratore» (“RootSpeak · Message "
     "from the administrator”), then title, date and text") + \
     table(["Step", "What", "Why"], [
         [c("lingua_terminale"), "looks in " + c("/proc") + " for the first process with that terminal (usually the "
@@ -136,44 +136,44 @@ S4 = p("For each terminal from " + c("terminali_utente") + " (" + cap(6, 3) + ")
         ["writing", "in pieces, with a " + c("poll") + " of 100 ms between attempts, for at most 3 seconds",
          "a blocked terminal (Ctrl+S, slow network) does not stop the send"],
         ["count", "the terminals written in full end up in the " + c("delivery") + " line", "«scritto su 2 "
-         "terminali» (“written to 2 terminals”) in " + c("ams status")],
+         "terminali» (“written to 2 terminals”) in " + c("rspeak status")],
     ], "«TAB» — Writing to the terminals") + \
-    note("in test mode the only «terminal» is the file " + c("AMS_TEST_TTY") + ", and the check on the file type "
+    note("in test mode the only «terminal» is the file " + c("RSPEAK_TEST_TTY") + ", and the check on the file type "
          "is skipped; the one on the owner remains: " + c("tests/engine.sh") + " (group 9) checks that "
          + c("/dev/null") + ", owned by root, is not written to.")
 
-WAKE = seq([("ams send", "root", "navy"), ("child as U", "5 s", "dark"), ("U's agent", "ppoll", "blue"),
+WAKE = seq([("rspeak send", "root", "navy"), ("child as U", "5 s", "dark"), ("U's agent", "ppoll", "blue"),
             ("systemd --user", "of U", "soft")], [
     ("nota", 0, "sessione_grafica(U)?"),
     (0, 1, "come_utente(op_sveglia)"),
-    ("nota", 1, "PID in ams-agent.pronto"),
-    ("nota", 1, "cmdline = …/ams-user agent?"),
+    ("nota", 1, "PID in rootspeak-agent.pronto"),
+    ("nota", 1, "cmdline = …/rootspeak-user agent?"),
     (1, 2, "kill(PID, SIGUSR1)"),
     ("nota", 2, "wait is interrupted".ljust(22)),
     ("sep", "no ready agent".ljust(20)),
     (0, 3, "systemd-run --user --machine=U@.host"),
-    (3, 2, "starts ams-user agent", True),
+    (3, 2, "starts rootspeak-user agent", True),
 ], "«FIG» — Waking the desktop agent, or starting it", "Wake-up or start")
 
 S5 = p("After the copy, " + c("sveglia_agente") + " makes the dialog appear on the desktop at once, without waiting "
        "for the agent's periodic check. If the user has no graphical session (or in test mode) it does "
        "nothing.", lead=True) + WAKE + ul([
-    "The signal goes only to a <b>ready</b> agent: the PID written in " + c("/run/user/UID/ams-agent.pronto")
+    "The signal goes only to a <b>ready</b> agent: the PID written in " + c("/run/user/UID/rootspeak-agent.pronto")
     + " (at most 64 bytes, without following links), which the agent writes after it has prepared to receive the "
     "signal (" + cap(12, 2) + ").",
     "The signal is sent from a child <b>with U's identity</b>, and only if " + c("/proc/PID/cmdline") + " is "
-    "<b>exactly</b> " + c("LIBDIR/ams-user") + " followed by " + c("agent") + ": it cannot reach other users' "
+    "<b>exactly</b> " + c("LIBDIR/rootspeak-user") + " followed by " + c("agent") + ": it cannot reach other users' "
     "processes, nor a process of U that had inherited an old PID.",
     "If there is no ready agent, " + c("systemd-run --user --machine=U@.host --collect --quiet") + " starts one "
     "in the systemd user manager, which already knows the graphical environment of the session. If an agent was "
     "starting, the new one finds the lock and exits; the one that was starting reads the mailbox anyway on its first "
     "round (scenario I8: dialog in about half a second).",
-]) + note("the agent writes " + c("ams-agent.pronto") + " in " + c("$XDG_RUNTIME_DIR") + ", while " + c("ams send")
+]) + note("the agent writes " + c("rootspeak-agent.pronto") + " in " + c("$XDG_RUNTIME_DIR") + ", while " + c("rspeak send")
           + " looks for it in " + c("/run/user/UID") + ": they coincide in sessions started by logind, which is the "
           "supported case.")
 
-RECOVER = seq([("ams send", "root", "navy"), ("sent/ID", "", "dark"), ("Mailbox U1", "", "blue"),
-               ("Mailbox U2", "", "blue"), ("ams (later)", "any command", "light")], [
+RECOVER = seq([("rspeak send", "root", "navy"), ("sent/ID", "", "dark"), ("Mailbox U1", "", "blue"),
+               ("Mailbox U2", "", "blue"), ("rspeak (later)", "any command", "light")], [
     (0, 1, "lock, incomplete, msg"),
     (0, 2, "copy, verify"),
     (0, 1, "delivery: U1"),
@@ -200,17 +200,17 @@ S6 = p(c("recupera") + " runs at the start of almost every command (" + cap(4, 1
     [c("sent/.cancella-ID/"), "always", "completes the deletion (" + cap(9, 3) + ")"],
     ["any marker", "lock held", "nothing: it is a send in progress, not an interrupted send"],
 ], "«TAB» — What recovery repairs") + ul([
-    "The lock tells a send <b>in progress</b> from an <b>interrupted</b> one: " + c("ams send") + " holds it for the "
+    "The lock tells a send <b>in progress</b> from an <b>interrupted</b> one: " + c("rspeak send") + " holds it for the "
     "whole delivery and the kernel releases it when the process dies, even with " + c("SIGKILL") + ". Without this "
     "rule recovery, started during a long send, delivered in parallel and recorded duplicates (found "
     "by the real-world suite; scenarios F3 and F5).",
     "Copies already recorded are checked again because, after a power failure, a " + c("delivery")
     + " line might be on disk while the copy is not (" + c("tests/engine.sh") + ", group 9).",
-    "In the last recorded run on the test machine (scenario F3), an " + c("ams send") + " killed with "
+    "In the last recorded run on the test machine (scenario F3), an " + c("rspeak send") + " killed with "
     + c("SIGKILL") + " after 4 deliveries out of 68 was completed by the next command in less than a second.",
 ]) + warn("recovering a send in which some copy still cannot be written leaves " + c("incomplete")
-          + " and warns: «messaggio N ancora non consegnato a K destinatari (vedi ams status N)» (“message N still not "
-          "delivered to K recipients (see ams status N)”). Every following "
+          + " and warns: «messaggio N ancora non consegnato a K destinatari (vedi rspeak status N)» (“message N still not "
+          "delivered to K recipients (see rspeak status N)”). Every following "
           "command retries.")
 
 S7 = p("A message's text and title come from an administrator but end up in the users' terminals: "
@@ -228,8 +228,8 @@ S7 = p("A message's text and title come from an administrator but end up in the 
     "An OSC sequence without a final " + c("BEL") + " is not removed as a sequence: its " + c("ESC") + " disappears "
     "in pass 2 and the rest remains as harmless text (" + c("tests/unit-tests.c") + ").",
     "Normal UTF-8 text stays intact, including non-breaking spaces (" + c("C2 A0") + ").",
-    c("pulisci") + " is applied to text and title before they are saved, to what " + c("ams") + " reads from the "
-    "mailboxes (" + cap(10, 2) + "), to the lines of " + c("ams log") + " and to what the TUI shows of the commands "
+    c("pulisci") + " is applied to text and title before they are saved, to what " + c("rspeak") + " reads from the "
+    "mailboxes (" + cap(10, 2) + "), to the lines of " + c("rspeak log") + " and to what the TUI shows of the commands "
     "it ran.",
     "It gives the same result as the bash prototype (" + c("sed") + " and " + c("tr") + "): the two were compared on "
     "2000 random texts full of sequences and control characters before the prototype was removed. Scenario G2 "

@@ -1,4 +1,4 @@
-# Prove di AMS a ogni push e pull request, con ciò che gira su una macchina di
+# Prove di RootSpeak a ogni push e pull request, con ciò che gira su una macchina di
 # GitHub: compilazione (avvisi come errori), prove delle parti interne,
 # controlli dei manuali e tests/engine.sh in modalità di prova (senza root).
 # Le prove dal vero (tests/container/run.sh, tests/vm/run.sh) e il fuzzing

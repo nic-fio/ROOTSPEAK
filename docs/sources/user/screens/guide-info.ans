@@ -1,22 +1,22 @@
-[2m┌[0m[1;36m─ ams — guida [0m[2m──────────────────────────────────────────────────────────────┐[0m
+[2m┌[0m[1;36m─ rspeak — guida [0m[2m───────────────────────────────────────────────────────────┐[0m
 [2m│[0m [7;1m Info [0m[2m Comandi [0m[2m Opzioni [0m[2m Esempi [0m[2m File [0m                                     [2m│[0m
 [2m├────────────────────────────────────────────────────────────────────────────┤[0m
 [2m│[0m [1;33mNOME[0m                                                                       [2m│[0m
-[2m│[0m    ams — messaggi agli utenti con conferma di lettura                      [2m│[0m
+[2m│[0m    rspeak — messaggi agli utenti con conferma di lettura                   [2m│[0m
 [2m│[0m                                                                            [2m│[0m
 [2m│[0m [1;33mSINTASSI[0m                                                                   [2m│[0m
-[2m│[0m    ams send --to DEST [opzioni] [TESTO]                                    [2m│[0m
-[2m│[0m    ams list                                                                [2m│[0m
-[2m│[0m    ams status ID                                                           [2m│[0m
-[2m│[0m    ams                                                                     [2m│[0m
-[2m│[0m    ams revoke ID                                                           [2m│[0m
-[2m│[0m    ams remind ID                                                           [2m│[0m
-[2m│[0m    ams log ID                                                              [2m│[0m
-[2m│[0m    ams purge DURATA                                                        [2m│[0m
-[2m│[0m    ams version                                                             [2m│[0m
+[2m│[0m    rspeak send --to DEST [opzioni] [TESTO]                                 [2m│[0m
+[2m│[0m    rspeak list                                                             [2m│[0m
+[2m│[0m    rspeak status ID                                                        [2m│[0m
+[2m│[0m    rspeak                                                                  [2m│[0m
+[2m│[0m    rspeak revoke ID                                                        [2m│[0m
+[2m│[0m    rspeak remind ID                                                        [2m│[0m
+[2m│[0m    rspeak log ID                                                           [2m│[0m
+[2m│[0m    rspeak purge DURATA                                                     [2m│[0m
+[2m│[0m    rspeak version                                                          [2m│[0m
 [2m│[0m                                                                            [2m│[0m
 [2m│[0m [1;33mDESCRIZIONE[0m                                                                [2m│[0m
-[2m│[0m    AMS permette agli amministratori di mandare messaggi di testo agli      [2m│[0m
+[2m│[0m    RootSpeak permette agli amministratori di mandare messaggi di testo     [2m│[0m
 [2m├────────────────────────────────────────────────────────────────────────────┤[0m
 [2m│ ←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci           righe 1-16/26 │[0m
 [2m└────────────────────────────────────────────────────────────────────────────┘[0m

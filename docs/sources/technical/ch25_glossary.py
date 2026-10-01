@@ -20,17 +20,17 @@ MAPPA = fig(
     900, 192, "«FIG» — The main terms", "Map of the terms")
 
 S1 = MAPPA + dl([
-    ("agent (it. agente)", c("ams-user agent") + ": shows the confirmation dialogs in the graphical session; one per "
+    ("agent (it. agente)", c("rootspeak-user agent") + ": shows the confirmation dialogs in the graphical session; one per "
      "user (" + cap(12) + ")."),
-    ("hook (it. aggancio)", "the file that connects AMS to the shell: " + c("ams.bash") + ", " + c("ams.zsh") + ", "
-     + c("ams.fish") + " and, for the other shells, " + c("/etc/profile.d/ams.sh") + " (" + cap(11) + ")."),
-    ("message store (it. archivio)", "the folder " + c("/var/lib/ams") + ": root's " + c("sent/") + " and the users' "
+    ("hook (it. aggancio)", "the file that connects RootSpeak to the shell: " + c("rootspeak.bash") + ", " + c("rootspeak.zsh") + ", "
+     + c("rootspeak.fish") + " and, for the other shells, " + c("/etc/profile.d/rootspeak.sh") + " (" + cap(11) + ")."),
+    ("message store (it. archivio)", "the folder " + c("/var/lib/rootspeak") + ": root's " + c("sent/") + " and the users' "
      "mailboxes (" + cap(5) + ")."),
-    ("author (it. autore)", "the administrator who ran " + c("ams") + " (" + c("SUDO_USER") + "): the sender of the "
+    ("author (it. autore)", "the administrator who ran " + c("rspeak") + " (" + c("SUDO_USER") + "): the sender of the "
      "messages and the author of the events."),
     ("channel (it. canale)", "where a confirmation comes from: " + c("desktop") + " or " + c("terminale pts/N")
      + " (“terminal pts/N”); it is saved without a language and translated when shown."),
-    ("mailbox (it. casella)", "a user's folder " + c("/var/lib/ams/users/U") + ", owned by the user, with "
+    ("mailbox (it. casella)", "a user's folder " + c("/var/lib/rootspeak/users/U") + ", owned by the user, with "
      "permissions " + c("700") + "."),
     ("catalog (it. catalogo)", "the " + c(".mo") + " file with the translations of a language, compiled from "
      + c("po/LINGUA.po") + " (LINGUA: “LANGUAGE”; " + cap(16, 3) + ")."),
@@ -46,24 +46,24 @@ S1 = MAPPA + dl([
      "root: the only expiry that counts."),
     ("recipient (it. destinatario)", "a user the message is addressed to; the list is in "
      + c("sent/ID/recipients") + "."),
-    ("event (it. evento)", "a structured line in the journal, with the " + c("AMS_*") + " fields (" + cap(18) + ")."),
+    ("event (it. evento)", "a structured line in the journal, with the " + c("RSPEAK_*") + " fields (" + cap(18) + ")."),
     ("administrators' group (it. gruppo degli amministratori)", "the existing group " + c("sudo") + ", "
-     + c("wheel") + " or " + c("admin") + ": AMS has no group of its own."),
+     + c("wheel") + " or " + c("admin") + ": RootSpeak has no group of its own."),
     ("fingerprint (it. impronta)", "the abbreviated SHA-256 of the code (" + c("tools/fingerprint.sh") + "), recorded "
      "with the test results (" + cap(21, 1) + ")."),
     ("sent (it. inviato)", "state of a recipient who does not yet have the copy in the mailbox."),
-    ("lock", "the file " + c("sent/ID/lock") + " used with " + c("flock") + ": held by " + c("ams send")
+    ("lock", "the file " + c("sent/ID/lock") + " used with " + c("flock") + ": held by " + c("rspeak send")
      + " for the whole delivery, it tells a sending in progress from an interrupted one."),
 ], cls="gloss")
 
 S2 = dl([
     ("message (it. messaggio)", "a text with an optional title and expiry and a sequential number (ID)."),
-    ("test mode (it. modalità di prova)", c("AMS_TEST=1") + " with a test message store: the code is tested "
+    ("test mode (it. modalità di prova)", c("RSPEAK_TEST=1") + " with a test message store: the code is tested "
      "without root (" + cap(4, 3) + ")."),
     ("message properties (it. proprietà del messaggio)", "revoked and expired: they apply to the message, not to a "
      "recipient, and they are not states."),
     ("ready (it. pronto)", "an agent that has set up the reception of the wake-up signal and has written its PID to "
-     + c("ams-agent.pronto") + "."),
+     + c("rootspeak-agent.pronto") + "."),
     ("linearisation point (it. punto di linearizzazione)", "the instant at which an operation is considered to "
      "have happened for any observer (" + cap(20, 4) + ")."),
     ("recovery (it. recupero)", c("recupera") + ": completes interrupted sendings, revocations and deletions at the "
@@ -71,7 +71,7 @@ S2 = dl([
     ("summary (it. riassunto)", "a message described by the counts of its recipients in the three states, in words "
      "and with a bar (" + cap(10, 3) + ")."),
     ("postponement (it. rinvio)", "the answer “no” or «Più tardi» (“Later”): the file " + c("state/ID.term")
-     + " or " + c("state/ID.gui") + ", whose modification time counts for " + c("AMS_REMIND_MINUTES")
+     + " or " + c("state/ID.gui") + ", whose modification time counts for " + c("RSPEAK_REMIND_MINUTES")
      + " minutes."),
     ("revoked (it. ritirato)", "property of a message with " + c("sent/ID/revoked") + ": it is no longer shown, and "
      "later confirmations are not valid."),
@@ -80,11 +80,11 @@ S2 = dl([
     ("internal marker (it. segno interno)", c("incomplete") + ", " + c("ritiro") + ", " + c("failed") + ", "
      + c(".cancella-ID") + ": files through which recovery knows what to complete or cancel. They are not "
      "states."),
-    ("reminder (it. sollecito)", c("ams remind") + ": removes the postponements of the delivered recipients and "
+    ("reminder (it. sollecito)", c("rspeak remind") + ": removes the postponements of the delivered recipients and "
      "wakes up their agent (" + cap(9, 2) + ")."),
-    ("wake-up (it. sveglia)", "the " + c("SIGUSR1") + " signal that " + c("ams send") + " and " + c("ams remind")
+    ("wake-up (it. sveglia)", "the " + c("SIGUSR1") + " signal that " + c("rspeak send") + " and " + c("rspeak remind")
      + " send to the ready agent."),
-    ("TUI", "the full-screen interface for administrators: " + c("ams") + " without arguments in a terminal "
+    ("TUI", "the full-screen interface for administrators: " + c("rspeak") + " without arguments in a terminal "
      "(" + cap(14) + ")."),
     ("zenity", "the program that draws the «Ho letto» / «Più tardi» (“I have read it” / “Later”) dialog on the "
      "desktop."),

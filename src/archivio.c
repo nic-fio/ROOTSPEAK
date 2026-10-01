@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Caselle degli utenti (sempre con la loro identità), terminali, agente. */
 #include "archivio.h"
 
@@ -52,7 +52,7 @@ static int op_consegna(void *arg)
 	confermato = in_casella(o, "acks", "");
 	if (esiste(letto) || esiste(confermato))
 		return 0;
-	if (leggi_fd(0, AMS_MAX_MSG, &b) < 0 || !b.n)
+	if (leggi_fd(0, RSPEAK_MAX_MSG, &b) < 0 || !b.n)
 		return 1;
 	copia = in_casella(o, "inbox", "");
 	tmp = in_casella(o, "inbox", ".tmp");
@@ -195,12 +195,12 @@ typedef struct {
 	uid_t uid;
 } op_sveglia_t;
 
-/* Manda SIGUSR1 all'agente pronto: il PID scritto in ams-agent.pronto, se è
- * davvero l'agente di AMS (riga di comando esatta). Esito 0 se svegliato. */
+/* Manda SIGUSR1 all'agente pronto: il PID scritto in rootspeak-agent.pronto, se è
+ * davvero l'agente di RootSpeak (riga di comando esatta). Esito 0 se svegliato. */
 static int op_sveglia(void *arg)
 {
 	const op_sveglia_t *o = arg;
-	char *pronto = xasprintf("/run/user/%u/ams-agent.pronto", (unsigned)o->uid), *cmd, *atteso;
+	char *pronto = xasprintf("/run/user/%u/rootspeak-agent.pronto", (unsigned)o->uid), *cmd, *atteso;
 	buf_t b = {0}, c = {0};
 	long long pid;
 	size_t la;
@@ -212,7 +212,7 @@ static int op_sveglia(void *arg)
 	if (!leggi_numero(b.s, &pid) || pid <= 1 || pid > 1 << 22)
 		return 1;
 	cmd = xasprintf("/proc/%lld/cmdline", pid);
-	atteso = xasprintf("%s/ams-user", ams_libdir);
+	atteso = xasprintf("%s/rootspeak-user", rspeak_libdir);
 	la = strlen(atteso);
 	ok = leggi_file(cmd, 4096, false, &c) == 0 && c.n == la + 1 + 6 && !memcmp(c.s, atteso, la + 1) &&
 	     !memcmp(c.s + la + 1, "agent", 6);
@@ -225,7 +225,7 @@ static int op_sveglia(void *arg)
 
 static char *casella_di(const utente_t *u)
 {
-	return xasprintf("%s/users/%s", ams_var, u->nome);
+	return xasprintf("%s/users/%s", rspeak_var, u->nome);
 }
 
 /* users/U: la crea root (700) e la dà all'utente. Se è rimasta di root (un
@@ -243,7 +243,7 @@ static bool prepara_casella(const utente_t *u, const char *d)
 	}
 	if (!S_ISDIR(st.st_mode))
 		return false;
-	if (geteuid() == 0 && !ams_test && st.st_uid == 0 && lchown(d, u->uid, u->gid) < 0)
+	if (geteuid() == 0 && !rspeak_test && st.st_uid == 0 && lchown(d, u->uid, u->gid) < 0)
 		return false;
 	return true;
 }
@@ -390,7 +390,7 @@ bool scrivi_terminale(const char *t, uid_t uid, const char *testo, size_t n)
 	if (fd < 0)
 		return false;
 	/* il proprietario del terminale aperto, non del nome */
-	if (fstat(fd, &st) < 0 || st.st_uid != uid || (!S_ISCHR(st.st_mode) && !ams_test)) {
+	if (fstat(fd, &st) < 0 || st.st_uid != uid || (!S_ISCHR(st.st_mode) && !rspeak_test)) {
 		close(fd);
 		return false;
 	}
@@ -441,8 +441,8 @@ void lingua_terminale(const char *t, const utente_t *u, char out[8])
 	unsigned long long cercato;
 	strv_t pids = {0};
 
-	snprintf(out, 8, "%s", ams_test ? ams_lingua : lingua_sistema());
-	if (ams_test || stat(t, &st) < 0 || !S_ISCHR(st.st_mode))
+	snprintf(out, 8, "%s", rspeak_test ? rspeak_lingua : lingua_sistema());
+	if (rspeak_test || stat(t, &st) < 0 || !S_ISCHR(st.st_mode))
 		return;
 	cercato = (minor(st.st_rdev) & 0xff) | (major(st.st_rdev) << 8) | ((minor(st.st_rdev) & ~0xffu) << 12);
 	elenca_numeri("/proc", &pids);
@@ -480,14 +480,14 @@ void sveglia_agente(const utente_t *u)
 	char *agente, *macchina;
 	pid_t pid;
 
-	if (ams_test || !sessione_grafica(u->uid))
+	if (rspeak_test || !sessione_grafica(u->uid))
 		return;
 	if (come_utente(u, op_sveglia, &o, NULL, NULL, 0, 5) == 0)
 		return;
 	/* Nessun agente pronto: se ne avvia uno nel gestore utente di systemd, che
 	 * conosce già l'ambiente grafico. Se uno stava partendo, il nuovo trova il
 	 * lock ed esce; quello che partiva legge la casella al primo giro. */
-	agente = xasprintf("%s/ams-user", ams_libdir);
+	agente = xasprintf("%s/rootspeak-user", rspeak_libdir);
 	macchina = xasprintf("--machine=%s@.host", u->nome);
 	fflush(stdout);
 	pid = fork();

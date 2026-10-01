@@ -1,7 +1,7 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Testo pulito, messaggi, configurazione. */
-#ifndef AMS_TESTO_H
-#define AMS_TESTO_H
+#ifndef RSPEAK_TESTO_H
+#define RSPEAK_TESTO_H
 
 #include "comune.h"
 
@@ -38,8 +38,8 @@ void msg_intestazione(const msg_t *m, buf_t *out);
  * spazi ignorati. Si accettano solo le chiavi note con interi positivi (al
  * più 6 cifre); il resto è ignorato. */
 typedef struct {
-	long remind_minutes; /* AMS_REMIND_MINUTES, 30 */
-	long agent_poll;     /* AMS_AGENT_POLL, 60 */
+	long remind_minutes; /* RSPEAK_REMIND_MINUTES, 30 */
+	long agent_poll;     /* RSPEAK_AGENT_POLL, 60 */
 } conf_t;
 
 void conf_leggi(conf_t *c);

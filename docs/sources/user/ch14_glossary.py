@@ -18,17 +18,17 @@ MAPPA = fig(
     + arrow(395, 122, 395, 258, "#475569", True)
     + text(720, 276, "sessions: desktop, terminals, login", 11.5, "#334155", "600")
     + text(720, 296, "confirmation channel: desktop or terminal", 11.5, "#334155", "600"),
-    900, 330, "«FIG» — The words of AMS and how they fit together", "Map of the terms")
+    900, 330, "«FIG» — The words of RootSpeak and how they fit together", "Map of the terms")
 
 S1 = MAPPA + dl([
-    ("desktop agent", "The small AMS program that starts at every graphical login and shows the confirmation "
+    ("desktop agent", "The small RootSpeak program that starts at every graphical login and shows the confirmation "
      "dialogs. It is not a command: it starts by itself."),
     ("all", "Special recipient: all the users of the machine with a UID of 1000 or above and a real shell."),
-    ("message store", "The folder " + c("/var/lib/ams/") + ": the reference copies of the messages and the users' "
+    ("message store", "The folder " + c("/var/lib/rootspeak/") + ": the reference copies of the messages and the users' "
      "mailboxes."),
     ("channel", "Where a confirmation came from: " + c("desktop") + " or " + c("terminale pts/N") + " or "
      + c("terminale ttyN") + " (“terminal” in an English session)."),
-    ("mailbox", "The space where AMS keeps a user's messages, their confirmations and their postponements. Only "
+    ("mailbox", "The space where RootSpeak keeps a user's messages, their confirmations and their postponements. Only "
      "they (and root) can open it."),
     ("confirmation", "The user's statement that they have read a message: a click on «Ho letto» (“I have read "
      "it”) or the answer «s» (“y”). It is final and applies to all their sessions."),
@@ -40,25 +40,25 @@ S1 = MAPPA + dl([
      + c("online") + "."),
     ("event", "A fact in the history of a message (sending, delivery, postponement, reminder, confirmation, "
      "revocation, deletion), written to the system log."),
-    ("built-in help", "The tabbed help that opens with " + c("ams --help") + "."),
+    ("built-in help", "The tabbed help that opens with " + c("rspeak --help") + "."),
     ("sent (inviato)", "First state: the message has left, but the copy is not yet in the user's mailbox."),
     ("online", "Special recipient: among the users of " + c("all") + ", those logged in at the moment of "
      "sending."),
-    ("purge", "Deleting the messages older than a given duration: " + c("ams purge") + " or the " + c("p")
+    ("purge", "Deleting the messages older than a given duration: " + c("rspeak purge") + " or the " + c("p")
      + " key in the TUI."),
-    ("recovery", "The automatic completion of a sending left halfway, the next time " + c("ams") + " is used."),
-    ("system log", "The machine's log (the journal), where AMS writes its events with the tag "
-     + c("ams") + "."),
+    ("recovery", "The automatic completion of a sending left halfway, the next time " + c("rspeak") + " is used."),
+    ("system log", "The machine's log (the journal), where RootSpeak writes its events with the tag "
+     + c("rspeak") + "."),
     ("postpone", "Pressing «Più tardi» (“Later”) or answering «n»: the message is shown again after 30 minutes. "
      "It is not a state."),
-    ("revoke", "Withdrawing a message with " + c("ams revoke") + " or the " + c("r") + " key: whoever has not seen "
+    ("revoke", "Withdrawing a message with " + c("rspeak revoke") + " or the " + c("r") + " key: whoever has not seen "
      "it will no longer see it. Revoked (ritirato) is a property of the message, not a state of the recipients."),
     ("expiry", "The moment after which a message is no longer shown (" + c("--expires") + "). Expired (scaduto) is "
      "a property of the message, not a state of the recipients."),
     ("session", "A user's access to the machine: the desktop, a console, an ssh connection."),
     ("remind", "Asking again, immediately, for the confirmation from those who are still delivered: "
-     + c("ams remind") + " or the " + c("s") + " key in the TUI."),
-    ("TUI", "The full-screen interface, inside the terminal, that opens when you type " + c("ams") + " on its own."),
+     + c("rspeak remind") + " or the " + c("s") + " key in the TUI."),
+    ("TUI", "The full-screen interface, inside the terminal, that opens when you type " + c("rspeak") + " on its own."),
 ], cls="gloss")
 
 CHAPTER = ("Glossary", [

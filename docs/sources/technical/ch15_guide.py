@@ -10,7 +10,7 @@ SOURCES = fig(
     + box(290, 30, 190, 54, "tabbed help", "guida_a_schede", "blue")
     + box(290, 110, 190, 54, "page with pager", "pagina(), in colour", "blue")
     + box(290, 190, 190, 54, "plain text", "pagina(), 80 columns", "blue")
-    + box(570, 20, 150, 54, "po/ams.pot", "English source texts", "soft")
+    + box(570, 20, 150, 54, "po/rootspeak.pot", "English source texts", "soft")
     + box(570, 110, 150, 54, "build.py", "help_reference", "dark")
     + box(760, 110, 120, 54, "User", "Manual", "light")
     + box(570, 200, 310, 54, "tools/check-docs.py", "generated manual = src/guida.c", "green")
@@ -21,21 +21,21 @@ SOURCES = fig(
     + arrow(645, 166, 645, 198, "#16a34a", True),
     900, 272, "«FIG» — A single source for the help, the page, the text and the manual's reference", "Where the texts come from")
 
-S1 = p("The built-in help of " + c("ams --help") + " is modelled on that of MTERM: no system manual pages, but a "
+S1 = p("The built-in help of " + c("rspeak --help") + " is modelled on that of MTERM: no system manual pages, but a "
        "tabbed help in the terminal. Its texts live in " + c("src/guida.c") + ", in "
        "English, as " + c("\"label¦description\"") + " entries with one context per group; the translations live "
        "in the " + c("po/") + " catalogs, like all the other texts (" + cap(16) + ").", lead=True) + SOURCES + \
     table(["Context", "Content", "In the user manual"], [
         [c("guida-comandi"), "the commands: " + c("send") + ", " + c("list") + ", " + c("status") + ", " + c("revoke")
          + ", " + c("remind") + ", " + c("log") + ", " + c("purge") + ", " + c("version") + ", " + c("help")
-         + " and " + c("ams") + " on its own", "reference, with " + c("data-help")],
+         + " and " + c("rspeak") + " on its own", "reference, with " + c("data-help")],
         [c("guida-opzioni"), c("--to") + ", " + c("--title") + ", " + c("--expires") + ", " + c("--file"),
          "reference, with " + c("data-help")],
         [c("guida-esempi"), "example commands with their explanation", "—"],
         [c("guida-file"), "configuration, message store, log, manual", "—"],
         [c("guida-sintassi"), "the synopsis lines", "—"],
     ], "«TAB» — The groups of help texts") + \
-    p("The manual generator reads the English source entries from " + c("po/ams.pot") + " (extracted from "
+    p("The manual generator reads the English source entries from " + c("po/rootspeak.pot") + " (extracted from "
       "src/guida.c by make pot), in code order, and builds from them the user manual's reference, with the "
       + c("data-help") + " attribute on every entry; " + c("tools/check-docs.py") + " extracts the texts from "
       "src/guida.c again at check time and verifies that commands and options match, word for word (" + cap(21, 5)
@@ -53,9 +53,9 @@ LEVELS = fig(
     + arrow(470, 132, 470, 188, "#475569", False, "no", 486, 164)
     + text(760, 150, "shrunk below 44 × 10:", 11, "#475569")
     + text(760, 166, "the help exits", 11, "#475569"),
-    900, 266, "«FIG» — Which form ams --help takes", "Three forms")
+    900, 266, "«FIG» — Which form rspeak --help takes", "Three forms")
 
-S2 = p(c("ams_guida") + " chooses the form according to where the output goes. All three have the same content.",
+S2 = p(c("rspeak_guida") + " chooses the form according to where the output goes. All three have the same content.",
        lead=True) + LEVELS + table(["Form", "When", "How"], [
     ["tabbed help", "stdin and stdout on a terminal of at least 44 × 10", "five tabs: Info, Comandi (Commands), "
      "Opzioni (Options), Esempi (Examples), File (Files)"],
@@ -68,19 +68,19 @@ S2 = p(c("ams_guida") + " chooses the form according to where the output goes. A
      "without colours"],
 ], "«TAB» — The three forms of the help") + ul([
     "Colours are turned off with " + c("NO_COLOR") + "; " + c("PAGER") + " and " + c("NO_COLOR") + " reach "
-    + c("ams") + " only if sudo preserves them (" + c("env_keep") + " in sudoers): the help says so in the "
+    + c("rspeak") + " only if sudo preserves them (" + c("env_keep") + " in sudoers): the help says so in the "
     "AMBIENTE (ENVIRONMENT) section.",
-    "The help too requires root: " + c("ams --help") + " re-runs itself with sudo like every other command ("
+    "The help too requires root: " + c("rspeak --help") + " re-runs itself with sudo like every other command ("
     + cap(4, 1) + "). It is the user's decision, at the cost of asking for the password even for the help.",
-    c("ams") + " on its own in a pipe shows the help as plain text (" + c("tests/tui.py") + ").",
-]) + term("admin@server:~$ sudo ams --help | head -5\n"
-          "AMS(1)                           Manuale di ams                           AMS(1)\n"
+    c("rspeak") + " on its own in a pipe shows the help as plain text (" + c("tests/tui.py") + ").",
+]) + term("admin@server:~$ sudo rspeak --help | head -5\n"
+          "RootSpeak(1)                           Manuale di rspeak                           RootSpeak(1)\n"
           "\n"
           "NOME\n"
-          "       ams — invia messaggi agli utenti della macchina e ne segue la conferma di\n"
+          "       rspeak — invia messaggi agli utenti della macchina e ne segue la conferma di\n"
           "       lettura",
-          "The help in a pipe (beginning): «Manuale di ams» (“ams manual”), «NOME» (“NAME”), «ams — invia messaggi agli "
-          "utenti della macchina e ne segue la conferma di lettura» (“ams — sends messages to the users of the machine "
+          "The help in a pipe (beginning): «Manuale di rspeak» (“rspeak manual”), «NOME» (“NAME”), «rspeak — invia messaggi agli "
+          "utenti della macchina e ne segue la conferma di lettura» (“rspeak — sends messages to the users of the machine "
           "and tracks their read confirmation”)")
 
 S3 = table(["Part", "How it works"], [

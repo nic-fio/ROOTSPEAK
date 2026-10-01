@@ -1,9 +1,9 @@
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 
 Strumento con cui gli amministratori di una macchina Linux inviano messaggi
 testuali agli utenti e sanno chi ha confermato di averli letti.
 
-A differenza di `wall` e `write`, AMS:
+A differenza di `wall` e `write`, RootSpeak:
 
 - raggiunge sia i terminali (tty, ssh, tmux) sia le sessioni grafiche (X11 e Wayland);
 - conserva i messaggi per gli utenti non collegati e li mostra al login successivo;
@@ -16,8 +16,8 @@ A differenza di `wall` e `write`, AMS:
 ## Perimetro
 
 - Una sola macchina: niente rete, niente invio tra host.
-- Il comando `ams` è riservato agli amministratori, cioè ai membri del gruppo admin già esistente
-  (`sudo` su Debian/Ubuntu, `wheel` su Fedora/RHEL/Arch). AMS non crea gruppi né ha permessi propri.
+- Il comando `rspeak` è riservato agli amministratori, cioè ai membri del gruppo admin già esistente
+  (`sudo` su Debian/Ubuntu, `wheel` su Fedora/RHEL/Arch). RootSpeak non crea gruppi né ha permessi propri.
 - Gli utenti non hanno alcun comando: ricevono e confermano soltanto, in modo automatico.
 - Le sessioni non interattive (cron, scp, rsync, ssh senza terminale, servizi) non vengono mai toccate.
 
@@ -33,7 +33,7 @@ avvisi che valgono solo per poco si usa `--expires`.
 
 | Ruolo | Interfaccia |
 |---|---|
-| Amministratore | `ams`: comandi e, da solo in un terminale, la TUI (solo gruppo admin) |
+| Amministratore | `rspeak`: comandi e, da solo in un terminale, la TUI (solo gruppo admin) |
 | Utente nel terminale | Nessun comando: messaggio e domanda di conferma automatici |
 | Utente nel desktop | Finestra minima con il pulsante "Ho letto" |
 
@@ -51,12 +51,12 @@ Legenda: **[1]** prima versione · **[2]** seconda versione · **[?]** da decide
 - [?] Risposta dell'utente all'amministratore
 
 ### Gestione e controllo (amministratore)
-- [1] `ams list`: messaggi inviati con il conteggio delle conferme
-- [1] `ams status <id>`: stato per utente (consegnato / confermato, data e ora, tipo di sessione)
-- [1] `ams revoke <id>`: ritiro di un messaggio
-- [1] `ams remind <id>`: sollecito a chi non ha confermato (la domanda e la finestra tornano subito)
+- [1] `rspeak list`: messaggi inviati con il conteggio delle conferme
+- [1] `rspeak status <id>`: stato per utente (consegnato / confermato, data e ora, tipo di sessione)
+- [1] `rspeak revoke <id>`: ritiro di un messaggio
+- [1] `rspeak remind <id>`: sollecito a chi non ha confermato (la domanda e la finestra tornano subito)
 - [2] Esportazione in CSV o JSON per audit
-- [1] TUI per l'amministratore: `ams` da solo apre la lista dei messaggi con i destinatari nei tre stati, dettaglio e storia, scrittura e invio, ritiro, sollecito e pulizia con conferma, aggiornamento automatico
+- [1] TUI per l'amministratore: `rspeak` da solo apre la lista dei messaggi con i destinatari nei tre stati, dettaglio e storia, scrittura e invio, ritiro, sollecito e pulizia con conferma, aggiornamento automatico
 
 ### Consegna
 - [1] Terminale: scrittura su tutte le tty e pts attive, individuate tramite logind (non utmp)
@@ -72,7 +72,7 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 - [1] **Desktop**: compare da sola una finestra con il testo e i pulsanti **[Più tardi]** e **[Ho letto]**;
   con "Più tardi" la finestra ricompare dopo N minuti, finché l'utente non conferma.
 - [1] **Terminale**: il testo completo compare nel terminale nel momento dell'invio; al prompt
-  successivo AMS chiede da solo «Confermi di averlo letto? [s/N]». Se l'utente risponde no,
+  successivo RootSpeak chiede da solo «Confermi di averlo letto? [s/N]». Se l'utente risponde no,
   vede una riga di promemoria a ogni prompt e la domanda viene riproposta dopo N minuti.
 - [1] **Utente non collegato**: messaggio e domanda compaiono da soli al login successivo.
 - [1] Basta confermare una volta, in una qualsiasi sessione, perché il messaggio sparisca ovunque.
@@ -80,18 +80,18 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
   (il testo completo è visibile nel momento della conferma).
 
 ### Sicurezza (tutto [1])
-- `ams` è installato come `root:<gruppo admin>` con permessi `750`: gli altri utenti non possono eseguirlo.
-- Se lanciato da un amministratore non root, `ams` si rilancia da solo con sudo (password come per ogni
+- `rspeak` è installato come `root:<gruppo admin>` con permessi `750`: gli altri utenti non possono eseguirlo.
+- Se lanciato da un amministratore non root, `rspeak` si rilancia da solo con sudo (password come per ogni
   operazione amministrativa). Chi entra o esce dal gruppo admin ottiene o perde subito l'accesso.
 - Ogni utente vede e conferma solo i propri messaggi, grazie ai permessi della sua cartella.
 - Il testo viene ripulito dai caratteri di controllo, per impedire l'iniezione di sequenze di escape nei terminali.
 - Ogni operazione viene registrata nel journal di sistema.
 
 ### Configurazione e distribuzione
-- [1] `/etc/ams/ams.conf`: intervallo dei solleciti, controllo dell'agente del desktop
+- [1] `/etc/rootspeak/rootspeak.conf`: intervallo dei solleciti, controllo dell'agente del desktop
 - [1] Script di installazione
 - [1] Manuale utente e manuale tecnico in HTML (un file ciascuno, in inglese), generati da `docs/sources/` con lo stile comune dei manuali dei 7 progetti
-- [1] Guida integrata interattiva (`ams --help`), sul modello di MTERM: schede, pagina in stile manuale
+- [1] Guida integrata interattiva (`rspeak --help`), sul modello di MTERM: schede, pagina in stile manuale
   se il terminale è piccolo, testo semplice in una pipe. Niente man page.
 - [1] `tools/check-docs.py`: fallisce se guida integrata e manuale divergono; `tests/help-tui.py` prova la guida
 - [2] Pacchetti deb e rpm
@@ -102,30 +102,30 @@ La ricezione è automatica: l'utente non deve conoscere né digitare alcun coman
 - **Blocco a schermo intero** delle sessioni grafiche: troppo invasivo e non realizzabile su GNOME Wayland.
 - **Blocco al login** con disconnessione forzata di chi non conferma: troppo estremo.
 - **GUI per l'amministratore**: gli amministratori lavorano da terminale.
-- **Gruppo `ams` dedicato**: duplicherebbe il gruppo admin e andrebbe tenuto allineato. Da riconsiderare solo
+- **Gruppo `rspeak` dedicato**: duplicherebbe il gruppo admin e andrebbe tenuto allineato. Da riconsiderare solo
   se servirà far inviare messaggi a chi non è amministratore.
-- **Comandi per l'utente** (`ams read`, `ams ack`, `ams history`): la ricezione è automatica e il comando resta riservato a root.
+- **Comandi per l'utente** (`rspeak read`, `rspeak ack`, `rspeak history`): la ricezione è automatica e il comando resta riservato a root.
 
 ## Architettura
 
 Nessun demone: ogni pezzo usa strumenti già presenti nel sistema. I dettagli sono nel
 [manuale tecnico](docs/Technical%20Manual.html) (in inglese).
 
-- `ams` gira sempre come root (si rilancia con sudo): salva il messaggio e lo consegna subito alle
+- `rspeak` gira sempre come root (si rilancia con sudo): salva il messaggio e lo consegna subito alle
   sessioni attive, scrivendo sui terminali e svegliando l'agente del desktop con un segnale
   (se l'agente manca, lo avvia con `systemd-run --user`).
-- `/usr/local/lib/ams/ams-user`: helper interno, fuori dal PATH e non documentato come comando.
+- `/usr/local/lib/rootspeak/rootspeak-user`: helper interno, fuori dal PATH e non documentato come comando.
   Gira come utente e lo usano solo l'hook e l'agente per mostrare i messaggi e registrare la conferma.
 - L'hook in `/etc/profile.d` mostra i messaggi in sospeso e i promemoria nel terminale.
 - Un piccolo agente avviato automaticamente nella sessione grafica (`/etc/xdg/autostart`)
   mostra la finestra di conferma e la ripropone finché serve.
 - Archivio:
-  - `/var/lib/ams/sent/` — copia di riferimento dei messaggi e dei destinatari, accessibile solo a root;
-  - `/var/lib/ams/users/<utente>/` — messaggi dell'utente e sue conferme, accessibile solo a lui e a root.
-  `ams status` calcola lo stato confrontando le due parti. Se un utente cancella un messaggio
+  - `/var/lib/rootspeak/sent/` — copia di riferimento dei messaggi e dei destinatari, accessibile solo a root;
+  - `/var/lib/rootspeak/users/<utente>/` — messaggi dell'utente e sue conferme, accessibile solo a lui e a root.
+  `rspeak status` calcola lo stato confrontando le due parti. Se un utente cancella un messaggio
   dalla propria cartella, il messaggio risulta semplicemente non confermato.
 
-Il primo prototipo (0.1.0) era in shell, per validare il flusso; dalla versione 0.2.0 AMS
+Il primo prototipo (0.1.0) era in shell, per validare il flusso; dalla versione 0.2.0 RootSpeak
 è scritto in C, con le stesse prove e lo stesso formato dell'archivio.
 
 ## Installazione
@@ -143,33 +143,33 @@ make                      # compila in build/
 
 | File | Ruolo |
 |---|---|
-| `/usr/local/bin/ams` | Comando per gli amministratori (`root:sudo`, permessi 750) |
-| `/usr/local/lib/ams/` | Helper interno `ams-user` e agganci di bash e zsh |
-| `/usr/local/share/locale/*/LC_MESSAGES/ams.mo` | Traduzioni |
-| `/etc/ams/ams.conf` | Configurazione |
-| `/etc/profile.d/ams.sh` | Hook delle shell che leggono `/etc/profile` (richiamato anche da `/etc/bash.bashrc`); rimanda bash a `lib/ams/ams.bash` |
-| `/usr/local/lib/ams/ams.zsh` | Hook di zsh (richiamato dallo zshrc di sistema) |
-| `/etc/fish/conf.d/ams.fish` | Hook di fish |
-| `/etc/xdg/autostart/ams-agent.desktop` | Avvio automatico dell'agente del desktop |
-| `/var/lib/ams/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
-| `/usr/local/share/doc/ams/` | Manuale utente e manuale tecnico (`User Manual.html`, `Technical Manual.html`) |
+| `/usr/local/bin/rspeak` | Comando per gli amministratori (`root:sudo`, permessi 750) |
+| `/usr/local/lib/rootspeak/` | Helper interno `rootspeak-user` e agganci di bash e zsh |
+| `/usr/local/share/locale/*/LC_MESSAGES/rootspeak.mo` | Traduzioni |
+| `/etc/rootspeak/rootspeak.conf` | Configurazione |
+| `/etc/profile.d/rootspeak.sh` | Hook delle shell che leggono `/etc/profile` (richiamato anche da `/etc/bash.bashrc`); rimanda bash a `lib/rootspeak/rootspeak.bash` |
+| `/usr/local/lib/rootspeak/rootspeak.zsh` | Hook di zsh (richiamato dallo zshrc di sistema) |
+| `/etc/fish/conf.d/rootspeak.fish` | Hook di fish |
+| `/etc/xdg/autostart/rootspeak-agent.desktop` | Avvio automatico dell'agente del desktop |
+| `/var/lib/rootspeak/` | Messaggi inviati (`sent/`) e cartelle degli utenti (`users/`) |
+| `/usr/local/share/doc/rootspeak/` | Manuale utente e manuale tecnico (`User Manual.html`, `Technical Manual.html`) |
 
 ## Documentazione
 
 | Documento | Per chi |
 |---|---|
-| [`docs/User Manual.html`](docs/User%20Manual.html) | Gli amministratori che usano AMS (in inglese) |
-| [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa AMS: architettura, archivio, sicurezza, test (in inglese) |
-| [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Perché AMS è fatto così |
+| [`docs/User Manual.html`](docs/User%20Manual.html) | Gli amministratori che usano RootSpeak (in inglese) |
+| [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Chi sviluppa RootSpeak: architettura, archivio, sicurezza, test (in inglese) |
+| [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Perché RootSpeak è fatto così |
 | [`NOTICE.md`](NOTICE.md) | Copyright e componenti di terzi |
-| [`logos/ams-logo.png`](logos/ams-logo.png) | Il logo di AMS (i file di logo stanno in `logos/`) |
+| [`logos/rootspeak-logo.png`](logos/rootspeak-logo.png) | Il logo di RootSpeak (i file di logo stanno in `logos/`) |
 | [`CLAUDE.md`](CLAUDE.md) | Accordi di lavoro e decisioni da non riaprire |
-| `ams --help` | La guida integrata, a schede |
+| `rspeak --help` | La guida integrata, a schede |
 
 I due manuali sono file HTML autosufficienti: si aprono con un doppio clic o con
 `xdg-open "docs/User Manual.html"`, si allegano a una email e si stampano. GitHub non li
 mostra impaginati (mostra il codice sorgente): scaricarli o aprirli dalla copia locale.
-Dopo l'installazione sono anche in `/usr/local/share/doc/ams/`.
+Dopo l'installazione sono anche in `/usr/local/share/doc/rootspeak/`.
 
 Sono generati: si modificano i capitoli in `docs/sources/user/` e `docs/sources/technical/`
 e si rigenerano con `make docs` (serve `python3-pygments`); `make docs-check` controlla che siano allineati.
@@ -178,10 +178,10 @@ In `docs/` c'è anche `index.html`, la pagina iniziale della documentazione ([`d
 Esempi:
 
 ```
-ams send --to mario "Sabato dalle 8 alle 12 il server sarà spento."
-ams send --to @sviluppo --title "Policy" --expires 3d --file policy.txt
-ams send --to online --expires 15m "Riavvio del servizio web alle 13:00."
-ams list
-ams status 12
-ams revoke 12
+rspeak send --to mario "Sabato dalle 8 alle 12 il server sarà spento."
+rspeak send --to @sviluppo --title "Policy" --expires 3d --file policy.txt
+rspeak send --to online --expires 15m "Riavvio del servizio web alle 13:00."
+rspeak list
+rspeak status 12
+rspeak revoke 12
 ```

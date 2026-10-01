@@ -10,9 +10,9 @@ ARCH = fig(
     + box(40, 80, 260, 50, "list", "carica_elenco → riassumi", "blue", 12)
     + box(40, 144, 260, 50, "detail", "recipients · history", "blue", 12)
     + box(40, 208, 260, 50, "new message", "form, Ctrl+E, Ctrl+S", "blue", 12)
-    + zone(360, 44, 240, 250, "Same functions as ams")
-    + box(380, 80, 200, 50, "riassumi", "like ams list", "dark", 12)
-    + box(380, 144, 200, 50, "destinatari", "like ams status", "dark", 12)
+    + zone(360, 44, 240, 250, "Same functions as rspeak")
+    + box(380, 80, 200, 50, "riassumi", "like rspeak list", "dark", 12)
+    + box(380, 144, 200, 50, "destinatari", "like rspeak status", "dark", 12)
     + box(380, 208, 200, 50, "caselle_svuota", "at every refresh", "soft", 12)
     + zone(640, 44, 240, 250, "In a child process")
     + box(660, 80, 200, 40, "cmd_send", "", "navy", 12)
@@ -24,13 +24,13 @@ ARCH = fig(
     + text(460, 312, "output and errors collected on a pipe and shown in a window", 11.5, "#475569", "600"),
     900, 330, "«FIG» — The TUI reads with the commands' functions and runs the commands themselves", "No way of its own")
 
-S1 = p(c("ams") + " without arguments, with stdin and stdout on a terminal of at least 80 × 20, opens the TUI of "
+S1 = p(c("rspeak") + " without arguments, with stdin and stdout on a terminal of at least 80 × 20, opens the TUI of "
        + c("src/tui.c") + " after recovery; in a pipe, or on a smaller terminal, it shows the help. The TUI "
        "<b>has no way of its own of doing things</b> and <b>no states of its own</b>: it reads the store with the "
-       "functions of " + c("ams list") + " and " + c("ams status") + ", and every action is the command itself.",
+       "functions of " + c("rspeak list") + " and " + c("rspeak status") + ", and every action is the command itself.",
        lead=True) + ARCH + ul([
     "<b>Same functions for reading</b>: the list uses " + c("riassumi") + " (the recipients counted in the three "
-    "states, revoked and expired), the detail uses " + c("destinatari") + " (the same line as " + c("ams status") + ").",
+    "states, revoked and expired), the detail uses " + c("destinatari") + " (the same line as " + c("rspeak status") + ").",
     "<b>The actions are the commands</b>: sending, revoking, reminding and purging run in a child process that calls "
     + c("cmd_send") + ", " + c("cmd_revoke") + ", " + c("cmd_remind") + ", " + c("cmd_purge") + " with stdout and "
     "stderr collected on a pipe and shown in a window. An error of the command (" + c("die") + ") ends only the "
@@ -69,8 +69,8 @@ S2 = p("The list shows the messages from the most recent, one per row, with the 
     [key("q"), "quits and gives the terminal back as it was"],
 ], "«TAB» — The keys of the list")
 
-S3 = p("The detail of a message has two tabs: the recipients, with the status line of " + c("ams status")
-       + " coloured according to the state, and the history, that is the output of " + c("ams log") + ". It is "
+S3 = p("The detail of a message has two tabs: the recipients, with the status line of " + c("rspeak status")
+       + " coloured according to the state, and the history, that is the output of " + c("rspeak log") + ". It is "
        "re-read every 3 seconds and after every action; " + key("Esc") + " leaves it.", lead=True) + \
     schermata("detail", "«FIG» — The detail: one recipient per row, in the three states (real screenshot)") + \
     schermata("history", "«FIG» — The Storia (History) tab: the log events, rewritten in the reader's language "
@@ -85,7 +85,7 @@ S3 = p("The detail of a message has two tabs: the recipients, with the status li
 ])
 
 S4 = p("The new-message form has four fields: recipients, title, expiry and text. When the recipients field is "
-       "left, a child performs the same resolution as " + c("ams send") + " and shows the number of recipients, "
+       "left, a child performs the same resolution as " + c("rspeak send") + " and shows the number of recipients, "
        "or the error in red.", lead=True) + \
     schermata("new", "«FIG» — The new-message form, with the recipients preview (real screenshot)") + \
     schermata("send", "«FIG» — The confirmation before sending (real screenshot)") + table(["Key", "Effect"], [
@@ -95,7 +95,7 @@ S4 = p("The new-message form has four fields: recipients, title, expiry and text
     [key("Esc"), "discards the message, with confirmation if something has been written"],
 ], "«TAB» — The keys of the form") + ul([
     "One-line fields accept at most 1000 bytes; the text shows the count «85 di 65536 byte» (“85 of 65536 bytes”). "
-    "The real checks are those of " + c("ams send") + ": an error arrives in the result window, «Esito dell'invio» "
+    "The real checks are those of " + c("rspeak send") + ": an error arrives in the result window, «Esito dell'invio» "
     "(“Sending result”).",
     "<b>Editor</b>: " + key("Ctrl", "E") + " writes the text to a temporary file in " + c("/tmp") + " ("
     + c("mkstemp") + "), hands it over to the administrator in " + c("SUDO_USER") + " and opens " + c("VISUAL") + ", "

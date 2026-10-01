@@ -6,15 +6,15 @@ def cap(n, s=None):
 
 
 AVVIO = fig(
-    box(20, 40, 170, 56, "ams_init", "environment, AMS_TEST", "dark")
+    box(20, 40, 170, 56, "rspeak_init", "environment, RSPEAK_TEST", "dark")
     + box(20, 120, 170, 56, "lingua_init", "LANG, LANGUAGE…", "dark")
-    + diamond(330, 148, 220, 76, "root or AMS_TEST?", "navy")
+    + diamond(330, 148, 220, 76, "root or RSPEAK_TEST?", "navy")
     + box(250, 232, 160, 50, "execvp sudo", "sudo -- /proc/self/exe", "grey")
     + diamond(600, 148, 200, 76, "no arguments?", "navy")
     + box(520, 232, 160, 50, "recovery, TUI", "stdin and stdout tty", "blue")
     + box(720, 40, 160, 50, "help, version", "help, --help, version", "light")
     + box(720, 120, 160, 56, "command", "recovery, then the command", "blue")
-    + box(720, 232, 160, 50, "die", "«ams: comando sconosciuto»", "amber")
+    + box(720, 232, 160, 50, "die", "«rspeak: comando sconosciuto»", "amber")
     + arrow(105, 98, 105, 118) + path([(192, 148), (218, 148)], "#0050C0")
     + arrow(330, 188, 330, 230, "#475569", False, "no", 346, 212)
     + arrow(442, 148, 498, 148, "#0050C0", False, "yes", 470, 138)
@@ -23,50 +23,50 @@ AVVIO = fig(
     + arrow(700, 148, 718, 148, "#0050C0")
     + path([(700, 160), (706, 160), (706, 257), (718, 257)], "#b45309", True)
     + text(160, 250, "relaunches unchanged", 11, "#475569"),
-    900, 300, "«FIG» — Starting ams: environment, language, root, then the command; «ams: comando sconosciuto» means "
-    "“ams: unknown command”", "Starting ams")
+    900, 300, "«FIG» — Starting rspeak: environment, language, root, then the command; «rspeak: comando sconosciuto» means "
+    "“rspeak: unknown command”", "Starting rspeak")
 
-S1 = p("The " + c("main") + " of " + c("src/ams.c") + " is short and its order is a rule: <b>nothing runs without "
+S1 = p("The " + c("main") + " of " + c("src/rspeak.c") + " is short and its order is a rule: <b>nothing runs without "
        "root</b>, not even the help. Before looking at the arguments it reads the environment and the language; then, "
        "if it is not root and not in test mode, it relaunches itself with sudo.", lead=True) + AVVIO + code("""int main(int argc, char **argv)
 {
 	const char *cmd = argc > 1 ? argv[1] : "";
 
-	ams_init("ams");
+	rspeak_init("rspeak");
 	lingua_init();
-	if (geteuid() != 0 && !ams_test)       /* anche per la guida e la versione */
+	if (geteuid() != 0 && !rspeak_test)       /* anche per la guida e la versione */
 		rilancia_con_sudo(argv);           /* execvp("sudo", "--", /proc/self/exe, …) */
 	umask(022);
-	if (!*cmd && isatty(0) && isatty(1)) { /* ams da solo in un terminale */
+	if (!*cmd && isatty(0) && isatty(1)) { /* rspeak da solo in un terminale */
 		recupera();
-		if (ams_tui())
+		if (rspeak_tui())
 			return 0;                      /* terminale troppo piccolo: la guida */
 	}
 	if (!*cmd || !strcmp(cmd, "help") || !strcmp(cmd, "-h") || !strcmp(cmd, "--help"))
-		{ ams_guida(); return 0; }
+		{ rspeak_guida(); return 0; }
 	if (!strcmp(cmd, "version") || !strcmp(cmd, "--version")) { … }
 	/* comando sconosciuto: die(); purge escluso, prima di ogni comando: recupera() */
 	…
-}""", "c", "src/ams.c (in brief)") + ul([
+}""", "c", "src/rspeak.c (in brief)") + ul([
     c("rilancia_con_sudo") + " reads its own path from " + c("/proc/self/exe") + " and calls "
     + c("execvp(\"sudo\", [\"sudo\", \"--\", percorso, argomenti…])") + ": the arguments arrive unchanged, and "
     + c("--") + " prevents them from being taken as sudo options.",
     "Under sudo the environment is what sudo preserves: usually " + c("LANG") + " and the language variables are kept, "
-    + c("AMS_TEST") + " is not. " + c("SUDO_USER") + " tells who launched the command: it becomes the sender ("
+    + c("RSPEAK_TEST") + " is not. " + c("SUDO_USER") + " tells who launched the command: it becomes the sender ("
     + c("from") + ") and the author of the events.",
     "Recovery of interrupted sends (" + cap(8, 6) + ") runs before " + c("send") + ", " + c("list") + ", "
     + c("status") + ", " + c("revoke") + ", " + c("remind") + ", " + c("log") + " and the TUI; not before "
     + c("purge") + ", which skips incomplete sends by itself.",
-    "An unknown command ends with " + c("die") + ": " + c("ams: comando sconosciuto: X (ams --help per la guida)")
-    + " (in English: “unknown command: X (ams --help for the guide)”), exit status 1.",
+    "An unknown command ends with " + c("die") + ": " + c("rspeak: comando sconosciuto: X (rspeak --help per la guida)")
+    + " (in English: “unknown command: X (rspeak --help for the guide)”), exit status 1.",
 ])
 
-S2 = p(c("ams-user") + " never relaunches itself: it runs with the identity of whoever launches it, that is the "
+S2 = p(c("rootspeak-user") + " never relaunches itself: it runs with the identity of whoever launches it, that is the "
        "user. Its " + c("main") + " has a different order, dictated by the desktop agent.", lead=True) + table(
     ["Step", "Why"], [
         ["1. handler for " + c("SIGUSR1"), "it is the <b>first statement</b>: by default " + c("SIGUSR1") + " terminates the "
-         "process, and " + c("ams send") + " might send it to an agent that has just started (" + cap(12, 2) + ")"],
-        ["2. " + c("ams_init(\"ams-user\")") + ", " + c("lingua_init") + ", " + c("conf_leggi"),
+         "process, and " + c("rspeak send") + " might send it to an agent that has just started (" + cap(12, 2) + ")"],
+        ["2. " + c("rspeak_init(\"rootspeak-user\")") + ", " + c("lingua_init") + ", " + c("conf_leggi"),
          "environment, the user's language, configuration"],
         ["3. user from " + c("getuid") + " and " + c("getpwuid"), "the mailbox is " + c("users/<nome>") + " (“&lt;name&gt;”): the name "
          "never comes from an argument"],
@@ -74,40 +74,40 @@ S2 = p(c("ams-user") + " never relaunches itself: it runs with the identity of w
         ["5. " + c("agent"), "the desktop agent (" + cap(12) + ")"],
         ["6. " + c("conferma ID CANALE") + " (“confirm ID CHANNEL”)", "only in test mode: recording the confirmation on its own, for "
          + c("tests/engine.sh")],
-        ["otherwise", "«ams-user: helper interno di AMS, non va usato direttamente» (in English: “ams-user: internal "
-         "AMS helper, not meant to be run directly”), exit status 1"],
-    ], "«TAB» — Starting ams-user")
+        ["otherwise", "«rootspeak-user: helper interno di RootSpeak, non va usato direttamente» (in English: “rootspeak-user: internal "
+         "RootSpeak helper, not meant to be run directly”), exit status 1"],
+    ], "«TAB» — Starting rootspeak-user")
 
-S3 = p(c("ams_init") + " in " + c("src/comune.c") + " sets the working folders. The defaults are compiled into "
+S3 = p(c("rspeak_init") + " in " + c("src/comune.c") + " sets the working folders. The defaults are compiled into "
        "the program; the environment variables count <b>only in test mode</b>: a root program does not take folders "
        "from the environment of whoever launches it.", lead=True) + table(
     ["Global variable", "Default", "In test mode"], [
-        [c("ams_var"), c("/var/lib/ams"), c("AMS_VAR")],
-        [c("ams_libdir"), c("LIBDIR") + " from the Makefile (" + c("/usr/local/lib/ams") + ")", c("AMS_LIB")],
-        [c("ams_localedir"), c("LOCALEDIR") + " (" + c("/usr/local/share/locale") + ")", c("AMS_LOCALEDIR")],
-        [c("ams_conf_path"), c("/etc/ams/ams.conf"), c("AMS_CONF")],
-        [c("ams_test"), "false", "true if " + c("AMS_TEST") + " is not empty"],
-        [c("ams_nome"), "—", c("\"ams\"") + " or " + c("\"ams-user\"") + ": the prefix of error messages"],
-    ], "«TAB» — The AMS environment") + dl([
-    ("AMS_TEST=1", c("ams") + " does not relaunch itself with sudo, does not wake or start agents, does not change "
-     "identity in child processes and writes only to the “terminal” " + c("AMS_TEST_TTY") + ". An ordinary user who "
+        [c("rspeak_var"), c("/var/lib/rootspeak"), c("RSPEAK_VAR")],
+        [c("rspeak_libdir"), c("LIBDIR") + " from the Makefile (" + c("/usr/local/lib/rootspeak") + ")", c("RSPEAK_LIB")],
+        [c("rspeak_localedir"), c("LOCALEDIR") + " (" + c("/usr/local/share/locale") + ")", c("RSPEAK_LOCALEDIR")],
+        [c("rspeak_conf_path"), c("/etc/rootspeak/rootspeak.conf"), c("RSPEAK_CONF")],
+        [c("rspeak_test"), "false", "true if " + c("RSPEAK_TEST") + " is not empty"],
+        [c("rspeak_nome"), "—", c("\"rspeak\"") + " or " + c("\"rootspeak-user\"") + ": the prefix of error messages"],
+    ], "«TAB» — The RootSpeak environment") + dl([
+    ("RSPEAK_TEST=1", c("rspeak") + " does not relaunch itself with sudo, does not wake or start agents, does not change "
+     "identity in child processes and writes only to the “terminal” " + c("RSPEAK_TEST_TTY") + ". An ordinary user who "
      "sets it keeps their own permissions (scenario G4: «Permesso negato», “Permission denied”, as soon as "
-     + c("ams") + " is executed), and sudo removes it from the environment."),
-    ("AMS_TEST_TTY=file", "the “terminal” that " + c("ams send") + " writes to in test mode; empty: none."),
-    ("AMS_BUILD=cartella", "(cartella: “folder”) for the tests: the programs to test (for example " + c("build-san") + ")."),
+     + c("rspeak") + " is executed), and sudo removes it from the environment."),
+    ("RSPEAK_TEST_TTY=file", "the “terminal” that " + c("rspeak send") + " writes to in test mode; empty: none."),
+    ("RSPEAK_BUILD=cartella", "(cartella: “folder”) for the tests: the programs to test (for example " + c("build-san") + ")."),
 ])
 
 S4 = p("The code is tested from the repository folder as an ordinary user, on a test message store, after "
        + c("make") + ". This is how " + c("tests/engine.sh") + ", " + c("tests/tui.py") + " and "
        + c("tests/help-tui.py") + " run.", lead=True) + term(
-    "nicfio@server:~/AMS$ make\n"
-    "nicfio@server:~/AMS$ export AMS_TEST=1 AMS_LIB=$PWD/build AMS_LOCALEDIR=$PWD/build/locale\n"
-    "nicfio@server:~/AMS$ export AMS_VAR=/tmp/prova AMS_CONF=/dev/null AMS_TEST_TTY=/tmp/tty\n"
-    "nicfio@server:~/AMS$ build/ams send --to nicfio \"Prova\"\n"
+    "nicfio@server:~/ROOTSPEAK$ make\n"
+    "nicfio@server:~/ROOTSPEAK$ export RSPEAK_TEST=1 RSPEAK_LIB=$PWD/build RSPEAK_LOCALEDIR=$PWD/build/locale\n"
+    "nicfio@server:~/ROOTSPEAK$ export RSPEAK_VAR=/tmp/prova RSPEAK_CONF=/dev/null RSPEAK_TEST_TTY=/tmp/tty\n"
+    "nicfio@server:~/ROOTSPEAK$ build/rspeak send --to nicfio \"Prova\"\n"
     "Messaggio 1 inviato a 1 utente.\n"
-    "nicfio@server:~/AMS$ script -qec 'build/ams-user prompt' /dev/null",
+    "nicfio@server:~/ROOTSPEAK$ script -qec 'build/rootspeak-user prompt' /dev/null",
     "A test without root: the text «Prova» (“Test”); «Messaggio 1 inviato a 1 utente.» (“Message 1 sent to 1 user.”)") + \
-    warn("without " + c("AMS_TEST") + ", " + c("build/ams") + " goes through sudo; if the sudo credentials are still "
+    warn("without " + c("RSPEAK_TEST") + ", " + c("build/rspeak") + " goes through sudo; if the sudo credentials are still "
          "valid it starts as root without asking anything, on the real message store. In tests always set "
          "test mode.") + \
     note("in test mode the recipients are real users of the machine (" + c("getpwnam") + "), but their "
@@ -115,7 +115,7 @@ S4 = p("The code is tested from the repository folder as an ordinary user, on a 
          + c("tests/engine.sh") + " uses " + c("root") + " as its second recipient.")
 
 CONF = fig(
-    box(20, 50, 200, 60, "/etc/ams/ams.conf", "read with leggi_file", "dark")
+    box(20, 50, 200, 60, "/etc/rootspeak/rootspeak.conf", "read with leggi_file", "dark")
     + box(270, 50, 200, 60, "conf_da_testo", "line by line", "navy")
     + diamond(600, 80, 200, 70, "known key?", "navy")
     + box(740, 50, 140, 60, "conf_t", "remind, poll", "green")
@@ -131,29 +131,29 @@ S5 = p("The configuration is a <b>data</b> file, not a script: in the bash proto
        + c("source") + ", by root and by the users, and could execute code. Now " + c("conf_leggi") + " in "
        + c("src/testo.c") + " reads at most 65536 bytes of it and " + c("conf_da_testo") + " accepts only two keys, "
        "with positive integers.", lead=True) + code("""# Dopo quanti minuti riproporre un messaggio rimandato dall'utente
-AMS_REMIND_MINUTES=30
+RSPEAK_REMIND_MINUTES=30
 
 # Ogni quanti secondi l'agente del desktop ricontrolla i messaggi
 # (i nuovi messaggi lo svegliano comunque subito)
-AMS_AGENT_POLL=60""", "conf", "etc/ams/ams.conf: “After how many minutes to show again a message postponed by the "
+RSPEAK_AGENT_POLL=60""", "conf", "etc/rootspeak/rootspeak.conf: “After how many minutes to show again a message postponed by the "
     "user”; “How often, in seconds, the desktop agent checks the messages again (new messages wake it at once "
     "anyway)”") + CONF + table(["Key", "Default", "Who uses it", "When it is re-read"], [
-    [c("AMS_REMIND_MINUTES"), "30", c("ams-user prompt") + " and the agent: how long a postponement lasts",
-     "at every " + c("ams-user prompt") + "; at every round of the agent"],
-    [c("AMS_AGENT_POLL"), "60", "the agent: the periodic check, in addition to the wake-up", "at every round of the agent"],
+    [c("RSPEAK_REMIND_MINUTES"), "30", c("rootspeak-user prompt") + " and the agent: how long a postponement lasts",
+     "at every " + c("rootspeak-user prompt") + "; at every round of the agent"],
+    [c("RSPEAK_AGENT_POLL"), "60", "the agent: the periodic check, in addition to the wake-up", "at every round of the agent"],
 ], "«TAB» — The configuration keys") + ul([
     "Each line loses its comment (from " + c("#") + " onwards) and all spaces; a line that is still longer than 255 "
     "characters is not valid.",
     "The value must consist of digits only, at most 6, and be greater than zero: " + c("0") + ", " + c("-3") + ", "
     + c("abc") + " and " + c("$(…)") + " are ignored and the default stays (" + c("tests/engine.sh") + ", group 5).",
     "Unknown keys are ignored; a missing file, or one that is not a regular file, counts as empty.",
-    c("ams") + " itself does not read the configuration: the two keys concern only what " + c("ams-user") + " does.",
+    c("rspeak") + " itself does not read the configuration: the two keys concern only what " + c("rootspeak-user") + " does.",
 ])
 
 CHAPTER = ("Startup and configuration", [
-    ("Starting ams", S1),
-    ("Starting ams-user", S2),
+    ("Starting rspeak", S1),
+    ("Starting rootspeak-user", S2),
     ("The environment and test mode", S3),
     ("Testing without root", S4),
-    ("The configuration: ams.conf", S5),
+    ("The configuration: rootspeak.conf", S5),
 ])

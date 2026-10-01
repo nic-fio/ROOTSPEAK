@@ -1,9 +1,9 @@
 #cloud-config
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Macchina virtuale di prova con desktop: Debian 13, GNOME su Wayland, login
 # automatico di «sara»; gli altri utenti come nel container (tests/container).
 # @CHIAVI@ viene sostituito da prepare.sh con le chiavi ssh autorizzate per root.
-hostname: ams-desktop
+hostname: rootspeak-desktop
 disable_root: false
 ssh_pwauth: false
 users:
@@ -36,7 +36,7 @@ write_files:
     content: |
       user-db:user
       system-db:local
-  - path: /etc/dconf/db/local.d/00-ams-prova
+  - path: /etc/dconf/db/local.d/00-rootspeak-prova
     content: |
       [org/gnome/desktop/session]
       idle-delay=uint32 0
@@ -67,7 +67,7 @@ runcmd:
   - for u in admin mario anna luca sara; do install -d -m 700 -o $u -g $u /home/$u/.ssh; install -m 600 -o $u -g $u /root/.ssh/id_ed25519.pub /home/$u/.ssh/authorized_keys; done
   - printf 'Host localhost\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n  LogLevel ERROR\n' > /root/.ssh/config
   - systemctl set-default graphical.target
-  - touch /var/lib/ams-prova-pronta
+  - touch /var/lib/rootspeak-prova-pronta
 power_state:
   mode: poweroff
   condition: true

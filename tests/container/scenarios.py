@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System
+"""RootSpeak - Advanced Messaging System for Linux
 Scenari di prova dal vero: gira come root dentro la macchina di prova
-(tests/container), con AMS installato, utenti veri e sessioni ssh vere.
+(tests/container), con RootSpeak installato, utenti veri e sessioni ssh vere.
 
 Ogni scenario invia messaggi da root o da un amministratore agli utenti,
 simula ciò che fanno gli utenti (collegarsi, rispondere, rimandare, guastare la
@@ -23,9 +23,9 @@ import sys
 import time
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "/opt/results"
-VAR = "/var/lib/ams"
-AMS = "/usr/local/bin/ams"
-DESK = os.environ.get("AMS_PROVA_DESKTOP")   # utente con sessione grafica (solo nella VM)
+VAR = "/var/lib/rootspeak"
+RSPEAK = "/usr/local/bin/rspeak"
+DESK = os.environ.get("RSPEAK_PROVA_DESKTOP")   # utente con sessione grafica (solo nella VM)
 ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]|\x1b\][^\x07]*\x07|\r")
 risultati = []
 # utenti con una shell diversa da bash, e il loro prompt
@@ -41,10 +41,10 @@ def sh(cmd, check=False, **kw):
     return r
 
 
-def ams(args, come="root"):
-    """Lancia ams da root, o da un altro utente (che passa da sudo)."""
+def rspeak(args, come="root"):
+    """Lancia rspeak da root, o da un altro utente (che passa da sudo)."""
     pre = "" if come == "root" else f"runuser -u {come} -- "
-    return sh(f"{pre}{AMS} {args}")
+    return sh(f"{pre}{RSPEAK} {args}")
 
 
 def negato(err):
@@ -53,24 +53,24 @@ def negato(err):
 
 
 def azzera():
-    """Chiude le sessioni degli utenti, le finestre di AMS rimaste sul desktop e svuota l'archivio.
+    """Chiude le sessioni degli utenti, le finestre di RootSpeak rimaste sul desktop e svuota l'archivio.
     Le finestre vanno chiuse prima: l'archivio ricomincia dal messaggio 1, e una finestra vecchia
     ritroverebbe un messaggio nuovo con il suo stesso numero."""
     for u in ("mario", "anna", "luca", "admin", *SHELL_PROVA):
         sh(f"loginctl terminate-user {u}")
     if DESK:
         # l'agente si ferma con le sue finestre, e riparte dopo, ad archivio vuoto
-        sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'; pkill -u {DESK} -x zenity")
+        sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'; pkill -u {DESK} -x zenity")
         time.sleep(1)
     time.sleep(0.5)
     sh(f"rm -rf {VAR}/sent/* {VAR}/sent/.seq* {VAR}/users/*")
     if DESK and sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip():
-        sh(f"systemd-run --user --machine={DESK}@.host --collect --quiet /usr/local/lib/ams/ams-user agent")
+        sh(f"systemd-run --user --machine={DESK}@.host --collect --quiet /usr/local/lib/rootspeak/rootspeak-user agent")
         time.sleep(1)
 
 
 def stato(mid, utente):
-    out = ams(f"status {mid}").stdout
+    out = rspeak(f"status {mid}").stdout
     for line in out.splitlines():
         parts = line.split(None, 1)
         if parts and parts[0] == utente:
@@ -174,20 +174,20 @@ def scenario(fn):
 # ---- A. accesso e permessi ----
 
 def a_accesso():
-    r = ams('send --to mario "da root"')
+    r = rspeak('send --to mario "da root"')
     registra("A1", "Accesso", "root invia un messaggio", "invio riuscito",
              r.returncode == 0 and "inviato a 1 utente" in r.stdout, r.stdout.strip() + r.stderr.strip())
     t0 = time.time()
-    r = ams('send --to anna "da admin"', "admin")
+    r = rspeak('send --to anna "da admin"', "admin")
     dt = time.time() - t0
     frm = sh(f"grep '^from:' {VAR}/sent/2/msg").stdout.strip()
-    registra("A2", "Accesso", "un amministratore (gruppo sudo) invia: ams si rilancia con sudo",
+    registra("A2", "Accesso", "un amministratore (gruppo sudo) invia: rspeak si rilancia con sudo",
              "invio riuscito, mittente admin", r.returncode == 0 and frm == "from: admin", frm, secondi=round(dt, 3))
-    r = ams('send --to anna "da mario"', "mario")
-    registra("A3", "Accesso", "un utente normale non può eseguire ams", "permesso negato, nessun messaggio",
+    r = rspeak('send --to anna "da mario"', "mario")
+    registra("A3", "Accesso", "un utente normale non può eseguire rspeak", "permesso negato, nessun messaggio",
              r.returncode != 0 and negato(r.stderr) and not os.path.exists(f"{VAR}/sent/3"),
              r.stderr.strip())
-    r = ams("--help", "mario")
+    r = rspeak("--help", "mario")
     registra("A4", "Accesso", "un utente normale non può aprire nemmeno la guida", "permesso negato",
              r.returncode != 0 and negato(r.stderr), r.stderr.strip())
 
@@ -198,27 +198,27 @@ def b_destinatari():
     def dest(mid):
         return sh(f"cat {VAR}/sent/{mid}/recipients").stdout.split()
 
-    ams('send --to mario "uno"')
+    rspeak('send --to mario "uno"')
     registra("B1", "Destinatari", "un utente", "mario", dest(1) == ["mario"], str(dest(1)))
-    ams('send --to mario,anna,mario "lista"')
+    rspeak('send --to mario,anna,mario "lista"')
     registra("B2", "Destinatari", "lista con un doppione", "anna, mario (una volta)", dest(2) == ["anna", "mario"], str(dest(2)))
-    ams('send --to @sviluppo "gruppo"')
+    rspeak('send --to @sviluppo "gruppo"')
     registra("B3", "Destinatari", "gruppo @sviluppo", "anna, mario", dest(3) == ["anna", "mario"], str(dest(3)))
-    ams('send --to all "tutti"')
+    rspeak('send --to all "tutti"')
     shell = [u for u in SHELL_PROVA if sh(f"getent passwd {u}").returncode == 0]   # solo nel container
     tutti = sorted(["admin", "anna", "luca", "mario", *shell] + ([DESK] if DESK else []))
     registra("B4", "Destinatari", "all: utenti umani, esclusi root e chi ha nologin",
              ", ".join(tutti), dest(4) == tutti, str(dest(4)))
     s = Sessione("luca")
-    ams('send --to online "collegati"')
+    rspeak('send --to online "collegati"')
     online = sorted(["luca"] + ([DESK] if DESK else []))
     registra("B5", "Destinatari", "online: solo chi ha una sessione aperta", ", ".join(online), dest(5) == online, str(dest(5)))
     s.chiudi()
-    r = ams('send --to pippo "x"')
+    r = rspeak('send --to pippo "x"')
     registra("B6", "Destinatari", "utente inesistente", "errore, nessun messaggio creato",
              r.returncode != 0 and "utente inesistente" in r.stderr and not os.path.exists(f"{VAR}/sent/6"), r.stderr.strip())
     sh("groupadd -f vuoto")
-    r = ams('send --to @vuoto "x"')
+    r = rspeak('send --to @vuoto "x"')
     registra("B7", "Destinatari", "gruppo senza membri", "errore «nessun destinatario»",
              r.returncode != 0 and "nessun destinatario" in r.stderr, r.stderr.strip())
 
@@ -227,7 +227,7 @@ def b_destinatari():
 
 def c_consegna():
     # C1: scollegato, poi accede
-    ams('send --to mario --title Manutenzione "Server spento sabato"')
+    rspeak('send --to mario --title Manutenzione "Server spento sabato"')
     st = stato(1, "mario")
     registra("C1a", "Consegna", "utente scollegato: la copia aspetta nella casella", "consegnato",
              st == "consegnato" and os.path.exists(f"{VAR}/users/mario/inbox/1"), st)
@@ -251,7 +251,7 @@ def c_consegna():
     s = Sessione("anna")
     s.pulisci()
     t0 = time.time()
-    ams('send --to anna "Riunione alle 11"')
+    rspeak('send --to anna "Riunione alle 11"')
     dt_invio = time.time() - t0
     dt = s.leggi_fino(r"Riunione alle 11", 5)
     registra("C2a", "Consegna", "utente collegato: il testo compare nel suo terminale", "testo nel terminale",
@@ -272,7 +272,7 @@ def c_consegna():
     # C3: ssh senza terminale
     p = subprocess.Popen(["ssh", "luca@localhost", "sleep 4"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1.5)
-    r = ams('send --to luca "Solo casella"')
+    r = rspeak('send --to luca "Solo casella"')
     p.wait()
     st = stato(3, "luca")
     registra("C3", "Consegna", "sessione ssh senza terminale: non viene toccata, la copia va nella casella",
@@ -282,7 +282,7 @@ def c_consegna():
     s1, s2 = Sessione("mario"), Sessione("mario")
     for s in (s1, s2):
         s.pulisci()
-    ams('send --to mario "Due sessioni"')
+    rspeak('send --to mario "Due sessioni"')
     ok1 = s1.leggi_fino("Due sessioni", 5) is not None
     ok2 = s2.leggi_fino("Due sessioni", 5) is not None
     st = stato(4, "mario")
@@ -303,7 +303,7 @@ def c_consegna():
 
 def d_conferma():
     s = Sessione("luca")
-    ams('send --to luca "Rinvio"')
+    rspeak('send --to luca "Rinvio"')
     s.pulisci(); s.scrivi("\n")
     s.leggi_fino(r"Confermi", 5)
     s.scrivi("n\n")
@@ -314,10 +314,10 @@ def d_conferma():
     s.leggi_fino(r"\$ $", 5)
     registra("D2", "Conferma", "dopo il rinvio, al prompt solo un promemoria", "«Hai 1 messaggio…», nessuna domanda",
              "Hai 1 messaggio" in s.testo() and "Confermi" not in s.testo(), s.testo()[-160:])
-    r = ams("remind 1")
+    r = rspeak("remind 1")
     s.pulisci(); s.scrivi("\n")
     ok = s.leggi_fino(r"Confermi", 5) is not None
-    registra("D5", "Conferma", "ams remind dopo un rinvio: la domanda torna al prompt successivo",
+    registra("D5", "Conferma", "rspeak remind dopo un rinvio: la domanda torna al prompt successivo",
              "«sollecitato 1 destinatario», domanda al prompt", ok and "sollecitato 1 destinatario" in r.stdout,
              r.stdout.strip())
     s.scrivi("n\n"); s.leggi_fino(r"riproposta tra", 5)
@@ -339,7 +339,7 @@ def d_conferma():
 # ---- E. scadenza e ritiro ----
 
 def e_scadenza_ritiro():
-    ams('send --to mario --expires 1m "Scade"')
+    rspeak('send --to mario --expires 1m "Scade"')
     sh(f"sed -i 's/^expires: .*/expires: {int(time.time()) - 5}/' {VAR}/sent/1/msg {VAR}/users/mario/inbox/1")
     s = Sessione("mario")
     registra("E1", "Scadenza", "un messaggio scaduto non viene mostrato al login", "nessun testo",
@@ -347,11 +347,11 @@ def e_scadenza_ritiro():
     st = stato(1, "mario")
     registra("E2", "Scadenza", "stato di un messaggio scaduto", "consegnato, non confermato (scaduto)",
              st == "consegnato, non confermato (scaduto)", st)
-    ams('send --to mario "Da ritirare"')
+    rspeak('send --to mario "Da ritirare"')
     s.pulisci(); s.scrivi("\n")
     s.leggi_fino(r"Confermi", 5)
     t0 = time.time()
-    ams("revoke 2")
+    rspeak("revoke 2")
     dt = s.leggi_fino(r"ritirato il messaggio", 5)
     registra("E3", "Ritiro", "ritiro con la domanda in attesa: la domanda si interrompe",
              "«L'amministratore ha ritirato il messaggio»", dt is not None, secondi=round(time.time() - t0, 3))
@@ -359,8 +359,8 @@ def e_scadenza_ritiro():
     registra("E4", "Ritiro", "stato dopo il ritiro", "consegnato, non confermato (ritirato)",
              st == "consegnato, non confermato (ritirato)", st)
     s.chiudi()
-    ams('send --to anna "Ritirato prima"')
-    ams("revoke 3")
+    rspeak('send --to anna "Ritirato prima"')
+    rspeak("revoke 3")
     s = Sessione("anna")
     registra("E5", "Ritiro", "un messaggio ritirato prima del login non viene mostrato", "nessun testo",
              "Ritirato prima" not in s.testo())
@@ -372,22 +372,22 @@ def e_scadenza_ritiro():
 def f_guasti():
     sh(f"install -d -m 700 -o anna -g anna {VAR}/users/anna; "
        f"install -d -m 555 -o root {VAR}/users/anna/inbox")
-    r = ams('send --to mario,anna "Guasto"')
+    r = rspeak('send --to mario,anna "Guasto"')
     st = stato(1, "anna")
     registra("F1", "Guasti", "la copia per un utente non si può scrivere: gli altri la ricevono",
              "errore, anna «inviato, non consegnato», mario consegnato",
              r.returncode != 0 and (st or "").startswith("inviato, non consegnato") and stato(1, "mario") == "consegnato",
              f"{r.stderr.strip()} | anna: {st}")
     sh(f"chown anna:anna {VAR}/users/anna/inbox; chmod 755 {VAR}/users/anna/inbox")
-    r = ams("list")
+    r = rspeak("list")
     registra("F2", "Guasti", "guasto risolto: il comando successivo completa la consegna", "anna consegnato",
              stato(1, "anna") == "consegnato" and not os.path.exists(f"{VAR}/sent/1/incomplete"), r.stderr.strip())
 
     # invio interrotto davvero: SIGKILL durante la consegna a molti utenti
     for i in range(60):
         sh(f"id u{i:02d} >/dev/null 2>&1 || useradd -m -s /bin/bash u{i:02d}")
-    # si uccide proprio ams send (non una shell che lo contiene)
-    p = subprocess.Popen([AMS, "send", "--to", "all", "Interrotto"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # si uccide proprio rspeak send (non una shell che lo contiene)
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Interrotto"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     a_meta(p)
     p.kill(); p.wait()
     ids = sorted(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
@@ -395,10 +395,10 @@ def f_guasti():
     n_prima = len(sh(f"cat {VAR}/sent/{mid}/delivery 2>/dev/null").stdout.splitlines())
     n_tot = len(sh(f"cat {VAR}/sent/{mid}/recipients 2>/dev/null").stdout.split())
     t0 = time.time()
-    r = ams("list")
+    r = rspeak("list")
     dt = time.time() - t0
     n_dopo = len(sh(f"cat {VAR}/sent/{mid}/delivery").stdout.splitlines())
-    registra("F3", "Guasti", "ams send ucciso a metà (SIGKILL): il comando successivo completa",
+    registra("F3", "Guasti", "rspeak send ucciso a metà (SIGKILL): il comando successivo completa",
              "tutte le copie consegnate, nessun segno di invio incompleto",
              0 < n_prima < n_tot and n_dopo == n_tot and not os.path.exists(f"{VAR}/sent/{mid}/incomplete"),
              f"consegnati prima {n_prima}/{n_tot}, dopo {n_dopo}/{n_tot}; {r.stderr.strip()[:120]}",
@@ -406,48 +406,48 @@ def f_guasti():
 
     # invio ucciso fra la creazione della cartella dell'utente e il suo chown
     sh(f"rm -rf {VAR}/users/luca && install -d -m 700 {VAR}/users/luca")
-    r = ams('send --to luca "Dopo la cartella a metà"')
+    r = rspeak('send --to luca "Dopo la cartella a metà"')
     mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
     st = stato(mid, "luca")
     registra("F6", "Guasti", "cartella dell'utente rimasta di root da un invio interrotto: la consegna la sistema",
              "consegnato", r.returncode == 0 and st == "consegnato", f"{st}; {r.stderr.strip()[:120]}")
 
     # ritiro mentre l'invio a molti utenti è in corso: nessuna copia deve restare o ricomparire
-    p = subprocess.Popen([AMS, "send", "--to", "all", "Da ritirare"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Da ritirare"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     a_meta(p)
     mid = max(int(x) for x in os.listdir(f"{VAR}/sent") if x.isdigit())
     n_prima_ritiro = len(open(f"{VAR}/sent/{mid}/delivery").read().splitlines())
     t0 = time.time()
-    rv = ams(f"revoke {mid}")
+    rv = rspeak(f"revoke {mid}")
     dt = time.time() - t0
     out_send = p.communicate()[0]
     copie = [u for u in os.listdir(f"{VAR}/users") if os.path.exists(f"{VAR}/users/{u}/inbox/{mid}")]
-    registra("F7", "Guasti", "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
+    registra("F7", "Guasti", "rspeak revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
              "nessuna copia nelle caselle, invio interrotto", rv.returncode == 0 and not copie
              and not os.path.exists(f"{VAR}/sent/{mid}/ritiro") and n_prima_ritiro < len(os.listdir(f"{VAR}/users")),
              f"copie rimaste: {len(copie)}; consegnate prima del ritiro: {n_prima_ritiro}; {out_send.strip()[:80]}",
              secondi_attesa_revoke=round(dt, 2))
-    # invio in corso e, nello stesso momento, altri comandi ams che fanno il recupero
+    # invio in corso e, nello stesso momento, altri comandi rspeak che fanno il recupero
     azzera()
-    p = subprocess.Popen([AMS, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    p = subprocess.Popen([RSPEAK, "send", "--to", "all", "Concorrente"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     giri = 0
     while p.poll() is None:
-        ams("list"); giri += 1
-    ams("list")
+        rspeak("list"); giri += 1
+    rspeak("list")
     righe = sh(f"cut -d' ' -f1 {VAR}/sent/1/delivery").stdout.split()
     n_tot = len(sh(f"cat {VAR}/sent/1/recipients").stdout.split())
-    registra("F5", "Guasti", "ams list ripetuto mentre ams send consegna: il recupero non interferisce",
+    registra("F5", "Guasti", "rspeak list ripetuto mentre rspeak send consegna: il recupero non interferisce",
              "una consegna per destinatario, nessun doppione, invio completo",
              len(righe) == n_tot == len(set(righe)) and p.returncode == 0 and not os.path.exists(f"{VAR}/sent/1/incomplete"),
              f"{len(righe)} consegne annotate per {n_tot} destinatari, {len(set(righe))} distinte",
-             ams_list_durante_invio=giri)
+             rspeak_list_durante_invio=giri)
     for i in range(60):
         sh(f"userdel -r u{i:02d} 2>/dev/null")
 
     # conferma non scrivibile
     azzera()
     s = Sessione("luca")
-    ams('send --to luca "Conferma impossibile"')
+    rspeak('send --to luca "Conferma impossibile"')
     sh(f"chown root {VAR}/users/luca/acks; chmod 555 {VAR}/users/luca/acks")
     s.pulisci(); s.scrivi("\n"); s.leggi_fino(r"Confermi", 5)
     s.scrivi("s\n")
@@ -462,9 +462,9 @@ def f_guasti():
 # ---- G. sicurezza ----
 
 def g_sicurezza():
-    ams('send --to mario "prima"')
+    rspeak('send --to mario "prima"')
     sh(f"rm -rf {VAR}/users/mario/inbox; ln -s /etc {VAR}/users/mario/inbox; chown -h mario:mario {VAR}/users/mario/inbox")
-    r = ams('send --to mario "attacco"')
+    r = rspeak('send --to mario "attacco"')
     registra("G1", "Sicurezza", "la casella è un collegamento a /etc: root non ci scrive",
              "nessun file 2 in /etc; mario «inviato, non consegnato»",
              not os.path.exists("/etc/2") and not os.path.exists("/etc/2.tmp")
@@ -472,19 +472,19 @@ def g_sicurezza():
     sh(f"rm -f {VAR}/users/mario/inbox")
     s = Sessione("anna")
     s.pulisci()
-    ams("send --to anna $'Testo \\e[31mrosso\\e[0m \\e]0;titolo\\a \\a fine'")
+    rspeak("send --to anna $'Testo \\e[31mrosso\\e[0m \\e]0;titolo\\a \\a fine'")
     s.leggi_fino("fine", 5)
     registra("G2", "Sicurezza", "sequenze di escape nel testo: non arrivano al terminale", "nessun ESC nel testo ricevuto",
              "Testo rosso" in ANSI.sub("", s.buf) and "\x1b[31m" not in s.buf and "\x1b]0;" not in s.buf and "\x07" not in s.buf.split("Testo")[-1],
              repr(s.buf[s.buf.find("Testo"):s.buf.find("Testo") + 40]))
     s.chiudi()
-    ams('send --to luca "falso"')
+    rspeak('send --to luca "falso"')
     sh(f"printf '1 \\033[31mfinto\\033]0;x\\007%0500d' 0 > {VAR}/users/luca/acks/4; chown luca {VAR}/users/luca/acks/4")
-    out = ams("status 4").stdout
-    registra("G3", "Sicurezza", "conferma fabbricata con escape e 500 byte: ams status resta pulito",
+    out = rspeak("status 4").stdout
+    registra("G3", "Sicurezza", "conferma fabbricata con escape e 500 byte: rspeak status resta pulito",
              "nessun ESC nell'uscita, al massimo 200 byte letti", "\x1b" not in out and len(out) < 1000, out.splitlines()[-1][:120])
-    r = sh("runuser -u mario -- env AMS_TEST=1 /usr/local/bin/ams list")
-    registra("G4", "Sicurezza", "un utente normale con AMS_TEST=1 non ottiene nulla", "permesso negato",
+    r = sh("runuser -u mario -- env RSPEAK_TEST=1 /usr/local/bin/rspeak list")
+    registra("G4", "Sicurezza", "un utente normale con RSPEAK_TEST=1 non ottiene nulla", "permesso negato",
              r.returncode != 0 and negato(r.stderr), r.stderr.strip())
 
 
@@ -499,7 +499,7 @@ def k_shell():
             registra(f"K-{shell}", "Shell", f"{shell}: utente di prova {utente}", "presente", None, "utente assente")
             continue
         mid += 1
-        ams(f'send --to {utente} "Al login con {shell}"')
+        rspeak(f'send --to {utente} "Al login con {shell}"')
         s = Sessione.__new__(Sessione)
         s.utente, s.buf = utente, ""
         s.pid, s.fd = pty.fork()
@@ -515,7 +515,7 @@ def k_shell():
                  st.startswith("confermato"), st)
         mid += 1
         s.pulisci()
-        ams(f'send --to {utente} "Durante la sessione {shell}"')
+        rspeak(f'send --to {utente} "Durante la sessione {shell}"')
         dt = s.leggi_fino(f"Durante la sessione {shell}", 5)
         registra(f"K3-{shell}", "Shell", f"{shell}: utente collegato, il testo compare nel terminale",
                  "testo nel terminale", dt is not None, s.testo()[-80:] if dt is None else "")
@@ -539,14 +539,14 @@ def k_shell():
         s.chiudi()
 
 
-# ---- L. lingua: ognuno legge AMS nella sua ----
+# ---- L. lingua: ognuno legge RootSpeak nella sua ----
 
 def l_lingua():
     """Il sistema è in italiano; luca lavora in inglese (la sua shell ha LANG=en_US.UTF-8)."""
     luca = Sessione("luca", comando="LANG=en_US.UTF-8 exec bash -il")
     mario = Sessione("mario")
     luca.pulisci(); mario.pulisci()
-    ams('send --to luca,mario "Testo uguale per tutti"')
+    rspeak('send --to luca,mario "Testo uguale per tutti"')
     ok_en = luca.leggi_fino(r"Message from the administrator", 5) is not None
     ok_it = mario.leggi_fino(r"Messaggio dall'amministratore", 5) is not None
     registra("L1", "Lingua", "all'invio ciascun terminale riceve l'intestazione nella lingua del suo utente",
@@ -560,15 +560,15 @@ def l_lingua():
     registra("L2", "Lingua", "la domanda e la conferma nella lingua dell'utente", "domanda in inglese, «y» conferma",
              ok and (stato(1, "luca") or "").startswith("confermato"), stato(1, "luca") or "")
     luca.chiudi(); mario.chiudi()
-    out = sh(f"LANG=en_US.UTF-8 {AMS} status 1").stdout
-    registra("L3", "Lingua", "un amministratore in inglese legge ams status in inglese", "USER STATE, confirmed on … (terminal …)",
+    out = sh(f"LANG=en_US.UTF-8 {RSPEAK} status 1").stdout
+    registra("L3", "Lingua", "un amministratore in inglese legge rspeak status in inglese", "USER STATE, confirmed on … (terminal …)",
              "USER" in out and "confirmed on" in out and "(terminal pts/" in out, " / ".join(out.splitlines()[-2:]))
     time.sleep(1)
-    log_en = sh(f"LANG=en_US.UTF-8 {AMS} log 1").stdout
-    log_it = ams("log 1").stdout
-    grezzo = sh("journalctl -q -o cat SYSLOG_IDENTIFIER=ams AMS_MESSAGGIO=1 AMS_EVENTO=CONFERMATO").stdout
-    registra("L4", "Lingua", "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
-             "journal in italiano; ams log in inglese e in italiano",
+    log_en = sh(f"LANG=en_US.UTF-8 {RSPEAK} log 1").stdout
+    log_it = rspeak("log 1").stdout
+    grezzo = sh("journalctl -q -o cat SYSLOG_IDENTIFIER=rspeak RSPEAK_MESSAGGIO=1 RSPEAK_EVENTO=CONFERMATO").stdout
+    registra("L4", "Lingua", "il registro è nella lingua del sistema; rspeak log lo riscrive in quella di chi legge",
+             "journal in italiano; rspeak log in inglese e in italiano",
              "user luca: confirmed reading message 1 (terminal" in log_en
              and "utente luca: confermata la lettura del messaggio 1 (terminale" in log_it
              and "confermata la lettura" in grezzo, (log_en.splitlines() or [""])[-1][:120])
@@ -577,18 +577,18 @@ def l_lingua():
 # ---- T. la TUI degli amministratori ----
 
 def t_tui():
-    """ams senza argomenti, come root, in un terminale: la TUI sull'archivio vero."""
+    """rspeak senza argomenti, come root, in un terminale: la TUI sull'archivio vero."""
     import fcntl, struct, termios
-    ams('send --to mario,anna --title Prova "Dalla TUI"')
+    rspeak('send --to mario,anna --title Prova "Dalla TUI"')
     s = Sessione.__new__(Sessione)
     s.utente, s.buf = "root", ""
     s.pid, s.fd = pty.fork()
     if s.pid == 0:
-        os.execvpe(AMS, ["ams"], dict(os.environ, TERM="xterm-256color"))
+        os.execvpe(RSPEAK, ["rspeak"], dict(os.environ, TERM="xterm-256color"))
     fcntl.ioctl(s.fd, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 120, 0, 0))
-    ok1 = s.leggi_fino(r"2 consegnato", 10) is not None and "AMS · messaggi inviati" in s.testo()
-    registra("T1", "TUI", "ams senza argomenti come root: la lista con i destinatari nei tre stati",
-             "«AMS · messaggi inviati», «2 consegnato»", ok1, s.testo()[-120:] if not ok1 else "")
+    ok1 = s.leggi_fino(r"2 consegnato", 10) is not None and "RootSpeak · messaggi inviati" in s.testo()
+    registra("T1", "TUI", "rspeak senza argomenti come root: la lista con i destinatari nei tre stati",
+             "«RootSpeak · messaggi inviati», «2 consegnato»", ok1, s.testo()[-120:] if not ok1 else "")
     s.pulisci(); s.scrivi("\r")
     ok2 = s.leggi_fino(r"anna.*consegnato", 10) is not None and "mario" in s.testo()
     s.pulisci(); s.scrivi("\t")
@@ -606,33 +606,33 @@ def t_tui():
 
 def j_registro():
     s = Sessione("mario")
-    ams('send --to mario,anna "Storia"')
+    rspeak('send --to mario,anna "Storia"')
     s.pulisci(); s.scrivi("\n"); s.leggi_fino(r"Confermi", 5)
     s.scrivi("n\n"); s.leggi_fino(r"riproposta", 5)
     s.chiudi()
     s = apri("mario")
     s.leggi_fino(r"Confermi", 10); s.scrivi("s\n"); s.leggi_fino(r"Confermato", 5)
     s.chiudi()
-    ams("revoke 1")
+    rspeak("revoke 1")
     time.sleep(1)
-    out = ams("log 1").stdout
+    out = rspeak("log 1").stdout
     attesi = ["inviato da root", "consegnato a anna", "consegnato a mario", "rimandato il messaggio 1 (terminale)",
               "confermata la lettura del messaggio 1 (terminale", "ritirato da root"]
     mancanti = [a for a in attesi if a not in out]
-    registra("J1", "Registro", "ams log: la storia del messaggio", "invio, consegne, rinvio, conferma, ritiro",
+    registra("J1", "Registro", "rspeak log: la storia del messaggio", "invio, consegne, rinvio, conferma, ritiro",
              not mancanti, "mancano: " + ", ".join(mancanti) if mancanti else f"{len(out.splitlines()) - 1} eventi")
     uid = pwd.getpwnam("mario").pw_uid
-    ev = sh(f"journalctl -q -o cat --output-fields=_UID AMS_MESSAGGIO=1 AMS_EVENTO=CONFERMATO AMS_UTENTE=mario").stdout.split()
+    ev = sh(f"journalctl -q -o cat --output-fields=_UID RSPEAK_MESSAGGIO=1 RSPEAK_EVENTO=CONFERMATO RSPEAK_UTENTE=mario").stdout.split()
     registra("J2", "Registro", "la conferma nel journal porta l'utente che l'ha scritta (_UID)",
              f"_UID {uid}", str(uid) in ev, " ".join(ev))
     # un utente scrive nel journal una conferma falsa a nome di un altro
-    sh("runuser -u luca -- sh -c 'printf \"MESSAGE=falso\\nSYSLOG_IDENTIFIER=ams\\nAMS_EVENTO=CONFERMATO\\n"
-       "AMS_MESSAGGIO=1\\nAMS_UTENTE=anna\\nAMS_CANALE=desktop\\n\" | logger --journald'")
+    sh("runuser -u luca -- sh -c 'printf \"MESSAGE=falso\\nSYSLOG_IDENTIFIER=rspeak\\nRSPEAK_EVENTO=CONFERMATO\\n"
+       "RSPEAK_MESSAGGIO=1\\nRSPEAK_UTENTE=anna\\nRSPEAK_CANALE=desktop\\n\" | logger --journald'")
     time.sleep(1)
-    out = ams("log 1").stdout
+    out = rspeak("log 1").stdout
     luca = pwd.getpwnam("luca").pw_uid
     falsa = [r for r in out.splitlines() if "utente anna: confermata" in r]
-    registra("J3", "Registro", "un evento scritto da un utente a nome di un altro: ams log lo segnala",
+    registra("J3", "Registro", "un evento scritto da un utente a nome di un altro: rspeak log lo segnala",
              f"«non attendibile: scritto da UID {luca}»",
              bool(falsa) and all(f"non attendibile: scritto da UID {luca}" in r for r in falsa)
              and not any("non attendibile" in r for r in out.splitlines() if r not in falsa),
@@ -646,22 +646,22 @@ def h_prestazioni():
     for i in range(n_utenti):
         sh(f"id p{i:02d} >/dev/null 2>&1 || useradd -m -s /bin/bash p{i:02d}")
     t0 = time.time()
-    ams('send --to all "Misura"')
+    rspeak('send --to all "Misura"')
     t_send = time.time() - t0
     for k in range(9):
-        ams(f'send --to all "Misura {k}"')
+        rspeak(f'send --to all "Misura {k}"')
     n_dest = len(sh(f"cat {VAR}/sent/1/recipients").stdout.split())
     t0 = time.time()
-    ams("list")
+    rspeak("list")
     t_list = time.time() - t0
     t0 = time.time()
-    ams("status 1")
+    rspeak("status 1")
     t_status = time.time() - t0
     registra("H1", "Prestazioni", f"invio a tutti ({n_dest} destinatari)", "misura", True,
              secondi=round(t_send, 2), ms_per_destinatario=round(1000 * t_send / n_dest, 1))
-    registra("H2", "Prestazioni", f"ams list con 10 messaggi × {n_dest} destinatari", "misura (punto 15 della revisione)", True,
+    registra("H2", "Prestazioni", f"rspeak list con 10 messaggi × {n_dest} destinatari", "misura (punto 15 della revisione)", True,
              secondi=round(t_list, 2))
-    registra("H3", "Prestazioni", f"ams status di un messaggio con {n_dest} destinatari", "misura", True,
+    registra("H3", "Prestazioni", f"rspeak status di un messaggio con {n_dest} destinatari", "misura", True,
              secondi=round(t_status, 2))
     for i in range(n_utenti):
         sh(f"userdel -r p{i:02d} 2>/dev/null")
@@ -670,10 +670,10 @@ def h_prestazioni():
 # ---- I. desktop ----
 
 def desk(*args):
-    """Guarda o usa le finestre di AMS nella sessione grafica di DESK (tests/vm/desktop.py)."""
+    """Guarda o usa le finestre di RootSpeak nella sessione grafica di DESK (tests/vm/desktop.py)."""
     uid = pwd.getpwnam(DESK).pw_uid
     env = f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus XDG_RUNTIME_DIR=/run/user/{uid}"
-    return sh(f"runuser -u {DESK} -- env {env} python3 /opt/ams-src/tests/vm/desktop.py "
+    return sh(f"runuser -u {DESK} -- env {env} python3 /opt/rootspeak-src/tests/vm/desktop.py "
               + " ".join(shlex.quote(a) for a in args)).stdout.strip()
 
 
@@ -685,7 +685,7 @@ def n_finestre():
 
 
 def attendi_finestre(n, tempo):
-    """Attende che le finestre di AMS aperte siano n; restituisce i secondi, o None."""
+    """Attende che le finestre di RootSpeak aperte siano n; restituisce i secondi, o None."""
     t0 = time.time()
     while time.time() - t0 < tempo:
         if n_finestre() == n:
@@ -695,7 +695,7 @@ def attendi_finestre(n, tempo):
 
 
 def testo_finestra(tempo=6):
-    """Il testo della prima finestra di AMS; subito dopo un login l'accessibilità di
+    """Il testo della prima finestra di RootSpeak; subito dopo un login l'accessibilità di
     GNOME può esporre la finestra prima del suo contenuto, quindi si riprova."""
     t0 = time.time()
     t = ""
@@ -727,7 +727,7 @@ def cattura(nome):
 
 
 def agente_attivo():
-    return sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'").returncode == 0
+    return sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'").returncode == 0
 
 
 def apri(utente):
@@ -744,14 +744,14 @@ ETICHETTE = {}
 
 
 def lingua_ambiente(env):
-    """La lingua che AMS sceglie per un ambiente (/proc/PID/environ), con le sue regole."""
+    """La lingua che RootSpeak sceglie per un ambiente (/proc/PID/environ), con le sue regole."""
     v = dict(x.split("=", 1) for x in env.decode("utf-8", "replace").split("\0") if "=" in x)
     loc = v.get("LC_ALL") or v.get("LC_MESSAGES") or v.get("LANG") or ""
     if re.split(r"[.@]", loc)[0] in ("", "C", "POSIX"):
         return "en"
     for x in v.get("LANGUAGE", "").split(":") + [loc]:
         l = re.split(r"[_.@:]", x)[0]
-        if l == "en" or (re.fullmatch(r"[a-z]{2,3}", l) and os.path.exists(f"/usr/local/share/locale/{l}/LC_MESSAGES/ams.mo")):
+        if l == "en" or (re.fullmatch(r"[a-z]{2,3}", l) and os.path.exists(f"/usr/local/share/locale/{l}/LC_MESSAGES/rootspeak.mo")):
             return l
     return "en"
 
@@ -759,10 +759,10 @@ def lingua_ambiente(env):
 def testi(lingua):
     """I testi della finestra nella lingua data: in inglese quelli di partenza,
     altrimenti le traduzioni di po/LINGUA.po."""
-    t = {"dlg_title": "AMS · Message from the administrator", "dlg_ok": "I have read it", "dlg_later": "Later"}
+    t = {"dlg_title": "RootSpeak · Message from the administrator", "dlg_ok": "I have read it", "dlg_later": "Later"}
     if lingua == "en":
         return t
-    po = open(f"/opt/ams-src/po/{lingua}.po").read()
+    po = open(f"/opt/rootspeak-src/po/{lingua}.po").read()
     for k, msgid in list(t.items()):
         m = re.search(r'^msgid "' + re.escape(msgid) + r'"\nmsgstr "((?:[^"\\]|\\.)*)"', po, re.M)
         if m and m.group(1):
@@ -777,15 +777,15 @@ def i_desktop():
         return
     grafica = sh(f"loginctl show-user {DESK} -p Display --value").stdout.strip()
     # la finestra è nella lingua della sessione grafica, cioè dell'ambiente dell'agente
-    pid = sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'").stdout.split()
+    pid = sh(f"pgrep -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'").stdout.split()
     lingua = lingua_ambiente(open(f"/proc/{pid[0]}/environ", "rb").read()) if pid else "en"
     ETICHETTE.update(testi(lingua))
-    registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di AMS attivo "
+    registra("I0", "Desktop", f"{DESK} ha una sessione grafica con l'agente di RootSpeak attivo "
              "(l'avvio dal login automatico lo verifica run.sh prima degli scenari)",
              "sessione grafica, agente attivo", bool(grafica) and agente_attivo(), f"sessione {grafica}")
 
     t0 = time.time()
-    ams(f'send --to {DESK} --title Manutenzione "Server spento sabato dalle 8 alle 12."')
+    rspeak(f'send --to {DESK} --title Manutenzione "Server spento sabato dalle 8 alle 12."')
     dt = attendi_finestre(1, 20)
     testo = testo_finestra()
     titolo = desk("titolo")
@@ -802,13 +802,13 @@ def i_desktop():
              "confermato (desktop)", chiusa is not None and st.startswith("confermato") and st.endswith("(desktop)"), st)
 
     # solleciti rapidi per la prova; l'agente riparte e rilegge la configurazione
-    sh("printf 'AMS_REMIND_MINUTES=1\nAMS_AGENT_POLL=5\n' > /etc/ams/ams.conf")
-    sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent$'")
+    sh("printf 'RSPEAK_REMIND_MINUTES=1\nRSPEAK_AGENT_POLL=5\n' > /etc/rootspeak/rootspeak.conf")
+    sh(f"pkill -u {DESK} -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent$'")
     time.sleep(1)
     t0 = time.time()
-    ams(f'send --to {DESK} "Secondo messaggio"')
+    rspeak(f'send --to {DESK} "Secondo messaggio"')
     dt = attendi_finestre(1, 30)
-    registra("I8", "Desktop", "agente assente: ams send lo avvia (systemd-run) e la finestra compare",
+    registra("I8", "Desktop", "agente assente: rspeak send lo avvia (systemd-run) e la finestra compare",
              "agente attivo, finestra", dt is not None and agente_attivo(),
              secondi_alla_finestra=round(time.time() - t0, 2) if dt is not None else None)
     desk("clicca", ETICHETTE["dlg_later"])
@@ -825,18 +825,18 @@ def i_desktop():
     # il sollecito arriva dopo il rinvio, come quando lo chiede un amministratore
     attendi_stato(2, DESK, lambda x: "rimandato" in x)
     t0 = time.time()
-    ams("remind 2")
+    rspeak("remind 2")
     dt = attendi_finestre(1, 20)
     diag = "" if dt is not None else " | ".join([
-        sh(f"{AMS} remind 2").stdout.strip(), stato(2, DESK) or "", sh(f"ls -la {VAR}/users/{DESK}/state {VAR}/users/{DESK}/inbox").stdout.replace("\n", " "),
-        sh(f"pgrep -a -u {DESK} ams-user").stdout.replace("\n", " "), sh(f"pgrep -a -u {DESK} zenity").stdout.replace("\n", " "),
-        sh(f"cat /run/user/$(id -u {DESK})/ams-agent.pronto").stdout.strip()])
-    registra("I11", "Desktop", "ams remind dopo «Più tardi»: la finestra ricompare subito", "finestra entro pochi secondi",
+        sh(f"{RSPEAK} remind 2").stdout.strip(), stato(2, DESK) or "", sh(f"ls -la {VAR}/users/{DESK}/state {VAR}/users/{DESK}/inbox").stdout.replace("\n", " "),
+        sh(f"pgrep -a -u {DESK} rootspeak-user").stdout.replace("\n", " "), sh(f"pgrep -a -u {DESK} zenity").stdout.replace("\n", " "),
+        sh(f"cat /run/user/$(id -u {DESK})/rootspeak-agent.pronto").stdout.strip()])
+    registra("I11", "Desktop", "rspeak remind dopo «Più tardi»: la finestra ricompare subito", "finestra entro pochi secondi",
              dt is not None, diag, secondi_alla_ricomparsa=round(time.time() - t0, 2) if dt is not None else None)
     desk("clicca", ETICHETTE["dlg_ok"])
     attendi_finestre(0, 10)
 
-    ams(f'send --to {DESK} "Confermato dal terminale"')
+    rspeak(f'send --to {DESK} "Confermato dal terminale"')
     attendi_finestre(1, 20)
     s = apri(DESK)
     s.leggi_fino(r"Confermi", 15)
@@ -849,16 +849,16 @@ def i_desktop():
              secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
     s.chiudi()
 
-    ams(f'send --to {DESK} "Da ritirare"')
+    rspeak(f'send --to {DESK} "Da ritirare"')
     attendi_finestre(1, 20)
     t0 = time.time()
-    ams("revoke 4")
+    rspeak("revoke 4")
     dt = attendi_finestre(0, 10)
     registra("I6", "Desktop", "ritiro con la finestra aperta: la finestra si chiude da sola", "finestra chiusa",
              dt is not None, secondi_alla_chiusura=round(time.time() - t0, 2) if dt is not None else None)
 
-    ams(f'send --to {DESK} "Primo di due"')
-    ams(f'send --to {DESK} "Secondo di due"')
+    rspeak(f'send --to {DESK} "Primo di due"')
+    rspeak(f'send --to {DESK} "Secondo di due"')
     attendi_finestre(1, 20)
     t1 = testo_finestra()
     desk("clicca", ETICHETTE["dlg_ok"])
@@ -874,7 +874,7 @@ def i_desktop():
     attendi_finestre(0, 10)
 
     # «Ho letto» e uscita immediata dalla sessione: la conferma non deve perdersi
-    ams(f'send --to {DESK} "Clic e via"')
+    rspeak(f'send --to {DESK} "Clic e via"')
     attendi_finestre(1, 20)
     desk("clicca", ETICHETTE["dlg_ok"])
     time.sleep(0.1)
@@ -886,7 +886,7 @@ def i_desktop():
 
     # messaggio in attesa, poi login grafico
     time.sleep(1)
-    ams(f'send --to {DESK} "In attesa del login"')
+    rspeak(f'send --to {DESK} "In attesa del login"')
     t0 = time.time()
     sh("systemctl restart gdm")
     dt = attendi_finestre(1, 90)
@@ -897,24 +897,24 @@ def i_desktop():
     cattura("I9-login")
     desk("clicca", ETICHETTE["dlg_ok"])
     attendi_finestre(0, 10)
-    sh("printf 'AMS_REMIND_MINUTES=30\nAMS_AGENT_POLL=60\n' > /etc/ams/ams.conf")
+    sh("printf 'RSPEAK_REMIND_MINUTES=30\nRSPEAK_AGENT_POLL=60\n' > /etc/rootspeak/rootspeak.conf")
 
 
 # ---- rapporto ----
 
 def rapporto():
     os.makedirs(OUT, exist_ok=True)
-    meta = dict(data=time.strftime("%Y-%m-%d %H:%M:%S %Z"), versione=sh(f"{AMS} version").stdout.strip(),
+    meta = dict(data=time.strftime("%Y-%m-%d %H:%M:%S %Z"), versione=sh(f"{RSPEAK} version").stdout.strip(),
                 sistema=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
                 + (f", VM con GNOME, desktop di {DESK}" if DESK else ", container con systemd"),
                 ok=sum(r["esito"] == "OK" for r in risultati), no=sum(r["esito"] == "NO" for r in risultati),
                 non_provati=sum(r["esito"] == "NON PROVATO" for r in risultati), totale=len(risultati),
-                commit=os.environ.get("AMS_PROVA_COMMIT", "sconosciuto"),
-                impronta=os.environ.get("AMS_PROVA_IMPRONTA", "sconosciuta"),
-                solo=os.environ.get("AMS_PROVA_SOLO", ""))
+                commit=os.environ.get("RSPEAK_PROVA_COMMIT", "sconosciuto"),
+                impronta=os.environ.get("RSPEAK_PROVA_IMPRONTA", "sconosciuta"),
+                solo=os.environ.get("RSPEAK_PROVA_SOLO", ""))
     with open(f"{OUT}/results.json", "w") as f:
         json.dump(dict(meta=meta, risultati=risultati), f, ensure_ascii=False, indent=1)
-    righe = [f"# Prove di AMS {'nella VM con desktop' if DESK else 'nella macchina di prova'}\n",
+    righe = [f"# Prove di RootSpeak {'nella VM con desktop' if DESK else 'nella macchina di prova'}\n",
              f"- Data: {meta['data']}", f"- {meta['versione']}", f"- Sistema: {meta['sistema']}",
              f"- Codice: commit {meta['commit']}, impronta {meta['impronta']}",
              f"- Esito: **{meta['ok']} riusciti, {meta['no']} falliti, {meta['non_provati']} non provati** "
@@ -932,7 +932,7 @@ def rapporto():
 
 
 if __name__ == "__main__":
-    solo = os.environ.get("AMS_PROVA_SOLO", "").split(",")   # per esempio i_desktop
+    solo = os.environ.get("RSPEAK_PROVA_SOLO", "").split(",")   # per esempio i_desktop
     for fn in (a_accesso, b_destinatari, c_consegna, d_conferma, e_scadenza_ritiro, f_guasti, g_sicurezza,
                j_registro, t_tui, k_shell, l_lingua, h_prestazioni, i_desktop):
         if solo != [""] and fn.__name__ not in solo:

@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=AMS
-Comment=Messaggi dell'amministratore (AMS - Advanced Messaging System)
-Exec=@LIBDIR@/ams-user agent
-NoDisplay=true
-X-GNOME-Autostart-enabled=true

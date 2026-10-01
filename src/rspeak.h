@@ -1,8 +1,8 @@
-/* AMS - Advanced Messaging System
- * Le parti di ams usate anche dalla TUI: la TUI legge l'archivio con le
+/* RootSpeak - Advanced Messaging System for Linux
+ * Le parti di rspeak usate anche dalla TUI: la TUI legge l'archivio con le
  * stesse funzioni dei comandi, e le azioni sono i comandi stessi. */
-#ifndef AMS_AMS_H
-#define AMS_AMS_H
+#ifndef RSPEAK_RSPEAK_H
+#define RSPEAK_RSPEAK_H
 
 #include "comune.h"
 #include "testo.h"
@@ -26,7 +26,7 @@ void riassunto_libera(riassunto_t *r);
 /* «14 confermato · 5 consegnato · 2 inviato» oppure «tutti confermato (58)». */
 void riassunto_frase(const riassunto_t *r, buf_t *out);
 
-/* I destinatari di un messaggio con la riga di stato di ams status. */
+/* I destinatari di un messaggio con la riga di stato di rspeak status. */
 typedef struct {
 	char *utente;
 	stato_e stato;
@@ -57,6 +57,6 @@ void cmd_log(const char *arg);
 void cmd_conta_destinatari(const char *to);
 
 /* La TUI (src/tui.c): false se il terminale è troppo piccolo. */
-bool ams_tui(void);
+bool rspeak_tui(void);
 
 #endif

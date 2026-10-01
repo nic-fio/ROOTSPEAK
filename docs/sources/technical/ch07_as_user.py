@@ -7,7 +7,7 @@ def cap(n, s=None):
 
 SYMLINK = fig(
     zone(20, 44, 420, 214, "If root wrote directly", "#fdf2f2")
-    + box(44, 84, 150, 54, "ams (root)", "writes inbox/12", "navy")
+    + box(44, 84, 150, 54, "rspeak (root)", "writes inbox/12", "navy")
     + box(262, 84, 156, 54, "users/mario/inbox", "replaced by Mario…", "amber", 12)
     + box(262, 176, 156, 54, "/etc", "…with a symlink", "grey")
     + arrow(196, 111, 260, 111, "#b91c1c")
@@ -15,7 +15,7 @@ SYMLINK = fig(
     + text(130, 206, "root would write", 11.5, "#b91c1c", "700")
     + text(130, 224, "inside /etc", 11.5, "#b91c1c", "700")
     + zone(470, 44, 410, 214, "With come_utente", "#f0fdf4")
-    + box(494, 84, 150, 54, "ams (root)", "come_utente(mario)", "navy")
+    + box(494, 84, 150, 54, "rspeak (root)", "come_utente(mario)", "navy")
     + box(704, 84, 156, 54, "child (mario)", "writes inbox/12", "light")
     + box(704, 176, 156, 54, "/etc", "permission denied", "grey")
     + arrow(646, 111, 702, 111, "#16a34a")
@@ -33,14 +33,14 @@ S1 = p("The mailbox " + c("users/U") + " belongs to the user, who can replace it
        + " used by the prototype.", lead=True) + SYMLINK + \
     p("In the child the user's permissions apply: a link to " + c("/etc") + " leads to «permission "
       "denied», and the worst the user can achieve is to spoil their own copy. Scenario G1 on the test "
-      "machine checks this: with the mailbox turned into a link to " + c("/etc") + ", " + c("ams send") + " "
+      "machine checks this: with the mailbox turned into a link to " + c("/etc") + ", " + c("rspeak send") + " "
       "writes nothing in " + c("/etc") + " and the recipient stays «inviato, non consegnato» (“sent, not delivered”).") + \
     note("only the folder " + c("users/U") + " itself is touched by root: root creates it (" + c("700") + ") inside "
          + c("users/") + ", which belongs to root, and hands it over to U with " + c("lchown") + ". If it already "
          "exists it must be a real folder (" + c("lstat") + "); if it is still owned by root, because a send was "
          "interrupted between creation and handover, it is handed over at the next send (scenario F6).")
 
-FIGLIO = seq([("ams (root)", "come_utente", "navy"), ("pipe", "stdin · stdout", "soft"),
+FIGLIO = seq([("rspeak (root)", "come_utente", "navy"), ("pipe", "stdin · stdout", "soft"),
               ("child", "fork", "dark"), ("child as U", "fn(arg)", "blue")], [
     (0, 2, "fork"),
     ("nota", 2, "stdin and stdout on pipes"),
@@ -58,7 +58,7 @@ S2 = p(c("come_utente(u, fn, arg, in, out, max, secondi)") + " runs " + c("fn(ar
        "waits for it to finish, always with a time limit.", lead=True) + FIGLIO + code("""static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int out)
 {
 	/* stdin e stdout sulle pipe, stderr su /dev/null */
-	if (geteuid() == 0 && !ams_test) {
+	if (geteuid() == 0 && !rspeak_test) {
 		/* identità completa dell'utente: gruppi, poi gruppo, poi utente */
 		if (initgroups(u->nome, u->gid) < 0 || setresgid(u->gid, u->gid, u->gid) < 0 ||
 		    setresuid(u->uid, u->uid, u->uid) < 0)
@@ -81,7 +81,7 @@ S2 = p(c("come_utente(u, fn, arg, in, out, max, secondi)") + " runs " + c("fn(ar
 ])
 
 S3 = p("The child runs with the user's identity, so the user can stop it (" + c("SIGSTOP") + ") or "
-       "slow it down. " + c("ams") + " must not hang: the time limit applies both while the child is writing and "
+       "slow it down. " + c("rspeak") + " must not hang: the time limit applies both while the child is writing and "
        "afterwards, until it exits.", lead=True) + table(["Result of come_utente", "When"], [
     ["the exit code of " + c("fn") + " (0–125, 127–255)", "the child exited normally"],
     [c("-1"), "the child did not start (" + c("pipe2") + ", " + c("fork") + "); it could not assume the identity "

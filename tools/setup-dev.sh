@@ -2,7 +2,7 @@
 # Prepara una copia appena clonata su una macchina Debian o Ubuntu.
 #
 # Un clone porta con sé sorgenti, prove, documentazione e tutta la storia, ma
-# non due cose: i pacchetti che servono per compilare e provare AMS, e
+# non due cose: i pacchetti che servono per compilare e provare RootSpeak, e
 # l'identità git di questo repository (sta in .git/config, che non viene
 # clonato). Questo script dice cosa manca e, con --install, installa i
 # pacchetti con apt. Quelli facoltativi servono solo per le prove dal vero
@@ -19,7 +19,7 @@ PACKAGES="
 gcc:gcc:il compilatore (make)
 make:make:make, make prove, make test
 pkg-config:pkg-config:trova la libreria di systemd
-libsystemd-dev:-:journal e sessioni di logind (ams e ams-user)
+libsystemd-dev:-:journal e sessioni di logind (rspeak e rootspeak-user)
 gettext:msgfmt:cataloghi delle lingue (make, make pot, tools/check-docs.py)
 python3:python3:manuali, controlli dei manuali, tests/tui.py e tests/help-tui.py
 python3-pygments:-:evidenziazione del codice nei manuali (make docs, make docs-check)
@@ -35,8 +35,8 @@ libnotify-bin:notify-send:l'avviso di una conferma non registrata sul desktop
 podman:podman:tests/container/run.sh, tests/fuzz/run.sh, tools/tui-screenshots.sh
 "
 
-NAME=${AMS_GIT_NAME:-nic-fio}
-EMAIL=${AMS_GIT_EMAIL:-315794250+nic-fio@users.noreply.github.com}
+NAME=${RSPEAK_GIT_NAME:-nic-fio}
+EMAIL=${RSPEAK_GIT_EMAIL:-315794250+nic-fio@users.noreply.github.com}
 
 has() {
     if [ "$2" = "-" ]; then
@@ -91,7 +91,7 @@ if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
         git -C "$ROOT" config --local user.email "$EMAIL"
         echo "  impostata a $NAME <$EMAIL>"
         echo "  (tiene l'indirizzo personale fuori dalla storia;"
-        echo "   AMS_GIT_NAME e AMS_GIT_EMAIL la cambiano)"
+        echo "   RSPEAK_GIT_NAME e RSPEAK_GIT_EMAIL la cambiano)"
     else
         echo "  già impostata: $(git -C "$ROOT" config --local --get user.name) <$(git -C "$ROOT" config --local --get user.email)>"
     fi
@@ -103,7 +103,7 @@ cat <<'END'
 
 Poi verifica che tutto funzioni davvero:
 
-    make            # compila ams, ams-user e le lingue in build/
+    make            # compila rspeak, rootspeak-user e le lingue in build/
     make test       # prove delle parti interne, controlli dei manuali, tests/engine.sh
     python3 tests/tui.py && python3 tests/help-tui.py   # TUI e guida su un terminale virtuale
 END

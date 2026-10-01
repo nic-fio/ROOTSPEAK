@@ -5,22 +5,22 @@ def cap(n, s=None):
     return f'<a href="#ch{n}{"s" + str(s) if s else ""}">chapter {n}{"." + str(s) if s else ""}</a>'
 
 
-S1 = p("The message store is made of files and folders under " + c("/var/lib/ams") + ". One part belongs to root, "
-       "one part to each user: the boundary between the two is the heart of AMS security. There is no database and no "
+S1 = p("The message store is made of files and folders under " + c("/var/lib/rootspeak") + ". One part belongs to root, "
+       "one part to each user: the boundary between the two is the heart of RootSpeak security. There is no database and no "
        "index: every piece of information is in a file that can be read with " + c("cat") + ".", lead=True) + tree([
-    "/var/lib/ams/                   # root 755",
+    "/var/lib/rootspeak/                   # root 755",
     "├── sent/                       # root 700 · root only",
     "│   ├── .seq  .seq.lock         # last ID assigned; lock for flock",
     "│   ├── 12/",
     "│   │   ├── msg                 # the message (reference copy)",
     "│   │   ├── recipients          # one recipient per line",
     "│   │   ├── delivery            # “user date terminals” for each delivered copy",
-    "│   │   ├── lock                # held by ams send while delivering (flock)",
+    "│   │   ├── lock                # held by rspeak send while delivering (flock)",
     "│   │   ├── incomplete          # marker: send in progress or to be completed",
     "│   │   ├── revoked             # date of revocation, if revoked",
     "│   │   ├── ritiro              # marker: revoked copies still to be removed",
     "│   │   └── failed              # marker: send interrupted before it was saved",
-    "│   └── .cancella-9/            # a message that ams purge is deleting",
+    "│   └── .cancella-9/            # a message that rspeak purge is deleting",
     "└── users/                      # root 755",
     "    └── mario/                  # mario 700 · the mailbox: only Mario and root",
     "        ├── inbox/12            # to be shown",
@@ -48,7 +48,7 @@ Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg: the tit
      "by an implementation that knows it"],
     [c("id"), "sequential number, from " + c("prossimo_id")],
     [c("from"), "the administrator: " + c("SUDO_USER") + " if it is an existing user, otherwise the user running "
-     + c("ams")],
+     + c("rspeak")],
     [c("date"), "seconds since the Unix epoch; <b>mandatory</b>: a message without a valid date is rejected"],
     [c("title"), "title, possibly empty, on a single line (newlines and tabs become spaces)"],
     [c("expires"), "seconds since the Unix epoch; empty: no expiry"],
@@ -56,15 +56,15 @@ Sabato dalle 8 alle 12 il server sarà spento.""", "text", "sent/12/msg: the tit
     [c("msg_formatta"), "writes the header in the order shown in the figure, then the text"],
     [c("msg_da_testo"), "reads line by line up to the first empty line; also accepts " + c("chiave:") + " (“key:”)"
      + " without a value; what follows is the text"],
-    [c("msg_leggi"), "reads a regular file, without following links, at most " + c("AMS_MAX_MSG")
+    [c("msg_leggi"), "reads a regular file, without following links, at most " + c("RSPEAK_MAX_MSG")
      + " bytes (65536 + 8192), then " + c("msg_da_testo")],
     [c("msg_scaduto"), "true if " + c("expires") + " is present and is less than or equal to the given time"],
     [c("msg_intestazione"), "“Title · 29/09 22:15”, or just the date: the line that precedes the text in the "
-     "terminal, in the dialog and in " + c("ams status")],
+     "terminal, in the dialog and in " + c("rspeak status")],
 ], "«TAB» — Reading and writing a message")
 
-SEQ = seq([("ams send A", "", "navy"), ("sent/.seq.lock", "exclusive flock", "dark"), ("sent/", "", "soft"),
-           ("ams send B", "", "navy")], [
+SEQ = seq([("rspeak send A", "", "navy"), ("sent/.seq.lock", "exclusive flock", "dark"), ("sent/", "", "soft"),
+           ("rspeak send B", "", "navy")], [
     (0, 1, "flock: taken"),
     (3, 1, "flock: waits", True),
     (0, 2, ".seq = 11 → mkdir 12"),
@@ -73,8 +73,8 @@ SEQ = seq([("ams send A", "", "navy"), ("sent/.seq.lock", "exclusive flock", "da
     (3, 2, ".seq = 12 → mkdir 13"),
 ], "«FIG» — Two simultaneous sends get different numbers", "Sequential numbers")
 
-S3 = p("Every message has a sequential number. " + c("prossimo_id") + " in " + c("src/ams.c") + " takes it under "
-       "an exclusive " + c("flock") + " on " + c("sent/.seq.lock") + ": two simultaneous " + c("ams send") + " runs never "
+S3 = p("Every message has a sequential number. " + c("prossimo_id") + " in " + c("src/rspeak.c") + " takes it under "
+       "an exclusive " + c("flock") + " on " + c("sent/.seq.lock") + ": two simultaneous " + c("rspeak send") + " runs never "
        "get the same number.", lead=True) + SEQ + ul([
     "It reads the last number from " + c("sent/.seq") + " (0 if missing or not a number), increments it and creates the "
     "folder with " + c("mkdir(…, 0700)") + ".",
@@ -86,10 +86,10 @@ S3 = p("Every message has a sequential number. " + c("prossimo_id") + " in " + c
 ])
 
 S4 = table(["Path", "Owner", "Permissions", "Why"], [
-    [c("/var/lib/ams"), "root", c("755"), "traversable by everyone to reach their own mailbox"],
+    [c("/var/lib/rootspeak"), "root", c("755"), "traversable by everyone to reach their own mailbox"],
     [c("sent/"), "root", c("700"), "messages and recipients visible only to administrators"],
     [c("sent/ID/"), "root", c("700"), "created by " + c("prossimo_id")],
-    [c("sent/ID/*"), "root", c("600"), "written by " + c("ams") + " with " + c("O_NOFOLLOW")],
+    [c("sent/ID/*"), "root", c("600"), "written by " + c("rspeak") + " with " + c("O_NOFOLLOW")],
     [c("users/"), "root", c("755"), "only root creates mailboxes: a user can neither create nor move them"],
     [c("users/U/"), "U", c("700"), "created by root and handed over to U; only U (and root) can enter it"],
     [c("users/U/inbox") + ", " + c("read") + ", " + c("acks") + ", " + c("state"), "U", c("755"),
@@ -100,7 +100,7 @@ S4 = table(["Path", "Owner", "Permissions", "Why"], [
       "copy stays in " + c("sent/") + ", and a message deleted from the mailbox simply shows up as not "
       "confirmed. A confirmation written by hand remains a statement by the user (" + cap(20, 1) + ").") + \
     warn("the effective permissions of the files created by U also depend on the process umask: the child of "
-         + c("come_utente") + " sets it to " + c("022") + ", " + c("ams-user") + " uses the one of the user's "
+         + c("come_utente") + " sets it to " + c("022") + ", " + c("rootspeak-user") + " uses the one of the user's "
          "session. The real protection is the " + c("users/U") + " folder at " + c("700") + ".")
 
 ATOM = fig(
@@ -130,22 +130,22 @@ S5 = p("All file I/O goes through a few functions in " + c("src/comune.c") + " w
     [c("elenca_numeri(dir, out)"), "only names made of digits (at most 18), in numeric order"],
     [c("leggi_numero(s, out)"), "digits only, at most 18: no sign, no spaces, no overflow"],
 ], "«TAB» — The I/O rules") + ATOM + \
-    p("Every descriptor is opened with " + c("O_CLOEXEC") + ": no open file is passed on to the programs launched by AMS "
+    p("Every descriptor is opened with " + c("O_CLOEXEC") + ": no open file is passed on to the programs launched by RootSpeak "
       "(zenity, sudo, systemd-run, the editor). Memory is requested with " + c("xmalloc") + " and texts grow in a "
       + c("buf_t") + " (" + cap(24, 5) + "): no fixed-length buffer receives data that comes from outside.")
 
-S6 = p("AMS has no backup or restore command: the message store is made of files, and the only tools "
-       "provided are the purge of old messages (" + c("ams purge") + ", " + cap(9, 3) + ") and complete "
+S6 = p("RootSpeak has no backup or restore command: the message store is made of files, and the only tools "
+       "provided are the purge of old messages (" + c("rspeak purge") + ", " + cap(9, 3) + ") and complete "
        "removal (" + c("install.sh --purge") + ").", lead=True) + table(["What", "Where", "Note"], [
-    ["messages, recipients, deliveries, revocations", c("/var/lib/ams/sent/"), "authoritative; root only"],
-    ["copies, confirmations, postponements", c("/var/lib/ams/users/"), "per user; the confirmations are the state"],
-    ["event history", "system journal", "kept according to the journal's rules, not AMS's"],
-    ["configuration", c("/etc/ams/ams.conf"), "not overwritten by upgrades"],
+    ["messages, recipients, deliveries, revocations", c("/var/lib/rootspeak/sent/"), "authoritative; root only"],
+    ["copies, confirmations, postponements", c("/var/lib/rootspeak/users/"), "per user; the confirmations are the state"],
+    ["event history", "system journal", "kept according to the journal's rules, not RootSpeak's"],
+    ["configuration", c("/etc/rootspeak/rootspeak.conf"), "not overwritten by upgrades"],
 ], "«TAB» — Where the data lives") + ul([
-    "A reset message store reuses message numbers, the journal does not: this is why " + c("ams log ID") + " reads only "
+    "A reset message store reuses message numbers, the journal does not: this is why " + c("rspeak log ID") + " reads only "
     "the events after the message's sending date (" + cap(18, 4) + ").",
     "A copy taken while a send is in progress contains the " + c("incomplete") + " marker: given how recovery "
-    "works (" + cap(8, 6) + "), after a restore that send would be completed by the first " + c("ams") + " command.",
+    "works (" + cap(8, 6) + "), after a restore that send would be completed by the first " + c("rspeak") + " command.",
 ]) + warn("backing up and restoring the message store have not been tested: whoever does it must preserve "
           "owners and permissions (in particular U's " + c("users/U") + " with " + c("700") + " and root's " + c("sent/")
           + " with " + c("700") + ").")

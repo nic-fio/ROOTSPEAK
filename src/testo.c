@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Pulizia del testo, formato dei messaggi, configurazione. */
 #include "testo.h"
 
@@ -159,7 +159,7 @@ int msg_leggi(const char *path, msg_t *m)
 	buf_t b = {0};
 	int r;
 
-	if (leggi_file(path, AMS_MAX_MSG, true, &b) < 0) {
+	if (leggi_file(path, RSPEAK_MAX_MSG, true, &b) < 0) {
 		buf_free(&b);
 		memset(m, 0, sizeof *m);
 		return -1;
@@ -224,9 +224,9 @@ void conf_da_testo(const char *s, conf_t *c)
 		v = w + 1;
 		if (!solo_cifre(v) || strlen(v) > 6 || atol(v) <= 0)
 			continue;
-		if (!strcmp(k, "AMS_REMIND_MINUTES"))
+		if (!strcmp(k, "RSPEAK_REMIND_MINUTES"))
 			c->remind_minutes = atol(v);
-		else if (!strcmp(k, "AMS_AGENT_POLL"))
+		else if (!strcmp(k, "RSPEAK_AGENT_POLL"))
 			c->agent_poll = atol(v);
 	}
 }
@@ -235,7 +235,7 @@ void conf_leggi(conf_t *c)
 {
 	buf_t b = {0};
 
-	if (leggi_file(ams_conf_path, 65536, false, &b) < 0) {
+	if (leggi_file(rspeak_conf_path, 65536, false, &b) < 0) {
 		conf_da_testo(NULL, c);
 	} else {
 		conf_da_testo(b.s ? b.s : "", c);

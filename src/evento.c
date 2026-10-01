@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Eventi strutturati nel journal, e il loro testo in ogni lingua. */
 #include "evento.h"
 
@@ -79,11 +79,11 @@ void evento(const char *ev, long long id, const char *utente, const char *canale
 	if (!det.s)
 		buf_adds(&det, "");
 	evento_testo(lingua_sistema(), ev, id, utente, canale, det.s, autore, &testo);
-	if (sd_journal_send("MESSAGE=%s", testo.s ? testo.s : ev, "SYSLOG_IDENTIFIER=ams", "PRIORITY=%d", LOG_INFO,
-			    "AMS_EVENTO=%s", ev, "AMS_MESSAGGIO=%lld", id, "AMS_UTENTE=%s", utente, "AMS_CANALE=%s",
-			    canale, "AMS_DETTAGLI=%s", det.s, "AMS_AUTORE=%s", autore, NULL) < 0) {
+	if (sd_journal_send("MESSAGE=%s", testo.s ? testo.s : ev, "SYSLOG_IDENTIFIER=rspeak", "PRIORITY=%d", LOG_INFO,
+			    "RSPEAK_EVENTO=%s", ev, "RSPEAK_MESSAGGIO=%lld", id, "RSPEAK_UTENTE=%s", utente, "RSPEAK_CANALE=%s",
+			    canale, "RSPEAK_DETTAGLI=%s", det.s, "RSPEAK_AUTORE=%s", autore, NULL) < 0) {
 		/* senza journal, almeno syslog */
-		openlog("ams", 0, LOG_USER);
+		openlog("rspeak", 0, LOG_USER);
 		syslog(LOG_INFO, "%s", testo.s ? testo.s : ev);
 		closelog();
 	}

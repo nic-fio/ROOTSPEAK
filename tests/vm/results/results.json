@@ -1,14 +1,14 @@
 {
  "meta": {
-  "data": "2026-09-30 17:13:11 UTC",
-  "versione": "AMS - Advanced Messaging System for linux 0.2.0",
+  "data": "2026-10-01 09:28:55 UTC",
+  "versione": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
   "sistema": "Debian GNU/Linux 13 (trixie), VM con GNOME, desktop di sara",
   "ok": 66,
   "no": 0,
   "non_provati": 4,
   "totale": 70,
-  "commit": "f81b901649-modificato",
-  "impronta": "c0cd82d621f0",
+  "commit": "dc03ab73d5-modificato",
+  "impronta": "00d658f1b22f",
   "solo": ""
  },
  "risultati": [
@@ -24,21 +24,21 @@
   {
    "codice": "A2",
    "area": "Accesso",
-   "descrizione": "un amministratore (gruppo sudo) invia: ams si rilancia con sudo",
+   "descrizione": "un amministratore (gruppo sudo) invia: rspeak si rilancia con sudo",
    "atteso": "invio riuscito, mittente admin",
    "esito": "OK",
    "dettagli": "from: admin",
    "misure": {
-    "secondi": 0.096
+    "secondi": 0.131
    }
   },
   {
    "codice": "A3",
    "area": "Accesso",
-   "descrizione": "un utente normale non può eseguire ams",
+   "descrizione": "un utente normale non può eseguire rspeak",
    "atteso": "permesso negato, nessun messaggio",
    "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permesso negato",
+   "dettagli": "runuser: failed to execute /usr/local/bin/rspeak: Permesso negato",
    "misure": {}
   },
   {
@@ -47,7 +47,7 @@
    "descrizione": "un utente normale non può aprire nemmeno la guida",
    "atteso": "permesso negato",
    "esito": "OK",
-   "dettagli": "runuser: failed to execute /usr/local/bin/ams: Permesso negato",
+   "dettagli": "runuser: failed to execute /usr/local/bin/rspeak: Permesso negato",
    "misure": {}
   },
   {
@@ -101,7 +101,7 @@
    "descrizione": "utente inesistente",
    "atteso": "errore, nessun messaggio creato",
    "esito": "OK",
-   "dettagli": "ams: utente inesistente: pippo",
+   "dettagli": "rspeak: utente inesistente: pippo",
    "misure": {}
   },
   {
@@ -110,7 +110,7 @@
    "descrizione": "gruppo senza membri",
    "atteso": "errore «nessun destinatario»",
    "esito": "OK",
-   "dettagli": "ams: nessun destinatario",
+   "dettagli": "rspeak: nessun destinatario",
    "misure": {}
   },
   {
@@ -130,7 +130,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_dal_login": 0.403
+    "secondi_dal_login": 0.471
    }
   },
   {
@@ -139,7 +139,7 @@
    "descrizione": "conferma al login",
    "atteso": "confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 17:10 (terminale pts/2)",
+   "dettagli": "confermato il 01/10 09:26 (terminale pts/2)",
    "misure": {}
   },
   {
@@ -150,8 +150,8 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_invio": 0.083,
-    "secondi_al_terminale": 0.134
+    "secondi_invio": 0.081,
+    "secondi_al_terminale": 0.131
    }
   },
   {
@@ -200,7 +200,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.953
+    "secondi": 0.952
    }
   },
   {
@@ -209,7 +209,7 @@
    "descrizione": "l'utente rimanda",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 30/09 17:10",
+   "dettagli": "consegnato, scritto su 1 terminale, rimandato il 01/10 09:26",
    "misure": {}
   },
   {
@@ -218,13 +218,13 @@
    "descrizione": "dopo il rinvio, al prompt solo un promemoria",
    "atteso": "«Hai 1 messaggio…», nessuna domanda",
    "esito": "OK",
-   "dettagli": "true\n[AMS] Hai 1 messaggio dell'amministratore da confermare.\nluca@ams-desktop:~$ ",
+   "dettagli": "true\n[RootSpeak] Hai 1 messaggio dell'amministratore da confermare.\nluca@rootspeak-desktop:~$ ",
    "misure": {}
   },
   {
    "codice": "D5",
    "area": "Conferma",
-   "descrizione": "ams remind dopo un rinvio: la domanda torna al prompt successivo",
+   "descrizione": "rspeak remind dopo un rinvio: la domanda torna al prompt successivo",
    "atteso": "«sollecitato 1 destinatario», domanda al prompt",
    "esito": "OK",
    "dettagli": "Messaggio 1: sollecitato 1 destinatario.",
@@ -245,7 +245,7 @@
    "descrizione": "conferma registrata con data e canale",
    "atteso": "«EPOCH terminale pts/N»",
    "esito": "OK",
-   "dettagli": "1790788235 terminale pts/7",
+   "dettagli": "1790846778 terminale pts/7",
    "misure": {}
   },
   {
@@ -274,7 +274,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 1.001
+    "secondi": 1.002
    }
   },
   {
@@ -301,7 +301,7 @@
    "descrizione": "la copia per un utente non si può scrivere: gli altri la ricevono",
    "atteso": "errore, anna «inviato, non consegnato», mario consegnato",
    "esito": "OK",
-   "dettagli": "ams: messaggio 1 non consegnato a: anna (vedi il registro; il prossimo comando ams riproverà) | anna: inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)",
+   "dettagli": "rspeak: messaggio 1 non consegnato a: anna (vedi il registro; il prossimo comando rspeak riproverà) | anna: inviato, non consegnato: la copia non è stata scritta (vedi il registro; il prossimo comando rspeak riproverà)",
    "misure": {}
   },
   {
@@ -310,20 +310,20 @@
    "descrizione": "guasto risolto: il comando successivo completa la consegna",
    "atteso": "anna consegnato",
    "esito": "OK",
-   "dettagli": "ams: completata la consegna del messaggio 1 a 1 destinatari",
+   "dettagli": "rspeak: completata la consegna del messaggio 1 a 1 destinatari",
    "misure": {}
   },
   {
    "codice": "F3",
    "area": "Guasti",
-   "descrizione": "ams send ucciso a metà (SIGKILL): il comando successivo completa",
+   "descrizione": "rspeak send ucciso a metà (SIGKILL): il comando successivo completa",
    "atteso": "tutte le copie consegnate, nessun segno di invio incompleto",
    "esito": "OK",
-   "dettagli": "consegnati prima 3/65, dopo 65/65; ams: completata la consegna del messaggio 2 a 62 destinatari",
+   "dettagli": "consegnati prima 5/65, dopo 65/65; rspeak: completata la consegna del messaggio 2 a 60 destinatari",
    "misure": {
-    "consegnati_al_kill": 3,
+    "consegnati_al_kill": 5,
     "destinatari": 65,
-    "secondi_recupero": 0.147
+    "secondi_recupero": 0.117
    }
   },
   {
@@ -338,23 +338,23 @@
   {
    "codice": "F7",
    "area": "Guasti",
-   "descrizione": "ams revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
+   "descrizione": "rspeak revoke durante un invio a molti utenti: l'invio si ferma e nessuna copia resta",
    "atteso": "nessuna copia nelle caselle, invio interrotto",
    "esito": "OK",
    "dettagli": "copie rimaste: 0; consegnate prima del ritiro: 3; Messaggio 4 ritirato durante l'invio: consegna interrotta.",
    "misure": {
-    "secondi_attesa_revoke": 0.08
+    "secondi_attesa_revoke": 0.11
    }
   },
   {
    "codice": "F5",
    "area": "Guasti",
-   "descrizione": "ams list ripetuto mentre ams send consegna: il recupero non interferisce",
+   "descrizione": "rspeak list ripetuto mentre rspeak send consegna: il recupero non interferisce",
    "atteso": "una consegna per destinatario, nessun doppione, invio completo",
    "esito": "OK",
    "dettagli": "65 consegne annotate per 65 destinatari, 65 distinte",
    "misure": {
-    "ams_list_durante_invio": 16
+    "rspeak_list_durante_invio": 47
    }
   },
   {
@@ -372,7 +372,7 @@
    "descrizione": "la casella è un collegamento a /etc: root non ci scrive",
    "atteso": "nessun file 2 in /etc; mario «inviato, non consegnato»",
    "esito": "OK",
-   "dettagli": "ams: messaggio 2 non consegnato a: mario (vedi il registro; il prossimo comando ams riproverà)",
+   "dettagli": "rspeak: messaggio 2 non consegnato a: mario (vedi il registro; il prossimo comando rspeak riproverà)",
    "misure": {}
   },
   {
@@ -387,7 +387,7 @@
   {
    "codice": "G3",
    "area": "Sicurezza",
-   "descrizione": "conferma fabbricata con escape e 500 byte: ams status resta pulito",
+   "descrizione": "conferma fabbricata con escape e 500 byte: rspeak status resta pulito",
    "atteso": "nessun ESC nell'uscita, al massimo 200 byte letti",
    "esito": "OK",
    "dettagli": "luca             confermato il 01/01 00:00 (finto00000000000000000000000000000000000000000000000000000000000000000000000",
@@ -396,16 +396,16 @@
   {
    "codice": "G4",
    "area": "Sicurezza",
-   "descrizione": "un utente normale con AMS_TEST=1 non ottiene nulla",
+   "descrizione": "un utente normale con RSPEAK_TEST=1 non ottiene nulla",
    "atteso": "permesso negato",
    "esito": "OK",
-   "dettagli": "env: ‘/usr/local/bin/ams’: Permesso negato",
+   "dettagli": "env: ‘/usr/local/bin/rspeak’: Permesso negato",
    "misure": {}
   },
   {
    "codice": "J1",
    "area": "Registro",
-   "descrizione": "ams log: la storia del messaggio",
+   "descrizione": "rspeak log: la storia del messaggio",
    "atteso": "invio, consegne, rinvio, conferma, ritiro",
    "esito": "OK",
    "dettagli": "6 eventi",
@@ -423,17 +423,17 @@
   {
    "codice": "J3",
    "area": "Registro",
-   "descrizione": "un evento scritto da un utente a nome di un altro: ams log lo segnala",
+   "descrizione": "un evento scritto da un utente a nome di un altro: rspeak log lo segnala",
    "atteso": "«non attendibile: scritto da UID 1003»",
    "esito": "OK",
-   "dettagli": "2026-09-30 17:11:17  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
+   "dettagli": "2026-10-01 09:27:05  [non attendibile: scritto da UID 1003] utente anna: confermata la lettura del messaggio 1 (desktop)",
    "misure": {}
   },
   {
    "codice": "T1",
    "area": "TUI",
-   "descrizione": "ams senza argomenti come root: la lista con i destinatari nei tre stati",
-   "atteso": "«AMS · messaggi inviati», «2 consegnato»",
+   "descrizione": "rspeak senza argomenti come root: la lista con i destinatari nei tre stati",
+   "atteso": "«RootSpeak · messaggi inviati», «2 consegnato»",
    "esito": "OK",
    "dettagli": "",
    "misure": {}
@@ -507,25 +507,25 @@
    "descrizione": "la domanda e la conferma nella lingua dell'utente",
    "atteso": "domanda in inglese, «y» conferma",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 17:11 (terminale pts/15)",
+   "dettagli": "confermato il 01/10 09:27 (terminale pts/15)",
    "misure": {}
   },
   {
    "codice": "L3",
    "area": "Lingua",
-   "descrizione": "un amministratore in inglese legge ams status in inglese",
+   "descrizione": "un amministratore in inglese legge rspeak status in inglese",
    "atteso": "USER STATE, confirmed on … (terminal …)",
    "esito": "OK",
-   "dettagli": "luca             confirmed on 30/09 17:11 (terminal pts/15) / mario            delivered, written to 1 terminal",
+   "dettagli": "luca             confirmed on 01/10 09:27 (terminal pts/15) / mario            delivered, written to 1 terminal",
    "misure": {}
   },
   {
    "codice": "L4",
    "area": "Lingua",
-   "descrizione": "il registro è nella lingua del sistema; ams log lo riscrive in quella di chi legge",
-   "atteso": "journal in italiano; ams log in inglese e in italiano",
+   "descrizione": "il registro è nella lingua del sistema; rspeak log lo riscrive in quella di chi legge",
+   "atteso": "journal in italiano; rspeak log in inglese e in italiano",
    "esito": "OK",
-   "dettagli": "2026-09-30 17:11:28  user luca: confirmed reading message 1 (terminal pts/15)",
+   "dettagli": "2026-10-01 09:27:15  user luca: confirmed reading message 1 (terminal pts/15)",
    "misure": {}
   },
   {
@@ -536,36 +536,36 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.13,
-    "ms_per_destinatario": 2.4
+    "secondi": 0.36,
+    "ms_per_destinatario": 6.6
    }
   },
   {
    "codice": "H2",
    "area": "Prestazioni",
-   "descrizione": "ams list con 10 messaggi × 55 destinatari",
+   "descrizione": "rspeak list con 10 messaggi × 55 destinatari",
    "atteso": "misura (punto 15 della revisione)",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.09
+    "secondi": 0.01
    }
   },
   {
    "codice": "H3",
    "area": "Prestazioni",
-   "descrizione": "ams status di un messaggio con 55 destinatari",
+   "descrizione": "rspeak status di un messaggio con 55 destinatari",
    "atteso": "misura",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi": 0.06
+    "secondi": 0.02
    }
   },
   {
    "codice": "I0",
    "area": "Desktop",
-   "descrizione": "sara ha una sessione grafica con l'agente di AMS attivo (l'avvio dal login automatico lo verifica esegui.sh prima degli scenari)",
+   "descrizione": "sara ha una sessione grafica con l'agente di RootSpeak attivo (l'avvio dal login automatico lo verifica run.sh prima degli scenari)",
    "atteso": "sessione grafica, agente attivo",
    "esito": "OK",
    "dettagli": "sessione 8",
@@ -575,11 +575,11 @@
    "codice": "I1",
    "area": "Desktop",
    "descrizione": "la finestra compare da sola dopo l'invio, nella lingua della sessione",
-   "atteso": "finestra «AMS · Messaggio dall'amministratore» (it) con titolo e testo",
+   "atteso": "finestra «RootSpeak · Messaggio dall'amministratore» (it) con titolo e testo",
    "esito": "OK",
-   "dettagli": "AMS · Messaggio dall'amministratore | AMS · Messaggio dall'amministratore | Manutenzione · 30/09 17:11\n\nServer spento sabato dalle 8 alle 12.\n | Più tardi | H",
+   "dettagli": "RootSpeak · Messaggio dall'amministratore | RootSpeak · Messaggio dall'amministratore | Manutenzione · 01/10 09:27\n\nServer spento sabato dalle 8 alle 12.\n | Più tar",
    "misure": {
-    "secondi_alla_finestra": 0.58
+    "secondi_alla_finestra": 0.61
    }
   },
   {
@@ -588,18 +588,18 @@
    "descrizione": "«Ho letto»: la finestra si chiude e la conferma è registrata",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 17:11 (desktop)",
+   "dettagli": "confermato il 01/10 09:27 (desktop)",
    "misure": {}
   },
   {
    "codice": "I8",
    "area": "Desktop",
-   "descrizione": "agente assente: ams send lo avvia (systemd-run) e la finestra compare",
+   "descrizione": "agente assente: rspeak send lo avvia (systemd-run) e la finestra compare",
    "atteso": "agente attivo, finestra",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_finestra": 0.53
+    "secondi_alla_finestra": 0.57
    }
   },
   {
@@ -608,7 +608,7 @@
    "descrizione": "«Più tardi»: la finestra si chiude, il messaggio resta consegnato",
    "atteso": "consegnato, rimandato il …",
    "esito": "OK",
-   "dettagli": "consegnato, rimandato il 30/09 17:11",
+   "dettagli": "consegnato, rimandato il 01/10 09:27",
    "misure": {}
   },
   {
@@ -619,18 +619,18 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_ricomparsa": 60.23
+    "secondi_alla_ricomparsa": 60.32
    }
   },
   {
    "codice": "I11",
    "area": "Desktop",
-   "descrizione": "ams remind dopo «Più tardi»: la finestra ricompare subito",
+   "descrizione": "rspeak remind dopo «Più tardi»: la finestra ricompare subito",
    "atteso": "finestra entro pochi secondi",
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_ricomparsa": 0.37
+    "secondi_alla_ricomparsa": 0.39
    }
   },
   {
@@ -639,9 +639,9 @@
    "descrizione": "conferma da un terminale con la finestra aperta: la finestra si chiude da sola",
    "atteso": "finestra chiusa, confermato (terminale)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 17:12 (terminale pts/17)",
+   "dettagli": "confermato il 01/10 09:28 (terminale pts/17)",
    "misure": {
-    "secondi_alla_chiusura": 0.65
+    "secondi_alla_chiusura": 0.42
    }
   },
   {
@@ -652,7 +652,7 @@
    "esito": "OK",
    "dettagli": "",
    "misure": {
-    "secondi_alla_chiusura": 0.67
+    "secondi_alla_chiusura": 0.7
    }
   },
   {
@@ -661,7 +661,7 @@
    "descrizione": "due messaggi: le finestre compaiono una dopo l'altra, dal più vecchio",
    "atteso": "«Primo di due», poi «Secondo di due», entrambi confermati",
    "esito": "OK",
-   "dettagli": "di due\n | Più tardi | Ho letto → di due\n | Più tardi | Ho letto; confermato il 30/09 17:13 (desktop)",
+   "dettagli": "di due\n | Più tardi | Ho letto → di due\n | Più tardi | Ho letto; confermato il 01/10 09:28 (desktop)",
    "misure": {}
   },
   {
@@ -670,7 +670,7 @@
    "descrizione": "«Ho letto» e subito fuori dalla sessione (0,1 s): la conferma resta",
    "atteso": "confermato (desktop)",
    "esito": "OK",
-   "dettagli": "confermato il 30/09 17:13 (desktop)",
+   "dettagli": "confermato il 01/10 09:28 (desktop)",
    "misure": {}
   },
   {
@@ -679,9 +679,9 @@
    "descrizione": "messaggio mandato a desktop chiuso: la finestra compare al login grafico",
    "atteso": "finestra dopo il login automatico",
    "esito": "OK",
-   "dettagli": "e | 30/09 17:13\n\nIn attesa del login\n | Più tardi | Ho letto",
+   "dettagli": "e | 01/10 09:28\n\nIn attesa del login\n | Più tardi | Ho letto",
    "misure": {
-    "secondi_dal_riavvio_del_login": 2.64
+    "secondi_dal_riavvio_del_login": 2.84
    }
   }
  ]

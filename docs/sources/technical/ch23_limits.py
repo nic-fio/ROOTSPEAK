@@ -35,27 +35,27 @@ S1 = p("The limits below are known and accepted: they stem from the project's de
     COPERTURA + table(["Limit", "Consequence"], [
         ["sh, dash, ksh and similar shells have no hook before the prompt", "the question arrives at login (and from "
          "the desktop); during the session only the text arrives, on sending"],
-        ["zsh installed after AMS", "you need to run " + c("install.sh") + " again to add the line to the zshrc"],
+        ["zsh installed after RootSpeak", "you need to run " + c("install.sh") + " again to add the line to the zshrc"],
         ["the heading written on sending uses the language the shell started with", "if the user changes "
          + c("LANG") + " inside the shell (for example in " + c(".bashrc") + "), the heading stays in the login "
          "language; the question and the answers follow the new one"],
         ["languages: Italian and English", "other languages see English; the manuals are in English only"],
         [c("--expires") + " dates in words, in English", "they are interpreted by " + c("date -d") + "; the ISO "
          "format always works"],
-        [c("su") + " does not change the owner of the terminal", c("ams send") + " does not write to that terminal "
+        [c("su") + " does not change the owner of the terminal", c("rspeak send") + " does not write to that terminal "
          "on sending; the question still arrives at the prompt"],
         ["if the desktop agent dies, its dialog stays open", "the agent that replaces it opens a second dialog for "
          "the same message; the first one no longer records anything"],
         ["a single agent per user, even with several graphical sessions", "the lock is one per user; the behaviour "
          "with several desktops open by the same user has not been tested"],
-        [c("ams-agent.pronto") + " is written in " + c("$XDG_RUNTIME_DIR") + " (or in " + c("/tmp") + " if it is "
+        [c("rootspeak-agent.pronto") + " is written in " + c("$XDG_RUNTIME_DIR") + " (or in " + c("/tmp") + " if it is "
          "missing) and looked for in " + c("/run/user/UID"), "they coincide in logind sessions; otherwise the "
          "wake-up does not find the agent, and this case has not been tested"],
         ["the postponement on the desktop also holds after a new graphical login", "unlike the terminal, where the "
          "question always comes back at login (" + cap(20, 7) + ")"],
         ["without " + c("/dev/tty") + " the question counts as “no”", "a postponement is recorded; in practice the "
-         "hook runs " + c("ams-user prompt") + " only with a terminal"],
-        ["events written with " + c("syslog") + " when the journal is missing", c("ams log") + " does not read them"],
+         "hook runs " + c("rootspeak-user prompt") + " only with a terminal"],
+        ["events written with " + c("syslog") + " when the journal is missing", c("rspeak log") + " does not read them"],
         ["the TUI search is case-insensitive only for unaccented letters", "“è” does not find “È”"],
         ["backup and restore of the message store, a real power loss", "not tested (" + cap(5, 6) + ", "
          + cap(20, 6) + ")"],
@@ -67,7 +67,7 @@ S2 = table(["Item", "Status"], [
     ["reusable message templates", "planned, second version"],
     ["CSV or JSON export for audit", "planned, second version"],
     ["deb and rpm packages", "planned, second version"],
-    [c("ams remind") + ": manual reminder", "done (" + cap(9, 2) + ")"],
+    [c("rspeak remind") + ": manual reminder", "done (" + cap(9, 2) + ")"],
     ["tabbed interface for the administrator", "done: the TUI (" + cap(14) + ")"],
     ["rewrite in a compiled language", "done: version 0.2.0 in C (decision of 30 September)"],
     ["confirmation question in all shells", "done where the shell allows it (" + cap(11, 1) + ")"],

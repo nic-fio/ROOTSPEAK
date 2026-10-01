@@ -1,7 +1,7 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Utenti, e azioni di root con l'identità di un utente. */
-#ifndef AMS_UTENTE_H
-#define AMS_UTENTE_H
+#ifndef RSPEAK_UTENTE_H
+#define RSPEAK_UTENTE_H
 
 #include "comune.h"
 

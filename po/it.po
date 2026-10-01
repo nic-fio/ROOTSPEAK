@@ -1,9 +1,9 @@
-# AMS - Advanced Messaging System: traduzione italiana.
+# RootSpeak - Advanced Messaging System for Linux: traduzione italiana.
 msgid ""
 msgstr ""
-"Project-Id-Version: AMS 0.2.0\n"
+"Project-Id-Version: RootSpeak 0.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-30 21:52+0200\n"
+"POT-Creation-Date: 2026-10-01 11:02+0200\n"
 "PO-Revision-Date: 2026-09-30 12:00+0200\n"
 "Last-Translator: nic-fio\n"
 "Language-Team: italiano\n"
@@ -12,384 +12,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: src/ams-user.c:229 src/ams.c:514
-#, c-format
-msgid "── AMS · Message from the administrator · %s ──"
-msgstr "── AMS · Messaggio dall'amministratore · %s ──"
-
-#: src/ams-user.c:247
-msgid "[AMS] Do you confirm you have read the message? [y/N] "
-msgstr "[AMS] Confermi di aver letto il messaggio? [s/N] "
-
-#: src/ams-user.c:306
-msgid "[AMS] Confirmed."
-msgstr "[AMS] Confermato."
-
-#: src/ams-user.c:307
-msgid "[AMS] The message has expired: the confirmation was not recorded."
-msgstr "[AMS] Il messaggio è scaduto: la conferma non è stata registrata."
-
-#: src/ams-user.c:308 src/ams-user.c:317
-msgid "[AMS] The administrator has revoked the message."
-msgstr "[AMS] L'amministratore ha ritirato il messaggio."
-
-#: src/ams-user.c:309
-msgid "[AMS] The confirmation could not be recorded: you will be asked again."
-msgstr ""
-"[AMS] Non è stato possibile registrare la conferma: la domanda verrà "
-"ripetuta."
-
-#: src/ams-user.c:314
-msgid "[AMS] Message already confirmed elsewhere (for example on the desktop)."
-msgstr "[AMS] Messaggio già confermato altrove (per esempio dal desktop)."
-
-#: src/ams-user.c:321
-msgid "[AMS] The message has expired."
-msgstr "[AMS] Il messaggio è scaduto."
-
-#: src/ams-user.c:325
-#, c-format
-msgid "[AMS] You will be asked again in %ld minutes."
-msgstr "[AMS] La domanda verrà riproposta tra %ld minuti."
-
-#: src/ams-user.c:331
-msgid "[AMS] You have 1 message from the administrator to confirm."
-msgstr "[AMS] Hai 1 messaggio dell'amministratore da confermare."
-
-#: src/ams-user.c:333
-#, c-format
-msgid "[AMS] You have %d messages from the administrator to confirm."
-msgstr "[AMS] Hai %d messaggi dell'amministratore da confermare."
-
-#: src/ams-user.c:364
-msgid "AMS · Confirmation not recorded"
-msgstr "AMS · Conferma non registrata"
-
-#: src/ams-user.c:365
-msgid ""
-"The confirmation could not be recorded: the message will be shown again."
-msgstr ""
-"Non è stato possibile registrare la conferma: il messaggio verrà riproposto."
-
-#: src/ams-user.c:397
-msgid "AMS · Message from the administrator"
-msgstr "AMS · Messaggio dall'amministratore"
-
-#: src/ams-user.c:399
-msgid "I have read it"
-msgstr "Ho letto"
-
-#: src/ams-user.c:400
-msgid "Later"
-msgstr "Più tardi"
-
-#: src/ams-user.c:566
-msgid "ams-user: internal AMS helper, not meant to be run directly"
-msgstr "ams-user: helper interno di AMS, non va usato direttamente"
-
-#: src/ams.c:291
-#, c-format
-msgid "message %lld was interrupted before being saved and has been cancelled"
-msgstr ""
-"il messaggio %lld era stato interrotto prima di essere salvato ed è stato "
-"annullato"
-
-#: src/ams.c:334
-#, c-format
-msgid "completed delivery of message %lld to %d recipients"
-msgstr "completata la consegna del messaggio %lld a %d destinatari"
-
-#: src/ams.c:337
-#, c-format
-msgid "message %lld still not delivered to %d recipients (see ams status %lld)"
-msgstr ""
-"messaggio %lld ancora non consegnato a %d destinatari (vedi ams status %lld)"
-
-#: src/ams.c:386
-#, c-format
-msgid "no such group: %s"
-msgstr "gruppo inesistente: %s"
-
-#: src/ams.c:389
-#, c-format
-msgid "no such user: %s"
-msgstr "utente inesistente: %s"
-
-#: src/ams.c:426 src/ams.c:443 src/ams.c:446
-#, c-format
-msgid "invalid expiry: %s"
-msgstr "scadenza non valida: %s"
-
-#: src/ams.c:542
-#, c-format
-msgid "missing value for %s"
-msgstr "manca il valore di %s"
-
-#: src/ams.c:552
-msgid "the expiry is already in the past"
-msgstr "la scadenza è già passata"
-
-#: src/ams.c:558
-#, c-format
-msgid "unknown option: %s"
-msgstr "opzione sconosciuta: %s"
-
-#: src/ams.c:564
-msgid "missing --to"
-msgstr "manca --to"
-
-#: src/ams.c:592
-msgid "empty message"
-msgstr "messaggio vuoto"
-
-#: src/ams.c:595
-#, c-format
-msgid "message too long: %zu bytes (at most %d)"
-msgstr "messaggio troppo lungo: %zu byte (al massimo %d)"
-
-#: src/ams.c:599
-msgid "no recipients"
-msgstr "nessun destinatario"
-
-#: src/ams.c:688
-#, c-format
-msgid "Message %lld delivered to %zu of %zu recipients."
-msgstr "Messaggio %lld consegnato a %zu destinatari su %zu."
-
-#: src/ams.c:690
-#, c-format
-msgid ""
-"message %lld not delivered to:%s (see the log; the next ams command will "
-"retry)"
-msgstr ""
-"messaggio %lld non consegnato a:%s (vedi il registro; il prossimo comando "
-"ams riproverà)"
-
-#: src/ams.c:700
-#, c-format
-msgid "Message %lld revoked while sending: delivery stopped."
-msgstr "Messaggio %lld ritirato durante l'invio: consegna interrotta."
-
-#: src/ams.c:702
-#, c-format
-msgid "Message %lld sent to 1 user."
-msgstr "Messaggio %lld inviato a 1 utente."
-
-#: src/ams.c:704
-#, c-format
-msgid "Message %lld sent to %zu users."
-msgstr "Messaggio %lld inviato a %zu utenti."
-
-#: src/ams.c:892 src/tui.c:457
-#, c-format
-msgid "all confirmed (%d)"
-msgstr "tutti confermato (%d)"
-
-#: src/ams.c:896 src/tui.c:463
-#, c-format
-msgid "%d confirmed"
-msgstr "%d confermato"
-
-#: src/ams.c:901 src/tui.c:469
-#, c-format
-msgid "%d delivered"
-msgstr "%d consegnato"
-
-#: src/ams.c:906 src/tui.c:475
-#, c-format
-msgid "%d sent"
-msgstr "%d inviato"
-
-#: src/ams.c:932 src/ams.c:939 src/tui.c:740
-msgid "No messages sent."
-msgstr "Nessun messaggio inviato."
-
-#: src/ams.c:943 src/tui.c:734
-msgid "ID"
-msgstr "ID"
-
-#: src/ams.c:943 src/tui.c:734
-msgid "DATE"
-msgstr "DATA"
-
-#: src/ams.c:944
-msgid "TEXT"
-msgstr "TESTO"
-
-#: src/ams.c:945 src/tui.c:736
-msgid "RECIPIENTS"
-msgstr "DESTINATARI"
-
-#: src/ams.c:954
-msgid "[send cancelled: interrupted before it was saved]"
-msgstr "[invio annullato: interrotto prima del salvataggio]"
-
-#: src/ams.c:960 src/tui.c:749
-msgid "[revoked] "
-msgstr "[ritirato] "
-
-#: src/ams.c:962 src/tui.c:751
-msgid "[expired] "
-msgstr "[scaduto] "
-
-#: src/ams.c:981
-msgid "missing message ID"
-msgstr "manca l'ID del messaggio"
-
-#: src/ams.c:983 src/ams.c:992
-#, c-format
-msgid "no such message: %s"
-msgstr "messaggio inesistente: %s"
-
-#: src/ams.c:1019
-#, c-format
-msgid "confirmed on %s (%s)"
-msgstr "confermato il %s (%s)"
-
-#: src/ams.c:1022
-msgid ""
-"sent, not delivered: the copy could not be written (see the log; the next "
-"ams command will retry)"
-msgstr ""
-"inviato, non consegnato: la copia non è stata scritta (vedi il registro; il "
-"prossimo comando ams riproverà)"
-
-#: src/ams.c:1023
-msgid "sent, not delivered"
-msgstr "inviato, non consegnato"
-
-#: src/ams.c:1025 src/tui.c:485
-msgid "delivered"
-msgstr "consegnato"
-
-#: src/ams.c:1027
-msgid ", not confirmed (revoked)"
-msgstr ", non confermato (ritirato)"
-
-#: src/ams.c:1029
-msgid ", not confirmed (expired; confirmation arrived after the expiry)"
-msgstr ", non confermato (scaduto; conferma arrivata dopo la scadenza)"
-
-#: src/ams.c:1031
-msgid ", not confirmed (expired)"
-msgstr ", non confermato (scaduto)"
-
-#: src/ams.c:1038
-msgid ", written to 1 terminal"
-msgstr ", scritto su 1 terminale"
-
-#: src/ams.c:1040
-#, c-format
-msgid ", written to %lld terminals"
-msgstr ", scritto su %lld terminali"
-
-#: src/ams.c:1043
-#, c-format
-msgid ", postponed on %s"
-msgstr ", rimandato il %s"
-
-#: src/ams.c:1076
-#, c-format
-msgid "message %lld was cancelled: sending was interrupted before it was saved"
-msgstr ""
-"il messaggio %lld è stato annullato: l'invio si era interrotto prima del "
-"salvataggio"
-
-#: src/ams.c:1078
-#, c-format
-msgid "Message %lld · %s · from %s"
-msgstr "Messaggio %lld · %s · da %s"
-
-#: src/ams.c:1083
-#, c-format
-msgid "REVOKED on %s"
-msgstr "RITIRATO il %s"
-
-#: src/ams.c:1087
-msgid "EXPIRED"
-msgstr "SCADUTO"
-
-#: src/ams.c:1097 src/tui.c:952
-msgid "USER"
-msgstr "UTENTE"
-
-#: src/ams.c:1097 src/tui.c:953
-msgid "STATE"
-msgstr "STATO"
-
-#: src/ams.c:1134
-#, c-format
-msgid ""
-"message %lld revoked, but some copies could not be removed from the "
-"mailboxes: the next ams command will retry"
-msgstr ""
-"messaggio %lld ritirato, ma alcune copie non si sono potute togliere dalle "
-"caselle: il prossimo comando ams riproverà"
-
-#: src/ams.c:1136
-#, c-format
-msgid "Message %lld revoked."
-msgstr "Messaggio %lld ritirato."
-
-#: src/ams.c:1160
-#, c-format
-msgid "message %lld has been revoked: nobody to remind"
-msgstr "il messaggio %lld è stato ritirato: nessuno da sollecitare"
-
-#: src/ams.c:1162
-#, c-format
-msgid "message %lld has expired: nobody to remind"
-msgstr "il messaggio %lld è scaduto: nessuno da sollecitare"
-
-#: src/ams.c:1179
-#, c-format
-msgid "Message %lld: 1 recipient reminded."
-msgstr "Messaggio %lld: sollecitato 1 destinatario."
-
-#: src/ams.c:1181
-#, c-format
-msgid "Message %lld: %d recipients reminded."
-msgstr "Messaggio %lld: sollecitati %d destinatari."
-
-#: src/ams.c:1206
-msgid "missing duration, for example 90d"
-msgstr "manca la durata, per esempio 90d"
-
-#: src/ams.c:1213
-#, c-format
-msgid "invalid duration: %s (for example 90d, 12h, 30m)"
-msgstr "durata non valida: %s (per esempio 90d, 12h, 30m)"
-
-#: src/ams.c:1263
-#, c-format
-msgid "No messages older than %s."
-msgstr "Nessun messaggio più vecchio di %s."
-
-#: src/ams.c:1265
-#, c-format
-msgid "Deleted 1 message older than %s."
-msgstr "Cancellato 1 messaggio più vecchio di %s."
-
-#: src/ams.c:1267
-#, c-format
-msgid "Deleted %d messages older than %s."
-msgstr "Cancellati %d messaggi più vecchi di %s."
-
-#: src/ams.c:1307 src/tui.c:912
-#, c-format
-msgid "Message %lld · %s"
-msgstr "Messaggio %lld · %s"
-
-#: src/ams.c:1339
-#, c-format
-msgid "[not trustworthy: written by UID %s] "
-msgstr "[non attendibile: scritto da UID %s] "
-
-#: src/ams.c:1414
-#, c-format
-msgid "unknown command: %s (ams --help for the guide)"
-msgstr "comando sconosciuto: %s (ams --help per la guida)"
 
 #: src/evento.c:18
 msgid "terminal"
@@ -556,8 +178,8 @@ msgstr ""
 
 #: src/guida.c:38
 msgctxt "guida-comandi"
-msgid "version¦Shows the AMS version."
-msgstr "version¦Mostra la versione di AMS."
+msgid "version¦Shows the RootSpeak version."
+msgstr "version¦Mostra la versione di RootSpeak."
 
 #: src/guida.c:39
 msgctxt "guida-comandi"
@@ -601,185 +223,187 @@ msgstr "--file FILE¦Legge il testo del messaggio da FILE."
 #: src/guida.c:50
 msgctxt "guida-esempi"
 msgid ""
-"ams send --to mario \"Your account expires on Friday.\"¦Message with read "
+"rspeak send --to mario \"Your account expires on Friday.\"¦Message with read "
 "confirmation to a single user."
 msgstr ""
-"ams send --to mario \"Il tuo account scade venerdì.\"¦Messaggio con conferma "
-"di lettura a un solo utente."
+"rspeak send --to mario \"Il tuo account scade venerdì.\"¦Messaggio con "
+"conferma di lettura a un solo utente."
 
 #: src/guida.c:51
 msgctxt "guida-esempi"
 msgid ""
-"ams send --to @developers --title Maintenance --file notice.txt¦Text taken "
-"from a file, with a title, to every member of the developers group."
+"rspeak send --to @developers --title Maintenance --file notice.txt¦Text "
+"taken from a file, with a title, to every member of the developers group."
 msgstr ""
-"ams send --to @sviluppo --title Manutenzione --file avviso.txt¦Testo preso "
-"da un file, con titolo, a tutti i membri del gruppo sviluppo."
+"rspeak send --to @sviluppo --title Manutenzione --file avviso.txt¦Testo "
+"preso da un file, con titolo, a tutti i membri del gruppo sviluppo."
 
 #: src/guida.c:52
 msgctxt "guida-esempi"
 msgid ""
-"ams send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to "
+"rspeak send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to "
 "whoever is logged in now; after 15 minutes it is no longer shown or asked "
 "about."
 msgstr ""
-"ams send --to online --expires 15m \"Riavvio alle 13:00.\"¦Avviso urgente a "
-"chi è collegato adesso; dopo 15 minuti non viene più mostrato né sollecitato."
+"rspeak send --to online --expires 15m \"Riavvio alle 13:00.\"¦Avviso urgente "
+"a chi è collegato adesso; dopo 15 minuti non viene più mostrato né "
+"sollecitato."
 
 #: src/guida.c:53
 msgctxt "guida-esempi"
 msgid ""
-"ams send --to all --expires 3d \"New password policy.\"¦To every user; after "
-"three days it stops being shown."
+"rspeak send --to all --expires 3d \"New password policy.\"¦To every user; "
+"after three days it stops being shown."
 msgstr ""
-"ams send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli "
+"rspeak send --to all --expires 3d \"Nuova policy password.\"¦A tutti gli "
 "utenti; dopo tre giorni smette di essere mostrato."
 
 #: src/guida.c:54
 msgctxt "guida-esempi"
-msgid "ams list¦Which messages were sent and how many confirmations they have."
-msgstr "ams list¦Quali messaggi sono stati inviati e quante conferme hanno."
+msgid ""
+"rspeak list¦Which messages were sent and how many confirmations they have."
+msgstr "rspeak list¦Quali messaggi sono stati inviati e quante conferme hanno."
 
 #: src/guida.c:55
 msgctxt "guida-esempi"
-msgid "ams status 12¦Who confirmed message 12, when and from where."
-msgstr "ams status 12¦Chi ha confermato il messaggio 12, quando e da dove."
+msgid "rspeak status 12¦Who confirmed message 12, when and from where."
+msgstr "rspeak status 12¦Chi ha confermato il messaggio 12, quando e da dove."
 
 #: src/guida.c:56
 msgctxt "guida-esempi"
 msgid ""
-"ams log 12¦The history of message 12: sending, deliveries, postponements, "
+"rspeak log 12¦The history of message 12: sending, deliveries, postponements, "
 "confirmations."
 msgstr ""
-"ams log 12¦La storia del messaggio 12: invio, consegne, rinvii, conferme."
+"rspeak log 12¦La storia del messaggio 12: invio, consegne, rinvii, conferme."
 
 #: src/guida.c:57
 msgctxt "guida-esempi"
 msgid ""
-"ams purge 90d¦Deletes the messages older than 90 days, with copies and "
+"rspeak purge 90d¦Deletes the messages older than 90 days, with copies and "
 "confirmations."
 msgstr ""
-"ams purge 90d¦Cancella i messaggi di più di 90 giorni fa, con copie e "
+"rspeak purge 90d¦Cancella i messaggi di più di 90 giorni fa, con copie e "
 "conferme."
 
 #: src/guida.c:58
 msgctxt "guida-esempi"
-msgid "ams revoke 12¦Revokes message 12."
-msgstr "ams revoke 12¦Ritira il messaggio 12."
+msgid "rspeak revoke 12¦Revokes message 12."
+msgstr "rspeak revoke 12¦Ritira il messaggio 12."
 
 #: src/guida.c:59
 msgctxt "guida-esempi"
 msgid ""
-"ams remind 12¦Asks again, right now, whoever has not confirmed message 12."
+"rspeak remind 12¦Asks again, right now, whoever has not confirmed message 12."
 msgstr ""
-"ams remind 12¦Richiede subito la conferma a chi non ha ancora confermato il "
-"messaggio 12."
+"rspeak remind 12¦Richiede subito la conferma a chi non ha ancora confermato "
+"il messaggio 12."
 
 #: src/guida.c:63
 msgctxt "guida-file"
 msgid ""
-"/etc/ams/ams.conf¦Configuration: minutes before a postponed message is asked "
-"about again, check interval of the desktop agent."
+"/etc/rootspeak/rootspeak.conf¦Configuration: minutes before a postponed "
+"message is asked about again, check interval of the desktop agent."
 msgstr ""
-"/etc/ams/ams.conf¦Configurazione: minuti prima di riproporre un messaggio "
-"rimandato, intervallo di controllo dell'agente del desktop."
+"/etc/rootspeak/rootspeak.conf¦Configurazione: minuti prima di riproporre un "
+"messaggio rimandato, intervallo di controllo dell'agente del desktop."
 
 #: src/guida.c:64
 msgctxt "guida-file"
 msgid ""
-"/var/lib/ams/¦The messages: sent/ (reference copies, root only) and users/"
-"USER/ (each user's mailbox, readable only by them and by root)."
+"/var/lib/rootspeak/¦The messages: sent/ (reference copies, root only) and "
+"users/USER/ (each user's mailbox, readable only by them and by root)."
 msgstr ""
-"/var/lib/ams/¦I messaggi: sent/ (copie di riferimento, solo root) e users/"
-"UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
+"/var/lib/rootspeak/¦I messaggi: sent/ (copie di riferimento, solo root) e "
+"users/UTENTE/ (la casella di ogni utente, leggibile solo da lui e da root)."
 
 #: src/guida.c:65
 msgctxt "guida-file"
 msgid ""
-"sudo journalctl -t ams¦The system log: sending, deliveries, confirmations "
+"sudo journalctl -t rspeak¦The system log: sending, deliveries, confirmations "
 "and revocations."
 msgstr ""
-"sudo journalctl -t ams¦Il registro di sistema: invii, consegne, conferme e "
-"ritiri."
+"sudo journalctl -t rspeak¦Il registro di sistema: invii, consegne, conferme "
+"e ritiri."
 
 #: src/guida.c:66
 msgctxt "guida-file"
 msgid ""
-"/usr/local/share/doc/ams/User Manual.html¦The complete user manual, to open "
-"in a browser."
+"/usr/local/share/doc/rootspeak/User Manual.html¦The complete user manual, to "
+"open in a browser."
 msgstr ""
-"/usr/local/share/doc/ams/User Manual.html¦Il manuale utente completo (in "
-"inglese), da aprire in un browser."
+"/usr/local/share/doc/rootspeak/User Manual.html¦Il manuale utente completo "
+"(in inglese), da aprire in un browser."
 
 #: src/guida.c:70
 msgctxt "guida-sintassi"
-msgid "ams send --to DEST [options] [TEXT]"
-msgstr "ams send --to DEST [opzioni] [TESTO]"
+msgid "rspeak send --to DEST [options] [TEXT]"
+msgstr "rspeak send --to DEST [opzioni] [TESTO]"
 
 #: src/guida.c:71
 msgctxt "guida-sintassi"
-msgid "ams list"
-msgstr "ams list"
+msgid "rspeak list"
+msgstr "rspeak list"
 
 #: src/guida.c:72
 msgctxt "guida-sintassi"
-msgid "ams status ID"
-msgstr "ams status ID"
+msgid "rspeak status ID"
+msgstr "rspeak status ID"
 
 #: src/guida.c:73
 msgctxt "guida-sintassi"
-msgid "ams"
-msgstr "ams"
+msgid "rspeak"
+msgstr "rspeak"
 
 #: src/guida.c:74
 msgctxt "guida-sintassi"
-msgid "ams revoke ID"
-msgstr "ams revoke ID"
+msgid "rspeak revoke ID"
+msgstr "rspeak revoke ID"
 
 #: src/guida.c:75
 msgctxt "guida-sintassi"
-msgid "ams remind ID"
-msgstr "ams remind ID"
+msgid "rspeak remind ID"
+msgstr "rspeak remind ID"
 
 #: src/guida.c:76
 msgctxt "guida-sintassi"
-msgid "ams log ID"
-msgstr "ams log ID"
+msgid "rspeak log ID"
+msgstr "rspeak log ID"
 
 #: src/guida.c:77
 msgctxt "guida-sintassi"
-msgid "ams purge DURATION"
-msgstr "ams purge DURATA"
+msgid "rspeak purge DURATION"
+msgstr "rspeak purge DURATA"
 
 #: src/guida.c:78
 msgctxt "guida-sintassi"
-msgid "ams version"
-msgstr "ams version"
+msgid "rspeak version"
+msgstr "rspeak version"
 
 #: src/guida.c:85
 msgctxt "guida"
 msgid ""
-"AMS lets administrators send text messages to the users of the machine and "
-"know who has read them. Messages appear in terminals (console, ssh, desktop "
-"terminals, tmux) and on the desktop, in a dialog with the buttons «I have "
-"read it» and «Later»; whoever is not logged in finds them at the next login. "
-"Every message asks for a read confirmation and AMS asks again until the user "
-"gives it, without ever blocking their work. Each user sees AMS in their own "
-"language. The command is reserved to administrators (sudo or wheel group) "
-"and re-runs itself with sudo."
+"RootSpeak lets administrators send text messages to the users of the machine "
+"and know who has read them. Messages appear in terminals (console, ssh, "
+"desktop terminals, tmux) and on the desktop, in a dialog with the buttons «I "
+"have read it» and «Later»; whoever is not logged in finds them at the next "
+"login. Every message asks for a read confirmation and RootSpeak asks again "
+"until the user gives it, without ever blocking their work. Each user sees "
+"RootSpeak in their own language. The command is reserved to administrators "
+"(sudo or wheel group) and re-runs itself with sudo."
 msgstr ""
-"AMS permette agli amministratori di mandare messaggi di testo agli utenti "
-"della macchina e di sapere chi li ha letti. I messaggi compaiono nei "
+"RootSpeak permette agli amministratori di mandare messaggi di testo agli "
+"utenti della macchina e di sapere chi li ha letti. I messaggi compaiono nei "
 "terminali (console, ssh, terminali del desktop, tmux) e sul desktop, in una "
 "finestra con i pulsanti «Ho letto» e «Più tardi»; chi non è collegato li "
 "trova al login successivo. Ogni messaggio chiede la conferma di lettura e "
-"AMS la ripropone finché l'utente non la dà, senza mai bloccare il lavoro. "
-"Ogni utente vede AMS nella sua lingua. Il comando è riservato agli "
-"amministratori (gruppo sudo o wheel) e si rilancia da solo con sudo."
+"RootSpeak la ripropone finché l'utente non la dà, senza mai bloccare il "
+"lavoro. Ogni utente vede RootSpeak nella sua lingua. Il comando è riservato "
+"agli amministratori (gruppo sudo o wheel) e si rilancia da solo con sudo."
 
 #: src/guida.c:218
-msgid "ams manual"
-msgstr "Manuale di ams"
+msgid "rspeak manual"
+msgstr "Manuale di rspeak"
 
 #: src/guida.c:219 src/guida.c:336
 msgid "NAME"
@@ -787,10 +411,10 @@ msgstr "NOME"
 
 #: src/guida.c:220
 msgid ""
-"ams — sends messages to the users of the machine and tracks their read "
+"rspeak — sends messages to the users of the machine and tracks their read "
 "confirmation"
 msgstr ""
-"ams — invia messaggi agli utenti della macchina e ne segue la conferma di "
+"rspeak — invia messaggi agli utenti della macchina e ne segue la conferma di "
 "lettura"
 
 #: src/guida.c:221 src/guida.c:341
@@ -824,11 +448,11 @@ msgstr "AMBIENTE"
 #: src/guida.c:240
 msgid ""
 "Pager used to page this guide when the terminal is too small for the "
-"interactive one (default: less). Like NO_COLOR, it reaches ams only if sudo "
-"keeps it (env_keep in sudoers)."
+"interactive one (default: less). Like NO_COLOR, it reaches rspeak only if "
+"sudo keeps it (env_keep in sudoers)."
 msgstr ""
 "Pager usato per impaginare questa guida quando il terminale è troppo piccolo "
-"per quella interattiva (predefinito: less). Come NO_COLOR, arriva ad ams "
+"per quella interattiva (predefinito: less). Come NO_COLOR, arriva ad rspeak "
 "solo se sudo la conserva (env_keep in sudoers)."
 
 #: src/guida.c:244
@@ -844,8 +468,8 @@ msgid "Completed successfully."
 msgstr "Completato con successo."
 
 #: src/guida.c:249
-msgid "Error: the error message, starting with «ams:», says which."
-msgstr "Errore: il messaggio d'errore, che inizia con «ams:», dice quale."
+msgid "Error: the error message, starting with «rspeak:», says which."
+msgstr "Errore: il messaggio d'errore, che inizia con «rspeak:», dice quale."
 
 #: src/guida.c:250
 msgid "SEE ALSO"
@@ -853,22 +477,24 @@ msgstr "VEDERE ANCHE"
 
 #: src/guida.c:251
 msgid ""
-"wall(1), write(1), and the user manual in /usr/local/share/doc/ams/User "
-"Manual.html"
+"wall(1), write(1), and the user manual in /usr/local/share/doc/rootspeak/"
+"User Manual.html"
 msgstr ""
 "wall(1), write(1), e il manuale utente (in inglese) in /usr/local/share/doc/"
-"ams/User Manual.html"
+"rspeak/User Manual.html"
 
 #: src/guida.c:337
-msgid "ams — messages to users with read confirmation"
-msgstr "ams — messaggi agli utenti con conferma di lettura"
+msgid "rspeak — messages to users with read confirmation"
+msgstr "rspeak — messaggi agli utenti con conferma di lettura"
 
 #: src/guida.c:355
 #, c-format
-msgid "AMS %s · complete manual: /usr/local/share/doc/ams/User Manual.html"
+msgid ""
+"RootSpeak %s · complete manual: /usr/local/share/doc/rootspeak/User "
+"Manual.html"
 msgstr ""
-"AMS %s · manuale completo (in inglese): /usr/local/share/doc/ams/User Manual."
-"html"
+"RootSpeak %s · manuale completo (in inglese): /usr/local/share/doc/rootspeak/"
+"User Manual.html"
 
 #: src/guida.c:365 src/guida.c:394
 msgid "Commands"
@@ -903,13 +529,397 @@ msgid "←/→ tabs · ↑/↓ scroll · PgUp/PgDn · g/G · q quit"
 msgstr "←/→ schede · ↑/↓ scorri · PgUp/PgDn · g/G · q esci"
 
 #: src/guida.c:460
-msgid "ams — guide"
-msgstr "ams — guida"
+msgid "rspeak — guide"
+msgstr "rspeak — guida"
 
 #: src/guida.c:490
 #, c-format
 msgid "lines %d-%d/%zu"
 msgstr "righe %d-%d/%zu"
+
+#: src/rootspeak-user.c:229 src/rspeak.c:514
+#, c-format
+msgid "── RootSpeak · Message from the administrator · %s ──"
+msgstr "── RootSpeak · Messaggio dall'amministratore · %s ──"
+
+#: src/rootspeak-user.c:247
+msgid "[RootSpeak] Do you confirm you have read the message? [y/N] "
+msgstr "[RootSpeak] Confermi di aver letto il messaggio? [s/N] "
+
+#: src/rootspeak-user.c:306
+msgid "[RootSpeak] Confirmed."
+msgstr "[RootSpeak] Confermato."
+
+#: src/rootspeak-user.c:307
+msgid "[RootSpeak] The message has expired: the confirmation was not recorded."
+msgstr ""
+"[RootSpeak] Il messaggio è scaduto: la conferma non è stata registrata."
+
+#: src/rootspeak-user.c:308 src/rootspeak-user.c:317
+msgid "[RootSpeak] The administrator has revoked the message."
+msgstr "[RootSpeak] L'amministratore ha ritirato il messaggio."
+
+#: src/rootspeak-user.c:309
+msgid ""
+"[RootSpeak] The confirmation could not be recorded: you will be asked again."
+msgstr ""
+"[RootSpeak] Non è stato possibile registrare la conferma: la domanda verrà "
+"ripetuta."
+
+#: src/rootspeak-user.c:314
+msgid ""
+"[RootSpeak] Message already confirmed elsewhere (for example on the desktop)."
+msgstr ""
+"[RootSpeak] Messaggio già confermato altrove (per esempio dal desktop)."
+
+#: src/rootspeak-user.c:321
+msgid "[RootSpeak] The message has expired."
+msgstr "[RootSpeak] Il messaggio è scaduto."
+
+#: src/rootspeak-user.c:325
+#, c-format
+msgid "[RootSpeak] You will be asked again in %ld minutes."
+msgstr "[RootSpeak] La domanda verrà riproposta tra %ld minuti."
+
+#: src/rootspeak-user.c:331
+msgid "[RootSpeak] You have 1 message from the administrator to confirm."
+msgstr "[RootSpeak] Hai 1 messaggio dell'amministratore da confermare."
+
+#: src/rootspeak-user.c:333
+#, c-format
+msgid "[RootSpeak] You have %d messages from the administrator to confirm."
+msgstr "[RootSpeak] Hai %d messaggi dell'amministratore da confermare."
+
+#: src/rootspeak-user.c:364
+msgid "RootSpeak · Confirmation not recorded"
+msgstr "RootSpeak · Conferma non registrata"
+
+#: src/rootspeak-user.c:365
+msgid ""
+"The confirmation could not be recorded: the message will be shown again."
+msgstr ""
+"Non è stato possibile registrare la conferma: il messaggio verrà riproposto."
+
+#: src/rootspeak-user.c:397
+msgid "RootSpeak · Message from the administrator"
+msgstr "RootSpeak · Messaggio dall'amministratore"
+
+#: src/rootspeak-user.c:399
+msgid "I have read it"
+msgstr "Ho letto"
+
+#: src/rootspeak-user.c:400
+msgid "Later"
+msgstr "Più tardi"
+
+#: src/rootspeak-user.c:566
+msgid "rootspeak-user: internal RootSpeak helper, not meant to be run directly"
+msgstr "rootspeak-user: helper interno di RootSpeak, non va usato direttamente"
+
+#: src/rspeak.c:291
+#, c-format
+msgid "message %lld was interrupted before being saved and has been cancelled"
+msgstr ""
+"il messaggio %lld era stato interrotto prima di essere salvato ed è stato "
+"annullato"
+
+#: src/rspeak.c:334
+#, c-format
+msgid "completed delivery of message %lld to %d recipients"
+msgstr "completata la consegna del messaggio %lld a %d destinatari"
+
+#: src/rspeak.c:337
+#, c-format
+msgid ""
+"message %lld still not delivered to %d recipients (see rspeak status %lld)"
+msgstr ""
+"messaggio %lld ancora non consegnato a %d destinatari (vedi rspeak status "
+"%lld)"
+
+#: src/rspeak.c:386
+#, c-format
+msgid "no such group: %s"
+msgstr "gruppo inesistente: %s"
+
+#: src/rspeak.c:389
+#, c-format
+msgid "no such user: %s"
+msgstr "utente inesistente: %s"
+
+#: src/rspeak.c:426 src/rspeak.c:443 src/rspeak.c:446
+#, c-format
+msgid "invalid expiry: %s"
+msgstr "scadenza non valida: %s"
+
+#: src/rspeak.c:542
+#, c-format
+msgid "missing value for %s"
+msgstr "manca il valore di %s"
+
+#: src/rspeak.c:552
+msgid "the expiry is already in the past"
+msgstr "la scadenza è già passata"
+
+#: src/rspeak.c:558
+#, c-format
+msgid "unknown option: %s"
+msgstr "opzione sconosciuta: %s"
+
+#: src/rspeak.c:564
+msgid "missing --to"
+msgstr "manca --to"
+
+#: src/rspeak.c:592
+msgid "empty message"
+msgstr "messaggio vuoto"
+
+#: src/rspeak.c:595
+#, c-format
+msgid "message too long: %zu bytes (at most %d)"
+msgstr "messaggio troppo lungo: %zu byte (al massimo %d)"
+
+#: src/rspeak.c:599
+msgid "no recipients"
+msgstr "nessun destinatario"
+
+#: src/rspeak.c:688
+#, c-format
+msgid "Message %lld delivered to %zu of %zu recipients."
+msgstr "Messaggio %lld consegnato a %zu destinatari su %zu."
+
+#: src/rspeak.c:690
+#, c-format
+msgid ""
+"message %lld not delivered to:%s (see the log; the next rspeak command will "
+"retry)"
+msgstr ""
+"messaggio %lld non consegnato a:%s (vedi il registro; il prossimo comando "
+"rspeak riproverà)"
+
+#: src/rspeak.c:700
+#, c-format
+msgid "Message %lld revoked while sending: delivery stopped."
+msgstr "Messaggio %lld ritirato durante l'invio: consegna interrotta."
+
+#: src/rspeak.c:702
+#, c-format
+msgid "Message %lld sent to 1 user."
+msgstr "Messaggio %lld inviato a 1 utente."
+
+#: src/rspeak.c:704
+#, c-format
+msgid "Message %lld sent to %zu users."
+msgstr "Messaggio %lld inviato a %zu utenti."
+
+#: src/rspeak.c:892 src/tui.c:457
+#, c-format
+msgid "all confirmed (%d)"
+msgstr "tutti confermato (%d)"
+
+#: src/rspeak.c:896 src/tui.c:463
+#, c-format
+msgid "%d confirmed"
+msgstr "%d confermato"
+
+#: src/rspeak.c:901 src/tui.c:469
+#, c-format
+msgid "%d delivered"
+msgstr "%d consegnato"
+
+#: src/rspeak.c:906 src/tui.c:475
+#, c-format
+msgid "%d sent"
+msgstr "%d inviato"
+
+#: src/rspeak.c:932 src/rspeak.c:939 src/tui.c:740
+msgid "No messages sent."
+msgstr "Nessun messaggio inviato."
+
+#: src/rspeak.c:943 src/tui.c:734
+msgid "ID"
+msgstr "ID"
+
+#: src/rspeak.c:943 src/tui.c:734
+msgid "DATE"
+msgstr "DATA"
+
+#: src/rspeak.c:944
+msgid "TEXT"
+msgstr "TESTO"
+
+#: src/rspeak.c:945 src/tui.c:736
+msgid "RECIPIENTS"
+msgstr "DESTINATARI"
+
+#: src/rspeak.c:954
+msgid "[send cancelled: interrupted before it was saved]"
+msgstr "[invio annullato: interrotto prima del salvataggio]"
+
+#: src/rspeak.c:960 src/tui.c:749
+msgid "[revoked] "
+msgstr "[ritirato] "
+
+#: src/rspeak.c:962 src/tui.c:751
+msgid "[expired] "
+msgstr "[scaduto] "
+
+#: src/rspeak.c:981
+msgid "missing message ID"
+msgstr "manca l'ID del messaggio"
+
+#: src/rspeak.c:983 src/rspeak.c:992
+#, c-format
+msgid "no such message: %s"
+msgstr "messaggio inesistente: %s"
+
+#: src/rspeak.c:1019
+#, c-format
+msgid "confirmed on %s (%s)"
+msgstr "confermato il %s (%s)"
+
+#: src/rspeak.c:1022
+msgid ""
+"sent, not delivered: the copy could not be written (see the log; the next "
+"rspeak command will retry)"
+msgstr ""
+"inviato, non consegnato: la copia non è stata scritta (vedi il registro; il "
+"prossimo comando rspeak riproverà)"
+
+#: src/rspeak.c:1023
+msgid "sent, not delivered"
+msgstr "inviato, non consegnato"
+
+#: src/rspeak.c:1025 src/tui.c:485
+msgid "delivered"
+msgstr "consegnato"
+
+#: src/rspeak.c:1027
+msgid ", not confirmed (revoked)"
+msgstr ", non confermato (ritirato)"
+
+#: src/rspeak.c:1029
+msgid ", not confirmed (expired; confirmation arrived after the expiry)"
+msgstr ", non confermato (scaduto; conferma arrivata dopo la scadenza)"
+
+#: src/rspeak.c:1031
+msgid ", not confirmed (expired)"
+msgstr ", non confermato (scaduto)"
+
+#: src/rspeak.c:1038
+msgid ", written to 1 terminal"
+msgstr ", scritto su 1 terminale"
+
+#: src/rspeak.c:1040
+#, c-format
+msgid ", written to %lld terminals"
+msgstr ", scritto su %lld terminali"
+
+#: src/rspeak.c:1043
+#, c-format
+msgid ", postponed on %s"
+msgstr ", rimandato il %s"
+
+#: src/rspeak.c:1076
+#, c-format
+msgid "message %lld was cancelled: sending was interrupted before it was saved"
+msgstr ""
+"il messaggio %lld è stato annullato: l'invio si era interrotto prima del "
+"salvataggio"
+
+#: src/rspeak.c:1078
+#, c-format
+msgid "Message %lld · %s · from %s"
+msgstr "Messaggio %lld · %s · da %s"
+
+#: src/rspeak.c:1083
+#, c-format
+msgid "REVOKED on %s"
+msgstr "RITIRATO il %s"
+
+#: src/rspeak.c:1087
+msgid "EXPIRED"
+msgstr "SCADUTO"
+
+#: src/rspeak.c:1097 src/tui.c:952
+msgid "USER"
+msgstr "UTENTE"
+
+#: src/rspeak.c:1097 src/tui.c:953
+msgid "STATE"
+msgstr "STATO"
+
+#: src/rspeak.c:1134
+#, c-format
+msgid ""
+"message %lld revoked, but some copies could not be removed from the "
+"mailboxes: the next rspeak command will retry"
+msgstr ""
+"messaggio %lld ritirato, ma alcune copie non si sono potute togliere dalle "
+"caselle: il prossimo comando rspeak riproverà"
+
+#: src/rspeak.c:1136
+#, c-format
+msgid "Message %lld revoked."
+msgstr "Messaggio %lld ritirato."
+
+#: src/rspeak.c:1160
+#, c-format
+msgid "message %lld has been revoked: nobody to remind"
+msgstr "il messaggio %lld è stato ritirato: nessuno da sollecitare"
+
+#: src/rspeak.c:1162
+#, c-format
+msgid "message %lld has expired: nobody to remind"
+msgstr "il messaggio %lld è scaduto: nessuno da sollecitare"
+
+#: src/rspeak.c:1179
+#, c-format
+msgid "Message %lld: 1 recipient reminded."
+msgstr "Messaggio %lld: sollecitato 1 destinatario."
+
+#: src/rspeak.c:1181
+#, c-format
+msgid "Message %lld: %d recipients reminded."
+msgstr "Messaggio %lld: sollecitati %d destinatari."
+
+#: src/rspeak.c:1206
+msgid "missing duration, for example 90d"
+msgstr "manca la durata, per esempio 90d"
+
+#: src/rspeak.c:1213
+#, c-format
+msgid "invalid duration: %s (for example 90d, 12h, 30m)"
+msgstr "durata non valida: %s (per esempio 90d, 12h, 30m)"
+
+#: src/rspeak.c:1263
+#, c-format
+msgid "No messages older than %s."
+msgstr "Nessun messaggio più vecchio di %s."
+
+#: src/rspeak.c:1265
+#, c-format
+msgid "Deleted 1 message older than %s."
+msgstr "Cancellato 1 messaggio più vecchio di %s."
+
+#: src/rspeak.c:1267
+#, c-format
+msgid "Deleted %d messages older than %s."
+msgstr "Cancellati %d messaggi più vecchi di %s."
+
+#: src/rspeak.c:1307 src/tui.c:912
+#, c-format
+msgid "Message %lld · %s"
+msgstr "Messaggio %lld · %s"
+
+#: src/rspeak.c:1339
+#, c-format
+msgid "[not trustworthy: written by UID %s] "
+msgstr "[non attendibile: scritto da UID %s] "
+
+#: src/rspeak.c:1414
+#, c-format
+msgid "unknown command: %s (rspeak --help for the guide)"
+msgstr "comando sconosciuto: %s (rspeak --help per la guida)"
 
 #: src/tui.c:483
 msgid "confirmed"
@@ -1237,16 +1247,16 @@ msgid "The list updates by itself every 3 seconds."
 msgstr "La lista si aggiorna da sola ogni 3 secondi."
 
 #: src/tui.c:1547
-msgid "The complete guide: ams --help."
-msgstr "La guida completa: ams --help."
+msgid "The complete guide: rspeak --help."
+msgstr "La guida completa: rspeak --help."
 
 #: src/tui.c:1551
 msgid "Keys"
 msgstr "Tasti"
 
 #: src/tui.c:1594
-msgid "AMS · sent messages"
-msgstr "AMS · messaggi inviati"
+msgid "RootSpeak · sent messages"
+msgstr "RootSpeak · messaggi inviati"
 
 #: src/tui.c:1656
 msgid "Search"

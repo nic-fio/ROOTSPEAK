@@ -1,4 +1,4 @@
-"""Generatore dei manuali di AMS, nello stile comune dei manuali dei 7 progetti.
+"""Generatore dei manuali di RootSpeak, nello stile comune dei manuali dei 7 progetti.
 
 Produce due file HTML autosufficienti (nessun file esterno: stile, logo e script
 sono incorporati):
@@ -14,8 +14,8 @@ I segnaposto «FIG» e «TAB» nelle didascalie diventano «Figure N.M» e
 Stile comune (uguale in tutti i manuali dei 7 progetti, da non modificare qui):
   style.css       lo stile, incorporato per primo e identico byte per byte;
   manual.js       ricerca nella barra laterale, indice analitico, pulsante Copy;
-  cover-logo.png  il logo di logos/ams-logo.png con lo sfondo trasparente, per la copertina.
-Le sole regole di AMS stanno in AMS_CSS, qui sotto.
+  cover-logo.png  il logo di logos/rootspeak-logo.png con lo sfondo trasparente, per la copertina.
+Le sole regole di RootSpeak stanno in RSPEAK_CSS, qui sotto.
 
     python3 docs/sources/build.py            rigenera i due manuali
     python3 docs/sources/build.py CARTELLA   li scrive in CARTELLA (usato da tools/check-docs.py)
@@ -32,24 +32,24 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-DATE = "September 2026"
-VERSION = re.search(r'^#define AMS_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
+DATE = "October 2026"
+VERSION = re.search(r'^#define RSPEAK_VERSION "([^"]+)"', (ROOT / "src/comune.h").read_text(), re.M).group(1)
 
 MANUALS = {
-    "user": dict(file="User Manual.html", title="User Manual — AMS", h1="User Manual", index=False),
-    "technical": dict(file="Technical Manual.html", title="Technical Manual — AMS", h1="Technical Manual",
+    "user": dict(file="User Manual.html", title="User Manual — RootSpeak", h1="User Manual", index=False),
+    "technical": dict(file="Technical Manual.html", title="Technical Manual — RootSpeak", h1="Technical Manual",
                       index=True),
 }
 
-# Il piè di pagina comune (AMS non ha una licenza: niente «Licence»).
-FOOTER = "AMS · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo"
+# Il piè di pagina comune (RootSpeak non ha una licenza: niente «Licence»).
+FOOTER = "RootSpeak · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo"
 
 # Parole dell'indice analitico da mostrare come codice (window.MANUAL_CODE_TERMS di manual.js).
 CODE_TERMS = ["zenity"]
 
-# Solo per AMS: regole per elementi che esistono solo nei manuali di AMS, dopo style.css.
-AMS_CSS = """
-/* Solo per AMS: schermate vere della TUI, tasti, terminali, finestre di esempio, albero, stati, glossario */
+# Solo per RootSpeak: regole per elementi che esistono solo nei manuali di RootSpeak, dopo style.css.
+RSPEAK_CSS = """
+/* Solo per RootSpeak: schermate vere della TUI, tasti, terminali, finestre di esempio, albero, stati, glossario */
 .code.schermo{background:#111827;color:#e5e7eb;line-height:1.15;font-size:10.2px;overflow-x:auto;font-family:"DejaVu Sans Mono",ui-monospace,Menlo,Consolas,monospace}
 .schermo .a-b{font-weight:700;color:#fff}.schermo .a-d{color:#6b7280}.schermo .a-v{background:#e5e7eb;color:#111827;font-weight:700}
 .schermo .a-32{color:#4ade80}.schermo .a-33{color:#facc15}.schermo .a-31{color:#f87171}.schermo .a-36{color:#22d3ee}
@@ -172,15 +172,15 @@ PROMPT = re.compile(r"^((?:[\w.-]+@[\w.-]+:[^$#\n]*[$#]|[$#])(?: |$))(.*)$")
 
 
 def term(text, title="", tui=False):
-    """Una sessione di terminale: prompt, comandi, righe di AMS, errori."""
+    """Una sessione di terminale: prompt, comandi, righe di RootSpeak, errori."""
     lines = []
     for line in text.strip("\n").split("\n"):
         m = PROMPT.match(line)
         if m:
             lines.append(f'<span class="pr">{esc(m.group(1))}</span><span class="cmd">{esc(m.group(2))}</span>')
-        elif line.startswith("ams: ") or "Permesso negato" in line:
+        elif line.startswith("rspeak: ") or "Permesso negato" in line:
             lines.append(f'<span class="er">{esc(line)}</span>')
-        elif line.startswith("[AMS]"):
+        elif line.startswith("[RootSpeak]"):
             lines.append(f'<span class="am">{esc(line)}</span>')
         elif line.startswith("──") or (tui and line[:1] in "┌├└"):
             lines.append(f'<span class="bx">{esc(line)}</span>')
@@ -214,7 +214,7 @@ def dialog(title, heading, body, cap):
 
 def notification(title, body, cap):
     return (f'<figure class="fig"><div class="shot"><div class="ntf" role="img" aria-label="Notification">'
-            f'<div class="ntf-a">AMS</div><b>{esc(title)}</b>{esc(body)}</div></div>'
+            f'<div class="ntf-a">RootSpeak</div><b>{esc(title)}</b>{esc(body)}</div></div>'
             f'<figcaption class="cap">{cap}</figcaption></figure>')
 
 
@@ -288,7 +288,7 @@ def zone(x, y, w, h, title, color="#e8eef7"):
             + text(x + 14, y + 20, title, 11.5, "#003a90", "700", "start", False))
 
 
-# Le scritte italiane delle schermate, con la traduzione inglese (quella di po/ams.pot quando
+# Le scritte italiane delle schermate, con la traduzione inglese (quella di po/rootspeak.pot quando
 # esiste): schermata() le aggiunge alla didascalia, perché il contenuto resta uguale allo schermo.
 _DISTESO = ("the text: «Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi. Salvate il lavoro "
             "entro venerdì sera.» (“On Saturday from 8 to 12 the server will be switched off for disk maintenance. "
@@ -301,7 +301,7 @@ _TASTI_MESSAGGIO = ("keys «Tab destinatari/storia» (“recipients/history”),
 _CONFERMA = "«s Conferma» (“Confirm”), «n Annulla» (“Cancel”); key line «s conferma · n o Esc annulla» (“confirm · n or Esc cancel”)"
 _INVIO_ESC = "key line «Invio conferma» (“Enter confirm”), «Esc annulla» (“cancel”)"
 TRADUZIONI_SCHERMATE = {
-    "list": "«AMS · messaggi inviati» (“AMS · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» "
+    "list": "«RootSpeak · messaggi inviati» (“RootSpeak · sent messages”), «aggiornato alle» (“updated at”); columns «DATA» "
              "(“DATE”), «MESSAGGIO» (“MESSAGE”), «DESTINATARI» (“RECIPIENTS”); the example titles «Riavvio» "
              "(“Reboot”), «Il tuo account scade venerdì» (“Your account expires on Friday”), «Manutenzione» "
              "(“Maintenance”), «Aggiornamento del server · Stanotte» (“Server update · Tonight”); «[ritirato]» "
@@ -337,8 +337,8 @@ TRADUZIONI_SCHERMATE = {
                                  "(“remind whoever has not confirmed”), «cancella i messaggi vecchi» (“delete old "
                                  "messages”), «cerca i messaggi per testo o titolo» (“search the messages by text or "
                                  "title”), «esci» (“quit”); «La lista si aggiorna da sola ogni 3 secondi.» (“The list "
-                                 "updates by itself every 3 seconds.”), «La guida completa: ams --help.» (“The complete "
-                                 "guide: ams --help.”), «un tasto per continuare» (“any key to continue”)",
+                                 "updates by itself every 3 seconds.”), «La guida completa: rspeak --help.» (“The complete "
+                                 "guide: rspeak --help.”), «un tasto per continuare» (“any key to continue”)",
     "../user/screens/search": "over the list, «Cerca» (“Search”), «Mostra solo i messaggi che contengono:» (“Show only "
                                  "the messages containing:”); " + _INVIO_ESC,
     "../user/screens/search-results": "at the bottom, «ricerca: «server» (Esc per toglierla)» (“search: «server» (Esc to "
@@ -351,12 +351,12 @@ TRADUZIONI_SCHERMATE = {
                                   "l'ha ancora visto non lo vedrà più; finestre e domande aperte si chiudono da sole.» "
                                   "(“Whoever has not seen it yet will not see it; open dialogs and questions close by "
                                   "themselves.”); " + _CONFERMA,
-    "../user/screens/guide-info": "«ams — guida» (“ams — guide”); tabs «Comandi» (“Commands”), «Opzioni» "
-                                      "(“Options”), «Esempi» (“Examples”), «File» (“Files”); «NOME» (“NAME”): «ams — "
-                                      "messaggi agli utenti con conferma di lettura» (“ams — messages to users with read "
+    "../user/screens/guide-info": "«rspeak — guida» (“rspeak — guide”); tabs «Comandi» (“Commands”), «Opzioni» "
+                                      "(“Options”), «Esempi» (“Examples”), «File» (“Files”); «NOME» (“NAME”): «rspeak — "
+                                      "messaggi agli utenti con conferma di lettura» (“rspeak — messages to users with read "
                                       "confirmation”); «SINTASSI» (“SYNOPSIS”), with «[opzioni] [TESTO]» (“[options] "
-                                      "[TEXT]”) and «DURATA» (“DURATION”); «DESCRIZIONE» (“DESCRIPTION”): «AMS permette "
-                                      "agli amministratori di mandare messaggi di testo agli…» (“AMS lets administrators "
+                                      "[TEXT]”) and «DURATA» (“DURATION”); «DESCRIZIONE» (“DESCRIPTION”): «RootSpeak permette "
+                                      "agli amministratori di mandare messaggi di testo agli…» (“RootSpeak lets administrators "
                                       "send text messages to the…”); «←/→ schede · ↑/↓ scorri · … · q esci» (“←/→ tabs · "
                                       "↑/↓ scroll · … · q quit”), «righe 1-16/26» (“lines 1-16/26”)",
     "../user/screens/guide-options": "«Opzioni di send» (“Send options”); «--to DEST: Destinatari, separati da "
@@ -540,17 +540,17 @@ def po_voci(path):
     return voci
 
 
-GUIDA_CONTESTI = {"AMS_HELP_COMMANDS": "guida-comandi", "AMS_HELP_OPTIONS": "guida-opzioni",
-                  "AMS_HELP_EXAMPLES": "guida-esempi", "AMS_HELP_FILES": "guida-file"}
+GUIDA_CONTESTI = {"RSPEAK_HELP_COMMANDS": "guida-comandi", "RSPEAK_HELP_OPTIONS": "guida-opzioni",
+                  "RSPEAK_HELP_EXAMPLES": "guida-esempi", "RSPEAK_HELP_FILES": "guida-file"}
 
 
 def help_items(name):
     """Le voci «etichetta¦descrizione» di un gruppo della guida, in inglese come i
-    manuali: i testi di partenza di po/ams.pot (estratti da src/guida.c con make pot)
+    manuali: i testi di partenza di po/rootspeak.pot (estratti da src/guida.c con make pot)
     con il contesto del gruppo, nell'ordine di src/guida.c. tools/check-docs.py li
     confronta con quelli estratti in quel momento dal codice."""
     ctx = GUIDA_CONTESTI[name]
-    return [tuple(mid.split("¦", 1)) for c, mid, _ in po_voci(ROOT / "po/ams.pot") if c == ctx]
+    return [tuple(mid.split("¦", 1)) for c, mid, _ in po_voci(ROOT / "po/rootspeak.pot") if c == ctx]
 
 
 def help_reference(name, kind):
@@ -617,7 +617,7 @@ def glossary_index(doc, gloss_ch):
 
 def build(kind, outdir):
     meta = MANUALS[kind]
-    css = (HERE / "style.css").read_text() + AMS_CSS
+    css = (HERE / "style.css").read_text() + RSPEAK_CSS
     js = (HERE / "manual.js").read_text()
     logo = base64.b64encode((HERE / "cover-logo.png").read_bytes()).decode()
     toc, body, gloss_ch = [], [], None
@@ -656,7 +656,7 @@ def build(kind, outdir):
 <body>
 <div class="doc">
   <section class="cover cover-w">
-    <div class="cover-logo"><img src="data:image/png;base64,{logo}" alt="AMS"></div>
+    <div class="cover-logo"><img src="data:image/png;base64,{logo}" alt="RootSpeak"></div>
     <h1 class="cover-title">{meta["h1"]}</h1>
     <div class="cover-meta">
       <div><span>Version</span><b>{VERSION}</b></div>

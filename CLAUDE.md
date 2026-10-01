@@ -5,9 +5,9 @@ what to check before recording a change. A clone plus this file is all the
 working context: nothing needed to continue lives outside the repository.
 
 The product is **RootSpeak — Advanced Messaging System for Linux**. The
-administrators' command is `rspeak`. Until the rename is finished (see
-«Rename in progress» below) the code, the paths and the documents still say
-**AMS - Advanced Messaging System** and `ams`.
+administrators' command is `rspeak`. The rename is done in code, paths, tests
+and documents (see «Rename in progress» below); parts of the code and of the
+documents are still in Italian until the language pass.
 
 ## How we work
 
@@ -35,8 +35,8 @@ administrators' command is `rspeak`. Until the rename is finished (see
   every chapter, practical texts, and every page looked at with a screenshot
   before delivering it.
 - **Claude does not have the sudo password**: installation and tests as root
-  are run by the user (`! ./install.sh`, `! ams …`). Careful: if the user's
-  sudo credentials are still cached, `build/ams` without `AMS_TEST=1` starts as
+  are run by the user (`! ./install.sh`, `! rspeak …`). Careful: if the user's
+  sudo credentials are still cached, `build/rspeak` without `RSPEAK_TEST=1` starts as
   root without asking anything. In tests always set test mode (technical
   manual, «Testing without root»).
 
@@ -49,14 +49,14 @@ The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-h
 | **One machine, only administrators send** | No network, no messages between users. |
 | **Every message asks for confirmation; three states** | For each recipient: sent, delivered (copy in the inbox), confirmed. No levels (`info` was removed on 30 September: a choice to simplify the architecture); for short notices use `--expires`. Expiry and revocation are properties of the message. |
 | **No blocking** | No `block` level, no logouts, no full-screen lock: the user can always postpone. |
-| **Automatic delivery, no command for users** | Users don't have the administrators' command; the code that runs as the user is the helper (`ams-user`, to become `rootspeak-user`), outside the PATH. |
+| **Automatic delivery, no command for users** | Users don't have the administrators' command; the code that runs as the user is the helper `rootspeak-user`, outside the PATH. |
 | **The command always runs as root, no exceptions** | It re-runs itself with sudo before anything else, including `--help` and `version`. |
 | **No group of our own** | The existing admin group is used (`sudo`/`wheel`): the command is `root:<group>` `750`. |
 | **No daemon** | logind, sudo, the shell hook, desktop autostart. |
-| **Root does not touch inboxes as root** | Every access to `/var/lib/ams/users/U` happens in a child process with the user's identity (`come_utente`), with a time limit. |
+| **Root does not touch inboxes as root** | Every access to `/var/lib/rootspeak/users/U` happens in a child process with the user's identity (`come_utente`), with a time limit. |
 | **zenity** for the desktop | Window «I have read it» / «Later»; `notify-send`, if present, only to report a confirmation that was not recorded. |
 | **Built-in help like MTERM's, no man page** | Tabs in a terminal, manual-style page with a pager below 44×10, plain text in a pipe; texts in `src/guida.c` (English) and in the `po/` catalogues. |
-| **Manuals in the common style of the 7 projects (1 October 2026)** | Generated from `docs/sources/` (one file per chapter) into two self-contained HTML files in English (`User Manual.html`, `Technical Manual.html`), with the common style of the 7 projects' manuals, approved by the owner: embedded in every manual and identical in all of them. `docs/sources/style.css` is the canon (born from this project) and `docs/sources/manual.js` the common script (sidebar search, index, Copy button): they are copied verbatim, never changed in one project only; rules specific to this project live in `AMS_CSS` in `build.py` (no script of its own: the common script does the Copy button). Cover: logo (`docs/sources/cover-logo.png`, transparent copy of the logo in `logos/`), «User Manual»/«Technical Manual», version and date. Footer: `<Product> · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo` (no licence). Index only in the technical manual, from the glossary terms. The user rejected manuals in the NESH style ("they suck"). |
+| **Manuals in the common style of the 7 projects (1 October 2026)** | Generated from `docs/sources/` (one file per chapter) into two self-contained HTML files in English (`User Manual.html`, `Technical Manual.html`), with the common style of the 7 projects' manuals, approved by the owner: embedded in every manual and identical in all of them. `docs/sources/style.css` is the canon (born from this project) and `docs/sources/manual.js` the common script (sidebar search, index, Copy button): they are copied verbatim, never changed in one project only; rules specific to this project live in `RSPEAK_CSS` in `build.py` (no script of its own: the common script does the Copy button). Cover: logo (`docs/sources/cover-logo.png`, transparent copy of the logo in `logos/`), «User Manual»/«Technical Manual», version and date. Footer: `<Product> · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo` (no licence). Index only in the technical manual, from the glossary terms. The user rejected manuals in the NESH style ("they suck"). |
 | **Rewrite in C (30 September)** | Everything: the command and the helper; the shell hooks stay scripts, the window stays zenity. Done: version 0.2.0; the bash prototype was removed when the C passed all tests (it remains in git history). Mandatory defences: all warnings, `-fanalyzer`, sanitizers in the tests, fuzzing of everything that reads users' files. |
 | **Languages with gettext (30 September)** | gettext format and tools (`po/*.po`, `.mo`, `msgfmt --check`), source texts in English; the `.mo` files are read by our own reader, not libintl: with libintl a language not installed on the system does not work (tested: `C.UTF-8` ignores `LANGUAGE`), and root must write to each terminal in its user's language. |
 | **TUI for administrators (30 September)** | The command without arguments in a terminal opens the TUI (`--help` stays the help; in a pipe it shows the help). Browse, act (revoke, purge, remind) with confirmation, write and send (Ctrl+E opens `$EDITOR`), automatic refresh. No ncurses. The TUI uses the same functions as the commands and **does not invent states**: only sent, delivered, confirmed; revoked and expired as properties. A message is summarised with its recipients: a three-colour bar and «14 confirmed · 5 delivered · 2 sent». |
@@ -73,9 +73,10 @@ Order agreed with the user; each step is recorded in its own commit.
 2. **Logo**: chosen by the user among 20 proposals (no. 07, «Orbit»: the old
    symbol redrawn — envelope, orbit, orange dot). Master
    `logos/rootspeak-logo.svg` (text in Outfit, SIL OFL 1.1),
-   `logos/rootspeak-logo.png` 2172×724 rendered from it. Done; at step 6 it
-   replaces `logos/ams-logo.png` and the transparent copy
-   `docs/sources/cover-logo.png`.
+   `logos/rootspeak-logo.png` 2172×724 rendered from it. Done; it replaced
+   `logos/ams-logo.png` and the transparent copy `docs/sources/cover-logo.png`
+   at step 4 instead of step 6 (the check on the old name also covers file
+   names); the copy is made from the PNG because Outfit is not installed here.
 3. **Trademark check** of «RootSpeak»: done on 1 October 2026 in the WIPO
    Global Brand Database (89 sources, EUIPO and UIBM included; TMview had
    blocked our automated searches). One record only: «ROOTSPEAK», US
@@ -90,8 +91,16 @@ Order agreed with the user; each step is recorded in its own commit.
    test by the user. **No trace of the old name may remain** in code,
    configuration, tests, tools or manuals: the old name survives only as
    history (`docs/decisions-and-history.md`, «formerly AMS»).
-   `tools/check-docs.py` gets a check that fails if `AMS`/`ams` reappears
-   outside those places.
+   `tools/check-docs.py` fails if `AMS`/`ams` reappears in a tracked file
+   or file name outside those places (allowed also: the origin comment of the
+   common `style.css`, the quoted titles of the two reviews in
+   `docs/adversarial-review.md`). Done on 1 October 2026: engine 82, help,
+   TUI, sanitizers, container 72 of 72 (+1 desktop not testable there),
+   fuzzing, VM, manuals regenerated with the new logo and screenshots. The
+   journal identifier stays the command name (`journalctl -t rspeak`). The
+   legacy clean-up of the bash prototype was removed from `install.sh`
+   (nobody has an AMS installation to upgrade). **Still to do**: the live
+   test by the user after `./install.sh`.
 5. **Language pass**: code, comments, identifiers, file names, `Makefile`
    targets, tests, tools and documents into English, file by file, in a
    separate commit from the rename. **No Italian may remain** outside
@@ -100,17 +109,17 @@ Order agreed with the user; each step is recorded in its own commit.
    every page checked.
 7. **Repository**: done on 1 October 2026 by the user's choice: a new private
    repository `nic-fio/ROOTSPEAK` with the whole git history (42 commits,
-   identical hashes), local folder `~/Documenti/ROOTSPEAK`, CI passed. The
-   user will delete `nic-fio/AMS` and the old local folder. Still to do: the
-   links to `github.com/nic-fio/AMS` in `docs/index.html` and in the user
-   manual (step 4), the VM folder `/media/AMS` on the test server, and the
-   mentions of AMS in the `CLAUDE.md` of the other 6 projects.
+   identical hashes), local folder `~/Documenti/ROOTSPEAK`, CI passed;
+   `nic-fio/AMS` and the old local folder deleted; links and the VM folder
+   (`/media/ROOTSPEAK`) renamed at step 4. Still to do: the mentions of AMS in
+   the `CLAUDE.md` of the other 6 projects (8 lines, on GitHub: they are not
+   cloned on this PC).
 8. **Licence**: commercial licence, `NOTICE.md`, a «Licence» section in the
    README and in the manuals.
 
 ## The repository
 
-The structure follows the standard common to the 7 projects (AMS,
+The structure follows the standard common to the 7 projects (ROOTSPEAK,
 EFI_PARTITION_MANAGER, HOSTER, MTERM, NESH, PHONESTRA, SCRAPER), decided by the
 owner on 30 September 2026: file and folder names in English, `README.md`,
 `CLAUDE.md`, `NOTICE.md`, `Makefile` with `make`, `make test`,
@@ -120,21 +129,21 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 
 | Where | What |
 |---|---|
-| `src/` | The C code: `ams.c` (administrators' command), `ams-user.c` (helper running as the user), `archivio.c`, `utente.c`, `sessioni.c`, `testo.c`, `lingua.c`, `evento.c`, `guida.c`, `comune.c`, `tui.c`. |
-| `po/` | gettext catalogues: `ams.pot` and the translations (`it.po`). |
+| `src/` | The C code: `rspeak.c` (administrators' command), `rootspeak-user.c` (helper running as the user), `archivio.c`, `utente.c`, `sessioni.c`, `testo.c`, `lingua.c`, `evento.c`, `guida.c`, `comune.c`, `tui.c`. |
+| `po/` | gettext catalogues: `rootspeak.pot` and the translations (`it.po`). |
 | `Makefile` | `make`, `make prove`, `make test` (unit tests, manual checks, `tests/engine.sh`), `make docs`, `make docs-check`, `make sanitizer`, `make analizza`, `make pot`, `make clean`. |
 | `etc/` | Shell hooks, desktop agent autostart, default configuration. |
 | `install.sh` | Install, upgrade, `--uninstall`, `--purge`. |
 | `docs/` | `User Manual.html` and `Technical Manual.html` (generated, never by hand), `index.html` (home page), `README.md` (what is there and how to regenerate it), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
-| `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual comes from the English source texts in `po/ams.pot`. |
+| `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual comes from the English source texts in `po/rootspeak.pot`. |
 | `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make prove`). Results in `results/` and `*/results/`. |
 | `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle. |
-| `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the old `ams-logo.png` (supplied by the owner) stays until step 6: the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
+| `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
 | `NOTICE.md` | Copyright and third-party components (none embedded). |
 | `.github/workflows/ci.yml` | On GitHub at every push: `make`, `make prove`, `tests/engine.sh`, `make docs-check` (no container or VM). |
 
 **Test server** (192.168.0.2, ssh access with a key): the VM lives in
-`/media/AMS` on the SSD (the server's `/` is in RAM). QEMU with KVM as a
+`/media/ROOTSPEAK` on the SSD (the server's `/` is in RAM). QEMU with KVM as a
 normal user, without libvirt or sudo. The base disk is prepared once
 (`tests/vm/run.sh --prepara`, about 10 minutes); every run starts from a clean
 copy and shuts the VM down at the end.
@@ -151,7 +160,7 @@ copy and shuts the VM down at the end.
    `tests/engine.sh` was not run on the current code.
    **It fails if the manuals are not up to date.**
 3. `tests/engine.sh` always; `tests/help-tui.py` if the help changed;
-   `make sanitizer` with `AMS_BUILD=build-san tests/engine.sh`, `make analizza`
+   `make sanitizer` with `RSPEAK_BUILD=build-san tests/engine.sh`, `make analizza`
    and `tests/fuzz/run.sh` if code that reads data changed;
    `tests/container/run.sh` (real tests as root in a container) if sending,
    delivery, confirmations or permissions changed; `tests/vm/run.sh` (VM with
@@ -167,7 +176,7 @@ The **«Specification»** chapter of the technical manual is the contract of the
 product (authoritative sources, states, invariants, interruptions, time,
 archive format): every change respects it or updates it explicitly.
 
-Version: `AMS_VERSION` in `src/comune.h`, and the same in the two manuals
+Version: `RSPEAK_VERSION` in `src/comune.h`, and the same in the two manuals
 (checked by `tools/check-docs.py`).
 
 ## Where things stand
@@ -177,7 +186,7 @@ Version 0.2.0 in C (30 September 2026), which replaces the bash prototype
 read from the results): `tests/engine.sh` 82 checks, `tests/tui.py`, container
 72 scenarios (plus the desktop, which cannot be tested there), VM with an
 Italian desktop 66 scenarios, all passed (shells are tested only in the
-container; `AMS_PROVA_LINGUA=en` for the English desktop, 11 of 11)
+container; `RSPEAK_PROVA_LINGUA=en` for the English desktop, 11 of 11)
 (30 September 2026), also with AddressSanitizer and UBSan; fuzzing for 30
 minutes with no defects. The bash prototype was also tested live on Debian 13
 with GNOME 48 on Wayland, with two accounts (`nicfio`, `user`): window at once
@@ -194,4 +203,5 @@ tested live on the user's PC**: it must be before any sale. The [2] items of
 the README were frozen until the review was closed; restart from there only
 when the user says so.
 
-On 1 October 2026 the rename to RootSpeak started (see above).
+On 1 October 2026 the rename to RootSpeak was done in the repository (step 4,
+see above); the live test by the user is pending.

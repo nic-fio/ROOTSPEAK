@@ -47,27 +47,27 @@ S2 = p("The <b>title</b> is optional and fits on one line: it appears at the top
     table(["How", "Where", "Example"], [
         ["typed in the TUI", "the " + ui("Testo") + " (“Text”) field; " + key("Enter") + " starts a new line", "—"],
         ["typed in your own editor", "TUI, " + key("Ctrl", "E") + " (" + rif(5, 5) + ")", "—"],
-        ["in quotes, at the end of the command", c("ams send"), c('ams send --to mario "Testo del messaggio"')
+        ["in quotes, at the end of the command", c("rspeak send"), c('rspeak send --to mario "Testo del messaggio"')
          + " (“Message text”)"],
-        ["from a file", c("ams send --file"), c("ams send --to @sviluppo --file avviso.txt")],
-        ["from another command", c("ams send") + ", with no text and no " + c("--file"), c("df -h | ams send --to anna")],
-        ["typed on the spot", c("ams send") + " in a terminal: type the text, then " + key("Ctrl", "D"),
-         c("ams send --to mario")],
+        ["from a file", c("rspeak send --file"), c("rspeak send --to @sviluppo --file avviso.txt")],
+        ["from another command", c("rspeak send") + ", with no text and no " + c("--file"), c("df -h | rspeak send --to anna")],
+        ["typed on the spot", c("rspeak send") + " in a terminal: type the text, then " + key("Ctrl", "D"),
+         c("rspeak send --to mario")],
     ], "«TAB» — The ways to supply the text") + \
     code("Da lunedì 15 ottobre le password scadono ogni 90 giorni.\n"
          "Al primo accesso dopo la scadenza il sistema chiederà di cambiarla.\n"
          "Per problemi: ufficio IT, interno 214.", "text",
          "avviso.txt: “From Monday 15 October passwords expire every 90 days. At the first login after the expiry the "
          "system will ask you to change it. For problems: IT office, extension 214.” Sent below with the title «Nuova "
-         "regola per le password» (“New rule for passwords”); AMS answers «Messaggio 3 inviato a 24 utenti.» (“Message "
+         "regola per le password» (“New rule for passwords”); RootSpeak answers «Messaggio 3 inviato a 24 utenti.» (“Message "
          "3 sent to 24 users.”)") + \
-    term('admin@server:~$ ams send --to all --title "Nuova regola per le password" --file avviso.txt\n'
+    term('admin@server:~$ rspeak send --to all --title "Nuova regola per le password" --file avviso.txt\n'
          "Messaggio 3 inviato a 24 utenti.") + \
     table(["Rule", "Why"], [
         ["at most 64 KB of text (65536 bytes: about 30 pages)", "beyond that, the desktop dialog could not "
-         "show it; AMS refuses with «messaggio troppo lungo» (“message too long”). The TUI shows the count below the "
+         "show it; RootSpeak refuses with «messaggio troppo lungo» (“message too long”). The TUI shows the count below the "
          "text, in red when the limit is exceeded"],
-        ["the text cannot be empty or made only of spaces", "AMS refuses with «messaggio vuoto» (“empty message”)"],
+        ["the text cannot be empty or made only of spaces", "RootSpeak refuses with «messaggio vuoto» (“empty message”)"],
         ["blank lines at the end of the text are removed", "the message ends with the last line written"],
         ["the title fits on one line", "line breaks and tabs in the title become spaces"],
         ["invisible characters and colour codes are removed", "a message cannot disrupt the users' "
@@ -96,12 +96,12 @@ S3 = p("Every message asks for confirmation. For notices that are only valid for
          + c('--expires "2026-10-04 12:00"') + ")"],
         [c("tomorrow 18:00"), "tomorrow at 18:00: dates in words must be written in English"],
     ], "«TAB» — How to specify the expiry. In the example below, «Il servizio web riparte alle 13:00.» (“The web "
-       "service restarts at 13:00.”) expires after 15 minutes; AMS answers «Messaggio 2 inviato a 3 utenti.» (“Message 2 "
+       "service restarts at 13:00.”) expires after 15 minutes; RootSpeak answers «Messaggio 2 inviato a 3 utenti.» (“Message 2 "
        "sent to 3 users.”)") + \
-    term('admin@server:~$ ams send --to online --expires 15m "Il servizio web riparte alle 13:00."\n'
+    term('admin@server:~$ rspeak send --to online --expires 15m "Il servizio web riparte alle 13:00."\n'
          "Messaggio 2 inviato a 3 utenti.") + ul([
         "On expiry, a dialog that is still open closes by itself, and a question waiting in the terminal is "
-        "interrupted with «[AMS] Il messaggio è scaduto.» (“[AMS] The message has expired.”).",
+        "interrupted with «[RootSpeak] Il messaggio è scaduto.» (“[RootSpeak] The message has expired.”).",
         "A confirmation given after the expiry does not count: the recipient stays " + CONSEGNATO + ", «non "
         "confermato (scaduto)» (“not confirmed (expired)”).",
         "In the list the message appears with " + c("[scaduto]") + " (“[expired]”) in front; the detail view says when "
@@ -137,11 +137,11 @@ S4 = p("In the TUI the " + key("n") + " key opens the " + ui("Nuovo messaggio") 
       "anything.") + \
     schermata("send", "«FIG» — The summary before sending") + \
     ul([
-        "If sending succeeds, " + ui("Messaggio inviato") + " (“Message sent”) appears with the reply from AMS; any key "
+        "If sending succeeds, " + ui("Messaggio inviato") + " (“Message sent”) appears with the reply from RootSpeak; any key "
         "returns to the list.",
         "If something goes wrong, " + ui("Esito dell'invio") + " (“Sending result”) appears with the reason: a wrong "
-        "recipient (for example «ams: utente inesistente: mrio», “ams: no such user: mrio”) stops the sending, and any key returns "
-        "to the message so it can be corrected; a copy that could not be written is listed, and AMS retries by itself "
+        "recipient (for example «rspeak: utente inesistente: mrio», “rspeak: no such user: mrio”) stops the sending, and any key returns "
+        "to the message so it can be corrected; a copy that could not be written is listed, and RootSpeak retries by itself "
         "at the next command.",
     ])
 
@@ -159,10 +159,10 @@ S5 = p("For long texts your own editor is more convenient. " + key("Ctrl", "E") 
         [c("vi"), "if nano is not installed"],
     ], "«TAB» — Which editor opens") + \
     note("the editor runs with the administrator's identity, not as root: it opens a temporary file that belongs "
-         "to the administrator and that AMS deletes on return.", "Security.")
+         "to the administrator and that RootSpeak deletes on return.", "Security.")
 
-INVIO = seq([("Administrator", "Ctrl+S or ams send", "dark"), ("AMS", "message store", "navy"),
-             ("Mario's mailbox", "/var/lib/ams/users", "light"), ("Mario's sessions", "terminals and desktop", "blue")], [
+INVIO = seq([("Administrator", "Ctrl+S or rspeak send", "dark"), ("RootSpeak", "message store", "navy"),
+             ("Mario's mailbox", "/var/lib/rootspeak/users", "light"), ("Mario's sessions", "terminals and desktop", "blue")], [
     (0, 1, "message and recipients"),
     (1, 1, "reference copy, number 3"),
     (1, 2, "copy for Mario (as Mario)"),
@@ -175,40 +175,40 @@ INVIO = seq([("Administrator", "Ctrl+S or ams send", "dark"), ("AMS", "message s
 ], "«FIG» — What happens when a message is sent to Mario; the reply «Messaggio 3 inviato a 1 utente.» means “Message 3 "
    "sent to 1 user.”", "Sending step by step")
 
-S6 = p("When a message is sent, AMS saves it, puts a copy in each recipient's mailbox and makes it appear at once "
+S6 = p("When a message is sent, RootSpeak saves it, puts a copy in each recipient's mailbox and makes it appear at once "
        "wherever the user is logged in. It all happens in a few moments.", lead=True) + INVIO + \
-    table(["Reply from AMS", "What it means"], [
+    table(["Reply from RootSpeak", "What it means"], [
         [c("Messaggio 3 inviato a 24 utenti.") + " (“Message 3 sent to 24 users.”)", "All the copies are in the mailboxes: every recipient is "
          + CONSEGNATO + "."],
         [c("Messaggio 3 consegnato a 23 destinatari su 24.") + " (“Message 3 delivered to 23 of 24 recipients.”)<br>"
-         + c("ams: messaggio 3 non consegnato a: sara (vedi il registro; il prossimo comando ams riproverà)")
-         + " (“ams: message 3 not delivered to: sara (see the log; the next ams command will retry)”)", "A copy could not be written, usually because "
-         "the disk is full: Sara is " + INVIATO + ". AMS retries by itself (" + rif(12, 4) + ")."],
+         + c("rspeak: messaggio 3 non consegnato a: sara (vedi il registro; il prossimo comando rspeak riproverà)")
+         + " (“rspeak: message 3 not delivered to: sara (see the log; the next rspeak command will retry)”)", "A copy could not be written, usually because "
+         "the disk is full: Sara is " + INVIATO + ". RootSpeak retries by itself (" + rif(12, 4) + ")."],
         [c("Messaggio 3 ritirato durante l'invio: consegna interrotta.") + " (“Message 3 revoked while sending: "
          "delivery stopped.”)", "Another administrator revoked it "
          "while it was being sent."],
-        [c("ams: …"), "An error: the message was not sent (" + rif(12, 1) + ")."],
+        [c("rspeak: …"), "An error: the message was not sent (" + rif(12, 1) + ")."],
     ], "«TAB» — The replies when sending") + \
     p("The text written to the terminals when the message is sent appears even if the user is working; the "
       "confirmation question, instead, only arrives when the user is back at the prompt, so as not to interrupt a "
       "command halfway.")
 
 S7 = table(["I want to…", "Command"], [
-    ["notify a user and know whether they have read it", c('ams send --to anna "Il tuo account scade venerdì."')
+    ["notify a user and know whether they have read it", c('rspeak send --to anna "Il tuo account scade venerdì."')
      + " (“Your account expires on Friday.”)"],
     ["warn whoever is logged in that I am about to reboot",
-     c('ams send --to online --expires 15m "Riavvio alle 13:00: salvate il lavoro."')
+     c('rspeak send --to online --expires 15m "Riavvio alle 13:00: salvate il lavoro."')
      + " (“Reboot at 13:00: save your work.”)"],
-    ["tell everyone about a new rule", c('ams send --to all --title "Password" --file regola.txt')],
-    ["write to a work group", c('ams send --to @sviluppo --expires 2d "Consegna entro giovedì alle 18."')
+    ["tell everyone about a new rule", c('rspeak send --to all --title "Password" --file regola.txt')],
+    ["write to a work group", c('rspeak send --to @sviluppo --expires 2d "Consegna entro giovedì alle 18."')
      + " (“Deadline Thursday at 18:00.”)"],
-    ["write to two people and a group", c('ams send --to mario,anna,@stagisti "Riunione alle 11."')
+    ["write to two people and a group", c('rspeak send --to mario,anna,@stagisti "Riunione alle 11."')
      + " (“Meeting at 11.”)"],
-    ["send the output of a command", c("df -h /home | ams send --to anna --title \"Spazio disco\"")
+    ["send the output of a command", c("df -h /home | rspeak send --to anna --title \"Spazio disco\"")
      + " (“Disk space”)"],
-    ["send a notice from cron, every Monday at 8:00", c("0 8 * * 1  /usr/local/bin/ams send --to all --file /etc/avviso-settimanale.txt")],
+    ["send a notice from cron, every Monday at 8:00", c("0 8 * * 1  /usr/local/bin/rspeak send --to all --file /etc/avviso-settimanale.txt")],
 ], "«TAB» — Ready-made commands for the most common cases") + \
-    tip("in cron (root's crontab, " + c("sudo crontab -e") + ") " + c("ams") + " is already root and does not ask for "
+    tip("in cron (root's crontab, " + c("sudo crontab -e") + ") " + c("rspeak") + " is already root and does not ask for "
         "the password. It is best to give the full path of the command.", "Automatic sending.")
 
 CHAPTER = ("Writing and sending messages", [

@@ -1,24 +1,24 @@
 #!/bin/bash
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Prove dal vero nella VM con desktop, sul server delle prove (per non caricare
 # il PC): copia il codice sul server, avvia la VM da una copia pulita del disco
-# base, installa AMS, esegue gli scenari (tests/container/scenarios.py, con quelli
+# base, installa RootSpeak, esegue gli scenari (tests/container/scenarios.py, con quelli
 # del desktop), scatta le schermate richieste e riporta tutto in
 # tests/vm/results/. La VM si spegne alla fine.
-#   tests/vm/run.sh               AMS_SERVER e AMS_DIR per cambiare server e cartella;
-#                                    AMS_PROVA_LINGUA=en per il desktop in inglese (predefinito: it);
-#                                    AMS_PROVA_SOLO=i_desktop,… per eseguire solo alcuni gruppi
+#   tests/vm/run.sh               RSPEAK_SERVER e RSPEAK_DIR per cambiare server e cartella;
+#                                    RSPEAK_PROVA_LINGUA=en per il desktop in inglese (predefinito: it);
+#                                    RSPEAK_PROVA_SOLO=i_desktop,… per eseguire solo alcuni gruppi
 # Il disco base si prepara una volta con --prepara (circa 10 minuti).
 set -uo pipefail
 QUI=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$QUI/../.." && pwd)
-SERVER=${AMS_SERVER:-192.168.0.2}
-DIR=${AMS_DIR:-/media/AMS}
+SERVER=${RSPEAK_SERVER:-192.168.0.2}
+DIR=${RSPEAK_DIR:-/media/ROOTSPEAK}
 DESK=sara
-case ${AMS_PROVA_LINGUA:-it} in
+case ${RSPEAK_PROVA_LINGUA:-it} in
 it) LOCALE_DESK=it_IT.UTF-8 ;;
 en) LOCALE_DESK=en_US.UTF-8 ;;
-*) echo "AMS_PROVA_LINGUA: it o en" >&2; exit 1 ;;
+*) echo "RSPEAK_PROVA_LINGUA: it o en" >&2; exit 1 ;;
 esac
 OPZ=(-o BatchMode=yes -o LogLevel=ERROR)
 VMOPZ=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J "$SERVER" -p 2222)
@@ -39,9 +39,9 @@ fi
 x "$DIR/src/tests/vm/start.sh $DIR/vm" || exit 1
 trap 'x "$DIR/src/tests/vm/stop.sh $DIR/vm"; echo "VM spenta"' EXIT
 
-echo "AMS nella VM…"
+echo "RootSpeak nella VM…"
 tar --exclude=.git -cf - -C "$ROOT" . |
-	v "rm -rf /opt/ams-src && mkdir -p /opt/ams-src && tar -xf - -C /opt/ams-src && /opt/ams-src/install.sh | head -1"
+	v "rm -rf /opt/rootspeak-src && mkdir -p /opt/rootspeak-src && tar -xf - -C /opt/rootspeak-src && /opt/rootspeak-src/install.sh | head -1"
 # niente tour di benvenuto né avvisi degli aggiornamenti sul desktop di prova
 # (anche in user-data.tpl, per i dischi base preparati dopo)
 v "apt-get -qq -y purge gnome-tour gnome-software >/dev/null 2>&1; true"
@@ -55,12 +55,12 @@ v "dpkg -s locales >/dev/null 2>&1 || apt-get -qq -y install locales >/dev/null
 	else printf '[User]\\nLanguage=$LOCALE_DESK\\n' >>\$f; fi" || exit 1
 # un nuovo login grafico, perché l'agente parta dall'avvio automatico come su un sistema vero
 v "systemctl restart gdm; for i in \$(seq 1 90); do
-	pgrep -u $DESK -f '^(/bin/bash )?/usr/local/lib/ams/ams-user agent\$' >/dev/null && { echo \"desktop di $DESK pronto dopo \${i}s\"; exit 0; }
+	pgrep -u $DESK -f '^(/bin/bash )?/usr/local/lib/rootspeak/rootspeak-user agent\$' >/dev/null && { echo \"desktop di $DESK pronto dopo \${i}s\"; exit 0; }
 	sleep 1; done; echo 'desktop non pronto' >&2; exit 1" || exit 1
 
 rm -rf "$QUI/results" && mkdir -p "$QUI/results/captures"
 x "rm -f $DIR/vm/captures/*"
-v "LANG=it_IT.UTF-8 AMS_PROVA_COMMIT=$("$ROOT/tools/fingerprint.sh" --commit) AMS_PROVA_IMPRONTA=$("$ROOT/tools/fingerprint.sh") AMS_PROVA_SOLO=${AMS_PROVA_SOLO:-} AMS_PROVA_DESKTOP=$DESK python3 -u /opt/ams-src/tests/container/scenarios.py /opt/results" |
+v "LANG=it_IT.UTF-8 RSPEAK_PROVA_COMMIT=$("$ROOT/tools/fingerprint.sh" --commit) RSPEAK_PROVA_IMPRONTA=$("$ROOT/tools/fingerprint.sh") RSPEAK_PROVA_SOLO=${RSPEAK_PROVA_SOLO:-} RSPEAK_PROVA_DESKTOP=$DESK python3 -u /opt/rootspeak-src/tests/container/scenarios.py /opt/results" |
 	while IFS= read -r riga; do
 		case $riga in
 		"@@CATTURA "*) x "python3 $DIR/src/tests/vm/capture.py $DIR/vm/monitor.sock $DIR/vm/captures/${riga#@@CATTURA }.ppm" ;;

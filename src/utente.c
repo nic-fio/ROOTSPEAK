@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Utenti, e azioni di root con l'identità di un utente (al posto di runuser). */
 #include "utente.h"
 
@@ -67,7 +67,7 @@ static void figlio(const utente_t *u, come_utente_fn fn, void *arg, int in, int 
 
 	if (nul < 0 || dup2(in >= 0 ? in : nul, 0) < 0 || dup2(out >= 0 ? out : nul, 1) < 0 || dup2(nul, 2) < 0)
 		_exit(126);
-	if (geteuid() == 0 && !ams_test) {
+	if (geteuid() == 0 && !rspeak_test) {
 		/* identità completa dell'utente: gruppi, poi gruppo, poi utente */
 		if (initgroups(u->nome, u->gid) < 0 || setresgid(u->gid, u->gid, u->gid) < 0 ||
 		    setresuid(u->uid, u->uid, u->uid) < 0)
@@ -174,7 +174,7 @@ int come_utente(const utente_t *u, come_utente_fn fn, void *arg, const buf_t *in
 		close(pin[1]);
 	close(pout[0]);
 	/* Anche dopo la fine dell'uscita il figlio ha un tempo massimo: l'utente
-	 * potrebbe fermarlo (stesso UID), e ams non deve restare appeso. */
+	 * potrebbe fermarlo (stesso UID), e rspeak non deve restare appeso. */
 	for (;;) {
 		pid_t w;
 

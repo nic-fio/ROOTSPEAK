@@ -1,9 +1,9 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Prove delle parti interne della versione in C.
  *   unit-tests                    tutte le prove
  *   unit-tests pulisci            pulisce stdin su stdout (confronto con il prototipo)
  *   unit-tests lingua L A M G     lingua scelta da LANGUAGE, LC_ALL, LC_MESSAGES, LANG
- *   unit-tests conf               valori letti dalla configurazione (AMS_CONF, con AMS_TEST=1)
+ *   unit-tests conf               valori letti dalla configurazione (RSPEAK_CONF, con RSPEAK_TEST=1)
  *   unit-tests mo FILE            legge un .mo qualunque (per il fuzzing): non deve mai fallire male */
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,11 +104,11 @@ static void prove_conf(void)
 {
 	conf_t c;
 
-	conf_da_testo("AMS_REMIND_MINUTES=45 # minuti\n  AMS_AGENT_POLL = 20  \n", &c);
+	conf_da_testo("RSPEAK_REMIND_MINUTES=45 # minuti\n  RSPEAK_AGENT_POLL = 20  \n", &c);
 	controlla("configurazione: commenti e spazi", c.remind_minutes == 45 && c.agent_poll == 20);
-	conf_da_testo("AMS_REMIND_MINUTES=$(rm -rf /)\nAMS_AGENT_POLL=0\nALTRO=5\n", &c);
+	conf_da_testo("RSPEAK_REMIND_MINUTES=$(rm -rf /)\nRSPEAK_AGENT_POLL=0\nALTRO=5\n", &c);
 	controlla("configurazione: valori non validi ignorati", c.remind_minutes == 30 && c.agent_poll == 60);
-	conf_da_testo("AMS_REMIND_MINUTES=1234567\nAMS_AGENT_POLL=-5\n", &c);
+	conf_da_testo("RSPEAK_REMIND_MINUTES=1234567\nRSPEAK_AGENT_POLL=-5\n", &c);
 	controlla("configurazione: troppe cifre e negativi ignorati", c.remind_minutes == 30 && c.agent_poll == 60);
 }
 
@@ -128,7 +128,7 @@ static void prove_eventi(void)
 
 int main(int argc, char **argv)
 {
-	ams_init("unit-tests");
+	rspeak_init("unit-tests");
 	if (argc > 1 && !strcmp(argv[1], "pulisci")) {
 		buf_t in = {0}, out = {0};
 

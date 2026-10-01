@@ -1,5 +1,5 @@
-/* AMS - Advanced Messaging System
- * ams-user: aiutante interno, non è un comando per l'utente. Gira con
+/* RootSpeak - Advanced Messaging System for Linux
+ * rootspeak-user: aiutante interno, non è un comando per l'utente. Gira con
  * l'identità dell'utente, lanciato dall'aggancio della shell (prompt) e
  * dall'avvio automatico del desktop (agent): mostra i messaggi e registra la
  * conferma di lettura. */
@@ -171,7 +171,7 @@ static int conferma(long long id, const char *canale)
 		return 0;
 	}
 	/* Senza copia nella casella il messaggio è stato ritirato: niente conferma.
-	 * Se il ritiro arriva fra questo controllo e link, vale la data: ams
+	 * Se il ritiro arriva fra questo controllo e link, vale la data: rspeak
 	 * status non conta una conferma successiva al ritiro. */
 	if (!c_e("inbox", id, "")) {
 		free(ack);
@@ -226,7 +226,7 @@ static void mostra_terminale(long long id)
 	if (msg_leggi(p, &m) == 0) {
 		msg_intestazione(&m, &h);
 		putchar('\n');
-		printf(T("── AMS · Message from the administrator · %s ──"), h.s);
+		printf(T("── RootSpeak · Message from the administrator · %s ──"), h.s);
 		printf("\n%s────────────────────────────────────────\n", m.body);
 		msg_libera(&m);
 	}
@@ -244,7 +244,7 @@ static int chiedi(long long id)
 	int tty = open("/dev/tty", O_RDONLY | O_CLOEXEC | O_NOCTTY);
 	char risposta[256] = "";
 
-	fputs(T("[AMS] Do you confirm you have read the message? [y/N] "), stdout);
+	fputs(T("[RootSpeak] Do you confirm you have read the message? [y/N] "), stdout);
 	fflush(stdout);
 	if (tty < 0)
 		return 1;
@@ -303,34 +303,34 @@ static int cmd_prompt(bool login)
 		switch (chiedi(id)) {
 		case 0:
 			switch (conferma(id, dove)) {
-			case 0: fputs(T("[AMS] Confirmed."), stdout); break;
-			case 2: fputs(T("[AMS] The message has expired: the confirmation was not recorded."), stdout); break;
-			case 3: fputs(T("[AMS] The administrator has revoked the message."), stdout); break;
-			default: fputs(T("[AMS] The confirmation could not be recorded: you will be asked again."), stdout); break;
+			case 0: fputs(T("[RootSpeak] Confirmed."), stdout); break;
+			case 2: fputs(T("[RootSpeak] The message has expired: the confirmation was not recorded."), stdout); break;
+			case 3: fputs(T("[RootSpeak] The administrator has revoked the message."), stdout); break;
+			default: fputs(T("[RootSpeak] The confirmation could not be recorded: you will be asked again."), stdout); break;
 			}
 			break;
 		case 2:
 			segna_letto(id);
-			fputs(T("[AMS] Message already confirmed elsewhere (for example on the desktop)."), stdout);
+			fputs(T("[RootSpeak] Message already confirmed elsewhere (for example on the desktop)."), stdout);
 			break;
 		case 3:
-			fputs(T("[AMS] The administrator has revoked the message."), stdout);
+			fputs(T("[RootSpeak] The administrator has revoked the message."), stdout);
 			break;
 		case 4:
 			segna_letto(id);
-			fputs(T("[AMS] The message has expired."), stdout);
+			fputs(T("[RootSpeak] The message has expired."), stdout);
 			break;
 		default:
 			rimanda(id, "term");
-			printf(T("[AMS] You will be asked again in %ld minutes."), conf.remind_minutes);
+			printf(T("[RootSpeak] You will be asked again in %ld minutes."), conf.remind_minutes);
 			break;
 		}
 		putchar('\n');
 	}
 	if (dopo == 1)
-		puts(T("[AMS] You have 1 message from the administrator to confirm."));
+		puts(T("[RootSpeak] You have 1 message from the administrator to confirm."));
 	else if (dopo > 1) {
-		printf(T("[AMS] You have %d messages from the administrator to confirm."), dopo);
+		printf(T("[RootSpeak] You have %d messages from the administrator to confirm."), dopo);
 		putchar('\n');
 	}
 	strv_free(&ids);
@@ -361,7 +361,7 @@ static void avvisa_conferma_fallita(void)
 			dup2(nul, 1);
 			dup2(nul, 2);
 		}
-		execlp("notify-send", "notify-send", "-a", "AMS", T("AMS · Confirmation not recorded"),
+		execlp("notify-send", "notify-send", "-a", "RootSpeak", T("RootSpeak · Confirmation not recorded"),
 		       T("The confirmation could not be recorded: the message will be shown again."), (char *)NULL);
 		_exit(127);
 	}
@@ -394,7 +394,7 @@ static void mostra_finestra(long long id)
 	fflush(stdout);
 	pid = fork();
 	if (pid == 0) {
-		char *titolo = xasprintf("--title=%s", T("AMS · Message from the administrator"));
+		char *titolo = xasprintf("--title=%s", T("RootSpeak · Message from the administrator"));
 		char *text = xasprintf("--text=%s", testo.s);
 		char *ok = xasprintf("--ok-label=%s", T("I have read it"));
 		char *no = xasprintf("--cancel-label=%s", T("Later"));
@@ -471,7 +471,7 @@ static void togli_pronto(void)
 static int cmd_agent(void)
 {
 	const char *run = getenv("XDG_RUNTIME_DIR");
-	char *lock = xasprintf("%s/ams-agent.lock", run && *run ? run : "/tmp");
+	char *lock = xasprintf("%s/rootspeak-agent.lock", run && *run ? run : "/tmp");
 	int fd = open(lock, O_WRONLY | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0600);
 	char s[32];
 	int n;
@@ -503,9 +503,9 @@ static int cmd_agent(void)
 	sigdelset(&attesa, SIGTERM);
 	sigdelset(&attesa, SIGHUP);
 	sigdelset(&attesa, SIGINT);
-	/* `ams send` manda SIGUSR1 per svegliare l'agente, ma solo al PID scritto
+	/* `rspeak send` manda SIGUSR1 per svegliare l'agente, ma solo al PID scritto
 	 * qui, cioè a un agente che sa già riceverlo. */
-	pronto = xasprintf("%s/ams-agent.pronto", run && *run ? run : "/tmp");
+	pronto = xasprintf("%s/rootspeak-agent.pronto", run && *run ? run : "/tmp");
 	atexit(togli_pronto);
 	n = snprintf(s, sizeof s, "%d\n", (int)getpid());
 	if (scrivi_atomico(pronto, s, (size_t)n, 0644) < 0)
@@ -529,7 +529,7 @@ static int cmd_agent(void)
 		strv_free(&ids);
 		if (fine)
 			break;
-		/* attesa interrompibile: il segnale di `ams send` la termina subito */
+		/* attesa interrompibile: il segnale di `rspeak send` la termina subito */
 		for (long ms = conf.agent_poll * 1000; ms > 0 && !sveglia && !fine; ms -= 1000)
 			aspetta(ms > 1000 ? 1000 : (int)ms);
 	}
@@ -545,25 +545,25 @@ int main(int argc, char **argv)
 	 * parte. */
 	sa.sa_handler = su_sveglia;
 	sigaction(SIGUSR1, &sa, NULL);
-	ams_init("ams-user");
+	rspeak_init("rootspeak-user");
 	lingua_init();
 	conf_leggi(&conf);
 	pw = getpwuid(getuid());
 	if (!pw)
 		return 1;
 	U = xstrdup(pw->pw_name);
-	D = xasprintf("%s/users/%s", ams_var, U);
+	D = xasprintf("%s/users/%s", rspeak_var, U);
 	if (argc >= 2 && !strcmp(argv[1], "prompt"))
 		return cmd_prompt(argc >= 3 && !strcmp(argv[2], "--login"));
 	if (argc >= 2 && !strcmp(argv[1], "agent"))
 		return cmd_agent();
 	/* solo per le prove: la registrazione della conferma, da sola */
-	if (ams_test && argc == 4 && !strcmp(argv[1], "conferma")) {
+	if (rspeak_test && argc == 4 && !strcmp(argv[1], "conferma")) {
 		long long id;
 
 		return leggi_numero(argv[2], &id) ? conferma(id, argv[3]) : 1;
 	}
-	fputs(T("ams-user: internal AMS helper, not meant to be run directly"), stderr);
+	fputs(T("rootspeak-user: internal RootSpeak helper, not meant to be run directly"), stderr);
 	fputc('\n', stderr);
 	return 1;
 }

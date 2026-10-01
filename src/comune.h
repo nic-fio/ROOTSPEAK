@@ -1,7 +1,7 @@
-/* AMS - Advanced Messaging System
- * Parti comuni ad ams (amministratore, root) e ams-user (utente). */
-#ifndef AMS_COMUNE_H
-#define AMS_COMUNE_H
+/* RootSpeak - Advanced Messaging System for Linux
+ * Parti comuni ad rspeak (amministratore, root) e rootspeak-user (utente). */
+#ifndef RSPEAK_COMUNE_H
+#define RSPEAK_COMUNE_H
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -13,30 +13,30 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define AMS_VERSION "0.2.0"
+#define RSPEAK_VERSION "0.2.0"
 
 /* Lunghezza massima del testo di un messaggio, in byte: la finestra del
  * desktop lo riceve come argomento di zenity, e Linux non accetta un
  * argomento oltre 128 KiB. */
-#define AMS_MAX_BYTES 65536
+#define RSPEAK_MAX_BYTES 65536
 /* Un messaggio salvato (intestazione più testo) non supera mai questa
  * misura: chi legge un file più grande lo rifiuta. */
-#define AMS_MAX_MSG (AMS_MAX_BYTES + 8192)
+#define RSPEAK_MAX_MSG (RSPEAK_MAX_BYTES + 8192)
 
 #define ATTR_PRINTF(a, b) __attribute__((format(printf, a, b)))
 #define ATTR_NORETURN __attribute__((noreturn))
 
 /* ---- ambiente ---- */
 
-/* Impostati da ams_init: cartelle e modalità di prova. */
-extern const char *ams_var;       /* archivio: AMS_VAR o /var/lib/ams */
-extern const char *ams_libdir;    /* dove sta ams-user: AMS_LIB o LIBDIR */
-extern const char *ams_localedir; /* dove stanno i .mo: AMS_LOCALEDIR o LOCALEDIR */
-extern const char *ams_conf_path; /* configurazione: AMS_CONF o /etc/ams/ams.conf */
-extern bool ams_test;             /* AMS_TEST=1: prova senza root */
-extern const char *ams_nome;      /* prefisso degli errori: «ams» o «ams-user» */
+/* Impostati da rspeak_init: cartelle e modalità di prova. */
+extern const char *rspeak_var;       /* archivio: RSPEAK_VAR o /var/lib/rootspeak */
+extern const char *rspeak_libdir;    /* dove sta rootspeak-user: RSPEAK_LIB o LIBDIR */
+extern const char *rspeak_localedir; /* dove stanno i .mo: RSPEAK_LOCALEDIR o LOCALEDIR */
+extern const char *rspeak_conf_path; /* configurazione: RSPEAK_CONF o /etc/rootspeak/rootspeak.conf */
+extern bool rspeak_test;             /* RSPEAK_TEST=1: prova senza root */
+extern const char *rspeak_nome;      /* prefisso degli errori: «rspeak» o «rootspeak-user» */
 
-void ams_init(const char *nome);
+void rspeak_init(const char *nome);
 
 /* ---- errori e memoria ---- */
 

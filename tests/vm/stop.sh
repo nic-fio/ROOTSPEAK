@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Gira sul server delle prove: spegne la VM di prova e ne cancella il disco di lavoro.
 #   stop.sh CARTELLA_VM
 DIR=$1

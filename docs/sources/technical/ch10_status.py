@@ -26,13 +26,13 @@ DECIDE = fig(
     900, 330, "«FIG» — stato_destinatario: a recipient's state, deduced from the files", "How the state is decided")
 
 S1 = p("A recipient's state is not written anywhere: " + c("stato_destinatario") + " in "
-       + c("src/ams.c") + " deduces it every time from " + c("sent/ID/delivery") + ", from the confirmation in the "
+       + c("src/rspeak.c") + " deduces it every time from " + c("sent/ID/delivery") + ", from the confirmation in the "
        "mailbox and from the reference copy. The expiry and revocation that count are <b>root's</b>, not those of the "
        "copy, which the user might have altered.", lead=True) + DECIDE + table(["Condition", "State",
-                                                                                 "Line in ams status"], [
+                                                                                 "Line in rspeak status"], [
     ["no line for U in " + c("delivery"), "sent", "«inviato, non consegnato» (“sent, not delivered”); if there is "
-     + c("incomplete") + ": «…: la copia non è stata scritta (vedi il registro; il prossimo comando ams riproverà)» "
-     "(“…: the copy could not be written (see the log; the next ams command will retry)”)"],
+     + c("incomplete") + ": «…: la copia non è stata scritta (vedi il registro; il prossimo comando rspeak riproverà)» "
+     "(“…: the copy could not be written (see the log; the next rspeak command will retry)”)"],
     ["line in " + c("delivery") + ", no confirmation", "delivered", "«consegnato» (“delivered”), plus the details: "
      "«scritto su N terminali» (“written to N terminals”), «rimandato il …» (“postponed on …”); or «non confermato "
      "(ritirato)» (“not confirmed (revoked)”) or «(scaduto)» (“(expired)”)"],
@@ -53,7 +53,7 @@ S1 = p("A recipient's state is not written anywhere: " + c("stato_destinatario")
     "confirmation was late, its date and channel.",
 ])
 
-LETTURA = seq([("ams (root)", "list, status, TUI", "navy"), ("child as U", "op_leggi, 20 s", "dark"),
+LETTURA = seq([("rspeak (root)", "list, status, TUI", "navy"), ("child as U", "op_leggi, 20 s", "dark"),
                ("Mailbox U", "users/U", "blue")], [
     (0, 1, "IDs from sent/, one per line"),
     (1, 2, "acks/ID: at most 200 bytes"),
@@ -62,14 +62,14 @@ LETTURA = seq([("ams (root)", "list, status, TUI", "navy"), ("child as U", "op_l
     ("nota", 0, "pulisci then casella_da_testo"),
 ], "«FIG» — A mailbox is read once, as the user", "Reading the mailboxes")
 
-S2 = p(c("ams status") + " and " + c("ams list") + " read the confirmations from the mailboxes, which the users "
+S2 = p(c("rspeak status") + " and " + c("rspeak list") + " read the confirmations from the mailboxes, which the users "
        "control. " + c("leggi_casella") + " in " + c("src/archivio.c") + " treats them as <b>untrusted data</b> and "
        "reads them <b>once per user</b>, in a single child process.", lead=True) + LETTURA + ul([
     "The child receives on stdin the numbers of the messages that exist in " + c("sent/") + " and looks only for "
-    "those: thousands of fake files in " + c("acks/") + " do not matter (5000 files: " + c("ams list") + " under a "
+    "those: thousands of fake files in " + c("acks/") + " do not matter (5000 files: " + c("rspeak list") + " under a "
     "second, " + c("tests/engine.sh") + " group 9; before the fix, 3.9 s).",
     "Of " + c("acks/ID") + " it reads at most 200 bytes, and only if it is a regular file opened without blocking: a "
-    "pipe in place of the confirmation does not block " + c("ams status") + " (group 9).",
+    "pipe in place of the confirmation does not block " + c("rspeak status") + " (group 9).",
     "Of " + c("state/ID.*") + " it reads the most recent modification date: that is the time of the postponement.",
     "The child's output (at most 4 MiB) goes through " + c("pulisci") + " before it is interpreted: a confirmation "
     "forged with escape sequences does not reach the administrator's terminal (scenario G3).",
@@ -77,7 +77,7 @@ S2 = p(c("ams status") + " and " + c("ams list") + " read the confirmations from
     + c("caselle_svuota") + "). Deliveries are read once per message (" + c("leggi_consegne") + ").",
 ])
 
-S3 = p("In the list of messages, in " + c("ams list") + " and in the TUI, a message is summarised <b>by its "
+S3 = p("In the list of messages, in " + c("rspeak list") + " and in the TUI, a message is summarised <b>by its "
        "recipients</b>: how many are in each of the three states, in words and with a bar, plus the properties "
        "revoked and expired. No other word describes the state of a message (" + cap(20, 3) + ").", lead=True) + \
     code("""typedef struct {
@@ -85,7 +85,7 @@ S3 = p("In the list of messages, in " + c("ams list") + " and in the TUI, a mess
 	msg_t m;                              /* il messaggio letto da sent/ID/msg */
 	int confermato, consegnato, inviato;  /* i destinatari nei tre stati */
 	bool ritirato, scaduto;               /* proprietà del messaggio */
-} riassunto_t;""", "c", "src/ams.h") + table(["Function", "What it does"], [
+} riassunto_t;""", "c", "src/rspeak.h") + table(["Function", "What it does"], [
     [c("riassumi(id, r)"), "reads message, recipients, deliveries and revocation date <b>before</b> counting; "
      "false if the message no longer exists, has no recipients or if the send was cancelled (" + c("failed") + ")"],
     [c("riassunto_frase(r, out)"), "«14 confermato · 5 consegnato · 2 inviato» (“14 confirmed · 5 delivered · 2 "
@@ -94,16 +94,16 @@ S3 = p("In the list of messages, in " + c("ams list") + " and in the TUI, a mess
      + c("░") + " sent (red); a single sent recipient still gets at least one mark"],
 ], "«TAB» — Summarising a message") + \
     note("the phrase always uses the name of the state («5 consegnato», “5 delivered”), not an adjective agreeing in "
-         "number: it is the same word as in the STATO (STATE) column of " + c("ams status") + ", in every language.")
+         "number: it is the same word as in the STATO (STATE) column of " + c("rspeak status") + ", in every language.")
 
-LIST = ("admin@server:~$ sudo ams list\n"
+LIST = ("admin@server:~$ sudo rspeak list\n"
         "ID    DATA         TESTO                                     DESTINATARI\n"
         "1     30/09 16:55  Stanotte alle 23 il server di posta vien  tutti confermato (3)\n"
         "2     30/09 16:55  Sabato dalle 8 alle 12 il server sarà sp  4 confermato · 3 consegnato · 1 inviato\n"
         "3     30/09 16:55  Il tuo account scade venerdì: passa dall  1 consegnato\n"
         "4     30/09 16:55  [ritirato] Riavvio alle 13:00.            2 consegnato")
 
-STATUS = ("admin@server:~$ sudo ams status 2\n"
+STATUS = ("admin@server:~$ sudo rspeak status 2\n"
           "Messaggio 2 · Manutenzione · 30/09 16:55 · da root\n"
           "  │ Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi.\n"
           "  │ Salvate il lavoro entro venerdì sera.\n"
@@ -120,7 +120,7 @@ STATUS = ("admin@server:~$ sudo ams status 2\n"
 
 S4 = p("The two query commands show the same state at two levels: the list of messages and the detail "
        "of one. Both run recovery first; after that, only reads, without locks.", lead=True) + \
-    term(LIST, "ams list: one message per line (the messages in the screenshots of chapter 14). Columns DATA (DATE), "
+    term(LIST, "rspeak list: one message per line (the messages in the screenshots of chapter 14). Columns DATA (DATE), "
          "TESTO (TEXT), DESTINATARI (RECIPIENTS); the texts «Stanotte alle 23 il server di posta viene aggiornato» "
          "(“Tonight at 23:00 the mail server is updated”), «Sabato dalle 8 alle 12 il server sarà spento…» (“On "
          "Saturday from 8 to 12 the server will be switched off…”), «Il tuo account scade venerdì: passa dall'ufficio "
@@ -130,7 +130,7 @@ S4 = p("The two query commands show the same state at two levels: the list of me
     + c("[ritirato]") + " (“[revoked]”) and " + c("[scaduto]") + " (“[expired]”)), the summary phrase.",
     "A cancelled send appears as «[invio annullato: interrotto prima del salvataggio]» (“[send cancelled: interrupted "
     "before it was saved]”): it reports an internal marker, not a state.",
-]) + term(STATUS, "ams status: one recipient per line. «Messaggio 2 · Manutenzione · 30/09 16:55 · da root» (“Message "
+]) + term(STATUS, "rspeak status: one recipient per line. «Messaggio 2 · Manutenzione · 30/09 16:55 · da root» (“Message "
           "2 · Maintenance · 30/09 16:55 · from root”), the text «Sabato dalle 8 alle 12 il server sarà spento per la "
           "manutenzione dei dischi. Salvate il lavoro entro venerdì sera.» (“On Saturday from 8 to 12 the server will "
           "be switched off for disk maintenance. Save your work by Friday evening.”), columns UTENTE (USER) and STATO "
@@ -143,12 +143,12 @@ S4 = p("The two query commands show the same state at two levels: the list of me
     "messaggio N è stato annullato: l'invio si era interrotto prima del salvataggio» (“message N was cancelled: "
     "sending was interrupted before it was saved”).",
 ]) + p("Times measured in the last recorded run (scenarios H2 and H3, 10 messages to 58 recipients "
-       "on the test machine): " + c("ams list") + " 0.24 s, " + c("ams status") + " 0.28 s. In the prototype, "
-       "before reading per user, " + c("ams list") + " took about 6 s.")
+       "on the test machine): " + c("rspeak list") + " 0.24 s, " + c("rspeak status") + " 0.28 s. In the prototype, "
+       "before reading per user, " + c("rspeak list") + " took about 6 s.")
 
 CHAPTER = ("State: list, status and the summary", [
     ("The state deduced from the files", S1),
     ("Reading the mailboxes", S2),
     ("A message's summary", S3),
-    ("ams list and ams status", S4),
+    ("rspeak list and rspeak status", S4),
 ])

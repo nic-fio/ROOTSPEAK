@@ -1,5 +1,5 @@
-/* AMS - Advanced Messaging System
- * Guida integrata di ams --help, sul modello di MTERM: guida interattiva a
+/* RootSpeak - Advanced Messaging System for Linux
+ * Guida integrata di rspeak --help, sul modello di MTERM: guida interattiva a
  * schede in un terminale; con un terminale più piccolo di 44x10, pagina in
  * stile manuale con un pager; se l'uscita non è un terminale, testo semplice.
  *
@@ -35,7 +35,7 @@ static const char *const COMANDI[] = {
 	NC_("guida-comandi", "remind ID¦Reminds whoever has not confirmed yet: the question comes back at their next prompt and the dialog reappears on the desktop, even if they had postponed it."),
 	NC_("guida-comandi", "log ID¦Shows the history of the message from the system log: sending, deliveries, postponements, confirmations and revocation, with date and time."),
 	NC_("guida-comandi", "purge DURATION¦Deletes the messages sent more than DURATION ago (for example 90d), with the copies and confirmations in the users' mailboxes; the events stay in the system log."),
-	NC_("guida-comandi", "version¦Shows the AMS version."),
+	NC_("guida-comandi", "version¦Shows the RootSpeak version."),
 	NC_("guida-comandi", "help, --help, -h¦Shows this guide."),
 };
 
@@ -47,46 +47,46 @@ static const char *const OPZIONI[] = {
 };
 
 static const char *const ESEMPI[] = {
-	NC_("guida-esempi", "ams send --to mario \"Your account expires on Friday.\"¦Message with read confirmation to a single user."),
-	NC_("guida-esempi", "ams send --to @developers --title Maintenance --file notice.txt¦Text taken from a file, with a title, to every member of the developers group."),
-	NC_("guida-esempi", "ams send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to whoever is logged in now; after 15 minutes it is no longer shown or asked about."),
-	NC_("guida-esempi", "ams send --to all --expires 3d \"New password policy.\"¦To every user; after three days it stops being shown."),
-	NC_("guida-esempi", "ams list¦Which messages were sent and how many confirmations they have."),
-	NC_("guida-esempi", "ams status 12¦Who confirmed message 12, when and from where."),
-	NC_("guida-esempi", "ams log 12¦The history of message 12: sending, deliveries, postponements, confirmations."),
-	NC_("guida-esempi", "ams purge 90d¦Deletes the messages older than 90 days, with copies and confirmations."),
-	NC_("guida-esempi", "ams revoke 12¦Revokes message 12."),
-	NC_("guida-esempi", "ams remind 12¦Asks again, right now, whoever has not confirmed message 12."),
+	NC_("guida-esempi", "rspeak send --to mario \"Your account expires on Friday.\"¦Message with read confirmation to a single user."),
+	NC_("guida-esempi", "rspeak send --to @developers --title Maintenance --file notice.txt¦Text taken from a file, with a title, to every member of the developers group."),
+	NC_("guida-esempi", "rspeak send --to online --expires 15m \"Reboot at 13:00.\"¦Urgent notice to whoever is logged in now; after 15 minutes it is no longer shown or asked about."),
+	NC_("guida-esempi", "rspeak send --to all --expires 3d \"New password policy.\"¦To every user; after three days it stops being shown."),
+	NC_("guida-esempi", "rspeak list¦Which messages were sent and how many confirmations they have."),
+	NC_("guida-esempi", "rspeak status 12¦Who confirmed message 12, when and from where."),
+	NC_("guida-esempi", "rspeak log 12¦The history of message 12: sending, deliveries, postponements, confirmations."),
+	NC_("guida-esempi", "rspeak purge 90d¦Deletes the messages older than 90 days, with copies and confirmations."),
+	NC_("guida-esempi", "rspeak revoke 12¦Revokes message 12."),
+	NC_("guida-esempi", "rspeak remind 12¦Asks again, right now, whoever has not confirmed message 12."),
 };
 
 static const char *const FILES[] = {
-	NC_("guida-file", "/etc/ams/ams.conf¦Configuration: minutes before a postponed message is asked about again, check interval of the desktop agent."),
-	NC_("guida-file", "/var/lib/ams/¦The messages: sent/ (reference copies, root only) and users/USER/ (each user's mailbox, readable only by them and by root)."),
-	NC_("guida-file", "sudo journalctl -t ams¦The system log: sending, deliveries, confirmations and revocations."),
-	NC_("guida-file", "/usr/local/share/doc/ams/User Manual.html¦The complete user manual, to open in a browser."),
+	NC_("guida-file", "/etc/rootspeak/rootspeak.conf¦Configuration: minutes before a postponed message is asked about again, check interval of the desktop agent."),
+	NC_("guida-file", "/var/lib/rootspeak/¦The messages: sent/ (reference copies, root only) and users/USER/ (each user's mailbox, readable only by them and by root)."),
+	NC_("guida-file", "sudo journalctl -t rspeak¦The system log: sending, deliveries, confirmations and revocations."),
+	NC_("guida-file", "/usr/local/share/doc/rootspeak/User Manual.html¦The complete user manual, to open in a browser."),
 };
 
 static const char *const SINTASSI[] = {
-	NC_("guida-sintassi", "ams send --to DEST [options] [TEXT]"),
-	NC_("guida-sintassi", "ams list"),
-	NC_("guida-sintassi", "ams status ID"),
-	NC_("guida-sintassi", "ams"),
-	NC_("guida-sintassi", "ams revoke ID"),
-	NC_("guida-sintassi", "ams remind ID"),
-	NC_("guida-sintassi", "ams log ID"),
-	NC_("guida-sintassi", "ams purge DURATION"),
-	NC_("guida-sintassi", "ams version"),
+	NC_("guida-sintassi", "rspeak send --to DEST [options] [TEXT]"),
+	NC_("guida-sintassi", "rspeak list"),
+	NC_("guida-sintassi", "rspeak status ID"),
+	NC_("guida-sintassi", "rspeak"),
+	NC_("guida-sintassi", "rspeak revoke ID"),
+	NC_("guida-sintassi", "rspeak remind ID"),
+	NC_("guida-sintassi", "rspeak log ID"),
+	NC_("guida-sintassi", "rspeak purge DURATION"),
+	NC_("guida-sintassi", "rspeak version"),
 };
 
 #define N(a) (sizeof(a) / sizeof((a)[0]))
 
 static const char *descrizione(void)
 {
-	return TC("guida", "AMS lets administrators send text messages to the users of the machine and know who has read them. "
+	return TC("guida", "RootSpeak lets administrators send text messages to the users of the machine and know who has read them. "
 			   "Messages appear in terminals (console, ssh, desktop terminals, tmux) and on the desktop, in a dialog "
 			   "with the buttons «I have read it» and «Later»; whoever is not logged in finds them at the next login. "
-			   "Every message asks for a read confirmation and AMS asks again until the user gives it, without ever "
-			   "blocking their work. Each user sees AMS in their own language. The command is reserved to "
+			   "Every message asks for a read confirmation and RootSpeak asks again until the user gives it, without ever "
+			   "blocking their work. Each user sees RootSpeak in their own language. The command is reserved to "
 			   "administrators (sudo or wheel group) and re-runs itself with sudo.");
 }
 
@@ -215,9 +215,9 @@ static void pagina(FILE *f, bool colore, int larghezza)
 		}                                                                                                      \
 	} while (0)
 
-	TRE("AMS(1)", T("ams manual"), "AMS(1)");
+	TRE("RSPEAK(1)", T("rspeak manual"), "RSPEAK(1)");
 	TITOLO(T("NAME"));
-	PARA(T("ams — sends messages to the users of the machine and tracks their read confirmation"), 7);
+	PARA(T("rspeak — sends messages to the users of the machine and tracks their read confirmation"), 7);
 	TITOLO(T("SYNOPSIS"));
 	for (size_t k = 0; k < N(SINTASSI); k++) {
 		const char *e = TC("guida-sintassi", SINTASSI[k]);
@@ -238,7 +238,7 @@ static void pagina(FILE *f, bool colore, int larghezza)
 	TITOLO(T("ENVIRONMENT"));
 	fprintf(f, "%s%sPAGER%s\n", ti, G_, R_);
 	PARA(T("Pager used to page this guide when the terminal is too small for the interactive one (default: less). "
-	       "Like NO_COLOR, it reaches ams only if sudo keeps it (env_keep in sudoers)."),
+	       "Like NO_COLOR, it reaches rspeak only if sudo keeps it (env_keep in sudoers)."),
 	     di);
 	fprintf(f, "%s%sNO_COLOR%s\n", ti, G_, R_);
 	PARA(T("If set, disables colours."), di);
@@ -246,12 +246,12 @@ static void pagina(FILE *f, bool colore, int larghezza)
 	fprintf(f, "%s%s0%s\n", ti, G_, R_);
 	PARA(T("Completed successfully."), di);
 	fprintf(f, "%s%s1%s\n", ti, G_, R_);
-	PARA(T("Error: the error message, starting with «ams:», says which."), di);
+	PARA(T("Error: the error message, starting with «rspeak:», says which."), di);
 	TITOLO(T("SEE ALSO"));
-	PARA(T("wall(1), write(1), and the user manual in /usr/local/share/doc/ams/User Manual.html"), 7);
+	PARA(T("wall(1), write(1), and the user manual in /usr/local/share/doc/rootspeak/User Manual.html"), 7);
 	fputc('\n', f);
-	s = xasprintf("ams %s", AMS_VERSION);
-	TRE(s, "", "AMS(1)");
+	s = xasprintf("rspeak %s", RSPEAK_VERSION);
+	TRE(s, "", "RSPEAK(1)");
 	free(s);
 #undef TRE
 #undef TITOLO
@@ -334,7 +334,7 @@ static riga_t *righe_scheda(int s, int interno, size_t *n)
 	switch (s) {
 	case 0:
 		aggiungi(&r, n, 'H', T("NAME"));
-		x = xasprintf("   %s", T("ams — messages to users with read confirmation"));
+		x = xasprintf("   %s", T("rspeak — messages to users with read confirmation"));
 		aggiungi(&r, n, 'T', x);
 		free(x);
 		aggiungi(&r, n, 'T', "");
@@ -352,8 +352,8 @@ static riga_t *righe_scheda(int s, int interno, size_t *n)
 		strv_free(&w);
 		aggiungi(&r, n, 'T', "");
 		{
-			char *m = xasprintf(T("AMS %s · complete manual: /usr/local/share/doc/ams/User Manual.html"),
-					    AMS_VERSION);
+			char *m = xasprintf(T("RootSpeak %s · complete manual: /usr/local/share/doc/rootspeak/User Manual.html"),
+					    RSPEAK_VERSION);
 
 			x = xasprintf("   %s", m);
 			free(m);
@@ -457,7 +457,7 @@ static int disegna(void)
 	off = scorri[scheda];
 
 	buf_adds(&out, "\033[H");
-	bordo(&out, "┌", "┐", T("ams — guide"));
+	bordo(&out, "┌", "┐", T("rspeak — guide"));
 	buf_adds(&out, "\n");
 	for (int i = 0; i < 5; i++) {
 		const char *nome = nome_scheda(i);
@@ -677,7 +677,7 @@ static bool nel_path(const char *prog)
 	return trovato;
 }
 
-void ams_guida(void)
+void rspeak_guida(void)
 {
 	bool colore = !getenv("NO_COLOR");
 	int righe = 0, colonne = 80;

@@ -19,7 +19,9 @@ Fallisce se:
   - un catalogo po/*.po non passa msgfmt --check (stessi %s dell'originale),
     ha traduzioni da rivedere, o manca di testi presenti nei sorgenti;
   - l'ultima esecuzione di tests/engine.sh non ha l'impronta del codice
-    attuale (tools/fingerprint.sh) o ha controlli falliti.
+    attuale (tools/fingerprint.sh) o ha controlli falliti;
+  - il vecchio nome del prodotto (AMS, ams) ricompare in un file del
+    repository, nel contenuto o nel nome, fuori dalla storia delle decisioni.
 """
 import html
 import importlib.util
@@ -58,7 +60,7 @@ tech = TECH.read_text()
 # ---- testi di partenza, estratti ora dal codice ----
 import subprocess
 with tempfile.TemporaryDirectory() as tmp:
-    pot = pathlib.Path(tmp) / "ams.pot"
+    pot = pathlib.Path(tmp) / "rootspeak.pot"
     subprocess.run(["xgettext", "--from-code=UTF-8", "-k", "-kT", "-kN_", "-kTC:1c,2", "-kNC_:1c,2", "-ktl:2",
                     "-ktlc:2c,3", "-o", str(pot)] + sorted(str(p) for p in (ROOT / "src").glob("*.c")),
                    check=True, capture_output=True)
@@ -67,10 +69,10 @@ sorgenti = {(c, m) for c, m, _ in estratte if m}
 
 # ---- riferimento ----
 # Il manuale utente è in inglese: le sue voci si confrontano con i testi di partenza
-# inglesi della guida così come sono ora in src/guida.c, non con po/ams.pot da cui il
-# generatore le legge (un ams.pot vecchio fa quindi fallire il controllo: make pot).
+# inglesi della guida così come sono ora in src/guida.c, non con po/rootspeak.pot da cui il
+# generatore le legge (un rootspeak.pot vecchio fa quindi fallire il controllo: make pot).
 wanted = {}
-for name in ("AMS_HELP_COMMANDS", "AMS_HELP_OPTIONS"):
+for name in ("RSPEAK_HELP_COMMANDS", "RSPEAK_HELP_OPTIONS"):
     for c, m, _ in estratte:
         if c == build.GUIDA_CONTESTI[name]:
             f, d = m.split("¦", 1)
@@ -108,7 +110,7 @@ js = (DOCS / "sources" / "manual.js").read_text()
 for where, text, title in (("manuale utente", user, "User Manual"), ("manuale tecnico", tech, "Technical Manual")):
     if f"<span>Version</span><b>{version}</b>" not in text:
         errors.append(f"{where}: la copertina non riporta la versione {version}")
-    if f"AMS · {title} · Version {version} · " not in text:
+    if f"RootSpeak · {title} · Version {version} · " not in text:
         errors.append(f"{where}: il piè di pagina non riporta la versione {version}")
     if not text.split("<style>", 1)[-1].startswith(css):
         errors.append(f"{where}: il blocco <style> non comincia con docs/sources/style.css")
@@ -142,6 +144,29 @@ if not eng.exists() or json.loads(eng.read_text()).get("impronta") != build.impr
     errors.append("prove: tests/engine.sh non è stato eseguito sul codice attuale (impronta diversa): lanciarlo")
 elif json.loads(eng.read_text()).get("no"):
     errors.append("prove: l'ultima esecuzione di tests/engine.sh ha controlli falliti")
+
+# ---- vecchio nome ----
+# Il prodotto si chiamava AMS fino al 1° ottobre 2026: il nome sopravvive solo come
+# storia. Ammessi: la storia delle decisioni, CLAUDE.md («formerly AMS»), questo
+# controllo, il commento d'origine dello stile comune (identico nei 7 progetti) e i
+# titoli delle due revisioni critiche, citati così come sono stati ricevuti.
+OLD = re.compile(r"(?<![A-Za-z0-9])(AMS|ams)(?![A-Za-z0-9])")
+OLD_FILES = {"docs/decisions-and-history.md", "CLAUDE.md", "tools/check-docs.py"}
+OLD_LINES = ("/* Base: style.css di AMS */", "- **Revisione ")
+tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+for f in filter(None, tracked):
+    if OLD.search(f):
+        errors.append(f"vecchio nome: il file {f} va rinominato")
+    if f in OLD_FILES:
+        continue
+    try:
+        text = (ROOT / f).read_text()
+    except (UnicodeDecodeError, FileNotFoundError):
+        continue
+    for n, line in enumerate(text.splitlines(), 1):
+        line = re.sub(r"base64,[A-Za-z0-9+/=]+", "", line)
+        if OLD.search(line) and not line.lstrip().startswith(OLD_LINES):
+            errors.append(f"vecchio nome: {f}:{n}: {line.strip()[:80]}")
 
 if errors:
     print("\n".join(errors))

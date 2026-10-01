@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Gira sul server delle prove. Costruisce una volta il disco base della VM di
 # prova (Debian 13 + GNOME, utenti, login automatico di sara): al primo avvio
 # cloud-init installa e configura tutto, poi la VM si spegne. Le esecuzioni dei
@@ -15,13 +15,13 @@ cd "$DIR"
 
 chiavi=$(sed '/^$/d; s/.*/"&"/' "$CHIAVI_FILE" | paste -sd, -)
 sed "s|@CHIAVI@|$chiavi|" "$QUI/user-data.tpl" >user-data
-printf 'instance-id: ams-desktop-%s\nlocal-hostname: ams-desktop\n' "$(date +%s)" >meta-data
+printf 'instance-id: rootspeak-desktop-%s\nlocal-hostname: rootspeak-desktop\n' "$(date +%s)" >meta-data
 genisoimage -quiet -output seed.iso -volid cidata -joliet -rock user-data meta-data
 
 rm -f base.qcow2 prepare.log
 qemu-img create -q -f qcow2 -b $BASE -F qcow2 base.qcow2 24G
 echo "installazione nella VM (GNOME): richiede alcuni minuti…"
-timeout 3600 qemu-system-x86_64 -enable-kvm -cpu host -m 8G -smp 6 -name ams-prepara \
+timeout 3600 qemu-system-x86_64 -enable-kvm -cpu host -m 8G -smp 6 -name rootspeak-prepara \
 	-drive file=base.qcow2,if=virtio -drive file=seed.iso,media=cdrom,readonly=on \
 	-nic user,model=virtio-net-pci -display none -vga virtio -serial file:prepare.log
 if grep -q "Cloud-init v.* finished" prepare.log; then

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Scelta della lingua e lettore dei cataloghi .mo di gettext. */
 #include "lingua.h"
 
@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char ams_lingua[LINGUA_MAX] = "en";
+char rspeak_lingua[LINGUA_MAX] = "en";
 
 /* ---- cataloghi .mo ----
  * Formato: numero magico 0x950412de, revisione, N, posizione della tabella
@@ -136,7 +136,7 @@ static bool codice_valido(const char *s)
 
 static char *percorso_mo(const char *lingua)
 {
-	return xasprintf("%s/%s/LC_MESSAGES/ams.mo", ams_localedir, lingua);
+	return xasprintf("%s/%s/LC_MESSAGES/rootspeak.mo", rspeak_localedir, lingua);
 }
 
 static catalogo_t *catalogo(const char *lingua)
@@ -197,12 +197,12 @@ const char *tlc(const char *lingua, const char *ctx, const char *msgid)
 
 const char *T(const char *msgid)
 {
-	return tl(ams_lingua, msgid);
+	return tl(rspeak_lingua, msgid);
 }
 
 const char *TC(const char *ctx, const char *msgid)
 {
-	return tlc(ams_lingua, ctx, msgid);
+	return tlc(rspeak_lingua, ctx, msgid);
 }
 
 /* ---- scelta della lingua ---- */
@@ -324,5 +324,5 @@ const char *lingua_sistema(void)
 
 void lingua_init(void)
 {
-	lingua_scegli(getenv("LANGUAGE"), getenv("LC_ALL"), getenv("LC_MESSAGES"), getenv("LANG"), ams_lingua);
+	lingua_scegli(getenv("LANGUAGE"), getenv("LC_ALL"), getenv("LC_MESSAGES"), getenv("LANG"), rspeak_lingua);
 }

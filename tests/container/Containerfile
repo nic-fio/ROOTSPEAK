@@ -1,7 +1,7 @@
-# AMS - Advanced Messaging System
-# Macchina di prova: Debian 13 con systemd acceso (logind, sshd), per provare AMS
+# RootSpeak - Advanced Messaging System for Linux
+# Macchina di prova: Debian 13 con systemd acceso (logind, sshd), per provare RootSpeak
 # dal vero come root, con utenti e sessioni reali. Non tocca il sistema su cui gira.
-#   podman build -t ams-prova -f tests/container/Containerfile tests/container
+#   podman build -t rootspeak-prova -f tests/container/Containerfile tests/container
 FROM docker.io/library/debian:trixie
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

@@ -3,7 +3,7 @@
 Completano quelle di docs/sources/screens/ (prese nella macchina di prova da
 tools/tui-screenshots.sh) con le finestre sovrapposte della TUI (tasti, ritiro,
 pulizia, ricerca) e con la guida integrata. Prepara un archivio di prova con
-tre messaggi per due utenti della macchina, apre ams su un terminale virtuale,
+tre messaggi per due utenti della macchina, apre rspeak su un terminale virtuale,
 preme i tasti e salva ogni schermata con i suoi colori.
 
     make
@@ -17,12 +17,12 @@ import fcntl, os, pathlib, pty, select, shutil, struct, subprocess, tempfile, te
 OUT = pathlib.Path(__file__).resolve().parent
 ROOT = OUT.parents[3]
 UTENTI = ("nicfio", "user")
-VAR = tempfile.mkdtemp(prefix="ams-schermate-")
-env = dict(os.environ, AMS_TEST="1", AMS_CONF="/dev/null", AMS_TEST_TTY="", AMS_LIB=f"{ROOT}/build",
-           AMS_LOCALEDIR=f"{ROOT}/build/locale", LANG="it_IT.UTF-8", AMS_VAR=f"{VAR}/var", TERM="xterm-256color")
+VAR = tempfile.mkdtemp(prefix="rootspeak-schermate-")
+env = dict(os.environ, RSPEAK_TEST="1", RSPEAK_CONF="/dev/null", RSPEAK_TEST_TTY="", RSPEAK_LIB=f"{ROOT}/build",
+           RSPEAK_LOCALEDIR=f"{ROOT}/build/locale", LANG="it_IT.UTF-8", RSPEAK_VAR=f"{VAR}/var", TERM="xterm-256color")
 for k in ("LC_ALL", "LC_MESSAGES", "LANGUAGE", "NO_COLOR"):
     env.pop(k, None)
-A = f"{ROOT}/build/ams"
+A = f"{ROOT}/build/rspeak"
 
 
 def sh(*a):
@@ -44,7 +44,7 @@ for u, mid, ch in ((u1, 1, "desktop"), (u2, 1, "terminale pts/1"), (u1, 2, "desk
 MODO = os.environ.get("MODO", "tui")
 pid, fd = pty.fork()
 if pid == 0:
-    os.execve(A, ["ams"] if MODO == "tui" else ["ams", "--help"], env)
+    os.execve(A, ["rspeak"] if MODO == "tui" else ["rspeak", "--help"], env)
 righe, colonne = (30, 116) if MODO == "tui" else (22, 78)
 fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", righe, colonne, 0, 0))
 

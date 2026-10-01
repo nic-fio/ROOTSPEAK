@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Destinatari e sessioni, da passwd, group e logind. */
 #include "sessioni.h"
 
@@ -100,12 +100,12 @@ bool membri_gruppo(const char *gruppo, strv_t *out)
 
 void terminali_utente(uid_t uid, strv_t *out)
 {
-	const char *prova = getenv("AMS_TEST_TTY");
+	const char *prova = getenv("RSPEAK_TEST_TTY");
 	char **sessioni = NULL;
 	DIR *d;
 	int n;
 
-	if (ams_test) {
+	if (rspeak_test) {
 		if (prova && *prova)
 			strv_add(out, prova);
 		return;

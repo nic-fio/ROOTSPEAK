@@ -1,5 +1,5 @@
 #!/bin/bash
-# AMS - Advanced Messaging System
+# RootSpeak - Advanced Messaging System for Linux
 # Schermate vere della TUI per i manuali: nella macchina di prova (container
 # con utenti e sessioni reali) prepara alcuni messaggi, fa confermare e
 # rimandare gli utenti, apre la TUI come root su un terminale virtuale di
@@ -8,27 +8,27 @@
 #   tools/tui-screenshots.sh        (dopo make; usa l'immagine di tests/container)
 set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-NOME=ams-schermate
+NOME=rootspeak-schermate
 OUT=$ROOT/docs/sources/screens
 mkdir -p "$OUT"
-podman image exists ams-prova || podman build -q -t ams-prova -f "$ROOT/tests/container/Containerfile" "$ROOT/tests/container" >/dev/null
+podman image exists rootspeak-prova || podman build -q -t rootspeak-prova -f "$ROOT/tests/container/Containerfile" "$ROOT/tests/container" >/dev/null
 podman rm -f $NOME >/dev/null 2>&1
-podman run -d --name $NOME --systemd=always -v "$ROOT:/opt/ams-src:ro,Z" -v "$OUT:/opt/schermate:Z" ams-prova >/dev/null || exit 1
+podman run -d --name $NOME --systemd=always -v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$OUT:/opt/schermate:Z" rootspeak-prova >/dev/null || exit 1
 trap 'podman rm -f $NOME >/dev/null 2>&1' EXIT
 for i in $(seq 1 30); do
 	s=$(podman exec $NOME systemctl is-system-running 2>/dev/null)
 	[ "$s" = running ] || [ "$s" = degraded ] && break
 	sleep 1
 done
-podman exec $NOME /opt/ams-src/install.sh >/dev/null 2>&1
+podman exec $NOME /opt/rootspeak-src/install.sh >/dev/null 2>&1
 podman exec -i -e LANG=it_IT.UTF-8 -e TERM=xterm-256color $NOME python3 - <<'PY'
 import fcntl, os, pty, select, struct, subprocess, termios, time
 
 def sh(c):
     return subprocess.run(c, shell=True, capture_output=True, text=True)
 
-A = "/usr/local/bin/ams"
-V = "/var/lib/ams"
+A = "/usr/local/bin/rspeak"
+V = "/var/lib/rootspeak"
 sh(f'{A} send --to @sviluppo,luca --expires 1d --title "Aggiornamento del server" "Stanotte alle 23 il server di posta viene aggiornato."')
 sh(f'{A} send --to all --title Manutenzione "Sabato dalle 8 alle 12 il server sarà spento per la manutenzione dei dischi.\nSalvate il lavoro entro venerdì sera."')
 sh(f'{A} send --to mario "Il tuo account scade venerdì: passa dall\'ufficio IT."')
@@ -51,7 +51,7 @@ sh(f"rm -f {V}/sent/2/delivery.tmp; grep -v '^dario ' {V}/sent/2/delivery > {V}/
 
 pid, fd = pty.fork()
 if pid == 0:
-    os.execvp(A, ["ams"])
+    os.execvp(A, ["rspeak"])
 fcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 116, 0, 0))
 
 def fotogramma(t=1.2):

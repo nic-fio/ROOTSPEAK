@@ -1,7 +1,7 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Destinatari e sessioni (logind). */
-#ifndef AMS_SESSIONI_H
-#define AMS_SESSIONI_H
+#ifndef RSPEAK_SESSIONI_H
+#define RSPEAK_SESSIONI_H
 
 #include "comune.h"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AMS - Advanced Messaging System
+"""RootSpeak - Advanced Messaging System for Linux
 Gira sul server delle prove: cattura lo schermo della VM di prova dal monitor di
 QEMU (formato PPM).    capture.py SOCKET_MONITOR FILE.ppm"""
 import socket

@@ -1,4 +1,4 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Utilità comuni: ambiente, errori, memoria, testi che crescono, file. */
 #include "comune.h"
 
@@ -14,37 +14,37 @@
 #include <unistd.h>
 
 #ifndef LIBDIR
-#define LIBDIR "/usr/local/lib/ams"
+#define LIBDIR "/usr/local/lib/rootspeak"
 #endif
 #ifndef LOCALEDIR
 #define LOCALEDIR "/usr/local/share/locale"
 #endif
 
-const char *ams_var = "/var/lib/ams";
-const char *ams_libdir = LIBDIR;
-const char *ams_localedir = LOCALEDIR;
-const char *ams_conf_path = "/etc/ams/ams.conf";
-bool ams_test = false;
-const char *ams_nome = "ams";
+const char *rspeak_var = "/var/lib/rootspeak";
+const char *rspeak_libdir = LIBDIR;
+const char *rspeak_localedir = LOCALEDIR;
+const char *rspeak_conf_path = "/etc/rootspeak/rootspeak.conf";
+bool rspeak_test = false;
+const char *rspeak_nome = "rspeak";
 
-void ams_init(const char *nome)
+void rspeak_init(const char *nome)
 {
 	const char *v;
 
-	ams_nome = nome;
+	rspeak_nome = nome;
 	/* Le variabili di prova valgono solo in modalità di prova: un programma
 	 * di root non prende cartelle dall'ambiente di chi lo lancia. */
-	v = getenv("AMS_TEST");
-	ams_test = v && *v;
-	if (ams_test) {
-		if ((v = getenv("AMS_VAR")) && *v)
-			ams_var = v;
-		if ((v = getenv("AMS_LIB")) && *v)
-			ams_libdir = v;
-		if ((v = getenv("AMS_LOCALEDIR")) && *v)
-			ams_localedir = v;
-		if ((v = getenv("AMS_CONF")) && *v)
-			ams_conf_path = v;
+	v = getenv("RSPEAK_TEST");
+	rspeak_test = v && *v;
+	if (rspeak_test) {
+		if ((v = getenv("RSPEAK_VAR")) && *v)
+			rspeak_var = v;
+		if ((v = getenv("RSPEAK_LIB")) && *v)
+			rspeak_libdir = v;
+		if ((v = getenv("RSPEAK_LOCALEDIR")) && *v)
+			rspeak_localedir = v;
+		if ((v = getenv("RSPEAK_CONF")) && *v)
+			rspeak_conf_path = v;
 	}
 }
 
@@ -55,7 +55,7 @@ void die(const char *fmt, ...)
 	va_list ap;
 
 	fflush(stdout);
-	fprintf(stderr, "%s: ", ams_nome);
+	fprintf(stderr, "%s: ", rspeak_nome);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
@@ -68,7 +68,7 @@ void avviso(const char *fmt, ...)
 	va_list ap;
 
 	fflush(stdout);
-	fprintf(stderr, "%s: ", ams_nome);
+	fprintf(stderr, "%s: ", rspeak_nome);
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
@@ -397,7 +397,7 @@ static int cmp_num(const void *a, const void *b)
 	const char *x = *(char *const *)a, *y = *(char *const *)b;
 	size_t lx = strlen(x), ly = strlen(y);
 
-	/* sole cifre: più corto = più piccolo (gli zeri iniziali non ci sono nei numeri di AMS) */
+	/* sole cifre: più corto = più piccolo (gli zeri iniziali non ci sono nei numeri di RootSpeak) */
 	if (lx != ly)
 		return lx < ly ? -1 : 1;
 	return strcmp(x, y);

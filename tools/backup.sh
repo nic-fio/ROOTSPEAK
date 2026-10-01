@@ -2,11 +2,11 @@
 # Impacchetta tutto il progetto in un solo file: un git bundle con ogni ramo,
 # ogni tag e la storia completa. Si ripristina senza rete e senza GitHub:
 #
-#     tools/backup.sh ~/backup                 # scrive ams-AAAA-MM-GG.bundle
-#     git clone ams-2026-09-30.bundle AMS
-#     cd AMS && tools/setup-dev.sh --install && make test
+#     tools/backup.sh ~/backup                 # scrive rootspeak-AAAA-MM-GG.bundle
+#     git clone rootspeak-2026-09-30.bundle RootSpeak
+#     cd RootSpeak && tools/setup-dev.sh --install && make test
 #
-# AMS non ha file personali fuori dal repository: il bundle basta. Il disco
+# RootSpeak non ha file personali fuori dal repository: il bundle basta. Il disco
 # base della VM di prova sta sul server delle prove e si rifà con
 # tests/vm/run.sh --prepara.
 set -eu
@@ -14,7 +14,7 @@ set -eu
 DEST=${1:-.}
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 DAY=$(date +%F)
-OUT="$DEST/ams-$DAY.bundle"
+OUT="$DEST/rspeak-$DAY.bundle"
 
 [ -d "$DEST" ] || mkdir -p "$DEST"
 git -C "$ROOT" bundle create "$OUT" --all

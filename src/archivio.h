@@ -1,8 +1,8 @@
-/* AMS - Advanced Messaging System
+/* RootSpeak - Advanced Messaging System for Linux
  * Operazioni sulle caselle degli utenti, eseguite con la loro identità, e
- * scrittura nei terminali. Usate da ams (root). */
-#ifndef AMS_ARCHIVIO_H
-#define AMS_ARCHIVIO_H
+ * scrittura nei terminali. Usate da rspeak (root). */
+#ifndef RSPEAK_ARCHIVIO_H
+#define RSPEAK_ARCHIVIO_H
 
 #include "comune.h"
 #include "utente.h"

@@ -18,8 +18,8 @@ LIVELLI = fig(
            "#475569", "600"),
     900, 318, "«FIG» — The levels of testing", "The tests")
 
-S1 = p("Every statement about how AMS behaves comes from a run. The tests are organised in levels: at the bottom "
-       "the internal parts and the engine, fast and without root; at the top the test machine and the VM, where AMS "
+S1 = p("Every statement about how RootSpeak behaves comes from a run. The tests are organised in levels: at the bottom "
+       "the internal parts and the engine, fast and without root; at the top the test machine and the VM, where RootSpeak "
        "runs as root with real users, sessions and dialogs.", lead=True) + LIVELLI + \
     p("Test figures are never written by hand: each suite records its result together with the commit and the "
       "<b>fingerprint</b> of the code under test (" + c("tools/fingerprint.sh") + ": SHA-256 of " + c("src/") + ", "
@@ -30,7 +30,7 @@ S1 = p("Every statement about how AMS behaves comes from a run. The tests are or
          "in the VM. The VM has no users with zsh, fish, ksh or dash: the shells are tested only in the container.")
 
 S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on a fresh temporary message store for "
-       "each case, with the programs in " + c("build/") + " (or in " + c("AMS_BUILD") + ", for example the sanitizer "
+       "each case, with the programs in " + c("build/") + " (or in " + c("RSPEAK_BUILD") + ", for example the sanitizer "
        "build). Every defect that gets fixed adds checks that fail without the fix.", lead=True) + \
     table(["Group", "Checks"], [
         ["1. confirmations", "normal confirmation; write impossible (the message stays, the user is warned, no "
@@ -42,26 +42,26 @@ S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on 
          "sending in progress (lock held) left alone, then completed without duplicates; sending just started not "
          "cancelled"],
         ["3. states", c("--level") + " rejected; delivered after sending; no level in the message; postponement "
-         "shown as a detail and not asked again at once; confirmed at the next login; " + c("ams list")
+         "shown as a detail and not asked again at once; confirmed at the next login; " + c("rspeak list")
          + " with the recipients in the three states and no invented state; expired shown as «consegnato, non "
          "confermato (scaduto)» (“delivered, not confirmed (expired)”)"],
         ["4. expiry", "the question stops if the message expires while it is open, no confirmation recorded; a "
          "confirmation timed after the expiry of the reference copy is not valid and is not counted"],
         ["5. configuration", "the file is not executed as code; valid values read, invalid, unknown, zero and "
          "negative values ignored; the message declares " + c("format: 1")],
-        ["6. purge", c("ams purge 7d") + " deletes a message from 10 days ago with its copies and confirmations, "
+        ["6. purge", c("rspeak purge 7d") + " deletes a message from 10 days ago with its copies and confirmations, "
          "keeps the recent one and incomplete or in-progress sendings, rejects an invalid duration"],
-        ["7. agent", "PID written to " + c("ams-agent.pronto") + " when it is ready; the wake-up signal to that PID "
+        ["7. agent", "PID written to " + c("rootspeak-agent.pronto") + " when it is ready; the wake-up signal to that PID "
          "does not kill it; the file disappears on exit (only with a graphical session, otherwise skipped)"],
         ["8. language", "language chosen according to the gettext rules (9 cases, odd values included); user, "
          "administrator, errors and help in English and in Italian; confirmation channel translated"],
-        ["9. second review", c("ams revoke") + " waits for a sending in progress; a confirmation later than the "
+        ["9. second review", c("rspeak revoke") + " waits for a sending in progress; a confirmation later than the "
          "revocation is not valid, one in the same second is valid; copy removed while the user is answering; "
          "another user's terminal not written to; copy lost after an interruption rewritten by recovery; "
          "interrupted revocation and deletion completed; 5000 fake files in " + c("acks/") + " without slowdowns; "
          "a pipe in place of the confirmation; text over 65536 bytes rejected, of 65536 accepted; comments in "
-         + c("ams.conf")],
-        ["10. reminder", "a postponed question does not come back at once; " + c("ams remind") + " brings it back; "
+         + c("rootspeak.conf")],
+        ["10. reminder", "a postponed question does not come back at once; " + c("rspeak remind") + " brings it back; "
          "those who have confirmed are not reminded; a revoked message cannot be reminded"],
     ], "«TAB» — The groups of tests/engine.sh") + \
     p("At the end " + c("tests/engine.sh") + " writes " + c("tests/results/engine.json") + " with date, commit, "
@@ -69,8 +69,8 @@ S2 = p(c("tests/engine.sh") + " tests the engine in test mode, without root, on 
       "current code. " + c("tests/unit-tests.c") + " (" + c("make prove") + ") tests the internal parts one by one: "
       "text cleaning, languages, messages, configuration, event texts.")
 
-S3 = p(c("tests/container/run.sh") + " tests AMS <b>for real</b> in an isolated test machine: a Debian 13 "
-       "container with systemd running (logind, sshd), without root on the host system. AMS is installed there with "
+S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an isolated test machine: a Debian 13 "
+       "container with systemd running (logind, sshd), without root on the host system. RootSpeak is installed there with "
        + c("install.sh") + "; the users are " + c("admin") + " (group sudo), " + c("mario") + " and " + c("anna")
        + " (group sviluppo), " + c("luca") + ", " + c("servizio") + " (without a shell) and four users with other "
        "shells: " + c("zeno") + " (zsh), " + c("fabio") + " (fish), " + c("kora") + " (ksh), " + c("dario")
@@ -78,7 +78,7 @@ S3 = p(c("tests/container/run.sh") + " tests AMS <b>for real</b> in an isolated 
        "questions as a person would, measures the timings and records every result.", lead=True) + table(
     ["Area", "Scenarios"], [
         ["A. Access", "root sends; an administrator sends through sudo; an ordinary user cannot run "
-         + c("ams") + ", not even the help"],
+         + c("rspeak") + ", not even the help"],
         ["B. Recipients", "user, list with duplicates, group, " + c("all") + " (root and nologin excluded), "
          + c("online") + ", non-existent user, empty group"],
         ["C. Delivery", "user logged out, then at login; user logged in (time to reach the terminal); ssh without a "
@@ -87,19 +87,19 @@ S3 = p(c("tests/container/run.sh") + " tests AMS <b>for real</b> in an isolated 
          "login, confirmation with its channel"],
         ["E. Expiry and revocation", "expired message not shown; revocation with the question pending; revocation "
          "before login"],
-        ["F. Faults", "copy not writable and recovery; " + c("ams send") + " killed with SIGKILL halfway; user "
-         "folder left owned by root; " + c("ams revoke") + " during a sending to many users; recovery concurrent "
+        ["F. Faults", "copy not writable and recovery; " + c("rspeak send") + " killed with SIGKILL halfway; user "
+         "folder left owned by root; " + c("rspeak revoke") + " during a sending to many users; recovery concurrent "
          "with a sending in progress; confirmation not writable"],
         ["G. Security", "mailbox turned into a link to " + c("/etc") + "; escape sequences; forged "
-         "confirmation; " + c("AMS_TEST") + " from an ordinary user"],
-        ["J. Log", c("ams log") + " rebuilds the history; the confirmation carries the " + c("_UID") + " of whoever "
+         "confirmation; " + c("RSPEAK_TEST") + " from an ordinary user"],
+        ["J. Log", c("rspeak log") + " rebuilds the history; the confirmation carries the " + c("_UID") + " of whoever "
          "wrote it; a fake event written by a user is flagged"],
-        ["T. TUI", c("ams") + " on its own as root: list with the recipients in the three states, detail and "
+        ["T. TUI", c("rspeak") + " on its own as root: list with the recipients in the three states, detail and "
          "history, exit"],
         ["K. Shells", "zsh, fish, ksh and dash: question at login; text on sending; question at the prompt in zsh "
          "and fish, not in ksh and dash"],
         ["L. Language", "same message to a user in English and to one in Italian; question, confirmation, "
-         + c("ams status") + " and " + c("ams log") + " in the reader's language"],
+         + c("rspeak status") + " and " + c("rspeak log") + " in the reader's language"],
         ["H. Performance", "sending to everybody (about sixty users); " + c("list") + " with 10 messages; "
          + c("status")],
         ["I. Desktop", "not tested in the container (no graphical session); tested in the VM"],
@@ -115,16 +115,16 @@ S3 = p(c("tests/container/run.sh") + " tests AMS <b>for real</b> in an isolated 
         ["I2 · «Ho letto» (“I have read it”) closes the dialog and records the confirmation (desktop)", "passed"],
         ["I3, I4 · «Più tardi» (“Later”), then the dialog comes back (test postponement: 1 minute)",
          "comes back after 60.23 s"],
-        ["I11 · " + c("ams remind") + " after «Più tardi» (“Later”): the dialog comes back at once", "0.37 s"],
+        ["I11 · " + c("rspeak remind") + " after «Più tardi» (“Later”): the dialog comes back at once", "0.37 s"],
         ["I5 · confirmation from a terminal with the dialog open", "the dialog closes in 0.65 s"],
         ["I6 · revocation with the dialog open", "the dialog closes in 0.67 s"],
         ["I7 · two messages, one dialog after the other, oldest first", "passed"],
-        ["I8 · agent not running: " + c("ams send") + " starts it", "dialog in 0.53 s"],
+        ["I8 · agent not running: " + c("rspeak send") + " starts it", "dialog in 0.53 s"],
         ["I9 · message while the desktop is closed, then graphical login", "dialog 2.64 s after the login restarts"],
         ["I10 · «Ho letto» (“I have read it”) and logout from the session after 0.1 s", "confirmation recorded"],
     ], "«TAB» — The desktop scenarios in the VM") + ul([
-    "The test desktop is in Italian; " + c("AMS_PROVA_LINGUA=en") + " switches it to English, "
-    + c("AMS_PROVA_SOLO=i_desktop") + " runs only the desktop scenarios.",
+    "The test desktop is in Italian; " + c("RSPEAK_PROVA_LINGUA=en") + " switches it to English, "
+    + c("RSPEAK_PROVA_SOLO=i_desktop") + " runs only the desktop scenarios.",
     "Each run writes " + c("results.json") + " and " + c("report.md") + " to " + c("tests/container/results/")
     + " and " + c("tests/vm/results/") + ", with the measurements of every scenario.",
 ])
@@ -132,7 +132,7 @@ S3 = p(c("tests/container/run.sh") + " tests AMS <b>for real</b> in an isolated 
 S4 = p("The two full-screen interfaces are tested on a pseudo-terminal, pressing keys as a person would and checking "
        "the last screen drawn after each one.", lead=True) + table(["Test", "Check"], [
     ["opening", "list with bar and sentence, correct size; no invented state"],
-    [c("Invio") + " (Enter), " + c("Tab"), "detail with the recipients and the state from " + c("ams status") + "; history "
+    [c("Invio") + " (Enter), " + c("Tab"), "detail with the recipients and the state from " + c("rspeak status") + "; history "
      "from the log"],
     [c("n") + ", " + c("Ctrl+E") + ", " + c("Ctrl+S"), "form, preview of the recipients, text on two lines; the "
      "text goes through the editor and comes back; confirmation with recipients, title and expiry; sending result "
@@ -163,7 +163,7 @@ S5 = table(["Check", "Fails if"], [
      "not exist"],
     ["file map", "a code file does not appear in the map in " + cap(3, 1) + ", or the map lists one that does not "
      "exist"],
-    ["version", c("AMS_VERSION") + " does not appear in both manuals"],
+    ["version", c("RSPEAK_VERSION") + " does not appear in both manuals"],
     ["links", "a " + c("#ancora") + " link does not lead to any id"],
     ["languages", "a " + c("po/*.po") + " catalog does not pass " + c("msgfmt --check") + ", has translations to "
      "review, or lacks texts present in the code (extracted again with " + c("xgettext") + ")"],
@@ -194,7 +194,7 @@ S7 = p("A root program in C that reads user data must have no memory errors. Bes
      "nothing to fix: the code was written that way from the start"],
     ["tests of the internal parts (" + c("tests/unit-tests.c") + ")", c("make prove"), "—"],
     ["AddressSanitizer and UBSan on all the engine and help tests, with reports written to files (none allowed)",
-     c("make sanitizer") + ", then " + c("AMS_BUILD=build-san tests/engine.sh"), "no memory errors"],
+     c("make sanitizer") + ", then " + c("RSPEAK_BUILD=build-san tests/engine.sh"), "no memory errors"],
     ["gcc static analysis", c("make analizza"), "pipes not closed in an error path of " + c("come_utente")
      + " (fixed); 3 false alarms remain about the copies of the standard descriptors in a child that exits at once"],
     ["fuzzing with libFuzzer, in a container with clang, of: text cleaning, message format, output of the mailbox "
