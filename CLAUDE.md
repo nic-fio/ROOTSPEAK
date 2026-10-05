@@ -62,7 +62,7 @@ The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-h
 | **Name: RootSpeak (1 October 2026)** | The product will be distributed and sold, and «AMS» is taken for software in the EU (ams-OSRAM, Emerson/Fisher-Rosemount and others). Product name **RootSpeak**, subtitle «Advanced Messaging System for Linux» (descriptive, not a name: it cannot be registered). Administrators' command **`rspeak`**; everything else uses the full name: helper `rootspeak-user`, paths `/etc/rootspeak`, `/var/lib/rootspeak`; the journal identifier stays the command name (`journalctl -t rspeak`). Rejected: LMS, MessageX, TuxCast (taken), Heedbell, Missivo (disliked), `rtspk` (reads like RTSP). No trademark registration for now: the user does not want to pay for it. |
 | **Everything in English (1 October 2026)** | See «How we work». Replaces the exception of the common standard for the `.c`/`.h` file names in `src/`: in this project they are English too. Visible names are English as well: journal fields `RSPEAK_EVENT`, `RSPEAK_MESSAGE`…, events `DELIVERED`, `CONFIRMED`…, store files `revoking`, `.deleting-ID`, `rootspeak-agent.ready`. |
 | **systemd required in 1.0 (1 October 2026)** | Supported: distributions with systemd (logind, `systemd-run`), about 90% of the market. Not in 1.0: Alpine, Void, Gentoo with OpenRC, Devuan, other distributions without systemd. |
-| **Packages (5 October 2026)** | `.deb`, `.rpm` and Arch packages of our own, downloaded from the website (not the distributions' archives: closed source); in `/usr`, while the archive installs in `/usr/local`. One configuration step for both: `rootspeak-setup` (`etc/`). Not signed and no repository for now: `SHA256SUMS`. The logo is the icon (software centres, notices), no menu entry. |
+| **Packages (5 October 2026)** | `.deb`, `.rpm` and Arch packages of our own, downloaded from the website (not the distributions' archives: closed source); in `/usr`, while the archive installs in `/usr/local`. One configuration step for both: `rootspeak-setup` (`etc/`). Not signed, no repository (the user: «let's not weigh the VPS down»): `SHA256SUMS`; upgrades by downloading the new package. The logo is the icon (software centres, notices), no menu entry. |
 | **Freeware (5 October 2026)** | RootSpeak is given away, like NESH and EFI Partition Manager: the RootSpeak Freeware Licence (`LICENSE`, the same text as theirs, adapted): free use on any number of machines, also at work and in paid work; free redistribution unchanged; no sale, no inclusion in commercial products, no modification. Commercial licences: `rootspeak@nicfio.it` (alias on the nesh@ mailbox). Distributed as built programs, not as source; the repository stays private. Replaces «Licence: to be decided», the trial and full editions and the road to sale. Footer of the manuals: `… · © 2026 Nicola Fiorillo · Licence: freeware`. |
 
 ## Rename to RootSpeak (1 October 2026)
@@ -257,9 +257,10 @@ subdomains). Version 1.0 comes later.
 **Packages** (the user, 5 October 2026, before advertising the product):
 `.deb`, `.rpm` and Arch, built by `tools/release.sh`, on the landing page
 (a card per family) and in `download/`; scenarios P1–P7 with
-`RSPEAK_RELEASE=build/release tests/distros/run.sh`. Next steps proposed to
-the user, not decided: signed packages with an APT/DNF repository for
-automatic upgrades (needs a GPG key kept by the owner). Rejected by the user:
+`RSPEAK_RELEASE=build/release tests/distros/run.sh`. Rejected by the user
+(5 October 2026): an APT/DNF repository with signed packages («let's not
+weigh the VPS down»; it would have been static files, the real cost a GPG key
+to keep): upgrades stay a download of the new package. Also rejected:
 the logo in the users' dialog (users don't know RootSpeak: the title «Message
 from the administrator» is what tells them).
 
