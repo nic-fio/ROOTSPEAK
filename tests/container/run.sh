@@ -9,6 +9,8 @@
 #   RSPEAK_BASE (image of the distribution), RSPEAK_NAME (name of image and machine)
 #   RSPEAK_IMAGE (image name, if different), RSPEAK_RESULTS (results folder) and
 #   RSPEAK_PODMAN_ROOT (where podman keeps images and machines).
+# RSPEAK_ARCHIVE=FILE installs the downloadable archive (tools/release.sh)
+#   instead of building from the source tree.
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
@@ -27,8 +29,10 @@ if [ "${1:-}" = --rebuild ] || ! podman image exists "$IMAGE"; then
 		{ tail -20 "$RESULTS/image.log"; exit 1; }
 fi
 podman rm -f "$NAME" >/dev/null 2>&1
+ARCHIVE=()
+[ -n "${RSPEAK_ARCHIVE:-}" ] && ARCHIVE=(-v "$(readlink -f "$RSPEAK_ARCHIVE"):/opt/rootspeak.tar.gz:ro,Z")
 podman run -d --name "$NAME" --systemd=always --network=none \
-	-v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$RESULTS:/opt/results:Z" "$IMAGE" >/dev/null || exit 1
+	-v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$RESULTS:/opt/results:Z" "${ARCHIVE[@]}" "$IMAGE" >/dev/null || exit 1
 trap 'podman rm -f "$NAME" >/dev/null 2>&1' EXIT
 for i in $(seq 1 60); do
 	s=$(podman exec "$NAME" systemctl is-system-running 2>/dev/null)
@@ -36,11 +40,18 @@ for i in $(seq 1 60); do
 	sleep 1
 done
 echo "test machine: $s ($(podman exec "$NAME" sh -c '. /etc/os-release; echo $PRETTY_NAME'))"
-# built on the test machine itself, with its compiler and libraries, as a customer would
-podman exec "$NAME" sh -c 'rm -rf /opt/rootspeak && mkdir /opt/rootspeak &&
-	tar -C /opt/rootspeak-src --exclude=./build --exclude=./build-san --exclude=./build-analyze \
-		--exclude="./tests/*/results" -cf - . | tar -C /opt/rootspeak -xf - &&
-	/opt/rootspeak/install.sh' >"$RESULTS/install.log" 2>&1 ||
+# built on the test machine itself, with its compiler and libraries; or the
+# downloadable archive, already built, as a customer would install it
+if [ -n "${RSPEAK_ARCHIVE:-}" ]; then
+	podman exec "$NAME" sh -c 'rm -rf /opt/rootspeak && mkdir /opt/rootspeak &&
+		tar -C /opt/rootspeak --strip-components=1 -xzf /opt/rootspeak.tar.gz &&
+		! [ -e /opt/rootspeak/Makefile ] && /opt/rootspeak/install.sh'
+else
+	podman exec "$NAME" sh -c 'rm -rf /opt/rootspeak && mkdir /opt/rootspeak &&
+		tar -C /opt/rootspeak-src --exclude=./build --exclude=./build-san --exclude=./build-analyze \
+			--exclude="./tests/*/results" -cf - . | tar -C /opt/rootspeak -xf - &&
+		/opt/rootspeak/install.sh'
+fi >"$RESULTS/install.log" 2>&1 ||
 	{ cat "$RESULTS/install.log"; echo "installation failed"; exit 1; }
 grep -v '^Warning: zenity is missing' "$RESULTS/install.log" | head -1
 # the system language of the test machine is Italian on purpose: RootSpeak must speak English anyway

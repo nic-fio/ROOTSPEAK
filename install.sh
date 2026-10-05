@@ -3,7 +3,9 @@
 #   ./install.sh              installs
 #   ./install.sh --uninstall  removes (the messages in /var/lib/rootspeak stay)
 #   ./install.sh --purge      also removes the messages
-# Installs the C version built in build/ (make); if it is missing, builds it.
+# Installs the programs built in build/: from the source tree it builds them
+# (make) if they are missing; the downloadable archive has them already built,
+# for /usr/local, and builds nothing.
 set -euo pipefail
 
 PREFIX=${PREFIX:-/usr/local}
@@ -40,9 +42,12 @@ do_install() {
 	done
 
 	# The programs built with the folders of this installation: if they are
-	# missing or were built for other folders, they are built.
+	# missing or were built for other folders, they are built (only from the
+	# source tree: the archive has no source).
 	if ! [ -x "$SRC/build/rspeak" ] || ! [ -x "$SRC/build/rootspeak-user" ] ||
 		! grep -qaF "$LIBDIR" "$SRC/build/rspeak"; then
+		[ -f "$SRC/Makefile" ] ||
+			{ echo "The programs of this archive install only in /usr/local (PREFIX=$PREFIX)" >&2; exit 1; }
 		make -C "$SRC" PREFIX="$PREFIX" all >/dev/null ||
 			{ echo "Build failed: gcc, make, pkg-config and the systemd development files are needed (libsystemd-dev or systemd-devel)" >&2; exit 1; }
 	fi

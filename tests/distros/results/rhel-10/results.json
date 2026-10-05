@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-01 18:25:19 UTC",
+  "date": "2026-10-05 03:43:56 UTC",
   "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
   "system": "Red Hat Enterprise Linux 10.2 (Coughlan), container with systemd",
   "ok": 56,
   "failed": 0,
   "not_tested": 4,
   "total": 60,
-  "commit": "81199e69f0-modified",
-  "fingerprint": "3368c39af24d",
+  "commit": "4aa454f7cb-modified",
+  "fingerprint": "422f39936495",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.156
+    "seconds": 0.258
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.279
+    "seconds_from_login": 0.28
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 18:23 (terminal pts/2)",
+   "details": "confirmed on 05/10 03:42 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.057,
-    "seconds_to_terminal": 0.108
+    "seconds_send": 0.09,
+    "seconds_to_terminal": 0.14
    }
   },
   {
@@ -200,7 +200,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.95
+    "seconds": 0.951
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 01/10 18:24",
+   "details": "delivered, written to 1 terminal, postponed on 05/10 03:42",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@26b3c51311ae ~]$ ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@d5ebb1d54b80 ~]$ ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1790879047 terminal pts/7",
+   "details": "1791171760 terminal pts/7",
    "measures": {}
   },
   {
@@ -319,11 +319,11 @@
    "description": "rspeak send killed halfway (SIGKILL): the next command completes",
    "expected": "all copies delivered, no sign of an incomplete sending",
    "outcome": "OK",
-   "details": "delivered before 4/65, after 65/65; rspeak: completed delivery of message 2 to 61 recipients",
+   "details": "delivered before 3/65, after 65/65; rspeak: completed delivery of message 2 to 62 recipients",
    "measures": {
-    "delivered_at_kill": 4,
+    "delivered_at_kill": 3,
     "recipients": 65,
-    "seconds_recovery": 1.147
+    "seconds_recovery": 1.393
    }
   },
   {
@@ -343,7 +343,7 @@
    "outcome": "OK",
    "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.3
+    "seconds_waiting_revoke": 0.54
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "65 deliveries recorded for 65 recipients, 65 distinct",
    "measures": {
-    "rspeak_list_during_sending": 37
+    "rspeak_list_during_sending": 24
    }
   },
   {
@@ -408,7 +408,7 @@
    "description": "rspeak log: the history of the message",
    "expected": "sending, deliveries, postponement, confirmation, revocation",
    "outcome": "OK",
-   "details": "6 events",
+   "details": "8 events",
    "measures": {}
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-01 18:24:46  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-05 03:43:20  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 18:24 (terminal pts/15)",
+   "details": "confirmed on 05/10 03:43 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.066
+    "seconds": 0.054
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 01/10 18:24 (terminal pts/15)",
+   "details": "confirmed on 05/10 03:43 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -536,7 +536,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 01/10 18:24 (terminal pts/16)",
+   "details": "confirmed on 05/10 03:43 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -547,8 +547,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.66,
-    "ms_per_recipient": 12.1
+    "seconds": 0.77,
+    "ms_per_recipient": 14.0
    }
   },
   {
@@ -559,7 +559,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.38
+    "seconds": 0.37
    }
   },
   {
@@ -570,7 +570,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.27
+    "seconds": 0.48
    }
   },
   {

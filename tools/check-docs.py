@@ -84,6 +84,7 @@ code_files = {"install.sh", "Makefile", "docs/sources/build.py", "docs/sources/s
 code_files |= {str(p.relative_to(ROOT)) for d in ("src", "etc", "tests", "tools")
                for p in (ROOT / d).rglob("*") if p.is_file() and "results" not in p.parts
                and "__pycache__" not in p.parts}
+code_files |= {str(p.relative_to(ROOT)) for p in (ROOT / "site").glob("*") if p.suffix in (".sh", ".py")}
 for f in sorted(code_files - rows):
     errors.append(f"technical manual: {f} is missing from the file map")
 for f in sorted(rows - code_files):

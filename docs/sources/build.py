@@ -442,8 +442,9 @@ def distro_results():
     if not path.exists():
         return p("The distributions have not been tested yet.")
     current = current_fingerprint()
+    summary = json.loads(path.read_text())
     rows = []
-    for d in json.loads(path.read_text())["distributions"]:
+    for d in summary["distributions"]:
         if d.get("not_run"):
             rows.append([c(d["name"]), "—", "<b>not run</b>: " + esc(d["not_run"]), ""])
             continue
@@ -463,7 +464,8 @@ def distro_results():
         rows.append([c(d["name"]), esc(d["system"]), outcome, "; ".join(why) or "—"])
     return table(["Name", "System", "Scenarios", "Not tested, and why"], rows,
                  "«TAB» — RootSpeak on each distribution: the last run of " + c("tests/distros/run.sh")
-                 + " (the desktop scenario is never tested in a container)")
+                 + " (the desktop scenario is never tested in a container); RootSpeak installed from "
+                 + esc(summary["meta"].get("installed", "source, built on each distribution")))
 
 
 def desktop_results():

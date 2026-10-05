@@ -1,7 +1,8 @@
 # RootSpeak on the distributions
 
-- Date: 2026-10-01 20:31:37 CEST
-- Code: commit 81199e69f0-modified, fingerprint 3368c39af24d
+- Date: 2026-10-05 05:48:46 CEST
+- Code: commit 4aa454f7cb-modified, fingerprint 422f39936495
+- Installed: the downloadable archive rootspeak-0.2.0-linux-x86_64.tar.gz, built on RHEL 9
 - Outcome: **22 of 22 distributions passed**
 
 | Name | System | Outcome | Passed / failed / not tested | Failed | Not tested |

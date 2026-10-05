@@ -117,10 +117,10 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 | `docs/` | `User Manual.html` and `Technical Manual.html` (generated, never by hand), `index.html` (home page), `README.md` (what is there and how to regenerate it), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
 | `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual is read from `src/help.c`. |
 | `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios (`setup.sh` prepares it on any distribution); `distros/`: the same scenarios on 22 distributions, on the test server; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make unit`). Results in `results/` and `*/results/`. |
-| `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle. |
+| `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle; `release.sh`: the downloadable archive (programs built on RHEL 9 on the test server, glibc 2.34, so they run on all 22 distributions). |
 | `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
-| `site/` | The product's future website. `landing/`: the landing page chosen by the owner on 1 October 2026 (mockup 19 «Night sky»: deep navy, stars, the logo's orbit as a planetary path, the orange dot as the planet), a self-contained HTML page without JavaScript, with its preview, the brief it follows (only true statements, exact program texts, placeholders for prices and licence) and what is missing before it goes live. The 20 mockups it was chosen from stay in `site/mockups/`, outside git (`.gitignore`, 26 MB). |
-| `NOTICE.md` | Copyright and third-party components (none embedded). |
+| `site/` | The website, `https://rootspeak.nicfio.it`, on the owner's VPS. `landing/`: the landing page (mockup 19 «Night sky», chosen on 1 October 2026 among 20 mockups, which are lost: `site/mockups/` was outside git); since 5 October with Download and Free instead of trial and prices. `publish.sh` builds `site/public/` (landing, manuals, `licence.html` from `LICENSE` by `licence-page.py`, `download/` with the archive of `tools/release.sh`, its `SHA256SUMS` and the licence, `og.jpg`, `robots.txt`, `sitemap.xml`; `seo-head.py` adds description, canonical address and link preview) and copies it to the VPS as user `progetti`; `--build` only builds. |
+| `LICENSE`, `NOTICE.md` | The RootSpeak Freeware Licence; copyright, the licence in short and third-party components (none embedded). |
 | `.github/workflows/ci.yml` | On GitHub at every push: `make`, `make unit`, `tests/engine.sh`, `make docs-check` (no container or VM). |
 
 **Test server** (192.168.0.2, ssh access with a key): the VMs live in
@@ -237,7 +237,8 @@ away like NESH and EFI Partition Manager (decision above), so the trial and
 full editions, payments, the commercial licence and the road to sale are
 dropped. The steps, in this order: (1) licence — done; (2) what is downloaded:
 an archive with the built programs, `install.sh` and the manuals, no source,
-built on the oldest supported distribution and tested on all 22; (3) the site
+built on the oldest supported distribution and tested on all 22 — done
+(`tools/release.sh`, 22 of 22 passed on 5 October); (3) the site — prepared
 on `rootspeak.nicfio.it`, like `nesh.nicfio.it` and `efipm.nicfio.it`: the
 «Night sky» landing page with Download and Free instead of trial and prices,
 the licence page, the manuals, `site/publish.sh` with the search-engine tags,

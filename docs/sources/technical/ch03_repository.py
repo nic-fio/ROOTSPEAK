@@ -15,7 +15,8 @@ TREE = tree([
     "│   └── sources/          # generator, style, one file per chapter",
     "├── tests/                # engine, TUI, help, units, fuzzing, container, VM",
     "│   └── */results/        # results recorded with commit and fingerprint",
-    "└── tools/                # manual consistency, fingerprint, screenshots",
+    "├── tools/                # manual consistency, fingerprint, screenshots, release",
+    "└── site/                 # the website: landing page, publication",
 ], "«FIG» — The folders of the repository")
 
 S1 = p("The repository contains the C code, the files to install on the system, the manuals "
@@ -95,6 +96,11 @@ S1 = p("The repository contains the C code, the files to install on the system, 
     ("tools/setup-dev.sh", "Says what a freshly cloned copy is missing (packages, git identity); "
      + c("--install") + " installs the packages."),
     ("tools/backup.sh", "The whole repository, with its history, in a single git bundle."),
+    ("tools/release.sh", "The downloadable archive: the programs built on RHEL 9 on the test server, "
+     + c("install.sh") + ", " + c("etc/") + ", the manuals and the licence, in " + c("build/release/") + "."),
+    ("site/publish.sh", "Builds the website in " + c("site/public/") + " and copies it to the VPS."),
+    ("site/seo-head.py", "Adds description, canonical address and link preview to a page of the website."),
+    ("site/licence-page.py", "Turns " + c("LICENSE") + " into " + c("licence.html") + "."),
     ("docs/sources/build.py", "Generator of the two manuals and functions for figures and tables."),
     ("docs/sources/style.css", "The common style of the manuals of the seven projects, embedded unchanged in every "
      "manual; the rules that only RootSpeak needs are in " + c("build.py") + "."),
@@ -151,7 +157,10 @@ S3 = flow([("Build", "make, if needed", "dark"), ("Programs", "rspeak 750 · roo
     + c("zenity") + ", " + c("loginctl") + " or " + c("systemd-run") + " are missing.",
     "If the programs are missing from " + c("build/") + ", or were built for other folders (the "
     + c("LIBDIR") + " path does not appear inside " + c("build/rspeak") + "), it builds them with " + c("make PREFIX=…")
-    + " (gcc, make, pkg-config and libsystemd-dev are needed).",
+    + " (gcc, make, pkg-config and libsystemd-dev are needed). From the downloadable archive, which has no "
+    + c("Makefile") + ", it never builds: the programs are already in " + c("build/") + ", built for "
+    + c("/usr/local") + "; with another " + c("PREFIX") + " it stops with “The programs of this archive install only "
+    "in /usr/local (PREFIX=…)”.",
     "It installs " + c("$PREFIX/lib/rootspeak/rootspeak-user") + " (" + c("755") + ") and " + c("$PREFIX/bin/rspeak")
     + " with owner " + c("root:group") + " (the administrators' group) and permissions " + c("750") + ". " + c("PREFIX")
     + " is " + c("/usr/local") + ". It removes the language catalogs left by the first 0.2.0 builds: RootSpeak "
@@ -201,10 +210,37 @@ S5 = steps([
 ]) + warn("test results are committed together with the change: each suite writes its result with the "
           "commit and the code fingerprint, and " + cap(20) + " shows them next to the current fingerprint.")
 
+RELEASE = flow([("tools/release.sh", "on the test server", "dark"), ("rhel-9 image", "make, strip · glibc 2.34", "navy"),
+                ("build/release/", "archive + SHA256SUMS", "blue"), ("tests/distros", "the archive on 22 systems", "amber"),
+                ("site/publish.sh", "rootspeak.nicfio.it", "green")],
+               "«FIG» — From the code to the download on the website", "Release")
+
+S6 = p("RootSpeak is freeware and is distributed as built programs, not as source: one archive, "
+       + c("rootspeak-VERSION-linux-x86_64.tar.gz") + ", the same for every supported distribution.", lead=True) + \
+    RELEASE + steps([
+    c("tools/release.sh") + " copies the files under version control to the test server and builds them in the "
+    "image of RHEL 9 of the compatibility tests: RHEL 9 and its rebuilds have the oldest C library among the "
+    "supported distributions (glibc 2.34; Ubuntu 22.04 has 2.35, SLES 15 2.38), and a program built against an "
+    "older glibc runs on the newer ones. The programs are stripped of their symbols.",
+    "It checks that no symbol needs a glibc newer than 2.34 and that the programs were built for "
+    + c("/usr/local") + ", then makes the archive with " + c("install.sh") + ", " + c("etc/") + ", " + c("build/rspeak")
+    + ", " + c("build/rootspeak-user") + ", the two manuals, " + c("LICENSE") + ", " + c("NOTICE.md") + " and a "
+    + c("README.txt") + ", and its " + c("SHA256SUMS") + ".",
+    c("RSPEAK_ARCHIVE=build/release/….tar.gz tests/distros/run.sh") + " runs all the scenarios on the 22 "
+    "distributions with the archive installed as a customer would (no build on the test machines); the summary "
+    "records how RootSpeak was installed.",
+    c("site/publish.sh") + " builds the website in " + c("site/public/") + " (landing page, manuals, "
+    + c("licence.html") + ", " + c("download/") + ", " + c("og.jpg") + ", " + c("robots.txt") + ", "
+    + c("sitemap.xml") + ") and copies it to " + c("/srv/www/rootspeak.nicfio.it") + " on the VPS; "
+    + c("--build") + " only builds.",
+]) + note("the libsystemd the programs link to (" + c("libsystemd.so.0") + ") keeps its interface across "
+          "versions: the one of RHEL 9 is enough everywhere.", "libsystemd.")
+
 CHAPTER = ("Repository, build and installation", [
     ("File map", S1),
     ("Building: the Makefile", S2),
     ("install.sh step by step", S3),
     ("What it installs, and where", S4),
     ("Before committing a change", S5),
+    ("The downloadable archive and the website", S6),
 ])

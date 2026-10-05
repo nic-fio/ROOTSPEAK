@@ -4,3 +4,4 @@ build-analyze/
 build-san/
 tests/fuzz/results/
 site/mockups/
+site/public/
