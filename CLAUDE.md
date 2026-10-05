@@ -240,8 +240,10 @@ an archive with the built programs, `install.sh` and the manuals, no source,
 built on the oldest supported distribution and tested on all 22 — done
 (`tools/release.sh`, 22 of 22 passed on 5 October); (3) the site — online
 since 5 October 2026 (Let's Encrypt certificate, every page and the download
-checked; DNS record A `rootspeak` added in the OVH zone); still to do: the
-sitemap in Search Console. Earlier plan for (3)
+checked; DNS record A `rootspeak` added in the OVH zone); sitemap submitted
+to Search Console (domain property nicfio.it) on 5 October: first status
+«Couldn't fetch», because Google had cached the name as nonexistent before
+the DNS record; the server answers Googlebot with 200. Check it again. Earlier plan for (3)
 on `rootspeak.nicfio.it`, like `nesh.nicfio.it` and `efipm.nicfio.it`: the
 «Night sky» landing page with Download and Free instead of trial and prices,
 the licence page, the manuals, `site/publish.sh` with the search-engine tags,
