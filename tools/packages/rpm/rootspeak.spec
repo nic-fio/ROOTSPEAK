@@ -5,7 +5,7 @@ Name:           rootspeak
 Version:        @VERSION@
 Release:        @REL@
 Summary:        @SUMMARY@
-License:        LicenseRef-RootSpeak-Freeware
+License:        LicenseRef-RootSpeak-Source-Available
 URL:            https://rootspeak.nicfio.it/
 ExclusiveArch:  x86_64
 # the programs are already built and stripped by tools/release.sh

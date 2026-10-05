@@ -3,8 +3,13 @@
 RootSpeak - Advanced Messaging System for Linux
 Copyright (c) 2026 Nicola Fiorillo. All rights reserved.
 
-RootSpeak is **freeware**, released under the **RootSpeak Freeware Licence**.
-See [LICENSE](LICENSE).
+RootSpeak is **free of charge and source-available**, released under the
+**RootSpeak Source-Available Licence**. See [LICENSE](LICENSE).
+
+The source code is published so that anyone can check what RootSpeak does on
+their machines: it is downloaded from https://rootspeak.nicfio.it with the
+packages. RootSpeak is not open source: you may read, build and change it for
+your own use, not give changed versions to others or sell it.
 
 ## In short
 
@@ -12,8 +17,10 @@ See [LICENSE](LICENSE).
 |---|---|
 | Use it for anything, at home or at work, also as a tool in paid work (administering the machines of a company, a school or a customer) | **Sell** it, or charge a fee for it |
 | Copy it and give it to anyone, unchanged, with the licence | **Include** it in a product or service that is sold or offered as part of a business |
-| Install it on any number of machines, also with your own deployment tools, and change its configuration file | **Modify** it, or decompile it beyond what the law allows |
+| Install it on any number of machines, also with your own deployment tools, and change its configuration file | **Give changed versions** to others, or distribute works derived from it |
 | Put it in a collection of software given away free of charge, unchanged and with the licence | Remove the copyright and licence notices, or use the name to suggest an endorsement |
+| Read and check the source code, build it yourself, change it for your own use on the machines you administer | |
+| Publish reviews, analyses, security reports and short excerpts of the source code, naming the author and the licence | |
 
 **Want to include it in a product, or buy the project?** Write to
 **rootspeak@nicfio.it**.

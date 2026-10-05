@@ -3,14 +3,16 @@
 # Builds the archive that is downloaded from the website: the programs built
 # on the oldest supported distribution (RHEL 9 and its rebuilds, glibc 2.34),
 # so that they run on all the distributions of tests/distros/list, plus
-# install.sh, the files it installs, the manuals and the licence. No source.
+# install.sh, the files it installs, the manuals and the licence. No source:
+# the source is a separate archive (see below).
 # And the packages, with the same programs built for /usr: .deb (Debian, Ubuntu),
 # .rpm (Fedora, RHEL and its rebuilds, openSUSE, SLES) and .pkg.tar.zst (Arch),
 # each made with the tool of its family (tools/packages/make-package.sh).
 #   tools/release.sh
 # Result in build/release/: rootspeak-VERSION-linux-x86_64.tar.gz,
 # rootspeak_VERSION-1_amd64.deb, rootspeak-VERSION-1.x86_64.rpm,
-# rootspeak-VERSION-1-x86_64.pkg.tar.zst and SHA256SUMS.
+# rootspeak-VERSION-1-x86_64.pkg.tar.zst, rootspeak-VERSION-source.tar.gz and
+# SHA256SUMS.
 # The programs are built on the test server, in the rhel-9 image of the
 # compatibility tests; the packages in the debian-12, rhel-9 and arch images
 # (tests/distros/run.sh debian-12 rhel-9 arch builds them if they are missing).
@@ -97,15 +99,60 @@ Remove:
 Manuals: docs/User Manual.html and docs/Technical Manual.html, also installed
 in /usr/local/share/doc/rootspeak/.
 
-RootSpeak is freeware: see LICENSE. Copyright (c) 2026 Nicola Fiorillo.
+RootSpeak is free of charge and source-available: see LICENSE. The source
+code is downloaded from the website. Copyright (c) 2026 Nicola Fiorillo.
 Contact: rootspeak@nicfio.it
 EOF
 
 tar -C "$OUT" --owner=0 --group=0 --mode=u=rwX,go=rX --sort=name -czf "$OUT/$NAME.tar.gz" "$NAME"
+
+# The source archive (RootSpeak Source-Available Licence): what is needed to
+# read, build, test and install RootSpeak, and how the packages are made. Only
+# the files listed here: the working notes (CLAUDE.md, docs/decisions-and-history.md),
+# the website and the test infrastructure stay in the private repository.
+SRCNAME=rootspeak-$VERSION-source
+SRCFILES=(Makefile LICENSE NOTICE.md install.sh src etc 'logos/rootspeak-icon*'
+	'docs/User Manual.html' 'docs/Technical Manual.html' tests/unit-tests.c tests/engine.sh tools/fingerprint.sh tools/packages)
+mkdir -p "$OUT/$SRCNAME"
+git -C "$ROOT" ls-files -co --exclude-standard -z -- "${SRCFILES[@]}" | tar -C "$ROOT" --null -T - -cf - |
+	tar -C "$OUT/$SRCNAME" -xf -
+cat >"$OUT/$SRCNAME/README.txt" <<EOF
+RootSpeak $VERSION - Advanced Messaging System for Linux - source code
+https://rootspeak.nicfio.it
+
+The source code of RootSpeak, published so that anyone can check what it does
+on their machines. It is source-available, not open source: you may read it,
+build it and change it for your own use; you may not give changed versions to
+others or sell it. The terms are in LICENSE.
+
+Build (gcc, make, pkg-config and the systemd development files: libsystemd-dev
+on Debian and Ubuntu, systemd-devel on Fedora, RHEL and openSUSE):
+    make              builds build/rspeak and build/rootspeak-user
+    make unit         the unit tests
+    tests/engine.sh   the engine tests, in test mode: no root, a temporary store
+
+Install, as an administrator (builds first if needed):
+    ./install.sh
+Remove:
+    ./install.sh --uninstall    (keeps the messages and the configuration)
+    ./install.sh --purge        (removes them too)
+
+How the packages are made: tools/packages/. The manuals are in docs/; the
+technical manual describes the architecture, the message store and security.
+
+Copyright (c) 2026 Nicola Fiorillo. Contact: rootspeak@nicfio.it
+EOF
+for f in src/rspeak.c install.sh LICENSE; do
+	[ -s "$OUT/$SRCNAME/$f" ] || { echo "the source archive has no $f" >&2; exit 1; }
+done
+for f in CLAUDE.md site tools/release.sh docs/decisions-and-history.md; do
+	[ ! -e "$OUT/$SRCNAME/$f" ] || { echo "the source archive must not contain $f" >&2; exit 1; }
+done
+tar -C "$OUT" --owner=0 --group=0 --mode=u=rwX,go=rX --sort=name -czf "$OUT/$SRCNAME.tar.gz" "$SRCNAME"
 x "tar -C $DIR/release/pkg -cf - ." | tar -C "$OUT" -xf -
 PKGS=(rootspeak_$VERSION-1_amd64.deb rootspeak-$VERSION-1.x86_64.rpm rootspeak-$VERSION-1-x86_64.pkg.tar.zst)
 for p in "${PKGS[@]}"; do [ -s "$OUT/$p" ] || { echo "missing package $p" >&2; exit 1; }; done
-(cd "$OUT" && sha256sum "$NAME.tar.gz" "${PKGS[@]}" >SHA256SUMS)
+(cd "$OUT" && sha256sum "$NAME.tar.gz" "${PKGS[@]}" "$SRCNAME.tar.gz" >SHA256SUMS)
 echo "built $OUT/$NAME.tar.gz ($(stat -c %s "$OUT/$NAME.tar.gz") bytes, glibc $need or newer):"
 tar -tvzf "$OUT/$NAME.tar.gz" | awk '{s=$3; for (i=1; i<6; i++) $i=""; sub(/^ +/, ""); print "  " $0 "  " s}'
-for p in "${PKGS[@]}"; do echo "built $OUT/$p ($(stat -c %s "$OUT/$p") bytes)"; done
+for p in "${PKGS[@]}" "$SRCNAME.tar.gz"; do echo "built $OUT/$p ($(stat -c %s "$OUT/$p") bytes)"; done

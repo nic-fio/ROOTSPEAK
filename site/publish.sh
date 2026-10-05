@@ -8,7 +8,7 @@
 #
 # The site: the landing page (site/landing/index.html), the two manuals
 # (self-contained), the licence as a page, and the download of the current
-# version (download/: the packages and the archive built by tools/release.sh,
+# version (download/: the packages, the archive and the source built by tools/release.sh,
 # SHA256SUMS, the licence). Run tools/release.sh first.
 set -euo pipefail
 
@@ -19,7 +19,8 @@ DEST=/srv/www/rootspeak.nicfio.it
 VERSION=$(sed -n 's/^#define RSPEAK_VERSION "\(.*\)"/\1/p' "$ROOT/src/common.h")
 URL=https://rootspeak.nicfio.it
 ARCHIVE=rootspeak-$VERSION-linux-x86_64.tar.gz
-FILES=("$ARCHIVE" "rootspeak_$VERSION-1_amd64.deb" "rootspeak-$VERSION-1.x86_64.rpm" "rootspeak-$VERSION-1-x86_64.pkg.tar.zst")
+FILES=("$ARCHIVE" "rootspeak_$VERSION-1_amd64.deb" "rootspeak-$VERSION-1.x86_64.rpm" "rootspeak-$VERSION-1-x86_64.pkg.tar.zst"
+	"rootspeak-$VERSION-source.tar.gz")
 REL=$ROOT/build/release
 
 for f in "${FILES[@]}"; do
@@ -46,8 +47,8 @@ python3 "$SEO" "$OUT/Technical Manual.html" "$URL/Technical%20Manual.html" \
     "RootSpeak Technical Manual — architecture, message store and security" \
     "How RootSpeak works: the message store, delivery to terminals and desktops, confirmations, security, the specification and how it is tested on 22 distributions."
 python3 "$SEO" "$OUT/licence.html" "$URL/licence.html" \
-    "RootSpeak Freeware Licence" \
-    "RootSpeak is freeware: free to use, also at work, and to give away unchanged; not to sell, modify or include in commercial products."
+    "RootSpeak Source-Available Licence" \
+    "RootSpeak is free and source-available: free to use, also at work, and to give away unchanged; the source to read, build and change for your own use; not to sell, distribute changed or include in commercial products."
 
 # the download, with the licence in a form every system opens
 DL=$OUT/download

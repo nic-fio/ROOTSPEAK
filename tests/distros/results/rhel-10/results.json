@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-05 09:31:22 UTC",
-  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
+  "date": "2026-10-05 10:22:58 UTC",
+  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.1",
   "system": "Red Hat Enterprise Linux 10.2 (Coughlan), container with systemd",
   "ok": 63,
   "failed": 0,
   "not_tested": 4,
   "total": 67,
-  "commit": "c5bbfa4f0a-modified",
-  "fingerprint": "001675985902",
+  "commit": "64ef42bb71-modified",
+  "fingerprint": "8bf56d389921",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.147
+    "seconds": 0.182
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.386
+    "seconds_from_login": 0.269
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:29 (terminal pts/2)",
+   "details": "confirmed on 05/10 10:21 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.075,
-    "seconds_to_terminal": 0.126
+    "seconds_send": 0.054,
+    "seconds_to_terminal": 0.105
    }
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.053
+    "seconds": 0.052
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 05/10 09:30",
+   "details": "delivered, written to 1 terminal, postponed on 05/10 10:21",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@560c0fe51d96 ~]$ ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@461acb88279b ~]$ ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1791192604 terminal pts/7",
+   "details": "1791195700 terminal pts/7",
    "measures": {}
   },
   {
@@ -323,7 +323,7 @@
    "measures": {
     "delivered_at_kill": 3,
     "recipients": 65,
-    "seconds_recovery": 1.342
+    "seconds_recovery": 1.355
    }
   },
   {
@@ -343,7 +343,7 @@
    "outcome": "OK",
    "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.48
+    "seconds_waiting_revoke": 0.58
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "65 deliveries recorded for 65 recipients, 65 distinct",
    "measures": {
-    "rspeak_list_during_sending": 41
+    "rspeak_list_during_sending": 42
    }
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-05 09:30:44  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-05 10:22:21  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:30 (terminal pts/15)",
+   "details": "confirmed on 05/10 10:22 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.068
+    "seconds": 0.069
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:30 (terminal pts/15)",
+   "details": "confirmed on 05/10 10:22 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -536,7 +536,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:30 (terminal pts/16)",
+   "details": "confirmed on 05/10 10:22 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -547,8 +547,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.72,
-    "ms_per_recipient": 13.0
+    "seconds": 0.73,
+    "ms_per_recipient": 13.4
    }
   },
   {
@@ -559,7 +559,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.56
+    "seconds": 0.52
    }
   },
   {
@@ -570,7 +570,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.61
+    "seconds": 0.43
    }
   },
   {
@@ -633,7 +633,7 @@
    "description": "the package over an installation from the archive: it takes its place, keeps its settings and asks nothing (pacman: it refuses, and takes it after install.sh --uninstall)",
    "expected": "nothing left in /usr/local, the archive's message still there, settings kept, no question, hooks pointing to /usr",
    "outcome": "OK",
-   "details": "Installed:\n  rootspeak-0.2.0-1.x86_64",
+   "details": "Installed:\n  rootspeak-0.2.1-1.x86_64",
    "measures": {}
   },
   {

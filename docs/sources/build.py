@@ -42,7 +42,7 @@ MANUALS = {
 }
 
 # The common footer, with the licence.
-FOOTER = "RootSpeak · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo · Licence: freeware"
+FOOTER = "RootSpeak · {manual} · Version {version} · {date} · © 2026 Nicola Fiorillo · Licence: free, source available"
 
 # Index words to show as code (window.MANUAL_CODE_TERMS of manual.js).
 CODE_TERMS = ["zenity"]

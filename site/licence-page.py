@@ -59,8 +59,8 @@ print("""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RootSpeak Freeware Licence</title>
-<meta name="description" content="The licence of RootSpeak: free to use, also at work, and to give away; not to sell, modify or include in commercial products.">
+<title>RootSpeak Source-Available Licence</title>
+<meta name="description" content="The licence of RootSpeak: free to use, also at work, and to give away; the source code is public, to read, build and change for your own use; not to sell, distribute changed or include in commercial products.">
 <link rel="canonical" href="https://rootspeak.nicfio.it/licence.html">
 <style>
 body{margin:0;background:#f4f6fa;color:#111827;font:16px/1.65 Cantarell,"Segoe UI",Roboto,Arial,sans-serif}

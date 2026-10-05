@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define RSPEAK_VERSION "0.2.0"
+#define RSPEAK_VERSION "0.2.1"
 
 /* Maximum length of a message's text, in bytes: the desktop dialog
  * receives it as a zenity argument, and Linux does not accept an

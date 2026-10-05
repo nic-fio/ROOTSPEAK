@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-05 09:29:26 UTC",
-  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
+  "date": "2026-10-05 10:20:58 UTC",
+  "version": "RootSpeak - Advanced Messaging System for Linux 0.2.1",
   "system": "Fedora Linux 44 (Container Image), container with systemd",
   "ok": 72,
   "failed": 0,
   "not_tested": 2,
   "total": 74,
-  "commit": "c5bbfa4f0a-modified",
-  "fingerprint": "001675985902",
+  "commit": "64ef42bb71-modified",
+  "fingerprint": "8bf56d389921",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.106
+    "seconds": 0.134
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.278
+    "seconds_from_login": 0.371
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:27 (terminal pts/2)",
+   "details": "confirmed on 05/10 10:19 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.053,
-    "seconds_to_terminal": 0.103
+    "seconds_send": 0.078,
+    "seconds_to_terminal": 0.128
    }
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.056
+    "seconds": 0.052
    }
   },
   {
@@ -200,7 +200,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.95
+    "seconds": 0.952
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 05/10 09:28",
+   "details": "delivered, written to 1 terminal, postponed on 05/10 10:19",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@0d937534ee3f ~]$ ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\n[luca@424bc3bd48b3 ~]$ ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1791192488 terminal pts/7",
+   "details": "1791195579 terminal pts/7",
    "measures": {}
   },
   {
@@ -274,7 +274,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 1.001
+    "seconds": 1.002
    }
   },
   {
@@ -323,7 +323,7 @@
    "measures": {
     "delivered_at_kill": 3,
     "recipients": 68,
-    "seconds_recovery": 1.265
+    "seconds_recovery": 1.016
    }
   },
   {
@@ -343,7 +343,7 @@
    "outcome": "OK",
    "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.5
+    "seconds_waiting_revoke": 0.57
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "68 deliveries recorded for 68 recipients, 68 distinct",
    "measures": {
-    "rspeak_list_during_sending": 14
+    "rspeak_list_during_sending": 22
    }
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-05 09:28:47  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-05 10:20:19  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/15)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.069
+    "seconds": 0.06
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/15)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -518,7 +518,7 @@
    "description": "fish: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/16)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -538,7 +538,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.057
+    "seconds": 0.068
    }
   },
   {
@@ -547,7 +547,7 @@
    "description": "fish: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/16)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -565,7 +565,7 @@
    "description": "ksh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/17)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/17)",
    "measures": {}
   },
   {
@@ -601,7 +601,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:28 (terminal pts/18)",
+   "details": "confirmed on 05/10 10:20 (terminal pts/18)",
    "measures": {}
   },
   {
@@ -612,8 +612,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.71,
-    "ms_per_recipient": 12.3
+    "seconds": 0.66,
+    "ms_per_recipient": 11.4
    }
   },
   {
@@ -624,7 +624,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.56
+    "seconds": 0.47
    }
   },
   {
@@ -635,7 +635,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.55
+    "seconds": 0.57
    }
   },
   {
@@ -671,7 +671,7 @@
    "description": "reinstalling (as an upgrade does): messages, configuration and hooks stay as they were",
    "expected": "message 1 still there, edited configuration kept, root:wheel 750, 1 hook lines",
    "outcome": "OK",
-   "details": "[1/4] Verify package files              100% |   1.0 KiB/s |   1.0   B |  00m00s\n[2/4] Prepare transaction               100% | 100.0   B/s |   2.0   B |  00m00s\n[3/4] Reinstalling rootspeak-0:0.2.0-1",
+   "details": "[1/4] Verify package files              100% | 333.0   B/s |   1.0   B |  00m00s\n[2/4] Prepare transaction               100% |  71.0   B/s |   2.0   B |  00m00s\n[3/4] Reinstalling rootspeak-0:0.2.1-1",
    "measures": {}
   },
   {
@@ -689,7 +689,7 @@
    "description": "removing the package: programs and hooks go, messages stay",
    "expected": "no files of RootSpeak, no hook lines, message 1 in the store",
    "outcome": "OK",
-   "details": "[1/2] Prepare transaction               100% |  47.0   B/s |   1.0   B |  00m00s\n[2/2] Removing rootspeak-0:0.2.0-1.x86_ 100% | 260.0   B/s |  25.0   B |  00m00s\n>>> [RPM] /etc/rootspeak/rootspeak.con",
+   "details": "[1/2] Prepare transaction               100% |  28.0   B/s |   1.0   B |  00m00s\n[2/2] Removing rootspeak-0:0.2.1-1.x86_ 100% | 189.0   B/s |  25.0   B |  00m00s\n>>> [RPM] /etc/rootspeak/rootspeak.con",
    "measures": {}
   },
   {
@@ -707,7 +707,7 @@
    "description": "removing with dnf: the messages stay (only apt has purge)",
    "expected": "/var/lib/rootspeak kept",
    "outcome": "OK",
-   "details": "[1/2] Prepare transaction               100% |  35.0   B/s |   1.0   B |  00m00s\n[2/2] Removing rootspeak-0:0.2.0-1.x86_ 100% | 277.0   B/s |  25.0   B |  00m00s\n>>> [RPM] /etc/rootspeak/rootspeak.con",
+   "details": "[1/2] Prepare transaction               100% |  34.0   B/s |   1.0   B |  00m00s\n[2/2] Removing rootspeak-0:0.2.1-1.x86_ 100% | 215.0   B/s |  25.0   B |  00m00s\n>>> [RPM] /etc/rootspeak/rootspeak.con",
    "measures": {}
   }
  ]

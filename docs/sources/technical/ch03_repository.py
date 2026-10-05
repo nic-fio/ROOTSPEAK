@@ -250,9 +250,10 @@ RELEASE = flow([("tools/release.sh", "on the test server", "dark"), ("rhel-9 ima
                 ("site/publish.sh", "rootspeak.nicfio.it", "green")],
                "«FIG» — From the code to the download on the website", "Release")
 
-S6 = p("RootSpeak is freeware and is distributed as built programs, not as source: a package for each family of "
-       "distributions and an archive, " + c("rootspeak-VERSION-linux-x86_64.tar.gz") + ", for the others. They all "
-       "carry the same programs, built once.", lead=True) + \
+S6 = p("RootSpeak is distributed as built programs: a package for each family of distributions and an archive, "
+       + c("rootspeak-VERSION-linux-x86_64.tar.gz") + ", for the others. They all carry the same programs, built "
+       "once. Next to them, " + c("rootspeak-VERSION-source.tar.gz") + " carries the source code (RootSpeak "
+       "Source-Available Licence).", lead=True) + \
     RELEASE + steps([
     c("tools/release.sh") + " copies the files under version control to the test server and builds them in the "
     "image of RHEL 9 of the compatibility tests: RHEL 9 and its rebuilds have the oldest C library among the "
@@ -263,14 +264,20 @@ S6 = p("RootSpeak is freeware and is distributed as built programs, not as sourc
     + ", " + c("build/rootspeak-user") + ", the two manuals, " + c("LICENSE") + ", " + c("NOTICE.md") + " and a "
     + c("README.txt") + ".",
     "It builds the programs a second time with " + c("PREFIX=/usr") + ", in the same image, and makes the three "
-    "packages with them (next section); " + c("SHA256SUMS") + " covers the archive and the packages.",
+    "packages with them (next section).",
+    "It makes the source archive with a fixed list of files: " + c("Makefile") + ", " + c("src/") + ", " + c("etc/")
+    + ", " + c("install.sh") + ", the icons, the two manuals, " + c("tests/unit-tests.c") + ", " + c("tests/engine.sh")
+    + ", " + c("tools/fingerprint.sh") + ", " + c("tools/packages/") + ", " + c("LICENSE") + ", " + c("NOTICE.md") + " and a " + c("README.txt")
+    + ". The working notes, the website and the test infrastructure stay out, and the script fails if "
+    + c("CLAUDE.md") + " or " + c("site/") + " end up in it. " + c("SHA256SUMS") + " covers the two archives and "
+    "the packages.",
     c("RSPEAK_RELEASE=build/release tests/distros/run.sh") + " runs all the scenarios on the 22 distributions "
     "with the package of each one installed by its package manager, plus the package scenarios (P); "
     + c("RSPEAK_ARCHIVE=build/release/….tar.gz") + " does the same with the archive. No build on the test "
     "machines; the summary records how RootSpeak was installed.",
     c("site/publish.sh") + " builds the website in " + c("site/public/") + " (landing page, manuals, "
     + c("licence.html") + ", " + c("download/") + ", " + c("og.jpg") + ", " + c("robots.txt") + ", "
-    + c("sitemap.xml") + "; " + c("download/") + " with the archive, the packages and " + c("SHA256SUMS")
+    + c("sitemap.xml") + "; " + c("download/") + " with the two archives, the packages and " + c("SHA256SUMS")
     + ") and copies it to " + c("/srv/www/rootspeak.nicfio.it") + " on the VPS; "
     + c("--build") + " only builds.",
 ]) + note("the libsystemd the programs link to (" + c("libsystemd.so.0") + ") keeps its interface across "

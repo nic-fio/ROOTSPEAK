@@ -98,15 +98,18 @@ S4 = table(["Convention", "Meaning"], [
     warn(c("rspeak") + " always works as administrator (root) and asks for the sudo password, even just to show "
          "the help: this is a deliberate choice, not a bug.", "Always with sudo.")
 
-S5 = p("RootSpeak is <b>freeware</b>: it costs nothing, at home or at work, on any number of machines, also when you "
-       "administer the machines of a company, a school or a customer. The terms are in the RootSpeak Freeware Licence, "
-       "the file " + c("LICENSE") + " published with the programs.") + \
+S5 = p("RootSpeak is <b>free of charge and source-available</b>: it costs nothing, at home or at work, on any number "
+       "of machines, also when you administer the machines of a company, a school or a customer, and its source code "
+       "is downloaded from the website with the packages, so that you can check what it does on your machines. The "
+       "terms are in the RootSpeak Source-Available Licence, the file " + c("LICENSE") + " published with the "
+       "programs.") + \
     table(["You may, free of charge", "You may not, without a written licence"], [
         ["use RootSpeak for anything, also as a tool in paid work", "<b>sell</b> it, or charge a fee for it"],
         ["install it on any number of machines, also with your own deployment tools, and change its settings",
          "include it in a product or service that is sold"],
-        ["copy it and give it to anyone, unchanged, with the licence", "<b>modify</b> it, or decompile it beyond what "
-         "the law allows"],
+        ["copy it and give it to anyone, unchanged, with the licence", "give <b>changed versions</b> to others"],
+        ["read and check the source code, build it yourself, change it for your own use",
+         "remove the copyright and licence notices"],
     ], "«TAB» — The licence in short") + \
     note("to include RootSpeak in a product, or for anything else the licence does not allow, write to "
          "<b>rootspeak@nicfio.it</b>.", "A written licence.")
