@@ -6,41 +6,58 @@
 # Installs the programs built in build/: from the source tree it builds them
 # (make) if they are missing; the downloadable archive has them already built,
 # for /usr/local, and builds nothing.
+# With DESTDIR it only copies the files into DESTDIR, as root:root, without
+# touching the system: tools/release.sh makes the packages this way, with
+# PREFIX=/usr; the packages then run rootspeak-setup configure.
 set -euo pipefail
 
 PREFIX=${PREFIX:-/usr/local}
+DESTDIR=${DESTDIR:-}
 LIBDIR=$PREFIX/lib/rootspeak
 BINDIR=$PREFIX/bin
 VARDIR=/var/lib/rootspeak
 DOCDIR=$PREFIX/share/doc/rootspeak
-BASHRC=/etc/bash.bashrc
-ZSHRC=$( [ -d /etc/zsh ] && echo /etc/zsh/zshrc || echo /etc/zshrc )
+ICONDIR=$PREFIX/share/icons/hicolor
+METAINFO=$PREFIX/share/metainfo/it.nicfio.rootspeak.metainfo.xml
 FISHCONF=/etc/fish/conf.d/rootspeak.fish
-MARK='# RootSpeak hook'
 SRC=$(dirname "$(readlink -f "$0")")
-# the desktop agent
-AGENT_RE="^$LIBDIR/rootspeak-user agent\$"
+# where the packages install
+PACKAGE_LIBDIR=/usr/lib/rootspeak
 
-[ "$(id -u)" -eq 0 ] || exec sudo -- "$(readlink -f "$0")" "$@"
+[ -n "$DESTDIR" ] || [ "$(id -u)" -eq 0 ] || exec sudo -- "$(readlink -f "$0")" "$@"
 
-# The administrators' group already on the system.
-admin_group() {
-	local g
-	for g in sudo wheel admin; do
-		if getent group "$g" >/dev/null; then echo "$g"; return; fi
+subst() { sed -e "s|@LIBDIR@|$LIBDIR|g" -e "s|@BINDIR@|$BINDIR|g" -e "s|@VARDIR@|$VARDIR|g" "$1"; }
+
+# The files of the installation, into $DESTDIR (empty: the system itself).
+copy_files() {
+	local d=$DESTDIR
+	install -d -m 755 "$d$LIBDIR" "$d$BINDIR" "$d/etc/rootspeak" "$d/etc/profile.d" "$d/etc/xdg/autostart" \
+		"$d$(dirname "$FISHCONF")" "$d$DOCDIR"
+	install -m 755 "$SRC/build/rootspeak-user" "$d$LIBDIR/rootspeak-user"
+	# the group is set by rootspeak-setup configure
+	install -m 750 "$SRC/build/rspeak" "$d$BINDIR/rspeak"
+	[ -e "$d/etc/rootspeak/rootspeak.conf" ] ||
+		install -m 644 "$SRC/etc/rootspeak/rootspeak.conf" "$d/etc/rootspeak/rootspeak.conf"
+	# the manuals, one file each
+	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$SRC/LICENSE" "$d$DOCDIR/"
+	# the logo as the icon (notifications, software centres) and the software centres' description
+	install -D -m 644 "$SRC/logos/rootspeak-icon.svg" "$d$ICONDIR/scalable/apps/rootspeak.svg"
+	for n in 48 128 256; do
+		install -D -m 644 "$SRC/logos/rootspeak-icon-$n.png" "$d$ICONDIR/${n}x$n/apps/rootspeak.png"
 	done
-	echo root
+	install -D -m 644 "$SRC/etc/rootspeak.metainfo.xml" "$d$METAINFO"
+	subst "$SRC/etc/rootspeak-setup" >"$d$LIBDIR/rootspeak-setup"
+	subst "$SRC/etc/profile.d/rootspeak.sh" >"$d/etc/profile.d/rootspeak.sh"
+	subst "$SRC/etc/rootspeak.bash" >"$d$LIBDIR/rootspeak.bash"
+	subst "$SRC/etc/rootspeak.zsh" >"$d$LIBDIR/rootspeak.zsh"
+	subst "$SRC/etc/rootspeak.fish" >"$d$FISHCONF"
+	subst "$SRC/etc/xdg/autostart/rootspeak-agent.desktop" >"$d/etc/xdg/autostart/rootspeak-agent.desktop"
+	chmod 755 "$d$LIBDIR/rootspeak-setup"
+	chmod 644 "$d$LIBDIR/rootspeak.bash" "$d$LIBDIR/rootspeak.zsh" "$d$FISHCONF" \
+		"$d/etc/profile.d/rootspeak.sh" "$d/etc/xdg/autostart/rootspeak-agent.desktop"
 }
 
-subst() { sed -e "s|@LIBDIR@|$LIBDIR|g" -e "s|@VARDIR@|$VARDIR|g" "$1"; }
-
 do_install() {
-	local group
-	group=$(admin_group)
-	for c in zenity loginctl systemd-run; do
-		command -v "$c" >/dev/null || echo "Warning: $c is missing" >&2
-	done
-
 	# The programs built with the folders of this installation: if they are
 	# missing or were built for other folders, they are built (only from the
 	# source tree: the archive has no source).
@@ -51,58 +68,40 @@ do_install() {
 		make -C "$SRC" PREFIX="$PREFIX" all >/dev/null ||
 			{ echo "Build failed: gcc, make, pkg-config and the systemd development files are needed (libsystemd-dev or systemd-devel)" >&2; exit 1; }
 	fi
-	install -d -m 755 "$LIBDIR" "$BINDIR" /etc/rootspeak /etc/profile.d /etc/xdg/autostart
-	install -m 755 "$SRC/build/rootspeak-user" "$LIBDIR/rootspeak-user"
+	if [ -n "$DESTDIR" ]; then copy_files; return; fi
+
+	# installed from a package: the package manager updates and removes it
+	if [ "$LIBDIR" != "$PACKAGE_LIBDIR" ] && [ -e "$PACKAGE_LIBDIR/rootspeak-user" ]; then
+		echo "RootSpeak is installed from a package: update or remove it with the package manager (apt, dnf, zypper, pacman)." >&2
+		exit 1
+	fi
+	for c in zenity loginctl systemd-run; do
+		command -v "$c" >/dev/null || echo "Warning: $c is missing" >&2
+	done
 	# the translations of the first 0.2.0 builds: RootSpeak is now in English only
 	rm -f "$PREFIX"/share/locale/*/LC_MESSAGES/rootspeak.mo
-	install -m 750 -o root -g "$group" "$SRC/build/rspeak" "$BINDIR/rspeak"
-	[ -e /etc/rootspeak/rootspeak.conf ] || install -m 644 "$SRC/etc/rootspeak/rootspeak.conf" /etc/rootspeak/rootspeak.conf
-	# the manuals, one file each
-	install -d -m 755 "$DOCDIR"
-	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$DOCDIR/"
-	subst "$SRC/etc/profile.d/rootspeak.sh" >/etc/profile.d/rootspeak.sh
-	subst "$SRC/etc/rootspeak.bash" >"$LIBDIR/rootspeak.bash"
-	subst "$SRC/etc/rootspeak.zsh" >"$LIBDIR/rootspeak.zsh"
-	chmod 644 "$LIBDIR/rootspeak.bash" "$LIBDIR/rootspeak.zsh"
-	# zsh: a line in the system zshrc, if zsh is installed (if it is installed
-	# later, run install.sh again); the zshrc is created if missing (Arch has
-	# only /etc/zsh/zprofile); fish: a file in conf.d, which fish reads even if
-	# it is installed later
-	if command -v zsh >/dev/null && ! grep -qsF "$MARK" "$ZSHRC"; then
-		echo "[ -r $LIBDIR/rootspeak.zsh ] && . $LIBDIR/rootspeak.zsh  $MARK" >>"$ZSHRC"
-	fi
-	install -d -m 755 "$(dirname "$FISHCONF")"
-	subst "$SRC/etc/rootspeak.fish" >"$FISHCONF"
-	chmod 644 "$FISHCONF"
-	subst "$SRC/etc/xdg/autostart/rootspeak-agent.desktop" >/etc/xdg/autostart/rootspeak-agent.desktop
-	chmod 644 /etc/profile.d/rootspeak.sh /etc/xdg/autostart/rootspeak-agent.desktop
+	copy_files
+	"$LIBDIR/rootspeak-setup" configure
 
-	# On Debian and Ubuntu non-login shells (for example the desktop terminals)
-	# do not read /etc/profile.d: the hook is called from bash.bashrc.
-	if [ -f "$BASHRC" ] && ! grep -qF "$MARK" "$BASHRC"; then
-		echo "[ -r /etc/profile.d/rootspeak.sh ] && . /etc/profile.d/rootspeak.sh  $MARK" >>"$BASHRC"
-	fi
-
-	install -d -m 755 "$VARDIR" "$VARDIR/users"
-	install -d -m 700 "$VARDIR/sent"
-
-	# The desktop agents of a previous version are stopped: the first
-	# `rspeak send` or the next login starts an updated one.
-	pkill -f "$AGENT_RE" 2>/dev/null || true
-
-	echo "RootSpeak installed. Command: $BINDIR/rspeak (usable by the $group group)."
+	echo "RootSpeak installed. Command: $BINDIR/rspeak (usable by the $("$LIBDIR/rootspeak-setup" group) group)."
 	echo "Manuals: $DOCDIR/User Manual.html and Technical Manual.html"
 	echo "Sessions already open get messages in the terminal at once, and the"
 	echo "confirmation question from the next shell or the next login."
 }
 
 do_uninstall() {
-	rm -f "$BINDIR/rspeak" /etc/profile.d/rootspeak.sh /etc/xdg/autostart/rootspeak-agent.desktop
+	if [ "$LIBDIR" != "$PACKAGE_LIBDIR" ] && [ -e "$PACKAGE_LIBDIR/rootspeak-user" ] && ! [ -e "$LIBDIR/rootspeak-user" ]; then
+		echo "RootSpeak is installed from a package: remove it with the package manager (apt, dnf, zypper, pacman)." >&2
+		exit 1
+	fi
+	# (installations before rootspeak-setup: the same lines, removed here)
+	if [ -x "$LIBDIR/rootspeak-setup" ]; then "$LIBDIR/rootspeak-setup" unconfigure; else
+		sed -i '\|# RootSpeak hook|d' /etc/bash.bashrc /etc/zsh/zshrc /etc/zshrc 2>/dev/null || true
+		pkill -f "^$LIBDIR/rootspeak-user agent\$" 2>/dev/null || true
+	fi
+	rm -f "$BINDIR/rspeak" /etc/profile.d/rootspeak.sh /etc/xdg/autostart/rootspeak-agent.desktop "$FISHCONF"
 	rm -rf "$LIBDIR" "$DOCDIR"
-	if [ -f "$BASHRC" ]; then sed -i "\|$MARK|d" "$BASHRC"; fi
-	if [ -f "$ZSHRC" ]; then sed -i "\|$MARK|d" "$ZSHRC"; fi
-	rm -f "$FISHCONF"
-	pkill -f "$AGENT_RE" 2>/dev/null || true
+	rm -f "$ICONDIR"/*/apps/rootspeak.svg "$ICONDIR"/*/apps/rootspeak.png "$METAINFO"
 	if [ "${1:-}" = purge ]; then
 		rm -rf "$VARDIR" /etc/rootspeak
 		echo "RootSpeak removed, together with the messages and the configuration."

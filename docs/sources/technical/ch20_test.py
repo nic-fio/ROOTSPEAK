@@ -22,7 +22,7 @@ S1 = p("Every statement about how RootSpeak behaves comes from a run. The tests 
        "the internal parts and the engine, fast and without root; at the top the test machine and the VM, where RootSpeak "
        "runs as root with real users, sessions and dialogs.", lead=True) + LEVELS + \
     p("Test figures are never written by hand: each suite records its result together with the commit and the "
-      "<b>fingerprint</b> of the code under test (" + c("tools/fingerprint.sh") + ": SHA-256 of " + c("src/") + ", " + c("Makefile") + ", " + c("etc/") + " and " + c("install.sh") + "), and this table reads "
+      "<b>fingerprint</b> of the code under test (" + c("tools/fingerprint.sh") + ": SHA-256 of " + c("src/") + ", " + c("Makefile") + ", " + c("etc/") + ", " + c("install.sh") + " and " + c("tools/packages/") + "), and this table reads "
       "them every time the manual is generated. “Valid for the current code” says whether the recorded fingerprint "
       "is that of the code this manual describes.") + test_results() + \
     note("the container has no graphical session: the dialog scenario shows up there as “not tested” and is tested "
@@ -106,6 +106,10 @@ S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an iso
         ["H. Performance", "sending to everybody (about sixty users); " + c("list") + " with 10 messages; "
          + c("status")],
         ["I. Desktop", "not tested in the container (no graphical session); tested in the VM"],
+        ["P. Packages", "only with " + c("RSPEAK_RELEASE") + ": the package installed by the package manager, "
+         "command of root and the administrators, hook lines; the package manager's own check; reinstalling keeps "
+         "messages, configuration and hooks; " + c("install.sh") + " refuses; removal; the package over the archive; "
+         + c("apt purge") + " (other managers: removal keeps the messages)"],
     ], "«TAB» — The real-world scenarios") + \
     p(c("tests/vm/run.sh") + " runs the same scenarios in a <b>virtual machine with a desktop</b>, on the test "
       "server (QEMU with KVM, without root or libvirt), plus the dialog scenarios. Each desktop is a profile in "
@@ -146,7 +150,7 @@ DISTROS = fig(
           "one image per distribution, kept on the SSD", "navy", 12)
     + arrow(605, 100, 605, 128)
     + box(330, 128, 550, 56, "in each: setup.sh, then build, install.sh, scenarios.py",
-          "apt · dnf · zypper · pacman; the compiler of the distribution", "blue", 12)
+          "apt · dnf · zypper · pacman; or the package, with RSPEAK_RELEASE", "blue", 12)
     + arrow(330, 156, 270, 156)
     + box(20, 128, 250, 56, "tests/distros/results/", "one folder per distribution, summary.json", "grey", 12),
     900, 204, "«FIG» — The compatibility tests on the distributions", "tests/distros")
@@ -160,7 +164,9 @@ S3B = p(c("tests/distros/run.sh") + " runs the same real-world scenarios on ever
       "the family, and the script installs the compiler, sshd, the shells and the test users. The administrators' "
       "group is the one of the distribution (" + c("sudo") + " or " + c("wheel") + "). RootSpeak is then "
       "<b>built inside the machine</b>, with the compiler and the libraries of that distribution, and installed with "
-      + c("install.sh") + ", as a customer would. The images carry the fingerprint of the preparation: a change to "
+      + c("install.sh") + "; with " + c("RSPEAK_RELEASE=build/release") + " the machine gets instead the package of "
+      "its family from " + c("tools/release.sh") + ", installed by its package manager without network ("
+      + c("tests/container/package.sh") + "), and the package scenarios (P) run last. The images carry the fingerprint of the preparation: a change to "
       + c("setup.sh") + " builds them again.") + \
     p("A shell that a distribution does not package (ksh on Arch, or the shells missing from the limited "
       "repositories of RHEL's UBI images) is “not tested”, not failed; so is a login shell that already stops on the distribution's own files before reaching "

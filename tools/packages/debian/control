@@ -1,0 +1,19 @@
+Package: rootspeak
+Version: @VERSION@-@REL@
+Architecture: amd64
+Maintainer: Nicola Fiorillo <rootspeak@nicfio.it>
+Installed-Size: @SIZE@
+Depends: libc6 (>= 2.34), libsystemd0, systemd, sudo, procps
+Recommends: zenity
+Suggests: libnotify-bin
+Section: admin
+Priority: optional
+Homepage: https://rootspeak.nicfio.it/
+Description: @SUMMARY@
+ RootSpeak - Advanced Messaging System for Linux. The administrators of a
+ Linux machine send messages to its users, in every terminal and on the
+ desktop, and see for each user whether the message was delivered and
+ confirmed. Administrators use the rspeak command; users get the messages
+ automatically.
+ .
+ Freeware: see /usr/share/doc/rootspeak/copyright.

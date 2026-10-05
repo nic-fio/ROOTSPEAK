@@ -4,12 +4,20 @@
 # on the oldest supported distribution (RHEL 9 and its rebuilds, glibc 2.34),
 # so that they run on all the distributions of tests/distros/list, plus
 # install.sh, the files it installs, the manuals and the licence. No source.
+# And the packages, with the same programs built for /usr: .deb (Debian, Ubuntu),
+# .rpm (Fedora, RHEL and its rebuilds, openSUSE, SLES) and .pkg.tar.zst (Arch),
+# each made with the tool of its family (tools/packages/make-package.sh).
 #   tools/release.sh
-# Result: build/release/rootspeak-VERSION-linux-x86_64.tar.gz and SHA256SUMS.
+# Result in build/release/: rootspeak-VERSION-linux-x86_64.tar.gz,
+# rootspeak_VERSION-1_amd64.deb, rootspeak-VERSION-1.x86_64.rpm,
+# rootspeak-VERSION-1-x86_64.pkg.tar.zst and SHA256SUMS.
 # The programs are built on the test server, in the rhel-9 image of the
-# compatibility tests (tests/distros/run.sh rhel-9 builds it if it is missing).
-# To test the archive on every distribution:
-#   RSPEAK_ARCHIVE=build/release/rootspeak-VERSION-linux-x86_64.tar.gz tests/distros/run.sh
+# compatibility tests; the packages in the debian-12, rhel-9 and arch images
+# (tests/distros/run.sh debian-12 rhel-9 arch builds them if they are missing).
+# The rpm and Arch tools are installed in a throwaway container, from the network
+# (the host's: the server has no pasta for rootless podman networks).
+# To test archive and packages on every distribution:
+#   RSPEAK_RELEASE=build/release tests/distros/run.sh
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 SERVER=${RSPEAK_SERVER:-192.168.0.2}
@@ -23,18 +31,32 @@ SSHOPT=(-o BatchMode=yes -o LogLevel=ERROR)
 x() { ssh "${SSHOPT[@]}" "$SERVER" "export TERM=dumb; $*" 2> >(grep -v '^tput:' >&2); }
 
 tag=$(cat "$ROOT/tests/container/Containerfile" "$ROOT/tests/container/setup.sh" | sha256sum | cut -c1-12)
-IMAGE=localhost/rootspeak-test-rhel-9:$tag
-x "podman --root $DIR/distros/storage image exists $IMAGE" ||
-	{ echo "the image $IMAGE is missing on $SERVER: run tests/distros/run.sh rhel-9 first" >&2; exit 2; }
+image() { echo "localhost/rootspeak-test-$1:$tag"; }
+for d in rhel-9 debian-12 arch; do
+	x "podman --root $DIR/distros/storage image exists $(image $d)" ||
+		{ echo "the image $(image $d) is missing on $SERVER: run tests/distros/run.sh $d first" >&2; exit 2; }
+done
+podman_run() { x "podman --root $DIR/distros/storage run --rm --entrypoint /bin/sh $*"; }
 
-echo "building on $SERVER, in $IMAGE…"
-# only the files under version control
-git -C "$ROOT" ls-files -z | tar -C "$ROOT" --null -T - -cf - |
-	x "rm -rf $DIR/release && mkdir -p $DIR/release/src $DIR/release/out && tar -xf - -C $DIR/release/src"
-x "podman --root $DIR/distros/storage run --rm --network none --entrypoint /bin/sh \
-	-v $DIR/release/src:/src:Z -v $DIR/release/out:/out:Z $IMAGE -c \
-	'cd /src && make B=/out all >/out/make.log 2>&1 && strip /out/rspeak /out/rootspeak-user'" ||
+echo "building on $SERVER, in $(image rhel-9)…"
+# the files under version control, and the new ones not ignored
+git -C "$ROOT" ls-files -co --exclude-standard -z | tar -C "$ROOT" --null -T - -cf - |
+	x "rm -rf $DIR/release && mkdir -p $DIR/release/src $DIR/release/out $DIR/release/pkg && tar -xf - -C $DIR/release/src"
+# the archive's programs for /usr/local, the packages' for /usr
+podman_run "--network none -v $DIR/release/src:/src:Z -v $DIR/release/out:/out:Z $(image rhel-9) -c \
+	'cd /src && make B=/out all >/out/make.log 2>&1 && strip /out/rspeak /out/rootspeak-user &&
+	 make B=/out/usr PREFIX=/usr all >>/out/make.log 2>&1 && strip /out/usr/rspeak /out/usr/rootspeak-user &&
+	 mkdir -p /src/build && cp /out/usr/rspeak /out/usr/rootspeak-user /src/build/'" ||
 	{ x "cat $DIR/release/out/make.log"; echo "build failed" >&2; exit 1; }
+
+echo "packages…"
+MP="/src/tools/packages/make-package.sh"
+podman_run "--network none -v $DIR/release/src:/src:ro,Z -v $DIR/release/pkg:/out:Z $(image debian-12) -c \
+	'$MP deb $VERSION /src /out'" || { echo "the .deb failed" >&2; exit 1; }
+podman_run "--network host -v $DIR/release/src:/src:ro,Z -v $DIR/release/pkg:/out:Z $(image rhel-9) -c \
+	'dnf -q -y install rpm-build >/dev/null && $MP rpm $VERSION /src /out'" || { echo "the .rpm failed" >&2; exit 1; }
+podman_run "--network host -v $DIR/release/src:/src:ro,Z -v $DIR/release/pkg:/out:Z $(image arch) -c \
+	'pacman -Sy --noconfirm --needed fakeroot >/dev/null && $MP arch $VERSION /src /out'" || { echo "the Arch package failed" >&2; exit 1; }
 
 rm -rf "$OUT" && mkdir -p "$OUT/$NAME/build" "$OUT/$NAME/docs"
 x "tar -C $DIR/release/out -cf - rspeak rootspeak-user" | tar -C "$OUT/$NAME/build" -xf -
@@ -50,6 +72,7 @@ grep -qaF /usr/local/lib/rootspeak "$OUT/$NAME/build/rspeak" ||
 
 cp "$ROOT/install.sh" "$ROOT/LICENSE" "$ROOT/NOTICE.md" "$OUT/$NAME/"
 cp -r "$ROOT/etc" "$OUT/$NAME/"
+mkdir -p "$OUT/$NAME/logos" && cp "$ROOT"/logos/rootspeak-icon* "$OUT/$NAME/logos/"
 cp "$ROOT/docs/User Manual.html" "$ROOT/docs/Technical Manual.html" "$OUT/$NAME/docs/"
 cat >"$OUT/$NAME/README.txt" <<EOF
 RootSpeak $VERSION - Advanced Messaging System for Linux
@@ -79,6 +102,10 @@ Contact: rootspeak@nicfio.it
 EOF
 
 tar -C "$OUT" --owner=0 --group=0 --mode=u=rwX,go=rX --sort=name -czf "$OUT/$NAME.tar.gz" "$NAME"
-(cd "$OUT" && sha256sum "$NAME.tar.gz" >SHA256SUMS)
+x "tar -C $DIR/release/pkg -cf - ." | tar -C "$OUT" -xf -
+PKGS=(rootspeak_$VERSION-1_amd64.deb rootspeak-$VERSION-1.x86_64.rpm rootspeak-$VERSION-1-x86_64.pkg.tar.zst)
+for p in "${PKGS[@]}"; do [ -s "$OUT/$p" ] || { echo "missing package $p" >&2; exit 1; }; done
+(cd "$OUT" && sha256sum "$NAME.tar.gz" "${PKGS[@]}" >SHA256SUMS)
 echo "built $OUT/$NAME.tar.gz ($(stat -c %s "$OUT/$NAME.tar.gz") bytes, glibc $need or newer):"
 tar -tvzf "$OUT/$NAME.tar.gz" | awk '{s=$3; for (i=1; i<6; i++) $i=""; sub(/^ +/, ""); print "  " $0 "  " s}'
+for p in "${PKGS[@]}"; do echo "built $OUT/$p ($(stat -c %s "$OUT/$p") bytes)"; done

@@ -1,0 +1,6 @@
+#!/bin/sh
+# RootSpeak - Advanced Messaging System for Linux: after installing or upgrading
+set -e
+if [ "$1" = configure ]; then
+	/usr/lib/rootspeak/rootspeak-setup configure
+fi

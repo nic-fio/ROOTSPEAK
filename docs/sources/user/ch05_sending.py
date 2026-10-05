@@ -192,7 +192,7 @@ S7 = table(["I want to…", "Command"], [
     ["write to a work group", c('rspeak send --to @developers --expires 2d "Deadline: Thursday at 18:00."')],
     ["write to two people and a group", c('rspeak send --to mario,anna,@interns "Meeting at 11."')],
     ["send the output of a command", c("df -h /home | rspeak send --to anna --title \"Disk space\"")],
-    ["send a notice from cron, every Monday at 8:00", c("0 8 * * 1  /usr/local/bin/rspeak send --to all --file /etc/weekly-notice.txt")],
+    ["send a notice from cron, every Monday at 8:00", c("0 8 * * 1  /usr/bin/rspeak send --to all --file /etc/weekly-notice.txt")],
 ], "«TAB» — Ready-made commands for the most common cases") + \
     tip("in cron (root's crontab, " + c("sudo crontab -e") + ") " + c("rspeak") + " is already root and does not ask for "
         "the password. It is best to give the full path of the command.", "Automatic sending.")

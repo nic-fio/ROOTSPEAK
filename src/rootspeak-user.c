@@ -413,7 +413,7 @@ static void report_failed_confirmation(void)
 			dup2(nul, 1);
 			dup2(nul, 2);
 		}
-		execlp("notify-send", "notify-send", "-a", "RootSpeak", "RootSpeak · Confirmation not recorded",
+		execlp("notify-send", "notify-send", "-a", "RootSpeak", "-i", "rootspeak", "RootSpeak · Confirmation not recorded",
 		       "The confirmation could not be recorded: the message will be shown again.", (char *)NULL);
 		_exit(127);
 	}

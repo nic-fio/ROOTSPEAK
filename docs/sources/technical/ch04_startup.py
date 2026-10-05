@@ -90,7 +90,7 @@ S3 = p(c("rspeak_init") + " in " + c("src/common.c") + " sets the working folder
        "from the environment of whoever launches it.", lead=True) + table(
     ["Global variable", "Default", "In test mode"], [
         [c("rspeak_var"), c("/var/lib/rootspeak"), c("RSPEAK_VAR")],
-        [c("rspeak_libdir"), c("LIBDIR") + " from the Makefile (" + c("/usr/local/lib/rootspeak") + ")", c("RSPEAK_LIB")],
+        [c("rspeak_libdir"), c("LIBDIR") + " from the Makefile (" + c("PREFIX/lib/rootspeak") + ")", c("RSPEAK_LIB")],
         [c("rspeak_conf_path"), c("/etc/rootspeak/rootspeak.conf"), c("RSPEAK_CONF")],
         [c("rspeak_test"), "false", "true if " + c("RSPEAK_TEST") + " is not empty"],
         [c("rspeak_name"), "—", c("\"rspeak\"") + " or " + c("\"rootspeak-user\"") + ": the prefix of error messages"],

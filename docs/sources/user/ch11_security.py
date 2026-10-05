@@ -10,7 +10,7 @@ S1 = p("Only the machine's administrators can use " + c("rspeak") + ": the membe
        "leaves the group gains or loses access from their next login to the machine (" + ref(2, 4) + ").",
        lead=True) + term(
     "mario@server:~$ rspeak list\n"
-    "bash: /usr/local/bin/rspeak: Permission denied",
+    "bash: /usr/bin/rspeak: Permission denied",
     "An ordinary user cannot even start the command") + \
     ul([
         c("rspeak") + " always works as administrator, even to show the help or the version: if it is not already "

@@ -10,6 +10,7 @@
 
 PREFIX    ?= /usr/local
 LIBDIR    ?= $(PREFIX)/lib/rootspeak
+DOCDIR    ?= $(PREFIX)/share/doc/rootspeak
 B         ?= build
 
 CC      ?= gcc
@@ -28,7 +29,7 @@ FORTIFY    := $(shell echo 'int main(void){return 0;}' | \
 HARDENING   = -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=$(FORTIFY) -fstack-protector-strong -fstack-clash-protection $(CET) -fPIE
 CFLAGS  ?= -O2 -g
 CFLAGS  += $(STD) -D_GNU_SOURCE $(WARNINGS) $(HARDENING) \
-           -DLIBDIR='"$(LIBDIR)"'
+           -DLIBDIR='"$(LIBDIR)"' -DDOCDIR='"$(DOCDIR)"'
 LDFLAGS += -pie -Wl,-z,relro,-z,now -Wl,-z,noexecstack
 LIBS     = $(shell pkg-config --libs libsystemd)
 

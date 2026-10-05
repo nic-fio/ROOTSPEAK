@@ -100,7 +100,8 @@ Receiving is automatic: the user does not need to know or type any command.
 - [1] Interactive built-in help (`rspeak --help`), modelled on MTERM's: tabs, a manual-style page
   if the terminal is small, plain text in a pipe. No man page.
 - [1] `tools/check-docs.py`: fails if the built-in help and the manual diverge; `tests/help-tui.py` tests the help
-- [2] deb and rpm packages
+- [1] Packages: `.deb` (Debian, Ubuntu), `.rpm` (Fedora, RHEL and its rebuilds, openSUSE, SLES) and Arch,
+  made by `tools/release.sh` with `tools/packages/`, tested on the 22 distributions; the logo as icon
 
 ## Choices left out
 
@@ -121,7 +122,7 @@ No daemon: every piece uses tools already present on the system. The details are
 - `rspeak` always runs as root (it re-runs itself with sudo): it saves the message and delivers it at once to
   the active sessions, writing to the terminals and waking the desktop agent with a signal
   (if the agent is missing, it starts one with `systemd-run --user`).
-- `/usr/local/lib/rootspeak/rootspeak-user`: internal helper, outside the PATH and not documented as a command.
+- `/usr/lib/rootspeak/rootspeak-user` (`/usr/local/lib` with `install.sh`): internal helper, outside the PATH and not documented as a command.
   It runs as the user and only the hook and the agent use it, to show the messages and record the confirmation.
 - The hook in `/etc/profile.d` shows the pending messages and the reminders in the terminal.
 - A small agent started automatically in the graphical session (`/etc/xdg/autostart`)
@@ -143,6 +144,11 @@ and the desktop needs `zenity`; the user manual lists the packages of each famil
 distributions (`tests/distros`) and on GNOME, KDE Plasma and Cinnamon, on Wayland and X11 (`tests/vm`).
 `tools/setup-dev.sh` says which ones are missing (with `--install` it installs them). `tools/backup.sh` saves
 the whole repository, with its history, in a single file.
+
+Administrators install the package of their distribution from https://rootspeak.nicfio.it
+(`sudo apt install ./rootspeak_VERSION-1_amd64.deb`, `sudo dnf install ./rootspeak-VERSION-1.x86_64.rpm`,
+`sudo pacman -U …`), which puts everything in `/usr`; `tools/release.sh` builds the packages and the archive.
+From the source tree, or from the archive, `install.sh` installs in `/usr/local`:
 
 ```
 make                      # builds in build/
@@ -179,7 +185,7 @@ make                      # builds in build/
 The two manuals are self-contained HTML files: they open with a double click or with
 `xdg-open "docs/User Manual.html"`, can be attached to an email and printed. GitHub does not show
 them laid out (it shows the source code): download them or open them from the local copy.
-After the installation they are also in `/usr/local/share/doc/rootspeak/`.
+After the installation they are also in `/usr/share/doc/rootspeak/` (`/usr/local/share/doc/rootspeak/` with `install.sh`).
 
 They are generated: edit the chapters in `docs/sources/user/` and `docs/sources/technical/`
 and regenerate them with `make docs` (needs `python3-pygments`); `make docs-check` checks that they are aligned.

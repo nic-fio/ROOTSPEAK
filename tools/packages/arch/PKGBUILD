@@ -1,0 +1,23 @@
+# RootSpeak - Advanced Messaging System for Linux
+# The Arch package: the files are already in $STAGE
+# (tools/packages/make-package.sh), nothing is built here.
+pkgname=rootspeak
+pkgver=@VERSION@
+pkgrel=@REL@
+pkgdesc="@SUMMARY@"
+arch=(x86_64)
+url="https://rootspeak.nicfio.it/"
+license=(LicenseRef-RootSpeak-Freeware)
+depends=(glibc systemd systemd-libs sudo procps-ng)
+optdepends=('zenity: the desktop dialog' 'libnotify: notice when a confirmation is not recorded')
+backup=(etc/rootspeak/rootspeak.conf)
+install=rootspeak.install
+options=(!strip !debug)
+
+package() {
+	cp -a "$STAGE"/. "$pkgdir"/
+	# (the stage is readable by makepkg's user: the command goes back to 750)
+	chmod 750 "$pkgdir/usr/bin/rspeak"
+	install -d "$pkgdir/usr/share/licenses/rootspeak"
+	ln -s ../../doc/rootspeak/LICENSE "$pkgdir/usr/share/licenses/rootspeak/LICENSE"
+}

@@ -47,7 +47,7 @@ S1 = p("When a command fails, " + c("rspeak") + " prints a line in red that star
     ], "«TAB» — The error messages")
 
 S2 = table(["Problem", "Likely cause", "Remedy"], [
-    [c("rspeak: command not found"), "RootSpeak is not installed", "run " + c("./install.sh") + " (" + ref(2, 2) + ")"],
+    [c("rspeak: command not found"), "RootSpeak is not installed", "install the package (" + ref(2, 2) + ")"],
     [c("Permission denied"), "whoever runs it is not an administrator", "this is intended (" + ref(11, 1) + ")"],
     [c("rspeak") + " on its own shows the help instead of the TUI", "the terminal is smaller than 80 columns or 20 "
      "rows, or the output is not a terminal", "enlarge the window, or use the commands"],
@@ -55,7 +55,7 @@ S2 = table(["Problem", "Likely cause", "Remedy"], [
     ["the text reaches the terminal but the question does not", "the terminal window was open before the "
      "installation; or the shell is sh, dash or ksh (question only at login) or tcsh (no question); "
      "or zsh was installed after RootSpeak", "open a new window or log in again; for zsh installed later, "
-     "run " + c("./install.sh") + " again (" + ref(8, 3) + ")"],
+     "reinstall RootSpeak (" + ref(8, 3) + ")"],
     ["no dialog appears on the desktop", c("zenity") + " is missing, or the graphical session was "
      "started before the installation and the agent did not start", "install " + c("zenity") + "; the agent "
      "starts by itself with the first new message or at the next login"],
@@ -131,15 +131,17 @@ S4 = p("If a sending is interrupted halfway (the disk fills up, " + c("rspeak") 
          "again. Freeing space in " + c("/var/lib") + " solves both.", "Full disk.")
 
 S5 = table(["What", "Where"], [
-    ["the command", c("/usr/local/bin/rspeak")],
+    ["the command", c("/usr/bin/rspeak") + " (" + c("/usr/local/bin/rspeak") + " with the archive)"],
     ["the settings", c("/etc/rootspeak/rootspeak.conf")],
     ["messages and confirmations", c("/var/lib/rootspeak/")],
     ["the log", c("sudo journalctl -t rspeak")],
     ["the help", c("rspeak --help")],
-    ["the manuals", c("/usr/local/share/doc/rootspeak/User Manual.html") + " and " + c("Technical Manual.html")],
-    ["the shell hooks", c("/etc/profile.d/rootspeak.sh") + ", " + c("/usr/local/lib/rootspeak/rootspeak.bash") + ", "
+    ["the manuals", c("/usr/share/doc/rootspeak/User Manual.html") + " and " + c("Technical Manual.html")],
+    ["the shell hooks", c("/etc/profile.d/rootspeak.sh") + ", " + c("/usr/lib/rootspeak/rootspeak.bash") + ", "
      + c("rootspeak.zsh") + ", " + c("/etc/fish/conf.d/rootspeak.fish")],
     ["the desktop autostart", c("/etc/xdg/autostart/rootspeak-agent.desktop")],
+    ["which installation", c("dpkg -s rootspeak") + ", " + c("rpm -q rootspeak") + " or " + c("pacman -Q rootspeak")
+     + " for a package; " + c("/usr/local/bin/rspeak") + " for the archive"],
     ["the code", c("https://github.com/nic-fio/ROOTSPEAK") + " (private)"],
 ], "«TAB» — Where to find things") + \
     tip("when something does not add up, the places to look are, in order: the message details, its history, "

@@ -1,0 +1,80 @@
+#!/bin/bash
+# RootSpeak - Advanced Messaging System for Linux
+# What an installation does on the system besides copying its files, the same
+# for install.sh and for the .deb, .rpm and Arch packages: the administrators'
+# group on the command, the hook lines in files that belong to other packages
+# (bash.bashrc, zshrc), the folders of the store, the desktop agents of the
+# previous version. Installed as @LIBDIR@/rootspeak-setup.
+#   rootspeak-setup configure     after installing or upgrading
+#   rootspeak-setup unconfigure   before removing the files
+#   rootspeak-setup group         prints the administrators' group
+set -eu
+
+LIBDIR=@LIBDIR@
+BINDIR=@BINDIR@
+VARDIR=@VARDIR@
+BASHRC=/etc/bash.bashrc
+ZSHRC=$( [ -d /etc/zsh ] && echo /etc/zsh/zshrc || echo /etc/zshrc )
+MARK='# RootSpeak hook'
+# the desktop agent, of this installation or of any other
+AGENT_RE='^(/usr|/usr/local)/lib/rootspeak/rootspeak-user agent$'
+# where the downloadable archive installs (install.sh)
+ARCHIVE_PREFIX=/usr/local
+
+# The administrators' group already on the system.
+admin_group() {
+	local g
+	for g in sudo wheel admin; do
+		if getent group "$g" >/dev/null; then echo "$g"; return; fi
+	done
+	echo root
+}
+
+# The hook lines are removed, and written again by configure: the zsh line
+# carries the folder of the installation, which changes from the archive to a package.
+unhook() {
+	local f
+	for f in "$BASHRC" "$ZSHRC"; do
+		if [ -f "$f" ] && grep -qF "$MARK" "$f"; then sed -i "\|$MARK|d" "$f"; fi
+	done
+}
+
+configure() {
+	# A package replaces an installation made from the archive: its programs
+	# and manuals in /usr/local are removed (messages and configuration are the same).
+	if [ "$LIBDIR" != "$ARCHIVE_PREFIX/lib/rootspeak" ] && [ -e "$ARCHIVE_PREFIX/lib/rootspeak/rootspeak-user" ]; then
+		rm -rf "$ARCHIVE_PREFIX/bin/rspeak" "$ARCHIVE_PREFIX/lib/rootspeak" "$ARCHIVE_PREFIX/share/doc/rootspeak"
+		echo "RootSpeak: the installation from the archive in $ARCHIVE_PREFIX was replaced by this package."
+	fi
+	chgrp "$(admin_group)" "$BINDIR/rspeak"
+	chmod 750 "$BINDIR/rspeak"
+	install -d -m 755 "$VARDIR" "$VARDIR/users"
+	install -d -m 700 "$VARDIR/sent"
+	unhook
+	# On Debian and Ubuntu non-login shells (for example the desktop terminals)
+	# do not read /etc/profile.d: the hook is called from bash.bashrc.
+	if [ -f "$BASHRC" ]; then
+		echo "[ -r /etc/profile.d/rootspeak.sh ] && . /etc/profile.d/rootspeak.sh  $MARK" >>"$BASHRC"
+	fi
+	# zsh: a line in the system zshrc, if zsh is installed (if it is installed
+	# later, configure again); the zshrc is created if missing (Arch has only
+	# /etc/zsh/zprofile). fish reads /etc/fish/conf.d even if installed later.
+	if command -v zsh >/dev/null; then
+		echo "[ -r $LIBDIR/rootspeak.zsh ] && . $LIBDIR/rootspeak.zsh  $MARK" >>"$ZSHRC"
+	fi
+	# The desktop agents of a previous version are stopped: the first
+	# `rspeak send` or the next login starts an updated one.
+	pkill -f "$AGENT_RE" 2>/dev/null || true
+}
+
+unconfigure() {
+	unhook
+	pkill -f "$AGENT_RE" 2>/dev/null || true
+}
+
+case ${1:-} in
+configure) configure ;;
+unconfigure) unconfigure ;;
+group) admin_group ;;
+*) echo "Usage: $0 configure | unconfigure | group" >&2; exit 1 ;;
+esac

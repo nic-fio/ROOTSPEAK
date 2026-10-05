@@ -8,7 +8,7 @@ from _helpers import CONFIRMED, DELIVERED, ref  # noqa: E402
 S1 = p("This path leads from a freshly installed RootSpeak to the first confirmation, in four stages. The recipient of "
        "the first message can be the administrator themselves: that way you see with your own eyes what the users "
        "receive. Each stage refers to the chapter that explains it in detail.", lead=True) + \
-    flow([("1. Install", "the archive, ./install.sh", "dark"), ("2. Write and send", "rspeak, key n", "blue"),
+    flow([("1. Install", "the package of the distribution", "dark"), ("2. Write and send", "rspeak, key n", "blue"),
           ("3. The user confirms", "dialog or terminal", "blue"), ("4. Check", "Enter on the message", "green")],
          "«FIG» — The four stages of the first steps", "From nothing to the first confirmation") + \
     table(["Stage", "What you do", "Chapter"], [

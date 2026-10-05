@@ -82,9 +82,9 @@ S3 = p("The Makefile produces two executables. The common parts ("
        + c("common text event user sessions") + ") go into both; " + c("rspeak") + " adds "
        + c("rspeak.o") + ", " + c("help.o") + ", " + c("store.o") + " and " + c("tui.o") + ".", lead=True) + \
     PROGRAMS + table(["Program", "Where", "Permissions", "Who runs it"], [
-        [c("rspeak"), c("/usr/local/bin/rspeak"), c("750") + ", " + c("root:") + " administrators' group",
+        [c("rspeak"), c("/usr/bin/rspeak") + " (archive: " + c("/usr/local/bin") + ")", c("750") + ", " + c("root:") + " administrators' group",
          "an administrator; it relaunches itself with sudo"],
-        [c("rootspeak-user"), c("/usr/local/lib/rootspeak/rootspeak-user"), c("755"), "the shell hook ("
+        [c("rootspeak-user"), c("/usr/lib/rootspeak/rootspeak-user") + " (archive: " + c("/usr/local/lib") + ")", c("755"), "the shell hook ("
          + c("prompt") + ") and desktop autostart (" + c("agent") + "); never the user by hand"],
     ], "«TAB» — The two programs") + \
     p("Both depend only on glibc and libsystemd (" + c("sd-login") + " for sessions, "

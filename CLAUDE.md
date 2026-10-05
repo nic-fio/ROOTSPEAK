@@ -62,6 +62,7 @@ The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-h
 | **Name: RootSpeak (1 October 2026)** | The product will be distributed and sold, and «AMS» is taken for software in the EU (ams-OSRAM, Emerson/Fisher-Rosemount and others). Product name **RootSpeak**, subtitle «Advanced Messaging System for Linux» (descriptive, not a name: it cannot be registered). Administrators' command **`rspeak`**; everything else uses the full name: helper `rootspeak-user`, paths `/etc/rootspeak`, `/var/lib/rootspeak`; the journal identifier stays the command name (`journalctl -t rspeak`). Rejected: LMS, MessageX, TuxCast (taken), Heedbell, Missivo (disliked), `rtspk` (reads like RTSP). No trademark registration for now: the user does not want to pay for it. |
 | **Everything in English (1 October 2026)** | See «How we work». Replaces the exception of the common standard for the `.c`/`.h` file names in `src/`: in this project they are English too. Visible names are English as well: journal fields `RSPEAK_EVENT`, `RSPEAK_MESSAGE`…, events `DELIVERED`, `CONFIRMED`…, store files `revoking`, `.deleting-ID`, `rootspeak-agent.ready`. |
 | **systemd required in 1.0 (1 October 2026)** | Supported: distributions with systemd (logind, `systemd-run`), about 90% of the market. Not in 1.0: Alpine, Void, Gentoo with OpenRC, Devuan, other distributions without systemd. |
+| **Packages (5 October 2026)** | `.deb`, `.rpm` and Arch packages of our own, downloaded from the website (not the distributions' archives: closed source); in `/usr`, while the archive installs in `/usr/local`. One configuration step for both: `rootspeak-setup` (`etc/`). Not signed and no repository for now: `SHA256SUMS`. The logo is the icon (software centres, notices), no menu entry. |
 | **Freeware (5 October 2026)** | RootSpeak is given away, like NESH and EFI Partition Manager: the RootSpeak Freeware Licence (`LICENSE`, the same text as theirs, adapted): free use on any number of machines, also at work and in paid work; free redistribution unchanged; no sale, no inclusion in commercial products, no modification. Commercial licences: `rootspeak@nicfio.it` (alias on the nesh@ mailbox). Distributed as built programs, not as source; the repository stays private. Replaces «Licence: to be decided», the trial and full editions and the road to sale. Footer of the manuals: `… · © 2026 Nicola Fiorillo · Licence: freeware`. |
 
 ## Rename to RootSpeak (1 October 2026)
@@ -113,12 +114,13 @@ owner on 30 September 2026: file and folder names in English, `README.md`,
 | `src/` | The C code: `rspeak.c` (administrators' command), `rootspeak-user.c` (helper running as the user), `store.c`, `user.c`, `sessions.c`, `text.c`, `event.c`, `help.c`, `common.c`, `tui.c`. |
 | `Makefile` | `make`, `make unit`, `make test` (unit tests, manual checks, `tests/engine.sh`), `make docs`, `make docs-check`, `make sanitizer`, `make analyze`, `make clean`. |
 | `etc/` | Shell hooks, desktop agent autostart, default configuration. |
-| `install.sh` | Install, upgrade, `--uninstall`, `--purge`. |
+| `install.sh` | Install, upgrade, `--uninstall`, `--purge`; `DESTDIR=` only copies the files (for the packages). |
 | `docs/` | `User Manual.html` and `Technical Manual.html` (generated, never by hand), `index.html` (home page), `README.md` (what is there and how to regenerate it), `.nojekyll`, `decisions-and-history.md`, `adversarial-review.md`. |
 | `docs/sources/` | `build.py` (generator and helpers for figures and tables), `style.css` and `manual.js` (style and script common to the 7 projects, not to be changed here), `cover-logo.png` (the cover logo), chapters in `user/` and `technical/`, real TUI screenshots in `screens/` and `user/screens/`. The command reference of the user manual is read from `src/help.c`. |
 | `tests/` | `engine.sh`: the engine in test mode; `help-tui.py`: the interactive help on a virtual terminal; `tui.py`: the TUI; `container/`: the test machine and real scenarios (`setup.sh` prepares it on any distribution); `distros/`: the same scenarios on 22 distributions, on the test server; `vm/`: the desktop VM on the test server; `fuzz/`: fuzzing; `unit-tests.c`: the internals (`make unit`). Results in `results/` and `*/results/`. |
-| `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle; `release.sh`: the downloadable archive (programs built on RHEL 9 on the test server, glibc 2.34, so they run on all 22 distributions). |
-| `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. |
+| `tools/packages/` | `make-package.sh` and the files of the `.deb` (`debian/`), `.rpm` (`rpm/rootspeak.spec`) and Arch (`arch/`) packages; `tools/release.sh` runs it in the debian-12, rhel-9 and arch images on the test server. |
+| `tools/` | `check-docs.py`: consistency between code, help and manuals; `fingerprint.sh`: code fingerprint recorded with the results; `tui-screenshots.sh`: real TUI screenshots for the manuals; `setup-dev.sh`: what is missing to work on a fresh clone; `backup.sh`: the whole repository in a git bundle; `release.sh`: the downloads in `build/release/`: the archive and the three packages (programs built on RHEL 9 on the test server, glibc 2.34, so they run on all 22 distributions). |
+| `logos/` | The project logo: `rootspeak-logo.svg` (master) and `rootspeak-logo.png` (2172×724); the covers of the manuals and of `docs/index.html` use its transparent copy `docs/sources/cover-logo.png`. `rootspeak-icon.svg` (the mark without the text) and its PNG at 48, 128, 256 px: the icon the packages install. |
 | `site/` | The website, `https://rootspeak.nicfio.it`, on the owner's VPS. `landing/`: the landing page (mockup 19 «Night sky», chosen on 1 October 2026 among 20 mockups, which are lost: `site/mockups/` was outside git); since 5 October with Download and Free instead of trial and prices. `publish.sh` builds `site/public/` (landing, manuals, `licence.html` from `LICENSE` by `licence-page.py`, `download/` with the archive of `tools/release.sh`, its `SHA256SUMS` and the licence, `og.jpg`, `robots.txt`, `sitemap.xml`; `seo-head.py` adds description, canonical address and link preview) and copies it to the VPS as user `progetti`; `--build` only builds. |
 | `LICENSE`, `NOTICE.md` | The RootSpeak Freeware Licence; copyright, the licence in short and third-party components (none embedded). |
 | `.github/workflows/ci.yml` | On GitHub at every push: `make`, `make unit`, `tests/engine.sh`, `make docs-check` (no container or VM). |
@@ -250,7 +252,15 @@ the licence page, the manuals, `site/publish.sh` with the search-engine tags,
 `robots.txt`, `sitemap.xml`; (4) the owner creates the site on the VPS
 (`~/Documenti/VPS/add-site.sh`) and the DNS record; then publication and the
 sitemap in Search Console (the domain property nicfio.it already covers the
-subdomains). `.deb`/`.rpm` packages and version 1.0 come later.
+subdomains). Version 1.0 comes later.
+
+**Packages** (the user, 5 October 2026, before advertising the product):
+`.deb`, `.rpm` and Arch, built by `tools/release.sh`, on the landing page
+(a card per family) and in `download/`; scenarios P1–P7 with
+`RSPEAK_RELEASE=build/release tests/distros/run.sh`. Next steps proposed to
+the user: the logo as the zenity dialog's window icon (zenity 3 and 4 differ:
+needs the VM tests), signed packages with an APT/DNF repository for automatic
+upgrades (needs a GPG key kept by the owner), the live test of a package.
 
 The adversarial review of 30 September 2026
 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed. The [2]

@@ -60,8 +60,8 @@ S2 = EFFETTO + steps([
 ], "«TAB» — Recommended values") + \
     warn("the file must remain owned by root and writable only by root, as the installation leaves it: all users "
          "read it, to know when to ask the messages again.", "Permissions.") + \
-    note("a RootSpeak upgrade does not overwrite " + c("/etc/rootspeak/rootspeak.conf") + "; " + c("./install.sh --purge")
-         + " deletes it.", "Upgrades.")
+    note("a RootSpeak upgrade does not overwrite " + c("/etc/rootspeak/rootspeak.conf") + "; " + c("apt purge rootspeak") + " and "
+         + c("./install.sh --purge") + " delete it.", "Upgrades.")
 
 S3 = p("A few environment variables change the behaviour of " + c("rspeak") + " for the administrator who sets them. "
        "Since " + c("rspeak") + " always re-runs itself with sudo, they only get through if sudo keeps them.",

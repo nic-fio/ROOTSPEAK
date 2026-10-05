@@ -497,6 +497,8 @@ def desktop_results():
 
 # ── The built-in help as the source of the reference ───────────────────
 # The groups of the built-in help, as they are named in src/help.c.
+# where the packages install the manuals (DOCDIR in the Makefile with PREFIX=/usr)
+PACKAGE_DOCDIR = "/usr/share/doc/rootspeak"
 HELP_GROUPS = {"RSPEAK_HELP_COMMANDS": "COMMANDS", "RSPEAK_HELP_OPTIONS": "OPTIONS",
                "RSPEAK_HELP_EXAMPLES": "EXAMPLES", "RSPEAK_HELP_FILES": "FILES"}
 
@@ -507,8 +509,10 @@ def help_items(name):
     them as they are: tools/check-docs.py checks that they match."""
     src = (ROOT / "src" / "help.c").read_text()
     m = re.search(r"static const char \*const " + HELP_GROUPS[name] + r"\[\] = \{(.*?)\n\};", src, re.S)
+    # DOCDIR (the folder of the manuals, from the Makefile) as the packages install it
+    body = re.sub(r"\bDOCDIR\b", '"' + PACKAGE_DOCDIR + '"', m.group(1))
     items = []
-    for lit in re.findall(r'^\s*((?:"(?:[^"\\]|\\.)*"\s*)+),?\s*$', m.group(1), re.M):
+    for lit in re.findall(r'^\s*((?:"(?:[^"\\]|\\.)*"\s*)+),?\s*$', body, re.M):
         s = "".join(re.findall(r'"((?:[^"\\]|\\.)*)"', lit))
         items.append(re.sub(r"\\(.)", lambda x: {"n": "\n", "t": "\t"}.get(x.group(1), x.group(1)), s))
     return [tuple(i.split("¦", 1)) for i in items]

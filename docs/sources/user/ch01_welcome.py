@@ -72,7 +72,8 @@ S3 = table(["Who", "What they do with RootSpeak", "Chapters"], [
       "installation to the first confirmation in a few steps. The users who receive the messages do not need to "
       "read anything: the dialog and the question explain themselves, and there is no command for them.") + \
     tip("the inner workings (message store, delivery, security) are described in the Technical Manual, "
-        "installed next to this one in " + c("/usr/local/share/doc/rootspeak/") + ".", "Further reading.")
+        "installed next to this one in " + c("/usr/share/doc/rootspeak/") + " (" + c("/usr/local/share/doc/rootspeak/")
+        + " with the archive).", "Further reading.")
 
 S4 = table(["Convention", "Meaning"], [
     [ui("I have read it"), "Text that appears on the screen: buttons, window titles, fields, RootSpeak messages. "

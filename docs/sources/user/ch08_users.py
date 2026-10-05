@@ -91,7 +91,8 @@ S3 = p("The confirmation question in the terminal depends on the user's shell. T
         + " and commands run with " + c("ssh server command") + " never see it.",
         "Terminal windows already open when RootSpeak is installed receive the text, but the question only from the next "
         "window or the next login.",
-        "If zsh is installed after RootSpeak, re-running " + c("./install.sh") + " is enough to get the question in zsh; "
+        "If zsh is installed after RootSpeak, reinstalling RootSpeak (the package, or " + c("./install.sh") + ") is enough "
+        "to get the question in zsh; "
         "fish, instead, gets it even if installed later.",
     ]) + warn("with " + c("su - mario") + " the terminal window still belongs to whoever opened it: the text sent "
               "with the message does not appear, the question at the prompt does. With " + c("ssh mario@server")

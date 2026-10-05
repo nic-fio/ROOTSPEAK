@@ -8,9 +8,9 @@ def cap(n, s=None):
 S1 = p("Each shell has its own hook, installed where that shell reads it. They all do the same thing: if the "
        "mailbox contains messages, they run " + c("rootspeak-user prompt") + ", right at login and then before every "
        "prompt.", lead=True) + table(["Shell", "Installed file", "Read by", "When it asks"], [
-    ["bash", c("/usr/local/lib/rootspeak/rootspeak.bash"), c("/etc/profile.d/rootspeak.sh") + " (login shells) and "
+    ["bash", c("PREFIX/lib/rootspeak/rootspeak.bash"), c("/etc/profile.d/rootspeak.sh") + " (login shells) and "
      + c("/etc/bash.bashrc") + " (the others)", "at login and at every prompt (" + c("PROMPT_COMMAND") + ")"],
-    ["zsh", c("/usr/local/lib/rootspeak/rootspeak.zsh"), "a line in " + c("/etc/zsh/zshrc") + " (or " + c("/etc/zshrc") + ")",
+    ["zsh", c("PREFIX/lib/rootspeak/rootspeak.zsh"), "a line in " + c("/etc/zsh/zshrc") + " (or " + c("/etc/zshrc") + ")",
      "at login and at every prompt (" + c("precmd") + ")"],
     ["fish", c("/etc/fish/conf.d/rootspeak.fish"), "fish itself, at startup", "at login and at every prompt ("
      + c("fish_prompt") + " event)"],

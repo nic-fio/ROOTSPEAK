@@ -128,9 +128,25 @@ S4 = p("On 1 October 2026 the product took its final name and became English onl
     + c("revoking") + ", " + c(".deleting-ID") + ") and the stored channel (" + c("terminal pts/N") + ").",
 ])
 
+S5 = p("On 5 October 2026 RootSpeak got its packages, for the distributions where it is tested.", lead=True) + ul([
+    "<b>Packages</b>: " + c(".deb") + " for Debian and Ubuntu, " + c(".rpm") + " for the Fedora, RHEL and SUSE "
+    "families, " + c(".pkg.tar.zst") + " for Arch, on the website next to the archive. They install in " + c("/usr")
+    + "; the archive stays in " + c("/usr/local") + " for the other distributions.",
+    "<b>One configuration step</b>: what " + c("install.sh") + " did besides copying files moved to "
+    + c("rootspeak-setup") + ", which the packages run too; the folder of the manuals is compiled in ("
+    + c("DOCDIR") + ").",
+    "<b>The logo as icon</b>: in the system icon theme, in the AppStream description for software centres and in "
+    "the desktop notice.",
+    "<b>Found by the tests</b>: the Arch package first came out with " + c("rspeak") + " readable by everyone ("
+    + c("755") + "), caught by P1 before any release; pacman refuses to install over the archive's files in "
+    + c("/etc") + " (on Arch, " + c("./install.sh --uninstall") + " first); Ubuntu's minimized images do not "
+    "extract " + c("/usr/share/doc") + ".",
+])
+
 CHAPTER = ("Defects found and reviews", [
     ("The two external reviews", S1),
     ("The defects found and fixed", S2),
     ("From bash to C", S3),
     ("1 October 2026: RootSpeak, English only", S4),
+    ("5 October 2026: the packages", S5),
 ])

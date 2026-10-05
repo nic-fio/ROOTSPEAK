@@ -28,6 +28,11 @@
 
 /* ---- environment ---- */
 
+/* Where the manuals are installed: DOCDIR from the Makefile. */
+#ifndef DOCDIR
+#define DOCDIR "/usr/local/share/doc/rootspeak"
+#endif
+
 /* Set by rspeak_init: directories and test mode. */
 extern const char *rspeak_var;       /* message store: RSPEAK_VAR or /var/lib/rootspeak */
 extern const char *rspeak_libdir;    /* where rootspeak-user lives: RSPEAK_LIB or LIBDIR */

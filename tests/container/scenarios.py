@@ -24,8 +24,12 @@ import time
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "/opt/results"
 VAR = "/var/lib/rootspeak"
-RSPEAK = "/usr/local/bin/rspeak"
-AGENT = "/usr/local/lib/rootspeak/rootspeak-user agent"
+# installed by install.sh in /usr/local, or by the package in /usr
+PREFIX = "/usr" if os.path.exists("/usr/lib/rootspeak/rootspeak-user") else "/usr/local"
+RSPEAK = f"{PREFIX}/bin/rspeak"
+AGENT = f"{PREFIX}/lib/rootspeak/rootspeak-user agent"
+PACKAGE = os.environ.get("RSPEAK_TEST_PACKAGE")   # the folder of tools/release.sh: package tests (P)
+PKG = "/opt/rootspeak-src/tests/container/package.sh"
 DESK = os.environ.get("RSPEAK_TEST_DESKTOP")   # user with a graphical session (only in the VM)
 # (OSC and APC sequences end with BEL or with ESC \: systemd's profile.d/80-systemd-osc-context.sh
 # writes OSC 3008 with ESC \ before every command and every prompt)
@@ -961,11 +965,90 @@ def i_desktop():
     sh("printf 'RSPEAK_REMIND_MINUTES=30\nRSPEAK_AGENT_POLL=60\n' > /etc/rootspeak/rootspeak.conf")
 
 
+# ---- P. packages ----
+
+def p_packages():
+    """The package of the distribution, installed by run.sh with the package
+    manager: what it installed, reinstalling, install.sh refusing, removing,
+    purging (apt), and moving from the archive to the package. Last: it removes RootSpeak."""
+    mgr = sh(f"{PKG} manager").stdout.strip()
+    admins = sh("getent group sudo >/dev/null && echo sudo || echo wheel").stdout.strip()
+    hooks = lambda: int(sh("cat /etc/bash.bashrc /etc/zsh/zshrc /etc/zshrc 2>/dev/null | grep -c '# RootSpeak hook'").stdout.strip() or 0)
+    want_hooks = sum(os.path.exists(f) for f in ("/etc/bash.bashrc",)) + (1 if sh("command -v zsh").returncode == 0 else 0)
+    known = {"apt": "dpkg -s rootspeak", "dnf": "rpm -q rootspeak", "zypper": "rpm -q rootspeak",
+             "pacman": "pacman -Q rootspeak"}[mgr]
+    perm = sh("stat -c '%U:%G %a' /usr/bin/rspeak").stdout.strip()
+    record("P1", "Packages", f"the package installed with {mgr}: the command in /usr/bin, of root and the administrators",
+           f"package known, root:{admins} 750, {want_hooks} hook lines",
+           sh(known).returncode == 0 and perm == f"root:{admins} 750" and hooks() == want_hooks
+           and not os.path.exists("/usr/local/bin/rspeak"), f"{perm}, {hooks()} hook lines")
+    # what the package manager checks: only the group of rspeak differs (set at installation)
+    verify = {"apt": "dpkg --verify rootspeak", "dnf": "rpm -V rootspeak", "zypper": "rpm -V rootspeak",
+              "pacman": "pacman -Qkk rootspeak 2>&1"}[mgr]
+    # (the Arch image and Ubuntu's minimized ones do not extract /usr/share/doc:
+    # NoExtract in pacman.conf, path-exclude in dpkg.cfg.d)
+    noextract = sh("grep -s '^NoExtract' /etc/pacman.conf; grep -hs '^path-exclude' /etc/dpkg/dpkg.cfg.d/*").stdout
+    out = [l for l in sh(verify).stdout.splitlines() if l.strip() and "/usr/bin/rspeak" not in l
+           and "rootspeak.conf" not in l and "altered files" not in l
+           and not ("usr/share/doc" in noextract and "/usr/share/doc" in l)]
+    record("P2", "Packages", "the package manager finds the files as the package installed them",
+           "no difference but the group of rspeak", not out, "; ".join(out)[:200])
+    sh("echo 'RSPEAK_REMIND_MINUTES=45' >> /etc/rootspeak/rootspeak.conf")
+    rspeak('send --to mario "before reinstalling"')
+    r = sh(f"{PKG} reinstall")
+    perm = sh("stat -c '%U:%G %a' /usr/bin/rspeak").stdout.strip()
+    record("P3", "Packages", "reinstalling (as an upgrade does): messages, configuration and hooks stay as they were",
+           f"message 1 still there, edited configuration kept, root:{admins} 750, {want_hooks} hook lines",
+           r.returncode == 0 and state(1, "mario") is not None and "=45" in open("/etc/rootspeak/rootspeak.conf").read()
+           and perm == f"root:{admins} 750" and hooks() == want_hooks, (r.stderr.strip() or perm)[:200])
+    sh("rm -rf /opt/archive && mkdir /opt/archive && tar -C /opt/archive --strip-components=1 -xzf /opt/release/rootspeak-*-linux-x86_64.tar.gz")
+    r = sh("/opt/archive/install.sh")
+    record("P4", "Packages", "install.sh with the package installed: it refuses and says to use the package manager",
+           "exit 1, the message, nothing in /usr/local",
+           r.returncode == 1 and "installed from a package" in r.stderr and not os.path.exists("/usr/local/bin/rspeak"),
+           r.stderr.strip()[:200])
+    r = sh(f"{PKG} remove")
+    left = [f for f in ("/usr/bin/rspeak", "/usr/lib/rootspeak", "/etc/profile.d/rootspeak.sh",
+                        "/etc/xdg/autostart/rootspeak-agent.desktop", "/etc/fish/conf.d/rootspeak.fish") if os.path.exists(f)]
+    record("P5", "Packages", "removing the package: programs and hooks go, messages stay",
+           "no files of RootSpeak, no hook lines, message 1 in the store",
+           r.returncode == 0 and not left and hooks() == 0 and os.path.exists(f"{VAR}/sent/1"),
+           ", ".join(left) or r.stderr.strip()[:200])
+    # from the archive to the package: the archive's programs go, the messages stay
+    r = sh("/opt/archive/install.sh")
+    ok = r.returncode == 0 and os.path.exists("/usr/local/bin/rspeak")
+    rspeak_old = sh('/usr/local/bin/rspeak send --to anna "from the archive"')
+    if mgr == "pacman":
+        # pacman does not install over files it does not know (those of install.sh in /etc):
+        # it refuses without touching anything, and the archive is removed first
+        r = sh(f"{PKG} install")
+        ok = ok and r.returncode != 0 and "exists in filesystem" in r.stderr + r.stdout \
+            and os.path.exists("/usr/local/bin/rspeak")
+        ok = ok and sh("/opt/archive/install.sh --uninstall").returncode == 0
+    r = sh(f"{PKG} install")
+    zline = sh("grep -h '# RootSpeak hook' /etc/zsh/zshrc /etc/zshrc 2>/dev/null").stdout
+    record("P6", "Packages", "the package over an installation from the archive: it takes its place "
+           "(pacman: it refuses, and takes it after install.sh --uninstall)",
+           "nothing left in /usr/local, message 2 still there, hooks pointing to /usr",
+           ok and rspeak_old.returncode == 0 and r.returncode == 0 and not os.path.exists("/usr/local/bin/rspeak")
+           and not os.path.exists("/usr/local/lib/rootspeak") and state(2, "anna") is not None
+           and hooks() == want_hooks and "/usr/local" not in zline, (r.stdout + r.stderr).strip()[-200:])
+    if mgr == "apt":
+        r = sh(f"{PKG} purge")
+        record("P7", "Packages", "apt purge: also messages and configuration go",
+               "no /var/lib/rootspeak, no /etc/rootspeak",
+               r.returncode == 0 and not os.path.exists(VAR) and not os.path.exists("/etc/rootspeak"), r.stderr.strip()[:200])
+    else:
+        r = sh(f"{PKG} remove")
+        record("P7", "Packages", f"removing with {mgr}: the messages stay (only apt has purge)",
+               f"{VAR} kept", r.returncode == 0 and os.path.exists(f"{VAR}/sent/2"), r.stderr.strip()[:200])
+
+
 # ---- report ----
 
 def report():
     os.makedirs(OUT, exist_ok=True)
-    meta = dict(date=time.strftime("%Y-%m-%d %H:%M:%S %Z"), version=sh(f"{RSPEAK} version").stdout.strip(),
+    meta = dict(date=time.strftime("%Y-%m-%d %H:%M:%S %Z"), version=VERSION,
                 system=sh(". /etc/os-release; echo $PRETTY_NAME").stdout.strip()
                 + (f", VM with {os.environ.get('RSPEAK_TEST_DESKTOP_LABEL') or 'GNOME'} on {session_type()}, desktop of {DESK}"
                    if DESK else ", container with systemd"),
@@ -995,8 +1078,11 @@ def report():
 
 if __name__ == "__main__":
     only = os.environ.get("RSPEAK_TEST_ONLY", "").split(",")   # for example i_desktop
+    VERSION = sh(f"{RSPEAK} version").stdout.strip()   # (now: the package scenarios remove RootSpeak)
     for fn in (a_access, b_recipients, c_delivery, d_confirmation, e_expiry_revocation, f_faults, g_security,
-               j_log, t_tui, k_shells, l_language, h_performance, i_desktop):
+               j_log, t_tui, k_shells, l_language, h_performance, i_desktop, p_packages):
+        if fn is p_packages and not PACKAGE:
+            continue
         if only != [""] and fn.__name__ not in only:
             continue
         print(fn.__name__)

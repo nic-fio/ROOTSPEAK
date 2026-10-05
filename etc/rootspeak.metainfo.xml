@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- RootSpeak - Advanced Messaging System for Linux: what the software centres
+     (GNOME Software, KDE Discover) show for the package, with the logo. -->
+<component type="console-application">
+  <id>it.nicfio.rootspeak</id>
+  <name>RootSpeak</name>
+  <summary>Messages from the administrators, with read confirmation</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary=https://rootspeak.nicfio.it/licence.html</project_license>
+  <developer id="it.nicfio">
+    <name>Nicola Fiorillo</name>
+  </developer>
+  <description>
+    <p>The administrators of a Linux machine send messages to its users, in every terminal and on the
+    desktop, and see for each user whether the message was delivered and confirmed.</p>
+    <p>Administrators use the rspeak command; users get the messages automatically.</p>
+  </description>
+  <icon type="stock">rootspeak</icon>
+  <url type="homepage">https://rootspeak.nicfio.it/</url>
+  <url type="contact">mailto:rootspeak@nicfio.it</url>
+  <categories>
+    <category>System</category>
+  </categories>
+  <provides>
+    <binary>rspeak</binary>
+  </provides>
+</component>

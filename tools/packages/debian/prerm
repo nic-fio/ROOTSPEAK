@@ -1,0 +1,6 @@
+#!/bin/sh
+# RootSpeak - Advanced Messaging System for Linux: before removing (not on upgrades)
+set -e
+if [ "$1" = remove ]; then
+	/usr/lib/rootspeak/rootspeak-setup unconfigure || true
+fi

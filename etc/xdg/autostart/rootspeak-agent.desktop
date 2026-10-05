@@ -2,6 +2,7 @@
 Type=Application
 Name=RootSpeak
 Comment=Messages from the administrator (RootSpeak - Advanced Messaging System for Linux)
+Icon=rootspeak
 Exec=@LIBDIR@/rootspeak-user agent
 NoDisplay=true
 X-GNOME-Autostart-enabled=true

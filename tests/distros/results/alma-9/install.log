@@ -1,5 +1,4 @@
-Warning: zenity is missing
-RootSpeak installed. Command: /usr/local/bin/rspeak (usable by the wheel group).
-Manuals: /usr/local/share/doc/rootspeak/User Manual.html and Technical Manual.html
-Sessions already open get messages in the terminal at once, and the
-confirmation question from the next shell or the next login.
+
+Installed:
+  rootspeak-0.2.0-1.x86_64                                                      
+

@@ -11,6 +11,10 @@
 #   RSPEAK_PODMAN_ROOT (where podman keeps images and machines).
 # RSPEAK_ARCHIVE=FILE installs the downloadable archive (tools/release.sh)
 #   instead of building from the source tree.
+# RSPEAK_RELEASE=FOLDER installs the package of the distribution (.deb, .rpm or
+#   Arch) from the folder of tools/release.sh, with the package manager
+#   (package.sh); the scenarios then also test reinstalling, removing and
+#   moving from the archive to the package (P).
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
@@ -31,6 +35,7 @@ fi
 podman rm -f "$NAME" >/dev/null 2>&1
 ARCHIVE=()
 [ -n "${RSPEAK_ARCHIVE:-}" ] && ARCHIVE=(-v "$(readlink -f "$RSPEAK_ARCHIVE"):/opt/rootspeak.tar.gz:ro,Z")
+[ -n "${RSPEAK_RELEASE:-}" ] && ARCHIVE=(-v "$(readlink -f "$RSPEAK_RELEASE"):/opt/release:ro,Z")
 podman run -d --name "$NAME" --systemd=always --network=none \
 	-v "$ROOT:/opt/rootspeak-src:ro,Z" -v "$RESULTS:/opt/results:Z" "${ARCHIVE[@]}" "$IMAGE" >/dev/null || exit 1
 trap 'podman rm -f "$NAME" >/dev/null 2>&1' EXIT
@@ -42,7 +47,9 @@ done
 echo "test machine: $s ($(podman exec "$NAME" sh -c '. /etc/os-release; echo $PRETTY_NAME'))"
 # built on the test machine itself, with its compiler and libraries; or the
 # downloadable archive, already built, as a customer would install it
-if [ -n "${RSPEAK_ARCHIVE:-}" ]; then
+if [ -n "${RSPEAK_RELEASE:-}" ]; then
+	podman exec "$NAME" /opt/rootspeak-src/tests/container/package.sh install
+elif [ -n "${RSPEAK_ARCHIVE:-}" ]; then
 	podman exec "$NAME" sh -c 'rm -rf /opt/rootspeak && mkdir /opt/rootspeak &&
 		tar -C /opt/rootspeak --strip-components=1 -xzf /opt/rootspeak.tar.gz &&
 		! [ -e /opt/rootspeak/Makefile ] && /opt/rootspeak/install.sh'
@@ -58,4 +65,4 @@ grep -v '^Warning: zenity is missing' "$RESULTS/install.log" | head -1
 # (commit and fingerprint can come from outside: on the test server the copy has no git)
 podman exec -e LANG=it_IT.UTF-8 -e RSPEAK_TEST_COMMIT="${RSPEAK_TEST_COMMIT:-$("$ROOT/tools/fingerprint.sh" --commit)}" \
 	-e RSPEAK_TEST_FINGERPRINT="${RSPEAK_TEST_FINGERPRINT:-$("$ROOT/tools/fingerprint.sh")}" -e RSPEAK_TEST_ONLY="${RSPEAK_TEST_ONLY:-}" \
-	"$NAME" python3 /opt/rootspeak-src/tests/container/scenarios.py /opt/results
+	-e RSPEAK_TEST_PACKAGE="${RSPEAK_RELEASE:+/opt/release}" "$NAME" python3 /opt/rootspeak-src/tests/container/scenarios.py /opt/results

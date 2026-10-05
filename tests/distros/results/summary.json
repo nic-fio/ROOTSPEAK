@@ -1,9 +1,9 @@
 {
  "meta": {
-  "date": "2026-10-05 05:48:46 CEST",
-  "commit": "4aa454f7cb-modified",
-  "fingerprint": "422f39936495",
-  "installed": "the downloadable archive rootspeak-0.2.0-linux-x86_64.tar.gz, built on RHEL 9",
+  "date": "2026-10-05 11:06:12 CEST",
+  "commit": "e6464dd748-modified",
+  "fingerprint": "96a77f38b435",
+  "installed": "the package of each distribution (.deb, .rpm, Arch) from tools/release.sh, installed with its package manager",
   "ok": 22,
   "failed": 0,
   "total": 22
@@ -13,139 +13,139 @@
    "name": "debian-12",
    "system": "Debian GNU/Linux 12 (bookworm)",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "debian-13",
    "system": "Debian GNU/Linux 13 (trixie)",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "ubuntu-22.04",
    "system": "Ubuntu 22.04.5 LTS",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "ubuntu-24.04",
    "system": "Ubuntu 24.04.5 LTS",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "ubuntu-26.04",
    "system": "Ubuntu 26.04.1 LTS",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "fedora-44",
    "system": "Fedora Linux 44 (Container Image)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "fedora-45",
    "system": "Fedora Linux 45 (Container Image Prerelease)",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "centos-stream-9",
    "system": "CentOS Stream 9",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "centos-stream-10",
    "system": "CentOS Stream 10 (Coughlan)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "rhel-9",
    "system": "Red Hat Enterprise Linux 9.8 (Plow)",
    "outcome": "OK",
-   "ok": 56,
+   "ok": 63,
    "failed": 0,
    "not_tested": 4,
-   "total": 60,
+   "total": 67,
    "failed_codes": [],
    "not_tested_codes": [
     "K-fish",
@@ -153,16 +153,16 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "rhel-10",
    "system": "Red Hat Enterprise Linux 10.2 (Coughlan)",
    "outcome": "OK",
-   "ok": 56,
+   "ok": 63,
    "failed": 0,
    "not_tested": 4,
-   "total": 60,
+   "total": 67,
    "failed_codes": [],
    "not_tested_codes": [
     "K-fish",
@@ -170,170 +170,170 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "rocky-9",
    "system": "Rocky Linux 9.8 (Blue Onyx)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "rocky-10",
    "system": "Rocky Linux 10.2 (Red Quartz)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "alma-9",
    "system": "AlmaLinux 9.8 (Olive Jaguar)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "alma-10",
    "system": "AlmaLinux 10.2 (Lavender Lion)",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "oracle-9",
    "system": "Oracle Linux Server 9.8",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "oracle-10",
    "system": "Oracle Linux Server 10.2",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "opensuse-leap-16",
    "system": "openSUSE Leap 16.0",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "opensuse-tumbleweed",
    "system": "openSUSE Tumbleweed",
    "outcome": "OK",
-   "ok": 69,
+   "ok": 76,
    "failed": 0,
    "not_tested": 1,
-   "total": 70,
+   "total": 77,
    "failed_codes": [],
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "sles-15",
    "system": "SUSE Linux Enterprise Server 15 SP7",
    "outcome": "OK",
-   "ok": 64,
+   "ok": 71,
    "failed": 0,
    "not_tested": 2,
-   "total": 66,
+   "total": 73,
    "failed_codes": [],
    "not_tested_codes": [
     "K-fish",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "sles-16",
    "system": "SUSE Linux Enterprise Server 16.0",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-dash",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   },
   {
    "name": "arch",
    "system": "Arch Linux",
    "outcome": "OK",
-   "ok": 65,
+   "ok": 72,
    "failed": 0,
    "not_tested": 2,
-   "total": 67,
+   "total": 74,
    "failed_codes": [],
    "not_tested_codes": [
     "K-ksh",
     "I1"
    ],
-   "fingerprint": "422f39936495"
+   "fingerprint": "96a77f38b435"
   }
  ]
 }

@@ -1,0 +1,10 @@
+# RootSpeak - Advanced Messaging System for Linux: what pacman runs around the package
+post_install() {
+	/usr/lib/rootspeak/rootspeak-setup configure
+}
+post_upgrade() {
+	post_install
+}
+pre_remove() {
+	/usr/lib/rootspeak/rootspeak-setup unconfigure || true
+}

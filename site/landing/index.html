@@ -160,6 +160,16 @@ background:linear-gradient(180deg,#ffffff,#7cc0ff);-webkit-background-clip:text;
 .envs h3{font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--sky);font-weight:400;font-family:'Body',sans-serif}
 .envs p{color:var(--soft);margin-top:10px;font-size:16.5px}
 .envs b{color:#fff}
+/* packages */
+.pkgs{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:56px;max-width:1000px;margin-left:auto;margin-right:auto}
+.pkg{border:1px solid rgba(255,176,63,.45);border-radius:22px;padding:30px;display:flex;flex-direction:column;gap:12px;min-width:0;
+background:radial-gradient(circle at 90% 0%,rgba(255,170,60,.16),transparent 50%),var(--glass)}
+.pkg .k{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--sky)}
+.pkg .f{font-family:'Geo',sans-serif;font-size:21px;color:#fff;overflow-wrap:anywhere}
+.pkg .cmd{margin-top:4px}.pkg .cmd pre{font-size:13px;padding:14px 16px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.pkg .btn{align-self:flex-start;margin-top:auto}
+.pkg .sz{font-size:13.5px;color:var(--mute)}
+.pkgs+.plans{margin-top:28px}
 /* pricing */
 .plans{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:56px;max-width:1000px;margin-left:auto;margin-right:auto}
 .plan{border:1px solid var(--line);border-radius:22px;padding:38px;background:var(--glass);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
@@ -191,7 +201,7 @@ footer nav{display:flex;gap:24px}footer a{color:#dfe7ff}
 }
 @media (max-width:980px){
  .nav{display:none}.top .btn{margin-left:auto}
- .problem,.duo,.plans{grid-template-columns:1fr}
+ .problem,.duo,.plans,.pkgs{grid-template-columns:1fr}
  .feats{grid-template-columns:repeat(2,1fr)}
  .steps{grid-template-columns:1fr;padding-top:0}.path svg.arc{display:none}
  .step .n{position:static!important;transform:none;margin:0 0 14px}
@@ -329,25 +339,39 @@ sara             <span class="st-delivered">delivered</span></pre></div>
  <div class="envs">
   <div><h3>Desktops</h3><p><b>GNOME</b> on Debian, Ubuntu and Rocky Linux with SELinux enforcing; <b>KDE Plasma</b> on Fedora; <b>Cinnamon</b>. On Wayland and on X11.</p></div>
   <div><h3>Shells</h3><p><b>bash, zsh, fish</b>: the question at every prompt. <b>ksh, dash, sh</b>: at login.</p></div>
-  <div><h3>Requirements</h3><p><b>systemd</b>. Packages <code>.deb</code> and <code>.rpm</code>: coming soon.</p></div>
+  <div><h3>Requirements</h3><p><b>systemd</b>, x86-64. Packages for <b>apt, dnf, zypper and pacman</b>, or the archive.</p></div>
  </div>
 </div></section>
 
 <section id="get"><div class="wrap">
- <div class="intro c"><div class="kick">Download · Free</div><h2>One archive. <em>Every distribution.</em></h2><p>The same archive for all 22 tested distributions: the programs are already built, nothing to compile.</p></div>
+ <div class="intro c"><div class="kick">Download · Free</div><h2>A package for <em>your distribution.</em></h2><p>Installed and removed by your package manager, tested on all 22 distributions. The programs are already built, nothing to compile.</p></div>
+ <div class="pkgs">
+  <div class="pkg"><span class="k">Debian · Ubuntu · Mint</span><span class="f">rootspeak_0.2.0-1_amd64.deb</span>
+   <div class="cmd"><pre><span class="c-out">$</span> <span class="c-cmd">sudo apt install ./rootspeak_0.2.0-1_amd64.deb</span></pre></div>
+   <a class="btn" href="download/rootspeak_0.2.0-1_amd64.deb">Download .deb →</a><span class="sz">about 260 KB</span></div>
+  <div class="pkg"><span class="k">Fedora · RHEL · Rocky · Alma · Oracle · CentOS</span><span class="f">rootspeak-0.2.0-1.x86_64.rpm</span>
+   <div class="cmd"><pre><span class="c-out">$</span> <span class="c-cmd">sudo dnf install ./rootspeak-0.2.0-1.x86_64.rpm</span></pre></div>
+   <a class="btn" href="download/rootspeak-0.2.0-1.x86_64.rpm">Download .rpm →</a><span class="sz">about 270 KB</span></div>
+  <div class="pkg"><span class="k">openSUSE · SLES</span><span class="f">rootspeak-0.2.0-1.x86_64.rpm</span>
+   <div class="cmd"><pre><span class="c-out">$</span> <span class="c-cmd">sudo zypper install --allow-unsigned-rpm ./rootspeak-0.2.0-1.x86_64.rpm</span></pre></div>
+   <a class="btn" href="download/rootspeak-0.2.0-1.x86_64.rpm">Download .rpm →</a><span class="sz">the same .rpm</span></div>
+  <div class="pkg"><span class="k">Arch Linux</span><span class="f">rootspeak-0.2.0-1-x86_64.pkg.tar.zst</span>
+   <div class="cmd"><pre><span class="c-out">$</span> <span class="c-cmd">sudo pacman -U rootspeak-0.2.0-1-x86_64.pkg.tar.zst</span></pre></div>
+   <a class="btn" href="download/rootspeak-0.2.0-1-x86_64.pkg.tar.zst">Download for Arch →</a><span class="sz">about 320 KB</span></div>
+ </div>
  <div class="plans">
-  <div class="plan main"><span class="k">rootspeak-0.2.0-linux-x86_64.tar.gz</span><div class="v">Free</div><p>Version 0.2.0 · about 360 KB · Linux x86-64 with systemd. The programs, the installer and the two manuals.</p>
+  <div class="plan main"><span class="k">Any other distribution with systemd</span><div class="v">Archive</div><p>rootspeak-0.2.0-linux-x86_64.tar.gz · the same programs, an installer and the two manuals, in <code>/usr/local</code>.</p>
    <div class="cmd"><pre><span class="c-out">$</span> tar -xzf rootspeak-0.2.0-linux-x86_64.tar.gz
 <span class="c-out">$</span> cd rootspeak-0.2.0-linux-x86_64
 <span class="c-out">$</span> <span class="c-cmd">./install.sh</span></pre></div>
-   <a class="btn" href="download/rootspeak-0.2.0-linux-x86_64.tar.gz">Download rootspeak-0.2.0 →</a>
+   <a class="btn" href="download/rootspeak-0.2.0-linux-x86_64.tar.gz">Download the archive →</a>
    <p class="files"><a href="download/SHA256SUMS">SHA256SUMS</a> · <a href="download/LICENSE.txt">LICENSE.txt</a> · <a href="download/NOTICE.txt">NOTICE.txt</a></p></div>
   <div class="plan"><span class="k">Licence</span><div class="v">Freeware</div><p>Free at home and at work, on any number of machines, also when you administer the machines of a company, a school or a customer. Copy it and give it away unchanged.</p><p>Not allowed without a written licence: selling it, including it in a product or service that is sold, modifying it. For that, write to <a href="mailto:rootspeak@nicfio.it">rootspeak@nicfio.it</a>.</p><a class="btn ghost" href="licence.html">Read the licence</a></div>
  </div>
  <div class="envs">
-  <div><h3>Check the download</h3><p>Put <code>SHA256SUMS</code> next to the archive: <code>sha256sum -c --ignore-missing SHA256SUMS</code>.</p></div>
-  <div><h3>Desktop dialog</h3><p>Needs <b>zenity</b> (packaged by every distribution). Servers without a desktop work without it.</p></div>
-  <div><h3>Remove</h3><p><code>./install.sh --uninstall</code> keeps the messages; <code>--purge</code> removes them too.</p></div>
+  <div><h3>Check the download</h3><p>Put <code>SHA256SUMS</code> next to the file: <code>sha256sum -c --ignore-missing SHA256SUMS</code>. The packages are not signed: this is the check.</p></div>
+  <div><h3>Desktop dialog</h3><p>Needs <b>zenity</b>: the packages bring it, except on Arch (<code>pacman -S zenity</code>). Servers without a desktop work without it.</p></div>
+  <div><h3>Upgrade · Remove</h3><p>Install the new file the same way. <code>apt remove</code>, <code>dnf remove</code>, <code>zypper remove</code>, <code>pacman -R</code> keep the messages; <code>apt purge</code> removes them too.</p></div>
  </div>
 </div></section>
 

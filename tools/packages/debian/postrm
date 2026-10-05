@@ -1,0 +1,7 @@
+#!/bin/sh
+# RootSpeak - Advanced Messaging System for Linux: apt purge also removes the
+# messages and the configuration
+set -e
+if [ "$1" = purge ]; then
+	rm -rf /var/lib/rootspeak /etc/rootspeak
+fi

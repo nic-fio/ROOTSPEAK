@@ -12,7 +12,9 @@
 #   RSPEAK_REBUILD=1 to build the images again (they are rebuilt anyway when the
 #   preparation of the test machine changes), RSPEAK_TEST_ONLY as in tests/container,
 #   RSPEAK_ARCHIVE=FILE to install the downloadable archive (tools/release.sh)
-#   instead of building from source.
+#   instead of building from source, RSPEAK_RELEASE=FOLDER to install the package of
+#   each distribution from the folder of tools/release.sh (.deb, .rpm, Arch) with
+#   its package manager, and test the packages too (scenarios P).
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
@@ -53,12 +55,19 @@ if [ -n "${RSPEAK_ARCHIVE:-}" ]; then
 else
 	x "rm -f $DIR/distros/rootspeak.tar.gz"
 fi
+REL=
+x "rm -rf $DIR/distros/release" || exit 1
+if [ -n "${RSPEAK_RELEASE:-}" ]; then
+	echo "packages on the server: $(cd "$RSPEAK_RELEASE" && ls rootspeak_*.deb rootspeak-*.rpm rootspeak-*.pkg.tar.zst | tr '\n' ' ')…"
+	tar -C "$RSPEAK_RELEASE" -cf - --exclude='rootspeak-*-linux-x86_64' . | x "mkdir -p $DIR/distros/release && tar -xf - -C $DIR/distros/release" || exit 1
+	REL=$DIR/distros/release
+fi
 # the images on the SSD: the server's / is in RAM (20 GB of images for all of them)
 x "mkdir -p $DIR/distros/storage && rm -f $DIR/distros/storage.conf" || exit 1
 
 echo "$(echo "$list" | wc -l) distributions, $PARALLEL at a time…"
 echo "$list" | x "cd $DIR/distros && export RSPEAK_PODMAN_ROOT=$DIR/distros/storage \
-	RSPEAK_TEST_COMMIT=$commit RSPEAK_TEST_FINGERPRINT=$fingerprint RSPEAK_TEST_ONLY=${RSPEAK_TEST_ONLY:-} RSPEAK_ARCHIVE=$ARCH
+	RSPEAK_TEST_COMMIT=$commit RSPEAK_TEST_FINGERPRINT=$fingerprint RSPEAK_TEST_ONLY=${RSPEAK_TEST_ONLY:-} RSPEAK_ARCHIVE=$ARCH RSPEAK_RELEASE=$REL
 	xargs -P $PARALLEL -L 1 sh -c '
 		n=\$0; r=results/\$n; rm -rf \$r; mkdir -p \$r
 		RSPEAK_BASE=\$1 RSPEAK_NAME=rootspeak-test-\$n RSPEAK_IMAGE=rootspeak-test-\$n:$tag RSPEAK_RESULTS=\$PWD/\$r \
@@ -69,6 +78,7 @@ rm -rf "$HERE/results" && mkdir -p "$HERE/results"
 x "tar -cf - -C $DIR/distros/results ." | tar -xf - -C "$HERE/results"
 how="built from source on each distribution"
 [ -n "${RSPEAK_ARCHIVE:-}" ] && how="the downloadable archive $(basename "$RSPEAK_ARCHIVE"), built on RHEL 9"
+[ -n "${RSPEAK_RELEASE:-}" ] && how="the package of each distribution (.deb, .rpm, Arch) from tools/release.sh, installed with its package manager"
 python3 - "$HERE/results" "$commit" "$fingerprint" "$how" <<'PY'
 import json, pathlib, sys, time
 res, commit, fingerprint, how = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]

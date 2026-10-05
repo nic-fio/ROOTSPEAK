@@ -8,8 +8,8 @@
 #
 # The site: the landing page (site/landing/index.html), the two manuals
 # (self-contained), the licence as a page, and the download of the current
-# version (download/: the archive built by tools/release.sh, SHA256SUMS, the
-# licence). Run tools/release.sh first.
+# version (download/: the packages and the archive built by tools/release.sh,
+# SHA256SUMS, the licence). Run tools/release.sh first.
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -19,13 +19,16 @@ DEST=/srv/www/rootspeak.nicfio.it
 VERSION=$(sed -n 's/^#define RSPEAK_VERSION "\(.*\)"/\1/p' "$ROOT/src/common.h")
 URL=https://rootspeak.nicfio.it
 ARCHIVE=rootspeak-$VERSION-linux-x86_64.tar.gz
+FILES=("$ARCHIVE" "rootspeak_$VERSION-1_amd64.deb" "rootspeak-$VERSION-1.x86_64.rpm" "rootspeak-$VERSION-1-x86_64.pkg.tar.zst")
 REL=$ROOT/build/release
 
-[ -f "$REL/$ARCHIVE" ] || { echo "missing $REL/$ARCHIVE: run tools/release.sh first" >&2; exit 1; }
+for f in "${FILES[@]}"; do
+	[ -f "$REL/$f" ] || { echo "missing $REL/$f: run tools/release.sh first" >&2; exit 1; }
+	# the landing page names the version and the files: they must be the current ones
+	grep -q "download/$f" "$ROOT/site/landing/index.html" ||
+		{ echo "site/landing/index.html does not link download/$f" >&2; exit 1; }
+done
 (cd "$REL" && sha256sum -c SHA256SUMS >/dev/null)
-# the landing page names the version and the archive: they must be the current ones
-grep -q "download/$ARCHIVE" "$ROOT/site/landing/index.html" ||
-	{ echo "site/landing/index.html does not link download/$ARCHIVE" >&2; exit 1; }
 
 rm -rf "$OUT"
 mkdir -p "$OUT/download"
@@ -48,7 +51,8 @@ python3 "$SEO" "$OUT/licence.html" "$URL/licence.html" \
 
 # the download, with the licence in a form every system opens
 DL=$OUT/download
-cp "$REL/$ARCHIVE" "$REL/SHA256SUMS" "$DL/"
+for f in "${FILES[@]}"; do cp "$REL/$f" "$DL/"; done
+cp "$REL/SHA256SUMS" "$DL/"
 sed 's/$/\r/' "$ROOT/LICENSE" > "$DL/LICENSE.txt"
 sed 's/$/\r/' "$ROOT/NOTICE.md" > "$DL/NOTICE.txt"
 

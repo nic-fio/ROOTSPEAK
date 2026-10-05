@@ -59,7 +59,7 @@ static const char *const FILES[] = {
 	"/etc/rootspeak/rootspeak.conf¦Configuration: minutes before a postponed message is asked about again, check interval of the desktop agent.",
 	"/var/lib/rootspeak/¦The messages: sent/ (reference copies, root only) and users/USER/ (each user's mailbox, readable only by them and by root).",
 	"sudo journalctl -t rspeak¦The system log: sending, deliveries, confirmations and revocations.",
-	"/usr/local/share/doc/rootspeak/User Manual.html¦The complete user manual, to open in a browser.",
+	DOCDIR "/User Manual.html¦The complete user manual, to open in a browser.",
 };
 
 static const char *const SYNOPSIS[] = {
@@ -244,7 +244,7 @@ static void page(FILE *f, bool colour, int width)
 	fprintf(f, "%s%s1%s\n", ti, G_, R_);
 	PARA("Error: the error message, starting with «rspeak:», says which.", di);
 	HEADING("SEE ALSO");
-	PARA("wall(1), write(1), and the user manual in /usr/local/share/doc/rootspeak/User Manual.html", 7);
+	PARA("wall(1), write(1), and the user manual in " DOCDIR "/User Manual.html", 7);
 	fputc('\n', f);
 	s = xasprintf("rspeak %s", RSPEAK_VERSION);
 	TRE(s, "", "RSPEAK(1)");
@@ -348,7 +348,7 @@ static line_t *tab_lines(int s, int inner, size_t *n)
 		strv_free(&w);
 		add(&r, n, 'T', "");
 		{
-			char *m = xasprintf("RootSpeak %s · complete manual: /usr/local/share/doc/rootspeak/User Manual.html",
+			char *m = xasprintf("RootSpeak %s · complete manual: " DOCDIR "/User Manual.html",
 					    RSPEAK_VERSION);
 
 			x = xasprintf("   %s", m);

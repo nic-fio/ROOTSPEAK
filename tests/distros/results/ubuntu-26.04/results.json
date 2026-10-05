@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-05 03:42:09 UTC",
+  "date": "2026-10-05 08:59:34 UTC",
   "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
   "system": "Ubuntu 26.04.1 LTS, container with systemd",
-  "ok": 69,
+  "ok": 76,
   "failed": 0,
   "not_tested": 1,
-  "total": 70,
-  "commit": "4aa454f7cb-modified",
-  "fingerprint": "422f39936495",
+  "total": 77,
+  "commit": "e6464dd748-modified",
+  "fingerprint": "96a77f38b435",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.068
+    "seconds": 0.075
    }
   },
   {
@@ -38,7 +38,7 @@
    "description": "an ordinary user cannot run rspeak",
    "expected": "permission denied, no message",
    "outcome": "OK",
-   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "details": "runuser: failed to execute /usr/bin/rspeak: Permission denied",
    "measures": {}
   },
   {
@@ -47,7 +47,7 @@
    "description": "an ordinary user cannot even open the help",
    "expected": "permission denied",
    "outcome": "OK",
-   "details": "runuser: failed to execute /usr/local/bin/rspeak: Permission denied",
+   "details": "runuser: failed to execute /usr/bin/rspeak: Permission denied",
    "measures": {}
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.218
+    "seconds_from_login": 0.321
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:40 (terminal pts/2)",
+   "details": "confirmed on 05/10 08:57 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -150,8 +150,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_send": 0.103,
-    "seconds_to_terminal": 0.154
+    "seconds_send": 0.072,
+    "seconds_to_terminal": 0.122
    }
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.055
+    "seconds": 0.051
    }
   },
   {
@@ -200,7 +200,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.909
+    "seconds": 0.908
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 05/10 03:40",
+   "details": "delivered, written to 1 terminal, postponed on 05/10 08:58",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@3b5a5696f481:~$ ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@fc5016886bd9:~$ ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1791171643 terminal pts/7",
+   "details": "1791190683 terminal pts/7",
    "measures": {}
   },
   {
@@ -274,7 +274,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 1.004
+    "seconds": 1.011
    }
   },
   {
@@ -323,7 +323,7 @@
    "measures": {
     "delivered_at_kill": 3,
     "recipients": 68,
-    "seconds_recovery": 1.353
+    "seconds_recovery": 1.292
    }
   },
   {
@@ -343,7 +343,7 @@
    "outcome": "OK",
    "details": "copies left: 0; delivered before the revocation: 3; Message 4 revoked while sending: delivery stopped.",
    "measures": {
-    "seconds_waiting_revoke": 0.69
+    "seconds_waiting_revoke": 0.71
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "68 deliveries recorded for 68 recipients, 68 distinct",
    "measures": {
-    "rspeak_list_during_sending": 25
+    "rspeak_list_during_sending": 19
    }
   },
   {
@@ -399,7 +399,7 @@
    "description": "an ordinary user with RSPEAK_TEST=1 gets nothing",
    "expected": "permission denied",
    "outcome": "OK",
-   "details": "env: '/usr/local/bin/rspeak': Permission denied",
+   "details": "env: '/usr/bin/rspeak': Permission denied",
    "measures": {}
   },
   {
@@ -408,7 +408,7 @@
    "description": "rspeak log: the history of the message",
    "expected": "sending, deliveries, postponement, confirmation, revocation",
    "outcome": "OK",
-   "details": "8 events",
+   "details": "6 events",
    "measures": {}
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-05 03:41:22  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-05 08:58:42  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/15)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.056
+    "seconds": 0.055
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/15)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -518,7 +518,7 @@
    "description": "fish: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/16)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -538,7 +538,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.054
+    "seconds": 0.053
    }
   },
   {
@@ -547,7 +547,7 @@
    "description": "fish: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/16)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -565,7 +565,7 @@
    "description": "ksh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/17)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/17)",
    "measures": {}
   },
   {
@@ -601,7 +601,7 @@
    "description": "dash: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/18)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/18)",
    "measures": {}
   },
   {
@@ -628,7 +628,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 05/10 03:41 (terminal pts/19)",
+   "details": "confirmed on 05/10 08:58 (terminal pts/19)",
    "measures": {}
   },
   {
@@ -639,8 +639,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.63,
-    "ms_per_recipient": 10.8
+    "seconds": 0.75,
+    "ms_per_recipient": 12.9
    }
   },
   {
@@ -662,7 +662,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.51
+    "seconds": 0.45
    }
   },
   {
@@ -672,6 +672,69 @@
    "expected": "dialog «I have read it»",
    "outcome": "--",
    "details": "the container has no graphical session: the dialog is tested in the VM (tests/vm)",
+   "measures": {}
+  },
+  {
+   "code": "P1",
+   "area": "Packages",
+   "description": "the package installed with apt: the command in /usr/bin, of root and the administrators",
+   "expected": "package known, root:sudo 750, 2 hook lines",
+   "outcome": "OK",
+   "details": "root:sudo 750, 2 hook lines",
+   "measures": {}
+  },
+  {
+   "code": "P2",
+   "area": "Packages",
+   "description": "the package manager finds the files as the package installed them",
+   "expected": "no difference but the group of rspeak",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "P3",
+   "area": "Packages",
+   "description": "reinstalling (as an upgrade does): messages, configuration and hooks stay as they were",
+   "expected": "message 1 still there, edited configuration kept, root:sudo 750, 2 hook lines",
+   "outcome": "OK",
+   "details": "root:sudo 750",
+   "measures": {}
+  },
+  {
+   "code": "P4",
+   "area": "Packages",
+   "description": "install.sh with the package installed: it refuses and says to use the package manager",
+   "expected": "exit 1, the message, nothing in /usr/local",
+   "outcome": "OK",
+   "details": "RootSpeak is installed from a package: update or remove it with the package manager (apt, dnf, zypper, pacman).",
+   "measures": {}
+  },
+  {
+   "code": "P5",
+   "area": "Packages",
+   "description": "removing the package: programs and hooks go, messages stay",
+   "expected": "no files of RootSpeak, no hook lines, message 1 in the store",
+   "outcome": "OK",
+   "details": "",
+   "measures": {}
+  },
+  {
+   "code": "P6",
+   "area": "Packages",
+   "description": "the package over an installation from the archive: it takes its place (pacman: it refuses, and takes it after install.sh --uninstall)",
+   "expected": "nothing left in /usr/local, message 2 still there, hooks pointing to /usr",
+   "outcome": "OK",
+   "details": "unpack .../rootspeak_0.2.0-1_amd64.deb ...\nUnpacking rootspeak (0.2.0-1) ...\nSetting up rootspeak (0.2.0-1) ...\nRootSpeak: the installation from the archive in /usr/local was replaced by this package.",
+   "measures": {}
+  },
+  {
+   "code": "P7",
+   "area": "Packages",
+   "description": "apt purge: also messages and configuration go",
+   "expected": "no /var/lib/rootspeak, no /etc/rootspeak",
+   "outcome": "OK",
+   "details": "",
    "measures": {}
   }
  ]
