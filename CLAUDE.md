@@ -258,9 +258,10 @@ subdomains). Version 1.0 comes later.
 `.deb`, `.rpm` and Arch, built by `tools/release.sh`, on the landing page
 (a card per family) and in `download/`; scenarios P1–P7 with
 `RSPEAK_RELEASE=build/release tests/distros/run.sh`. Next steps proposed to
-the user: the logo as the zenity dialog's window icon (zenity 3 and 4 differ:
-needs the VM tests), signed packages with an APT/DNF repository for automatic
-upgrades (needs a GPG key kept by the owner).
+the user, not decided: signed packages with an APT/DNF repository for
+automatic upgrades (needs a GPG key kept by the owner). Rejected by the user:
+the logo in the users' dialog (users don't know RootSpeak: the title «Message
+from the administrator» is what tells them).
 
 Live test of the `.deb` on the owner's PC (Debian 13, GNOME), 5 October 2026,
 over the installation from `install.sh`: «the installation from the archive in
