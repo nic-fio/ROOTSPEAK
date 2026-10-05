@@ -1,0 +1,100 @@
+# RootSpeak Freeware Licence
+
+RootSpeak — Advanced Messaging System for Linux
+Copyright (c) 2026 Nicola Fiorillo. All rights reserved.
+
+This licence applies to every version of RootSpeak published by the Author.
+
+## 1. Definitions
+
+- **"RootSpeak"** means the programs `rspeak` and `rootspeak-user`, the
+  installer `install.sh`, the shell hooks and the other files installed with
+  them, the manuals and every other file published with them by the Author.
+- **"Author"** means Nicola Fiorillo.
+- **"You"** means any person or organisation that obtains a copy of RootSpeak.
+- **"Commercial Offering"** means anything offered for a fee or as part of a
+  business, including: software, operating systems, hardware, pre-installed or
+  bundled software, subscriptions, cloud or hosted services, support, training
+  or consulting.
+
+## 2. What you may do, free of charge
+
+1. **Use** RootSpeak for any purpose, on any number of machines, privately or
+   at work, including as a tool while doing paid work (for example
+   administering the machines of a company, a school or a customer).
+2. **Copy** RootSpeak and **give it to others**, unchanged and free of charge,
+   together with this licence.
+3. **Install** RootSpeak with its installer on any number of machines, also
+   with your own deployment tools, change its configuration file
+   (`/etc/rootspeak/rootspeak.conf`) and write any message you like with it.
+   These are not modifications under section 3.
+4. **Include** RootSpeak in a collection of software (for example a software
+   repository or a set of tools for a lab) only if the whole collection is
+   given away free of charge, RootSpeak is unchanged, and this licence is
+   included.
+
+## 3. What you may not do without a written licence from the Author
+
+1. **Sell** RootSpeak, or charge any fee for it, for copies of it, or for
+   access to it.
+2. **Include, bundle, pre-install, or distribute** RootSpeak as part of, or
+   together with, a Commercial Offering, or offer a Commercial Offering whose
+   value comes, entirely or substantially, from RootSpeak.
+3. **Modify** RootSpeak, translate it or create derivative works of it, except
+   as allowed in section 2.3.
+4. **Decompile, disassemble or reverse engineer** RootSpeak, except to the
+   extent that applicable law expressly permits it notwithstanding this
+   limitation (in the European Union, Articles 5(3) and 6 of Directive
+   2009/24/EC; in Italy, Articles 64-ter and 64-quater of Law no. 633 of 22
+   April 1941).
+5. **Remove or alter** the copyright notices, this licence, or the name of the
+   Author.
+6. **Use the name "RootSpeak" or its logo** to suggest that the Author
+   endorses you, your product or your service.
+
+## 4. Commercial licences
+
+To do anything in section 3, for example to include RootSpeak in a product,
+write to **rootspeak@nicfio.it**. The Author may grant a commercial licence or
+transfer the project, on terms agreed case by case. Nothing in this licence
+obliges the Author to do either.
+
+## 5. Ownership
+
+RootSpeak is licensed, not sold. The Author keeps all rights not expressly
+granted here, including the copyright in the programs and in the manuals.
+
+## 6. Third-party components
+
+Third-party components used by RootSpeak keep their own licences, listed in
+`NOTICE.md`.
+
+## 7. No warranty
+
+RootSpeak is provided **"as is"**, without warranty of any kind, express or
+implied, including the warranties of merchantability, fitness for a particular
+purpose and non-infringement. RootSpeak runs as root and changes system files
+(the shell startup files, the desktop autostart): you use it at your own risk.
+A confirmation records that a user states they have read a message; it is not
+proof that they have read or understood it.
+
+## 8. Limitation of liability
+
+To the maximum extent permitted by applicable law, the Author is not liable
+for any damage arising from the use of RootSpeak or from the inability to use
+it, including messages not delivered or not read, loss of data and loss of
+business. This does not limit liability that cannot be limited by law, such as
+liability for wilful misconduct or gross negligence (Article 1229 of the
+Italian Civil Code).
+
+## 9. Termination
+
+This licence ends automatically if you break it. You must then stop using
+RootSpeak and destroy your copies. Sections 5 to 10 survive the end of the
+licence.
+
+## 10. Governing law
+
+This licence is governed by Italian law. Any dispute belongs to the courts of
+Rome, Italy, except where the law gives a consumer the right to their own
+court.

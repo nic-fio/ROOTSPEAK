@@ -170,7 +170,8 @@ make                      # builds in build/
 | [`docs/User Manual.html`](docs/User%20Manual.html) | The administrators who use RootSpeak |
 | [`docs/Technical Manual.html`](docs/Technical%20Manual.html) | Whoever develops RootSpeak: architecture, message store, security, tests |
 | [`docs/decisions-and-history.md`](docs/decisions-and-history.md) | Why RootSpeak is the way it is |
-| [`NOTICE.md`](NOTICE.md) | Copyright and third-party components |
+| [`LICENSE`](LICENSE) | The RootSpeak Freeware Licence |
+| [`NOTICE.md`](NOTICE.md) | Copyright, the licence in short, third-party components |
 | [`logos/rootspeak-logo.png`](logos/rootspeak-logo.png) | The RootSpeak logo (the logo files are in `logos/`) |
 | [`CLAUDE.md`](CLAUDE.md) | Working agreements and decisions not to reopen |
 | `rspeak --help` | The built-in help, in tabs |
@@ -194,3 +195,14 @@ rspeak list
 rspeak status 12
 rspeak revoke 12
 ```
+
+## Licence
+
+Copyright (c) 2026 Nicola Fiorillo. RootSpeak is **freeware**, released under
+the [RootSpeak Freeware Licence](LICENSE): use it for anything, at home or at
+work, free of charge, also as a tool in paid work; install it on any number of
+machines; copy it and give it away unchanged. What you may not do is **sell**
+it, include it in a product or service that is sold, modify it, or decompile it
+beyond what the law allows — that needs a written licence: write to
+**rootspeak@nicfio.it**. [NOTICE.md](NOTICE.md) has the summary and the
+third-party components (none embedded).

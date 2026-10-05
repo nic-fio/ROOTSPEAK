@@ -55,14 +55,14 @@ The reasons for each are in [docs/decisions-and-history.md](docs/decisions-and-h
 | **Root does not touch inboxes as root** | Every access to `/var/lib/rootspeak/users/U` happens in a child process with the user's identity (`as_user`), with a time limit. |
 | **zenity** for the desktop | Window «I have read it» / «Later»; `notify-send`, if present, only to report a confirmation that was not recorded. |
 | **Built-in help like MTERM's, no man page** | Tabs in a terminal, manual-style page with a pager below 44×10, plain text in a pipe; texts in `src/help.c`. |
-| **Manuals in the common style of the 7 projects (1 October 2026)** | Generated from `docs/sources/` (one file per chapter) into two self-contained HTML files in English (`User Manual.html`, `Technical Manual.html`), with the common style of the 7 projects' manuals, approved by the owner: embedded in every manual and identical in all of them. `docs/sources/style.css` is the canon (born from this project) and `docs/sources/manual.js` the common script (sidebar search, index, Copy button): they are copied verbatim, never changed in one project only; rules specific to this project live in `RSPEAK_CSS` in `build.py` (no script of its own: the common script does the Copy button). Cover: logo (`docs/sources/cover-logo.png`, transparent copy of the logo in `logos/`), «User Manual»/«Technical Manual», version and date. Footer: `<Product> · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo` (no licence). Index only in the technical manual, from the glossary terms. The user rejected manuals in the NESH style ("they suck"). |
+| **Manuals in the common style of the 7 projects (1 October 2026)** | Generated from `docs/sources/` (one file per chapter) into two self-contained HTML files in English (`User Manual.html`, `Technical Manual.html`), with the common style of the 7 projects' manuals, approved by the owner: embedded in every manual and identical in all of them. `docs/sources/style.css` is the canon (born from this project) and `docs/sources/manual.js` the common script (sidebar search, index, Copy button): they are copied verbatim, never changed in one project only; rules specific to this project live in `RSPEAK_CSS` in `build.py` (no script of its own: the common script does the Copy button). Cover: logo (`docs/sources/cover-logo.png`, transparent copy of the logo in `logos/`), «User Manual»/«Technical Manual», version and date. Footer: `<Product> · User Manual · Version X · Month YYYY · © 2026 Nicola Fiorillo · Licence: freeware`. Index only in the technical manual, from the glossary terms. The user rejected manuals in the NESH style ("they suck"). |
 | **Rewrite in C (30 September)** | Everything: the command and the helper; the shell hooks stay scripts, the window stays zenity. Done: version 0.2.0; the bash prototype was removed when the C passed all tests (it remains in git history). Mandatory defences: all warnings, `-fanalyzer`, sanitizers in the tests, fuzzing of everything that reads users' files. |
 | **English only (1 October 2026)** | The product is meant for administrators: program, messages, TUI, help, manuals and code are in English only, whatever the language of the session. The translations and the language machinery of 30 September (gettext catalogues, our `.mo` reader, the language chosen per user and per terminal) were removed. Normal users see in English only the frame of the terminal text, the question «[y/N]» (only `y` confirms) and the dialog buttons; the message text is what the administrator writes. TUI keys: `y` confirms, `m` reminds. |
 | **TUI for administrators (30 September)** | The command without arguments in a terminal opens the TUI (`--help` stays the help; in a pipe it shows the help). Browse, act (revoke, purge, remind) with confirmation, write and send (Ctrl+E opens `$EDITOR`), automatic refresh. No ncurses. The TUI uses the same functions as the commands and **does not invent states**: only sent, delivered, confirmed; revoked and expired as properties. A message is summarised with its recipients: a three-colour bar and «14 confirmed · 5 delivered · 2 sent». |
 | **Name: RootSpeak (1 October 2026)** | The product will be distributed and sold, and «AMS» is taken for software in the EU (ams-OSRAM, Emerson/Fisher-Rosemount and others). Product name **RootSpeak**, subtitle «Advanced Messaging System for Linux» (descriptive, not a name: it cannot be registered). Administrators' command **`rspeak`**; everything else uses the full name: helper `rootspeak-user`, paths `/etc/rootspeak`, `/var/lib/rootspeak`; the journal identifier stays the command name (`journalctl -t rspeak`). Rejected: LMS, MessageX, TuxCast (taken), Heedbell, Missivo (disliked), `rtspk` (reads like RTSP). No trademark registration for now: the user does not want to pay for it. |
 | **Everything in English (1 October 2026)** | See «How we work». Replaces the exception of the common standard for the `.c`/`.h` file names in `src/`: in this project they are English too. Visible names are English as well: journal fields `RSPEAK_EVENT`, `RSPEAK_MESSAGE`…, events `DELIVERED`, `CONFIRMED`…, store files `revoking`, `.deleting-ID`, `rootspeak-agent.ready`. |
 | **systemd required in 1.0 (1 October 2026)** | Supported: distributions with systemd (logind, `systemd-run`), about 90% of the market. Not in 1.0: Alpine, Void, Gentoo with OpenRC, Devuan, other distributions without systemd. |
-| **Licence: to be decided** | Private repository, copyright Nicola Fiorillo. For sale a commercial licence is needed (proposal: per machine or organisation, internal use and modifications allowed, no redistribution, plus the clause on the rights of third-party components), to be reviewed by a lawyer. Until then: no licence. |
+| **Freeware (5 October 2026)** | RootSpeak is given away, like NESH and EFI Partition Manager: the RootSpeak Freeware Licence (`LICENSE`, the same text as theirs, adapted): free use on any number of machines, also at work and in paid work; free redistribution unchanged; no sale, no inclusion in commercial products, no modification. Commercial licences: `rootspeak@nicfio.it` (alias on the nesh@ mailbox). Distributed as built programs, not as source; the repository stays private. Replaces «Licence: to be decided», the trial and full editions and the road to sale. Footer of the manuals: `… · © 2026 Nicola Fiorillo · Licence: freeware`. |
 
 ## Rename to RootSpeak (1 October 2026)
 
@@ -95,8 +95,8 @@ Order agreed with the user; each step recorded in its own commit.
    the same in all 7 projects). The user chose to do it in a dedicated session
    in each project (a session here cannot change the other repositories); the
    task text was given to the user on 1 October.
-8. **Licence**: commercial licence, `NOTICE.md`, a «Licence» section in the
-   README and in the manuals.
+8. **Licence**: freeware (5 October 2026): `LICENSE`, `NOTICE.md`, a
+   «Licence» section in the README and in the user manual. Done.
 
 ## The repository
 
@@ -232,33 +232,19 @@ three agents, one VM each: give each agent its own port (run.sh: 2222 Debian,
 then 2223+ in the alphabetical order of the profiles) — wrong ports made two
 agents work in each other's VM.
 
-**Road to sale** (agreed on 1 October 2026, about 3–4 days of work, the
-trademark search excluded): (1) tests on other distributions — done: 22
-distributions in containers and 5 desktops in VMs (see above), with fixes;
-(2) `.deb` and `.rpm` packages (dependencies, admin group, shell hooks,
-upgrade, removal) tested on clean installs; (3) version 1.0: final review of
-message store format, visible names and commands, manuals updated with
-packages and supported distributions, the last live tests (expiry, the
-question in a terminal over ssh); (4) commercial licence, `NOTICE.md`,
-«Licence» in README and manuals.
-**Next session** (the user, 1 October 2026, end of the day): the two open
-points, in this order: (a) two editions of the program — a **trial** limited
-to one week and a **full** one without limits for those who buy; how the full
-one is unlocked (licence key from the payment platform, or a separate build)
-and how the week is counted are to be decided with the user before writing
-code; (b) the **packaging and installation** procedure (`.deb`/`.rpm`, step 2
-of the road to sale). Done the same day: tests on 22 distributions and 5
-desktops, the landing page chosen (`site/landing/`).
-**Budget** (the user, 1 October 2026): no spending except a domain; the user
-already has a VPS. Hence: product site, manuals, downloads and the `apt`/`dnf`
-package repository on that VPS with the new domain (`rootspeak` was free in
-October; check before buying); payments and licence keys through a platform
-that is merchant of record and takes a percentage per sale (it also handles EU
-VAT); no lawyer: proposal to use a standard licence written by lawyers
-(PolyForm Internal Use), the user to choose after a comparison of the PolyForm
-variants; professional trademark search postponed. Before selling, the user
-must check the Italian tax side (VAT number for continuous sales): Claude
-flagged it, not its field.
+**Freeware and the website** (the user, 5 October 2026): RootSpeak is given
+away like NESH and EFI Partition Manager (decision above), so the trial and
+full editions, payments, the commercial licence and the road to sale are
+dropped. The steps, in this order: (1) licence — done; (2) what is downloaded:
+an archive with the built programs, `install.sh` and the manuals, no source,
+built on the oldest supported distribution and tested on all 22; (3) the site
+on `rootspeak.nicfio.it`, like `nesh.nicfio.it` and `efipm.nicfio.it`: the
+«Night sky» landing page with Download and Free instead of trial and prices,
+the licence page, the manuals, `site/publish.sh` with the search-engine tags,
+`robots.txt`, `sitemap.xml`; (4) the owner creates the site on the VPS
+(`~/Documenti/VPS/add-site.sh`) and the DNS record; then publication and the
+sitemap in Search Console (the domain property nicfio.it already covers the
+subdomains). `.deb`/`.rpm` packages and version 1.0 come later.
 
 The adversarial review of 30 September 2026
 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed. The [2]

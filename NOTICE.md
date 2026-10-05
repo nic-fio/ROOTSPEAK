@@ -1,12 +1,28 @@
 # Copyright and third-party components
 
 RootSpeak - Advanced Messaging System for Linux
-Copyright (c) 2026 nic-fio. All rights reserved.
+Copyright (c) 2026 Nicola Fiorillo. All rights reserved.
 
-The repository is private. No licence to use, copy, modify or distribute it
-is granted: any use needs the author's explicit permission.
+RootSpeak is **freeware**, released under the **RootSpeak Freeware Licence**.
+See [LICENSE](LICENSE).
+
+## In short
+
+| You may, free of charge | You may not, without a written licence |
+|---|---|
+| Use it for anything, at home or at work, also as a tool in paid work (administering the machines of a company, a school or a customer) | **Sell** it, or charge a fee for it |
+| Copy it and give it to anyone, unchanged, with the licence | **Include** it in a product or service that is sold or offered as part of a business |
+| Install it on any number of machines, also with your own deployment tools, and change its configuration file | **Modify** it, or decompile it beyond what the law allows |
+| Put it in a collection of software given away free of charge, unchanged and with the licence | Remove the copyright and licence notices, or use the name to suggest an endorsement |
+
+**Want to include it in a product, or buy the project?** Write to
+**rootspeak@nicfio.it**.
 
 ## Third-party components
+
+These components keep their own licences: the terms above apply to RootSpeak
+itself, not to them.
+
 
 RootSpeak neither embeds nor distributes third-party code: `rspeak`,
 `rootspeak-user`, the shell hooks and the manuals are written for this
