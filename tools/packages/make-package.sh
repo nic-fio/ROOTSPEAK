@@ -26,7 +26,7 @@ deb)
 	install -d "$STAGE/DEBIAN"
 	# (the size in KiB, as dpkg wants it)
 	fill "$HERE/debian/control" | sed "s|@SIZE@|$(du -sk --exclude=DEBIAN "$STAGE" | cut -f1)|" >"$STAGE/DEBIAN/control"
-	for f in postinst prerm postrm; do install -m 755 "$HERE/debian/$f" "$STAGE/DEBIAN/$f"; done
+	for f in preinst postinst prerm postrm; do install -m 755 "$HERE/debian/$f" "$STAGE/DEBIAN/$f"; done
 	echo /etc/rootspeak/rootspeak.conf >"$STAGE/DEBIAN/conffiles"
 	# the licence where Debian looks for it
 	cp "$SRC/LICENSE" "$STAGE/usr/share/doc/rootspeak/copyright"

@@ -1014,10 +1014,18 @@ def p_packages():
            "no files of RootSpeak, no hook lines, message 1 in the store",
            r.returncode == 0 and not left and hooks() == 0 and os.path.exists(f"{VAR}/sent/1"),
            ", ".join(left) or r.stderr.strip()[:200])
-    # from the archive to the package: the archive's programs go, the messages stay
+    # from the archive to the package: the archive's programs go, the messages and its
+    # settings stay, without questions (dpkg must not know RootSpeak, as on a machine that
+    # never had the package: after apt remove it still knows the settings, hence the purge)
+    if mgr == "apt":
+        sh("dpkg --purge rootspeak")
     r = sh("/opt/archive/install.sh")
     ok = r.returncode == 0 and os.path.exists("/usr/local/bin/rspeak")
+    sh("echo 'RSPEAK_REMIND_MINUTES=50' >> /etc/rootspeak/rootspeak.conf")
     rspeak_old = sh('/usr/local/bin/rspeak send --to anna "from the archive"')
+    # (its number: 1 after the purge above, 2 otherwise)
+    m = re.search(r"Message (\d+) sent", rspeak_old.stdout)
+    mid = int(m.group(1)) if m else 0
     if mgr == "pacman":
         # pacman does not install over files it does not know (those of install.sh in /etc):
         # it refuses without touching anything, and the archive is removed first
@@ -1027,12 +1035,17 @@ def p_packages():
         ok = ok and sh("/opt/archive/install.sh --uninstall").returncode == 0
     r = sh(f"{PKG} install")
     zline = sh("grep -h '# RootSpeak hook' /etc/zsh/zshrc /etc/zshrc 2>/dev/null").stdout
-    record("P6", "Packages", "the package over an installation from the archive: it takes its place "
-           "(pacman: it refuses, and takes it after install.sh --uninstall)",
-           "nothing left in /usr/local, message 2 still there, hooks pointing to /usr",
+    # (dpkg asks about a configuration file it does not know: without a terminal it prints the question)
+    asked = "Configuration file" in r.stdout + r.stderr
+    kept = "=50" in open("/etc/rootspeak/rootspeak.conf").read()
+    record("P6", "Packages", "the package over an installation from the archive: it takes its place, "
+           "keeps its settings and asks nothing (pacman: it refuses, and takes it after install.sh --uninstall)",
+           "nothing left in /usr/local, the archive's message still there, settings kept, no question, hooks pointing to /usr",
            ok and rspeak_old.returncode == 0 and r.returncode == 0 and not os.path.exists("/usr/local/bin/rspeak")
-           and not os.path.exists("/usr/local/lib/rootspeak") and state(2, "anna") is not None
-           and hooks() == want_hooks and "/usr/local" not in zline, (r.stdout + r.stderr).strip()[-200:])
+           and not os.path.exists("/usr/local/lib/rootspeak") and state(mid, "anna") is not None
+           and hooks() == want_hooks and "/usr/local" not in zline and kept and not asked,
+           ("asked about the configuration file; " if asked else "") + ("settings lost; " if not kept else "")
+           + (r.stdout + r.stderr).strip()[-160:])
     if mgr == "apt":
         r = sh(f"{PKG} purge")
         record("P7", "Packages", "apt purge: also messages and configuration go",
@@ -1041,7 +1054,7 @@ def p_packages():
     else:
         r = sh(f"{PKG} remove")
         record("P7", "Packages", f"removing with {mgr}: the messages stay (only apt has purge)",
-               f"{VAR} kept", r.returncode == 0 and os.path.exists(f"{VAR}/sent/2"), r.stderr.strip()[:200])
+               f"{VAR} kept", r.returncode == 0 and os.path.exists(f"{VAR}/sent/{mid}"), r.stderr.strip()[:200])
 
 
 # ---- report ----

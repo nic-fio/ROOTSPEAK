@@ -1,8 +1,8 @@
 {
  "meta": {
-  "date": "2026-10-05 11:06:12 CEST",
-  "commit": "e6464dd748-modified",
-  "fingerprint": "96a77f38b435",
+  "date": "2026-10-05 11:36:14 CEST",
+  "commit": "c5bbfa4f0a-modified",
+  "fingerprint": "001675985902",
   "installed": "the package of each distribution (.deb, .rpm, Arch) from tools/release.sh, installed with its package manager",
   "ok": 22,
   "failed": 0,
@@ -21,7 +21,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "debian-13",
@@ -35,7 +35,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "ubuntu-22.04",
@@ -49,7 +49,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "ubuntu-24.04",
@@ -63,7 +63,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "ubuntu-26.04",
@@ -77,7 +77,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "fedora-44",
@@ -92,7 +92,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "fedora-45",
@@ -106,7 +106,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "centos-stream-9",
@@ -121,7 +121,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "centos-stream-10",
@@ -136,7 +136,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "rhel-9",
@@ -153,7 +153,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "rhel-10",
@@ -170,7 +170,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "rocky-9",
@@ -185,7 +185,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "rocky-10",
@@ -200,7 +200,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "alma-9",
@@ -215,7 +215,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "alma-10",
@@ -230,7 +230,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "oracle-9",
@@ -245,7 +245,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "oracle-10",
@@ -260,7 +260,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "opensuse-leap-16",
@@ -274,7 +274,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "opensuse-tumbleweed",
@@ -288,7 +288,7 @@
    "not_tested_codes": [
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "sles-15",
@@ -303,7 +303,7 @@
     "K-fish",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "sles-16",
@@ -318,7 +318,7 @@
     "K-dash",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   },
   {
    "name": "arch",
@@ -333,7 +333,7 @@
     "K-ksh",
     "I1"
    ],
-   "fingerprint": "96a77f38b435"
+   "fingerprint": "001675985902"
   }
  ]
 }

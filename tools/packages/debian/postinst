@@ -2,5 +2,9 @@
 # RootSpeak - Advanced Messaging System for Linux: after installing or upgrading
 set -e
 if [ "$1" = configure ]; then
+	# the settings of an installation from the archive, set aside by preinst
+	if [ -f /etc/rootspeak/rootspeak.conf.rootspeak-keep ]; then
+		mv /etc/rootspeak/rootspeak.conf.rootspeak-keep /etc/rootspeak/rootspeak.conf
+	fi
 	/usr/lib/rootspeak/rootspeak-setup configure
 fi

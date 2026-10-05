@@ -108,7 +108,7 @@ S3 = p(c("tests/container/run.sh") + " tests RootSpeak <b>for real</b> in an iso
         ["I. Desktop", "not tested in the container (no graphical session); tested in the VM"],
         ["P. Packages", "only with " + c("RSPEAK_RELEASE") + ": the package installed by the package manager, "
          "command of root and the administrators, hook lines; the package manager's own check; reinstalling keeps "
-         "messages, configuration and hooks; " + c("install.sh") + " refuses; removal; the package over the archive; "
+         "messages, configuration and hooks; " + c("install.sh") + " refuses; removal; the package over the archive, keeping its settings without asking; "
          + c("apt purge") + " (other managers: removal keeps the messages)"],
     ], "«TAB» — The real-world scenarios") + \
     p(c("tests/vm/run.sh") + " runs the same scenarios in a <b>virtual machine with a desktop</b>, on the test "

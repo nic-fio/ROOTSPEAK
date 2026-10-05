@@ -141,6 +141,10 @@ S5 = p("On 5 October 2026 RootSpeak got its packages, for the distributions wher
     + c("755") + "), caught by P1 before any release; pacman refuses to install over the archive's files in "
     + c("/etc") + " (on Arch, " + c("./install.sh --uninstall") + " first); Ubuntu's minimized images do not "
     "extract " + c("/usr/share/doc") + ".",
+    "<b>Found by the live test</b> on the owner's PC: over an installation from the archive, dpkg asked what to do "
+    "with " + c("rootspeak.conf") + ", and without a terminal it would have stopped the installation. The tests had "
+    "not seen it: they checked the result, not the question. Fixed with a " + c("preinst") + "; scenario P6 now "
+    "fails if the question appears.",
 ])
 
 CHAPTER = ("Defects found and reviews", [

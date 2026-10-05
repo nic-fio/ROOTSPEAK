@@ -1,0 +1,11 @@
+#!/bin/sh
+# RootSpeak - Advanced Messaging System for Linux: before unpacking.
+# An installation from the archive leaves its own rootspeak.conf, which dpkg
+# does not know: it would ask what to do with it. It is set aside here and put
+# back by postinst, so the administrator's settings stay and nobody is asked.
+set -e
+CONF=/etc/rootspeak/rootspeak.conf
+if [ "$1" = install ] && [ -f "$CONF" ] &&
+	! dpkg-query -W -f='${Conffiles}' rootspeak 2>/dev/null | grep -q " $CONF "; then
+	mv "$CONF" "$CONF.rootspeak-keep"
+fi

@@ -15,14 +15,14 @@ b_recipients
   ok  B7  group without members
 c_delivery
   ok  C1a  user logged out: the copy waits in the mailbox
-  ok  C1b  at login the message and the question appear before the first prompt  [{'seconds_from_login': 0.317}]
+  ok  C1b  at login the message and the question appear before the first prompt  [{'seconds_from_login': 0.357}]
   ok  C1c  confirmation at login
-  ok  C2a  user logged in: the text appears in their terminal  [{'seconds_send': 0.056, 'seconds_to_terminal': 0.107}]
+  ok  C2a  user logged in: the text appears in their terminal  [{'seconds_send': 0.047, 'seconds_to_terminal': 0.097}]
   ok  C2b  state after writing to the terminal
-  ok  C2c  pressing Enter the question appears  [{'seconds': 0.056}]
+  ok  C2c  pressing Enter the question appears  [{'seconds': 0.054}]
   ok  C3  ssh session without a terminal: it is not touched, the copy goes to the mailbox
   ok  C4a  two open sessions: the text appears in both
-  ok  C4b  confirming in one session, the question in the other stops  [{'seconds': 0.951}]
+  ok  C4b  confirming in one session, the question in the other stops  [{'seconds': 0.952}]
 d_confirmation
   ok  D1  the user postpones
   ok  D2  after the postponement, only a reminder at the prompt
@@ -32,16 +32,16 @@ d_confirmation
 e_expiry_revocation
   ok  E1  an expired message is not shown at login
   ok  E2  state of an expired message
-  ok  E3  revocation with the question waiting: the question stops  [{'seconds': 1.001}]
+  ok  E3  revocation with the question waiting: the question stops  [{'seconds': 1.002}]
   ok  E4  state after the revocation
   ok  E5  a message revoked before the login is not shown
 f_faults
   ok  F1  the copy for one user cannot be written: the others receive it
   ok  F2  fault fixed: the next command completes the delivery
-  ok  F3  rspeak send killed halfway (SIGKILL): the next command completes  [{'delivered_at_kill': 3, 'recipients': 68, 'seconds_recovery': 1.787}]
+  ok  F3  rspeak send killed halfway (SIGKILL): the next command completes  [{'delivered_at_kill': 3, 'recipients': 68, 'seconds_recovery': 1.368}]
   ok  F6  user's folder left owned by root by an interrupted sending: the delivery fixes it
-  ok  F7  rspeak revoke during a sending to many users: the sending stops and no copy stays  [{'seconds_waiting_revoke': 0.51}]
-  ok  F5  rspeak list repeated while rspeak send delivers: the recovery does not interfere  [{'rspeak_list_during_sending': 15}]
+  ok  F7  rspeak revoke during a sending to many users: the sending stops and no copy stays  [{'seconds_waiting_revoke': 0.68}]
+  ok  F5  rspeak list repeated while rspeak send delivers: the recovery does not interfere  [{'rspeak_list_during_sending': 19}]
   ok  F4  the confirmation cannot be written: the message stays and the user is told
 g_security
   ok  G1  the mailbox is a link to /etc: root does not write there
@@ -60,12 +60,12 @@ k_shells
   ok  K1-zsh  zsh: at login the message and the question
   ok  K2-zsh  zsh: confirmation at login
   ok  K3-zsh  zsh: user logged in, the text appears in the terminal
-  ok  K4-zsh  zsh: pressing Enter the question appears  [{'seconds': 0.065}]
+  ok  K4-zsh  zsh: pressing Enter the question appears  [{'seconds': 0.071}]
   ok  K5-zsh  zsh: confirmation at the prompt
   ok  K1-fish  fish: at login the message and the question
   ok  K2-fish  fish: confirmation at login
   ok  K3-fish  fish: user logged in, the text appears in the terminal
-  ok  K4-fish  fish: pressing Enter the question appears  [{'seconds': 0.053}]
+  ok  K4-fish  fish: pressing Enter the question appears  [{'seconds': 0.072}]
   ok  K5-fish  fish: confirmation at the prompt
   ok  K1-ksh  ksh: at login the message and the question
   ok  K2-ksh  ksh: confirmation at login
@@ -75,9 +75,9 @@ k_shells
 l_language
   ok  L5  a user whose session is in Italian: header, question and answer in English, «y» confirms
 h_performance
-  ok  H1  sending to all (58 recipients)  [{'seconds': 0.55, 'ms_per_recipient': 9.4}]
-  ok  H2  rspeak list with 10 messages × 58 recipients  [{'seconds': 0.7}]
-  ok  H3  rspeak status of a message with 58 recipients  [{'seconds': 0.65}]
+  ok  H1  sending to all (58 recipients)  [{'seconds': 0.76, 'ms_per_recipient': 13.0}]
+  ok  H2  rspeak list with 10 messages × 58 recipients  [{'seconds': 0.8}]
+  ok  H3  rspeak status of a message with 58 recipients  [{'seconds': 0.87}]
 i_desktop
   --  I1  confirmation dialog in the graphical session
 p_packages
@@ -86,7 +86,7 @@ p_packages
   ok  P3  reinstalling (as an upgrade does): messages, configuration and hooks stay as they were
   ok  P4  install.sh with the package installed: it refuses and says to use the package manager
   ok  P5  removing the package: programs and hooks go, messages stay
-  ok  P6  the package over an installation from the archive: it takes its place (pacman: it refuses, and takes it after install.sh --uninstall)
+  ok  P6  the package over an installation from the archive: it takes its place, keeps its settings and asks nothing (pacman: it refuses, and takes it after install.sh --uninstall)
   ok  P7  removing with dnf: the messages stay (only apt has purge)
 
 72 passed, 0 failed, 2 not tested out of 74; results in /opt/results

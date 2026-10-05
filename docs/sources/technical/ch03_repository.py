@@ -56,8 +56,10 @@ S1 = p("The repository contains the C code, the files to install on the system, 
     ("tools/packages/make-package.sh", "Makes a " + c(".deb") + ", " + c(".rpm") + " or Arch package from the "
      "programs built for " + c("/usr") + ", in a container of the family."),
     ("tools/packages/debian/control", "The " + c(".deb") + " description: dependencies, recommended zenity."),
-    ("tools/packages/debian/postinst", "After installing or upgrading the " + c(".deb") + ": "
-     + c("rootspeak-setup configure") + "."),
+    ("tools/packages/debian/preinst", "Before unpacking the " + c(".deb") + ": sets aside the "
+     + c("rootspeak.conf") + " of an installation from the archive, so dpkg asks nothing."),
+    ("tools/packages/debian/postinst", "After installing or upgrading the " + c(".deb") + ": puts those settings back, "
+     "then " + c("rootspeak-setup configure") + "."),
     ("tools/packages/debian/prerm", "Before removing the " + c(".deb") + ": " + c("rootspeak-setup unconfigure") + "."),
     ("tools/packages/debian/postrm", c("apt purge") + ": also messages and configuration."),
     ("tools/packages/rpm/rootspeak.spec", "The " + c(".rpm") + ", one for the Fedora, RHEL and SUSE families."),
@@ -318,7 +320,11 @@ S7 = p("The three packages contain the same files, copied by " + c("install.sh")
         "Over an installation from the archive, " + c("configure") + " removes " + c("/usr/local/bin/rspeak") + ", "
         + c("/usr/local/lib/rootspeak") + " and " + c("/usr/local/share/doc/rootspeak") + " and says so; the store "
         "is the same. dpkg and rpm replace the archive's files in " + c("/etc") + "; pacman refuses files it does "
-        "not know, so on Arch " + c("./install.sh --uninstall") + " comes first.",
+        "not know, so on Arch " + c("./install.sh --uninstall") + " comes first. The archive's "
+        + c("rootspeak.conf") + " is kept: dpkg would ask what to do with a configuration file it does not know "
+        "(and, without a terminal, stop the installation), so the " + c("preinst") + " of the " + c(".deb")
+        + " sets it aside and " + c("postinst") + " puts it back; rpm and pacman keep it by themselves, writing "
+        "theirs as " + c(".rpmnew") + " or " + c(".pacnew") + ".",
         "The packages are not signed: the integrity check is " + c("SHA256SUMS") + " over HTTPS.",
     ])
 

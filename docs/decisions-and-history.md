@@ -103,6 +103,10 @@ reliable source is **logind**, not utmp.
   runs as an unprivileged user): caught by scenario P1.
 - **pacman refuses files it does not know**: moving from the archive to the
   package on Arch needs `./install.sh --uninstall` first; dpkg and rpm replace them.
+- **The archive's `rootspeak.conf` under a `.deb`**: dpkg asked what to do with
+  it (live test on the owner's PC, 5 October), and without a terminal it stops
+  the installation. The `preinst` sets it aside, `postinst` puts it back; P6
+  now fails if the question appears.
 - **Ubuntu minimized and the Arch image skip `/usr/share/doc`**: the package
   installs there without the manuals, which are on the website.
 - **Revocation with an open window or question**: they close by themselves

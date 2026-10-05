@@ -1,14 +1,14 @@
 {
  "meta": {
-  "date": "2026-10-05 09:05:56 UTC",
+  "date": "2026-10-05 09:35:53 UTC",
   "version": "RootSpeak - Advanced Messaging System for Linux 0.2.0",
   "system": "SUSE Linux Enterprise Server 16.0, container with systemd",
   "ok": 72,
   "failed": 0,
   "not_tested": 2,
   "total": 74,
-  "commit": "e6464dd748-modified",
-  "fingerprint": "96a77f38b435",
+  "commit": "c5bbfa4f0a-modified",
+  "fingerprint": "001675985902",
   "only": ""
  },
  "results": [
@@ -29,7 +29,7 @@
    "outcome": "OK",
    "details": "from: admin",
    "measures": {
-    "seconds": 0.055
+    "seconds": 0.075
    }
   },
   {
@@ -130,7 +130,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds_from_login": 0.535
+    "seconds_from_login": 0.615
    }
   },
   {
@@ -139,7 +139,7 @@
    "description": "confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:01 (terminal pts/2)",
+   "details": "confirmed on 05/10 09:31 (terminal pts/2)",
    "measures": {}
   },
   {
@@ -171,7 +171,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.056
+    "seconds": 0.055
    }
   },
   {
@@ -200,7 +200,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.952
+    "seconds": 0.95
    }
   },
   {
@@ -209,7 +209,7 @@
    "description": "the user postpones",
    "expected": "delivered, postponed on …",
    "outcome": "OK",
-   "details": "delivered, written to 1 terminal, postponed on 05/10 09:03",
+   "details": "delivered, written to 1 terminal, postponed on 05/10 09:33",
    "measures": {}
   },
   {
@@ -218,7 +218,7 @@
    "description": "after the postponement, only a reminder at the prompt",
    "expected": "«You have 1 message…», no question",
    "outcome": "OK",
-   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@c14f1eeb59a4:~> ",
+   "details": "true\n[RootSpeak] You have 1 message from the administrator to confirm.\nluca@0d9fa13ca637:~> ",
    "measures": {}
   },
   {
@@ -245,7 +245,7 @@
    "description": "confirmation recorded with date and channel",
    "expected": "«EPOCH terminal pts/N»",
    "outcome": "OK",
-   "details": "1791190989 terminal pts/7",
+   "details": "1791192787 terminal pts/7",
    "measures": {}
   },
   {
@@ -274,7 +274,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 1.001
+    "seconds": 1.003
    }
   },
   {
@@ -323,7 +323,7 @@
    "measures": {
     "delivered_at_kill": 3,
     "recipients": 67,
-    "seconds_recovery": 1.605
+    "seconds_recovery": 1.423
    }
   },
   {
@@ -354,7 +354,7 @@
    "outcome": "OK",
    "details": "67 deliveries recorded for 67 recipients, 67 distinct",
    "measures": {
-    "rspeak_list_during_sending": 17
+    "rspeak_list_during_sending": 16
    }
   },
   {
@@ -426,7 +426,7 @@
    "description": "an event written by a user in the name of another: rspeak log flags it",
    "expected": "«[not trustworthy: written by UID 1003]»",
    "outcome": "OK",
-   "details": "2026-10-05 09:05:01  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
+   "details": "2026-10-05 09:34:59  [not trustworthy: written by UID 1003] user anna: confirmed reading message 1 (desktop)",
    "measures": {}
   },
   {
@@ -471,7 +471,7 @@
    "description": "zsh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/15)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -491,7 +491,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.071
+    "seconds": 0.061
    }
   },
   {
@@ -500,7 +500,7 @@
    "description": "zsh: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/15)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/15)",
    "measures": {}
   },
   {
@@ -518,7 +518,7 @@
    "description": "fish: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/16)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -547,7 +547,7 @@
    "description": "fish: confirmation at the prompt",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/16)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/16)",
    "measures": {}
   },
   {
@@ -565,7 +565,7 @@
    "description": "ksh: confirmation at login",
    "expected": "confirmed (terminal)",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/17)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/17)",
    "measures": {}
   },
   {
@@ -601,7 +601,7 @@
    "description": "a user whose session is in Italian: header, question and answer in English, «y» confirms",
    "expected": "«Message from the administrator», «Do you confirm…? [y/N]», «Confirmed.»",
    "outcome": "OK",
-   "details": "confirmed on 05/10 09:05 (terminal pts/18)",
+   "details": "confirmed on 05/10 09:35 (terminal pts/18)",
    "measures": {}
   },
   {
@@ -612,8 +612,8 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.61,
-    "ms_per_recipient": 10.6
+    "seconds": 0.56,
+    "ms_per_recipient": 9.8
    }
   },
   {
@@ -624,7 +624,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.71
+    "seconds": 0.63
    }
   },
   {
@@ -635,7 +635,7 @@
    "outcome": "OK",
    "details": "",
    "measures": {
-    "seconds": 0.7
+    "seconds": 0.57
    }
   },
   {
@@ -695,10 +695,10 @@
   {
    "code": "P6",
    "area": "Packages",
-   "description": "the package over an installation from the archive: it takes its place (pacman: it refuses, and takes it after install.sh --uninstall)",
-   "expected": "nothing left in /usr/local, message 2 still there, hooks pointing to /usr",
+   "description": "the package over an installation from the archive: it takes its place, keeps its settings and asks nothing (pacman: it refuses, and takes it after install.sh --uninstall)",
+   "expected": "nothing left in /usr/local, the archive's message still there, settings kept, no question, hooks pointing to /usr",
    "outcome": "OK",
-   "details": ".2 MiB  required by packages that will be installed\n     1.2 MiB  |  -      0 B    released by packages that will be removed\n\nBackend:  classic_rpmtrans\nContinue? [y/n/v/...? shows all options] (y): y",
+   "details": "e installed\n     1.2 MiB  |  -      0 B    released by packages that will be removed\n\nBackend:  classic_rpmtrans\nContinue? [y/n/v/...? shows all options] (y): y",
    "measures": {}
   },
   {

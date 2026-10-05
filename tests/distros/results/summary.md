@@ -1,7 +1,7 @@
 # RootSpeak on the distributions
 
-- Date: 2026-10-05 11:06:12 CEST
-- Code: commit e6464dd748-modified, fingerprint 96a77f38b435
+- Date: 2026-10-05 11:36:14 CEST
+- Code: commit c5bbfa4f0a-modified, fingerprint 001675985902
 - Installed: the package of each distribution (.deb, .rpm, Arch) from tools/release.sh, installed with its package manager
 - Outcome: **22 of 22 distributions passed**
 

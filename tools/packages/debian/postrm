@@ -2,6 +2,10 @@
 # RootSpeak - Advanced Messaging System for Linux: apt purge also removes the
 # messages and the configuration
 set -e
+# an installation that failed: the settings set aside by preinst go back
+if [ "$1" = abort-install ] && [ -f /etc/rootspeak/rootspeak.conf.rootspeak-keep ]; then
+	mv /etc/rootspeak/rootspeak.conf.rootspeak-keep /etc/rootspeak/rootspeak.conf
+fi
 if [ "$1" = purge ]; then
 	rm -rf /var/lib/rootspeak /etc/rootspeak
 fi
