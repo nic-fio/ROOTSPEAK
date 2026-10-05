@@ -260,7 +260,16 @@ subdomains). Version 1.0 comes later.
 `RSPEAK_RELEASE=build/release tests/distros/run.sh`. Next steps proposed to
 the user: the logo as the zenity dialog's window icon (zenity 3 and 4 differ:
 needs the VM tests), signed packages with an APT/DNF repository for automatic
-upgrades (needs a GPG key kept by the owner), the live test of a package.
+upgrades (needs a GPG key kept by the owner).
+
+Live test of the `.deb` on the owner's PC (Debian 13, GNOME), 5 October 2026,
+over the installation from `install.sh`: «the installation from the archive in
+/usr/local was replaced by this package»; `rspeak send --to user` (message 7),
+dialog, «I have read it», `status` «confirmed … (desktop)». It found a defect:
+dpkg asked what to do with the archive's `rootspeak.conf` (and stops without a
+terminal); fixed with a `preinst`, verified by scenario P6 on the 22
+distributions, not yet live (`apt install --reinstall` of the fixed package
+asked nothing, but dpkg already knew the file).
 
 The adversarial review of 30 September 2026
 ([docs/adversarial-review.md](docs/adversarial-review.md)) is closed. The [2]
