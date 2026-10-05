@@ -145,8 +145,12 @@ box-shadow:0 60px 120px -50px rgba(0,0,0,.9),0 0 80px -30px rgba(124,192,255,.4)
 .later{display:inline-block;font-family:'Body',sans-serif;font-size:15px;font-weight:700;background:#fff;color:#1d2433;border-radius:8px;padding:5px 16px;margin:14px 0 4px;box-shadow:0 0 30px rgba(255,255,255,.18)}
 /* compat */
 .c22{display:grid;grid-template-columns:auto 1fr;gap:clamp(28px,5vw,80px);align-items:center;margin-top:48px}
-/* the digits sit high in their line box (line-height .85): centred on the list beside them */
-@media (min-width:981px){.c22 .big{transform:translateY(.11em)}}
+/* the 22 is laid out by its digits alone (cap height, text-box), so the grid centres them on the list;
+   the padding gives back the room the trim takes (the curves above the cap height, and on the right as
+   much as the left side bearing of the 2), so the gradient is not cut and the drop-shadow glow, which
+   Chrome draws around the box, is centred on the digits; the negative margins keep the layout as it was */
+.c22 .big{line-height:1;text-box:trim-both cap alphabetic;padding:.04em .1em .04em 0;margin:-.04em -.1em -.04em 0}
+@supports not (text-box:trim-both cap alphabetic){@media (min-width:981px){.c22 .big{transform:translateY(.06em)}}}
 .big{font-family:'Geo',sans-serif;font-size:clamp(130px,17vw,240px);line-height:.85;font-weight:700;letter-spacing:-.04em;
 background:linear-gradient(180deg,#ffffff,#7cc0ff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 40px rgba(124,192,255,.35))}
 .distros{display:flex;flex-wrap:wrap;gap:10px}
