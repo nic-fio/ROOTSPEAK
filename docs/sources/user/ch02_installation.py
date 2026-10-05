@@ -99,6 +99,23 @@ S2B = p("For a distribution with systemd that has none of these package managers
          + " stops and answers “RootSpeak is installed from a package: update or remove it with the package manager "
          "(apt, dnf, zypper, pacman).”. The other way round, see “Upgrading and removing”.", "One or the other.")
 
+S2C = p("The website also offers the source code, " + c("rootspeak-" + VERSION + "-source.tar.gz") + ", so that you can "
+        "check what RootSpeak does on your machines before installing it, or build it yourself (" + ref(1)
+        + ", “Licence”). Building needs gcc, make, pkg-config and the systemd development files: "
+        + c("libsystemd-dev") + " on Debian and Ubuntu, " + c("systemd-devel") + " on Fedora, RHEL and openSUSE.",
+        lead=True) + steps([
+    "Download the source archive and " + c("SHA256SUMS") + ", check it as above, extract it and enter its folder.",
+    "Build and run the tests, as a normal user: they run in test mode, on a temporary message store, without root." + term(
+        "admin@server:~/rootspeak-" + VERSION + "-source$ make\n"
+        "admin@server:~/rootspeak-" + VERSION + "-source$ make unit\n"
+        "OK: 15 tests\n"
+        "admin@server:~/rootspeak-" + VERSION + "-source$ tests/engine.sh\n"
+        "OK: 76 checks"),
+    "Install with " + c("./install.sh") + ", as for the archive above: it installs in " + c("/usr/local")
+    + " and builds the programs first if they are missing.",
+]) + note("the folder also holds the files that make the packages (" + c("tools/packages/") + ") and a short "
+          + c("README.txt") + ".", "What is inside.")
+
 TREE = tree([
     "/usr/bin/rspeak  # the administrators' command (root:sudo, 750)",
     "/usr/lib/rootspeak/  # the internal parts",
@@ -195,6 +212,7 @@ CHAPTER = ("Installation and first start", [
     ("Requirements", S1),
     ("Downloading and installing", S2),
     ("Without a package: the archive", S2B),
+    ("From the source code", S2C),
     ("What gets installed", S3),
     ("The administrators", S4),
     ("First start", S5),

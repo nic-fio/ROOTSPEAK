@@ -33,7 +33,7 @@ S1 = p("<b>RootSpeak — Advanced Messaging System for Linux</b> is the tool wit
       "banners are fixed texts. None of them keeps a <b>state per message and per user</b>. RootSpeak puts the pieces "
       "together (logind, the terminals, desktop autostart, zenity, the journal) and adds exactly this state.") + \
     OVERVIEW + \
-    p("Version 0.2.0 is written in C (the 0.1.0 prototype was in bash): two programs, no daemon, no database. The "
+    p("Since version 0.2.0 RootSpeak is written in C (the 0.1.0 prototype was in bash): two programs, no daemon, no database. The "
       + c("rspeak") + " command always runs as root and writes to the message store; on the user's side the helper "
       + c("rootspeak-user") + " reads the mailbox and records the confirmation, in two ways: in the shell prompt ("
       + c("rootspeak-user prompt") + ") and in the graphical session (" + c("rootspeak-user agent") + ").") + \

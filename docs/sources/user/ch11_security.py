@@ -7,7 +7,7 @@ from _helpers import CONFIRMED, ref  # noqa: E402
 
 S1 = p("Only the machine's administrators can use " + c("rspeak") + ": the members of the " + c("sudo")
        + " group (" + c("wheel") + " on Fedora and similar systems). RootSpeak keeps no list of its own: whoever joins or "
-       "leaves the group gains or loses access from their next login to the machine (" + ref(2, 4) + ").",
+       "leaves the group gains or loses access from their next login to the machine (" + ref(2, 6) + ").",
        lead=True) + term(
     "mario@server:~$ rspeak list\n"
     "bash: /usr/bin/rspeak: Permission denied",
