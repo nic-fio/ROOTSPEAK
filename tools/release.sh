@@ -111,7 +111,7 @@ tar -C "$OUT" --owner=0 --group=0 --mode=u=rwX,go=rX --sort=name -czf "$OUT/$NAM
 # The source archive (PolyForm Noncommercial License 1.0.0): what is needed to
 # read, build, test and install RootSpeak, and how the packages are made. Only
 # the files listed here: the working notes (CLAUDE.md, docs/decisions-and-history.md),
-# the website and the test infrastructure stay in the private repository.
+# the website and the test infrastructure stay in the repository only.
 SRCNAME=rootspeak-$VERSION-source
 SRCFILES=(Makefile LICENSE.md NOTICE.md install.sh src etc 'logos/rootspeak-icon*'
 	'docs/User Manual.html' 'docs/Technical Manual.html' tests/unit-tests.c tests/engine.sh tools/fingerprint.sh tools/packages)
