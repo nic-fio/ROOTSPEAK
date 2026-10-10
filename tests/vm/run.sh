@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Real-world tests in a VM with a desktop, on the test server (so as not to load
 # the PC): copies the code to the server, starts the VM from a clean copy of the

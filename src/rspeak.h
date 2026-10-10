@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * The parts of rspeak also used by the TUI: the TUI reads the message store with
  * the same functions as the commands, and the actions are the commands themselves. */

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # What an installation does on the system besides copying its files, the same
 # for install.sh and for the .deb, .rpm and Arch packages: the administrators'

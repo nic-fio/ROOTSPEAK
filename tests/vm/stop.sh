@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Runs on the test server: shuts the test VM down and deletes its working disk.
 #   stop.sh VM_FOLDER

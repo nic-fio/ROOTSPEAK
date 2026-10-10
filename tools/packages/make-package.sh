@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Makes one package from the programs already built for /usr, inside a container
 # of the distribution family (tools/release.sh starts it): the files are copied
@@ -29,7 +31,7 @@ deb)
 	for f in preinst postinst prerm postrm; do install -m 755 "$HERE/debian/$f" "$STAGE/DEBIAN/$f"; done
 	echo /etc/rootspeak/rootspeak.conf >"$STAGE/DEBIAN/conffiles"
 	# the licence where Debian looks for it
-	cp "$SRC/LICENSE" "$STAGE/usr/share/doc/rootspeak/copyright"
+	cp "$SRC/LICENSE.md" "$STAGE/usr/share/doc/rootspeak/copyright"
 	dpkg-deb --root-owner-group -Zxz --build "$STAGE" "$OUT/rootspeak_$VERSION-${REL}_amd64.deb" >/dev/null
 	;;
 rpm)

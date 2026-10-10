@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Runs on the test server: starts the test VM from a clean copy of the base
 # disk (prepare.sh) and waits until it answers on ssh (127.0.0.1:PORT of the server).

@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * Built-in help of rspeak --help, modelled on MTERM's: interactive help with
  * tabs in a terminal; with a terminal smaller than 44x10, a manual-style page

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # RootSpeak - Advanced Messaging System for Linux
 # The rpm package, one for the Fedora, RHEL and SUSE families: the files are
 # already in the stage folder (tools/packages/make-package.sh), nothing is built here.
@@ -5,7 +8,7 @@ Name:           rootspeak
 Version:        @VERSION@
 Release:        @REL@
 Summary:        @SUMMARY@
-License:        LicenseRef-RootSpeak-Source-Available
+License:        PolyForm-Noncommercial-1.0.0
 URL:            https://rootspeak.nicfio.it/
 ExclusiveArch:  x86_64
 # the programs are already built and stripped by tools/release.sh

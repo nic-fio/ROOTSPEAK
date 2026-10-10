@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # RootSpeak - Advanced Messaging System for Linux
 # Test machine: a distribution with systemd running (logind, sshd), to test RootSpeak
 # for real as root, with real users and sessions. It does not touch the host system.

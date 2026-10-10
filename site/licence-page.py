@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Turns LICENSE (a small Markdown file: headings, paragraphs, numbered and
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+"""Turns LICENSE.md (a small Markdown file: headings, paragraphs, numbered and
 bulleted lists, **bold**, `code`) into licence.html, a light page that is easy
-to print. Usage: licence-page.py LICENSE > licence.html"""
+to print. Usage: licence-page.py LICENSE.md > licence.html"""
 import html, re, sys
 
 
@@ -59,8 +61,8 @@ print("""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RootSpeak Source-Available Licence</title>
-<meta name="description" content="The licence of RootSpeak: free to use, also at work, and to give away; the source code is public, to read, build and change for your own use; not to sell, distribute changed or include in commercial products.">
+<title>RootSpeak licence: PolyForm Noncommercial 1.0.0</title>
+<meta name="description" content="The licence of RootSpeak: the PolyForm Noncommercial License 1.0.0, free for any noncommercial use; the source code is public.">
 <link rel="canonical" href="https://rootspeak.nicfio.it/licence.html">
 <style>
 body{margin:0;background:#f4f6fa;color:#111827;font:16px/1.65 Cantarell,"Segoe UI",Roboto,Arial,sans-serif}

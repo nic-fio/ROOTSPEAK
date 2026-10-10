@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 """RootSpeak - Advanced Messaging System for Linux
 Real-world test scenarios: runs as root inside the test machine
 (tests/container), with RootSpeak installed, real users and real ssh sessions.

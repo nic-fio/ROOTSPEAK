@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 """Generator of the RootSpeak manuals, in the common style of the 7 projects' manuals.
 
 It produces two self-contained HTML files (no external files: style, logo and

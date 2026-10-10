@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * Structured events in the journal, and their text. */
 #include "event.h"

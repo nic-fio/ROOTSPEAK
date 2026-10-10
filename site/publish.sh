@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # publish.sh - builds the site of RootSpeak in site/public/ and publishes it to
 # https://rootspeak.nicfio.it (the owner's VPS, user "progetti",
 # /srv/www/rootspeak.nicfio.it).
@@ -36,7 +38,7 @@ mkdir -p "$OUT/download"
 
 cp "$ROOT/site/landing/index.html" "$OUT/index.html"
 cp "$ROOT/docs/User Manual.html" "$ROOT/docs/Technical Manual.html" "$OUT/"
-python3 "$ROOT/site/licence-page.py" "$ROOT/LICENSE" > "$OUT/licence.html"
+python3 "$ROOT/site/licence-page.py" "$ROOT/LICENSE.md" > "$OUT/licence.html"
 
 # canonical URL, link preview and a search-friendly title for each page
 SEO=$ROOT/site/seo-head.py
@@ -47,14 +49,14 @@ python3 "$SEO" "$OUT/Technical Manual.html" "$URL/Technical%20Manual.html" \
     "RootSpeak Technical Manual — architecture, message store and security" \
     "How RootSpeak works: the message store, delivery to terminals and desktops, confirmations, security, the specification and how it is tested on 22 distributions."
 python3 "$SEO" "$OUT/licence.html" "$URL/licence.html" \
-    "RootSpeak Source-Available Licence" \
-    "RootSpeak is free and source-available: free to use, also at work, and to give away unchanged; the source to read, build and change for your own use; not to sell, distribute changed or include in commercial products."
+    "RootSpeak licence: PolyForm Noncommercial 1.0.0" \
+    "RootSpeak is free for any noncommercial use, under the PolyForm Noncommercial License 1.0.0; the source code is public; commercial use needs a licence from the author."
 
 # the download, with the licence in a form every system opens
 DL=$OUT/download
 for f in "${FILES[@]}"; do cp "$REL/$f" "$DL/"; done
 cp "$REL/SHA256SUMS" "$DL/"
-sed 's/$/\r/' "$ROOT/LICENSE" > "$DL/LICENSE.txt"
+sed 's/$/\r/' "$ROOT/LICENSE.md" > "$DL/LICENSE.txt"
 sed 's/$/\r/' "$ROOT/NOTICE.md" > "$DL/NOTICE.txt"
 
 cp "$ROOT/site/og.jpg" "$OUT/og.jpg"

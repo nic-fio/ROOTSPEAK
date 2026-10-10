@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 from build import arrow, box, c, fig, key, note, p, path, tui_screen, table, text, ul, warn, zone
 
 

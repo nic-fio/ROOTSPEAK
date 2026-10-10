@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Code fingerprint: SHA-256 (first 12 characters) of the files that make
 # RootSpeak (src/, Makefile, etc/, install.sh, tools/packages/). The tests record it with their

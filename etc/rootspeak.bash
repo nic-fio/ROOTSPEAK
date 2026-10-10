@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # RootSpeak - Advanced Messaging System for Linux
 # Hook for interactive bash (called from /etc/profile.d/rootspeak.sh): before
 # every prompt it shows the administrator's messages and asks for the read confirmation.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 """Tests the interactive guide of `rspeak --help` on a virtual terminal: it opens
 it, presses keys and checks the screen after each one. Usage: tests/help-tui.py [-v]
 (-v prints the screens). Exits with 1 if a check fails.

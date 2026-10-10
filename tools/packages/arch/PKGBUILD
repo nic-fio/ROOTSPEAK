@@ -1,3 +1,5 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # The Arch package: the files are already in $STAGE
 # (tools/packages/make-package.sh), nothing is built here.
@@ -7,7 +9,7 @@ pkgrel=@REL@
 pkgdesc="@SUMMARY@"
 arch=(x86_64)
 url="https://rootspeak.nicfio.it/"
-license=(LicenseRef-RootSpeak-Source-Available)
+license=(PolyForm-Noncommercial-1.0.0)
 depends=(glibc systemd systemd-libs sudo procps-ng)
 optdepends=('zenity: the desktop dialog' 'libnotify: notice when a confirmation is not recorded')
 backup=(etc/rootspeak/rootspeak.conf)

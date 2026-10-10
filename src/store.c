@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * Users' mailboxes (always with their identity), terminals, agent. */
 #include "store.h"

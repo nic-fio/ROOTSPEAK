@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux: installation and removal.
 #   ./install.sh              installs
 #   ./install.sh --uninstall  removes (the messages in /var/lib/rootspeak stay)
@@ -39,7 +41,7 @@ copy_files() {
 	[ -e "$d/etc/rootspeak/rootspeak.conf" ] ||
 		install -m 644 "$SRC/etc/rootspeak/rootspeak.conf" "$d/etc/rootspeak/rootspeak.conf"
 	# the manuals, one file each
-	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$SRC/LICENSE" "$d$DOCDIR/"
+	install -m 644 "$SRC/docs/User Manual.html" "$SRC/docs/Technical Manual.html" "$SRC/LICENSE.md" "$d$DOCDIR/"
 	# the logo as the icon (notifications, software centres) and the software centres' description
 	install -D -m 644 "$SRC/logos/rootspeak-icon.svg" "$d$ICONDIR/scalable/apps/rootspeak.svg"
 	for n in 48 128 256; do

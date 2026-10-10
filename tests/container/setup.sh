@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Prepares the test machine on any distribution with systemd (run once, when the
 # image is built, by tests/container/Containerfile): the packages to build and run

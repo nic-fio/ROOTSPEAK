@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * Operations on the users' mailboxes, run with their identity, and writing
  * to terminals. Used by rspeak (root). */

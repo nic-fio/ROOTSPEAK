@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 from build import arrow, box, c, desktop_results, distro_results, fig, note, p, test_results, table, term, text, ul, warn, zone
 
 

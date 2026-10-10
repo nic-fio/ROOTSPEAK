@@ -1,3 +1,6 @@
+/* Copyright (c) 2026 Nicola Fiorillo
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 */
+
 /* RootSpeak - Advanced Messaging System for Linux
  * rspeak: sending and managing messages. Reserved to administrators: it always
  * runs as root, even for the help and the version, and re-runs itself with

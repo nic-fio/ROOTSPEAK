@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 """RootSpeak - Advanced Messaging System for Linux
 Runs on the test server: captures the screen of the test VM from the QEMU
 monitor (PPM format).    capture.py MONITOR_SOCKET FILE.ppm"""

@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Runs inside a test VM, once, while cloud-init prepares the base disk
 # (prepare.sh puts it there, the desktop profile runs it): the users of the

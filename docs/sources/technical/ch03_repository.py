@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 from build import arrow, box, c, code, file_map, fig, flow, note, p, steps, table, text, tree, ui, ul, warn
 
 
@@ -121,7 +124,7 @@ S1 = p("The repository contains the C code, the files to install on the system, 
      + c("build/release/") + "."),
     ("site/publish.sh", "Builds the website in " + c("site/public/") + " and copies it to the VPS."),
     ("site/seo-head.py", "Adds description, canonical address and link preview to a page of the website."),
-    ("site/licence-page.py", "Turns " + c("LICENSE") + " into " + c("licence.html") + "."),
+    ("site/licence-page.py", "Turns " + c("LICENSE.md") + " into " + c("licence.html") + "."),
     ("docs/sources/build.py", "Generator of the two manuals and functions for figures and tables."),
     ("docs/sources/style.css", "The common style of the manuals of the seven projects, embedded unchanged in every "
      "manual; the rules that only RootSpeak needs are in " + c("build.py") + "."),
@@ -252,8 +255,8 @@ RELEASE = flow([("tools/release.sh", "on the test server", "dark"), ("rhel-9 ima
 
 S6 = p("RootSpeak is distributed as built programs: a package for each family of distributions and an archive, "
        + c("rootspeak-VERSION-linux-x86_64.tar.gz") + ", for the others. They all carry the same programs, built "
-       "once. Next to them, " + c("rootspeak-VERSION-source.tar.gz") + " carries the source code (RootSpeak "
-       "Source-Available Licence).", lead=True) + \
+       "once. Next to them, " + c("rootspeak-VERSION-source.tar.gz") + " carries the source code (PolyForm "
+       "Noncommercial License 1.0.0, from the version after 0.2.1).", lead=True) + \
     RELEASE + steps([
     c("tools/release.sh") + " copies the files under version control to the test server and builds them in the "
     "image of RHEL 9 of the compatibility tests: RHEL 9 and its rebuilds have the oldest C library among the "
@@ -261,13 +264,13 @@ S6 = p("RootSpeak is distributed as built programs: a package for each family of
     "older glibc runs on the newer ones. The programs are stripped of their symbols.",
     "It checks that no symbol needs a glibc newer than 2.34 and that the programs were built for "
     + c("/usr/local") + ", then makes the archive with " + c("install.sh") + ", " + c("etc/") + ", " + c("build/rspeak")
-    + ", " + c("build/rootspeak-user") + ", the two manuals, " + c("LICENSE") + ", " + c("NOTICE.md") + " and a "
+    + ", " + c("build/rootspeak-user") + ", the two manuals, " + c("LICENSE.md") + ", " + c("NOTICE.md") + " and a "
     + c("README.txt") + ".",
     "It builds the programs a second time with " + c("PREFIX=/usr") + ", in the same image, and makes the three "
     "packages with them (next section).",
     "It makes the source archive with a fixed list of files: " + c("Makefile") + ", " + c("src/") + ", " + c("etc/")
     + ", " + c("install.sh") + ", the icons, the two manuals, " + c("tests/unit-tests.c") + ", " + c("tests/engine.sh")
-    + ", " + c("tools/fingerprint.sh") + ", " + c("tools/packages/") + ", " + c("LICENSE") + ", " + c("NOTICE.md") + " and a " + c("README.txt")
+    + ", " + c("tools/fingerprint.sh") + ", " + c("tools/packages/") + ", " + c("LICENSE.md") + ", " + c("NOTICE.md") + " and a " + c("README.txt")
     + ". The working notes, the website and the test infrastructure stay out, and the script fails if "
     + c("CLAUDE.md") + " or " + c("site/") + " end up in it. " + c("SHA256SUMS") + " covers the two archives and "
     "the packages.",

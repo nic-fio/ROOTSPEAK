@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux: before unpacking.
 # An installation from the archive leaves its own rootspeak.conf, which dpkg
 # does not know: it would ask what to do with it. It is set aside here and put

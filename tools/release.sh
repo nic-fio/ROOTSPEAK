@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Builds the archive that is downloaded from the website: the programs built
 # on the oldest supported distribution (RHEL 9 and its rebuilds, glibc 2.34),
@@ -72,7 +74,7 @@ fi
 grep -qaF /usr/local/lib/rootspeak "$OUT/$NAME/build/rspeak" ||
 	{ echo "the programs were not built for /usr/local" >&2; exit 1; }
 
-cp "$ROOT/install.sh" "$ROOT/LICENSE" "$ROOT/NOTICE.md" "$OUT/$NAME/"
+cp "$ROOT/install.sh" "$ROOT/LICENSE.md" "$ROOT/NOTICE.md" "$OUT/$NAME/"
 cp -r "$ROOT/etc" "$OUT/$NAME/"
 mkdir -p "$OUT/$NAME/logos" && cp "$ROOT"/logos/rootspeak-icon* "$OUT/$NAME/logos/"
 cp "$ROOT/docs/User Manual.html" "$ROOT/docs/Technical Manual.html" "$OUT/$NAME/docs/"
@@ -99,19 +101,19 @@ Remove:
 Manuals: docs/User Manual.html and docs/Technical Manual.html, also installed
 in /usr/local/share/doc/rootspeak/.
 
-RootSpeak is free of charge and source-available: see LICENSE. The source
-code is downloaded from the website. Copyright (c) 2026 Nicola Fiorillo.
+RootSpeak is free for any noncommercial use: see LICENSE.md (PolyForm
+Noncommercial License 1.0.0). The source code is downloaded from the website. Copyright (c) 2026 Nicola Fiorillo.
 Contact: rootspeak@nicfio.it
 EOF
 
 tar -C "$OUT" --owner=0 --group=0 --mode=u=rwX,go=rX --sort=name -czf "$OUT/$NAME.tar.gz" "$NAME"
 
-# The source archive (RootSpeak Source-Available Licence): what is needed to
+# The source archive (PolyForm Noncommercial License 1.0.0): what is needed to
 # read, build, test and install RootSpeak, and how the packages are made. Only
 # the files listed here: the working notes (CLAUDE.md, docs/decisions-and-history.md),
 # the website and the test infrastructure stay in the private repository.
 SRCNAME=rootspeak-$VERSION-source
-SRCFILES=(Makefile LICENSE NOTICE.md install.sh src etc 'logos/rootspeak-icon*'
+SRCFILES=(Makefile LICENSE.md NOTICE.md install.sh src etc 'logos/rootspeak-icon*'
 	'docs/User Manual.html' 'docs/Technical Manual.html' tests/unit-tests.c tests/engine.sh tools/fingerprint.sh tools/packages)
 mkdir -p "$OUT/$SRCNAME"
 git -C "$ROOT" ls-files -co --exclude-standard -z -- "${SRCFILES[@]}" | tar -C "$ROOT" --null -T - -cf - |
@@ -121,9 +123,9 @@ RootSpeak $VERSION - Advanced Messaging System for Linux - source code
 https://rootspeak.nicfio.it
 
 The source code of RootSpeak, published so that anyone can check what it does
-on their machines. It is source-available, not open source: you may read it,
-build it and change it for your own use; you may not give changed versions to
-others or sell it. The terms are in LICENSE.
+on their machines. It is published under the PolyForm Noncommercial License
+1.0.0: free for any noncommercial use, including changes; commercial use
+needs a licence from the author. The terms are in LICENSE.md.
 
 Build (gcc, make, pkg-config and the systemd development files: libsystemd-dev
 on Debian and Ubuntu, systemd-devel on Fedora, RHEL and openSUSE):
@@ -142,7 +144,7 @@ technical manual describes the architecture, the message store and security.
 
 Copyright (c) 2026 Nicola Fiorillo. Contact: rootspeak@nicfio.it
 EOF
-for f in src/rspeak.c install.sh LICENSE; do
+for f in src/rspeak.c install.sh LICENSE.md; do
 	[ -s "$OUT/$SRCNAME/$f" ] || { echo "the source archive has no $f" >&2; exit 1; }
 done
 for f in CLAUDE.md site tools/release.sh docs/decisions-and-history.md; do

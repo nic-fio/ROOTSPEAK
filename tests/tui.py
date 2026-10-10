@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 """RootSpeak - Advanced Messaging System for Linux
 Tests the administrators' TUI (rspeak without arguments) on a virtual
 terminal, in test mode on a temporary message store: it opens it, presses keys

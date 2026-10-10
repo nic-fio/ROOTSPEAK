@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # RootSpeak - Advanced Messaging System for Linux
 # Hook for interactive fish (/etc/fish/conf.d/rootspeak.fish): before every
 # prompt it shows the administrator's messages and asks for the read confirmation.

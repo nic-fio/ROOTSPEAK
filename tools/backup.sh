@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Packs the whole project into a single file: a git bundle with every branch,
 # every tag and the complete history. It is restored without network and
 # without GitHub:

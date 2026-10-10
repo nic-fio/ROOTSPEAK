@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Engine tests: sending, mailbox, confirmations, in test mode (no root, on a
 # temporary message store). Usage: tests/engine.sh [-v]   (-v shows the output)

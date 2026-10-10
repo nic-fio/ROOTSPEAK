@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # RootSpeak - Advanced Messaging System for Linux
 # Real TUI screenshots for the manuals: in the test machine (a container with
 # real users and sessions) it prepares a few messages, has the users confirm and

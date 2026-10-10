@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Nicola Fiorillo
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # RootSpeak - Advanced Messaging System for Linux
 # Hook for the shells. bash asks for the confirmation at every prompt
 # (rootspeak.bash); zsh and fish have their own hook (rootspeak.zsh from zshrc,
