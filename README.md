@@ -208,12 +208,14 @@ Copyright (c) 2026 Nicola Fiorillo. RootSpeak is **free for any
 noncommercial use**: personal use, study, hobby projects, and use by
 noncommercial organisations such as schools, charities and public bodies. Its
 source code is published under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md), from the version after
-0.2.1. For **commercial use**, including use at work inside a company, write
+[PolyForm Noncommercial License 1.0.0](LICENSE.md), which covers the current
+version, 0.2.1, too. For **commercial use**, including use at work inside a company, write
 to **rootspeak@nicfio.it**. [NOTICE.md](NOTICE.md) has the required notice and
 the third-party components (none embedded).
 
-Version 0.2.1 was released under the RootSpeak Source-Available Licence
-([LICENSE-0.2.1](LICENSE-0.2.1)), version 0.2.0 under the RootSpeak Freeware
-Licence ([LICENSE-0.2.0](LICENSE-0.2.0)); copies of those versions keep their
-licence.
+Whoever has a copy of version 0.2.1 or of an earlier version may use it, at
+their choice, under the licence it was released with or under the PolyForm
+Noncommercial License 1.0.0. The earlier licences:
+
+- version 0.2.1: RootSpeak Source-Available Licence ([LICENSE-0.2.1](LICENSE-0.2.1));
+- version 0.2.0: RootSpeak Freeware Licence ([LICENSE-0.2.0](LICENSE-0.2.0)).

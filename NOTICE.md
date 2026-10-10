@@ -3,14 +3,17 @@
 Required Notice: Copyright (c) 2026 Nicola Fiorillo (https://nicfio.it)
 
 RootSpeak - Advanced Messaging System for Linux - is released under the
-**PolyForm Noncommercial License 1.0.0**. See [LICENSE.md](LICENSE.md). It is
-free for any noncommercial use; for commercial use write to
+**PolyForm Noncommercial License 1.0.0**, the current version 0.2.1 included.
+See [LICENSE.md](LICENSE.md). It is free for any noncommercial use; for commercial use write to
 **rootspeak@nicfio.it**. The source code is published so that anyone can
 check what RootSpeak does on their machines.
 
-Version 0.2.1 was released under the RootSpeak Source-Available Licence
-(`LICENSE-0.2.1`), version 0.2.0 under the RootSpeak Freeware Licence
-(`LICENSE-0.2.0`); copies of those versions keep their licence.
+Whoever has a copy of version 0.2.1 or of an earlier version may use it, at
+their choice, under the licence it was released with or under the PolyForm
+Noncommercial License 1.0.0. The earlier licences:
+
+- version 0.2.1: RootSpeak Source-Available Licence ([LICENSE-0.2.1](LICENSE-0.2.1));
+- version 0.2.0: RootSpeak Freeware Licence ([LICENSE-0.2.0](LICENSE-0.2.0)).
 
 ## Third-party components
 
