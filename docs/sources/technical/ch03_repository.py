@@ -256,7 +256,7 @@ RELEASE = flow([("tools/release.sh", "on the test server", "dark"), ("rhel-9 ima
 S6 = p("RootSpeak is distributed as built programs: a package for each family of distributions and an archive, "
        + c("rootspeak-VERSION-linux-x86_64.tar.gz") + ", for the others. They all carry the same programs, built "
        "once. Next to them, " + c("rootspeak-VERSION-source.tar.gz") + " carries the source code (PolyForm "
-       "Noncommercial License 1.0.0, from the version after 0.2.1).", lead=True) + \
+       "Noncommercial License 1.0.0, 0.2.1 included).", lead=True) + \
     RELEASE + steps([
     c("tools/release.sh") + " copies the files under version control to the test server and builds them in the "
     "image of RHEL 9 of the compatibility tests: RHEL 9 and its rebuilds have the oldest C library among the "

@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RootSpeak — send messages to Linux users and know who read them</title>
-<meta name="description" content="RootSpeak, free for Linux administrators: send a message to the users of a machine, in every terminal and on the desktop, and see who has confirmed reading it. Tested on 22 distributions.">
+<meta name="description" content="RootSpeak, free for noncommercial use: send a message to the users of a machine, in every terminal and on the desktop, and see who has confirmed reading it. Tested on 22 distributions.">
 <link rel="canonical" href="https://rootspeak.nicfio.it/">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="RootSpeak">
 <meta property="og:title" content="RootSpeak — Tell every user. Know who read it.">
-<meta property="og:description" content="Messages from root that Linux users actually see, in every terminal and on the desktop, with a confirmation for each person. Free.">
+<meta property="og:description" content="Messages from root that Linux users actually see, in every terminal and on the desktop, with a confirmation for each person. Free for noncommercial use.">
 <meta property="og:url" content="https://rootspeak.nicfio.it/">
 <meta property="og:image" content="https://rootspeak.nicfio.it/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -235,7 +235,7 @@ footer nav{display:flex;gap:24px}footer a{color:#dfe7ff}
 <div class="hero"><div class="wrap">
  <span class="eyebrow">Advanced Messaging System for Linux</span>
  <h1>Tell every user. <span>Know who read it.</span></h1>
- <p class="lede">RootSpeak, free of charge, lets the administrators of a Linux machine send messages to its users, in every terminal and on the desktop, and see for each person whether the message was delivered and confirmed.</p>
+ <p class="lede">RootSpeak, free for noncommercial use, lets the administrators of a Linux machine send messages to its users, in every terminal and on the desktop, and see for each person whether the message was delivered and confirmed.</p>
  <div class="cta"><a class="btn" href="#get">Download — free</a><a class="btn ghost" href="#how">See how it works</a></div>
  </div>
  <div class="sky">
@@ -365,8 +365,8 @@ sara             <span class="st-delivered">delivered</span></pre></div>
 <span class="c-out">$</span> cd rootspeak-0.2.1-linux-x86_64
 <span class="c-out">$</span> <span class="c-cmd">./install.sh</span></pre></div>
    <a class="btn" href="download/rootspeak-0.2.1-linux-x86_64.tar.gz">Download the archive →</a>
-   <p class="files"><a href="download/SHA256SUMS">SHA256SUMS</a> · <a href="download/LICENSE.txt">LICENSE.txt</a> · <a href="download/NOTICE.txt">NOTICE.txt</a></p></div>
-  <div class="plan"><span class="k">Licence · PolyForm Noncommercial 1.0.0</span><div class="v">Free</div><p>Free for any noncommercial use: at home, for study and hobby projects, in schools, charities and public bodies, on any number of machines.</p><p>The source code is public: read it, check what RootSpeak does as root, build it yourself, change it. Commercial use, including use at work inside a company, needs a written licence: write to <a href="mailto:rootspeak@nicfio.it">rootspeak@nicfio.it</a>. Version 0.2.1 keeps the RootSpeak Source-Available Licence it was released with.</p><a class="btn" href="download/rootspeak-0.2.1-source.tar.gz">Download the source →</a> <a class="btn ghost" href="licence.html">Read the licence</a></div>
+   <p class="files"><a href="download/SHA256SUMS">SHA256SUMS</a> · <a href="download/LICENSE.txt">LICENSE.txt</a> · <a href="download/NOTICE.txt">NOTICE.txt</a> · <a href="https://github.com/nic-fio/ROOTSPEAK">Source code on GitHub</a></p></div>
+  <div class="plan"><span class="k">Licence · PolyForm Noncommercial 1.0.0</span><div class="v">Free</div><p>Free for any noncommercial use: at home, for study and hobby projects, in schools, charities and public bodies, on any number of machines.</p><p>The source code is public: read it, check what RootSpeak does as root, build it yourself, change it. Commercial use, including use at work inside a company, needs a written licence: write to <a href="mailto:rootspeak@nicfio.it">rootspeak@nicfio.it</a>. The PolyForm Noncommercial License covers version 0.2.1 too; 0.2.1 was released under the RootSpeak Source-Available Licence, 0.2.0 under the RootSpeak Freeware Licence: whoever has a copy may use it under that licence or under the PolyForm Noncommercial License, at their choice.</p><a class="btn" href="download/rootspeak-0.2.1-source.tar.gz">Download the source →</a> <a class="btn ghost" href="licence.html">Read the licence</a></div>
  </div>
  <div class="envs">
   <div><h3>Check the download</h3><p>Put <code>SHA256SUMS</code> next to the file: <code>sha256sum -c --ignore-missing SHA256SUMS</code>. The packages are not signed: this is the check.</p></div>
@@ -377,7 +377,7 @@ sara             <span class="st-delivered">delivered</span></pre></div>
 
 <section id="faq"><div class="wrap">
  <div class="intro c"><div class="kick">FAQ</div><h2>Questions</h2></div>
- <div class="faq"><div><h3>Is it really free?</h3><p>Yes, for any noncommercial use: no trial, no account, no limits. Commercial use, including use at work inside a company, needs a written licence.</p></div><div><h3>Can I see the source code?</h3><p>Yes. It runs as root and hooks into the login shells, so you should be able to check it: the source archive is next to the packages, and <code>./install.sh</code> builds it. It is published under the PolyForm Noncommercial License 1.0.0: source available, not open source.</p></div><div><h3>Does it need a server or a network?</h3><p>No. RootSpeak works on one machine: no network, no daemon. It uses what the system already has: logind, sudo, the shell and desktop autostart.</p></div><div><h3>Do users need to install anything?</h3><p>No. Users have no command and install nothing: they receive the message and confirm it.</p></div><div><h3>What if a user is not logged in?</h3><p>They get the message at their next login, in the terminal or on the desktop.</p></div><div><h3>Can it lock the screen until they confirm?</h3><p>No, by design. RootSpeak never blocks anyone: users can always choose «Later», and it reminds them every 30 minutes by default until they confirm.</p></div><div><h3>Does «confirmed» prove they read it?</h3><p>It records that the user states they have read the message, like read receipts in a messaging app, with date, time and channel.</p></div></div>
+ <div class="faq"><div><h3>Is it really free?</h3><p>Yes, for any noncommercial use: no trial, no account, no limits. Commercial use, including use at work inside a company, needs a written licence.</p></div><div><h3>Can I see the source code?</h3><p>Yes. It runs as root and hooks into the login shells, so you should be able to check it: the source archive is next to the packages, the repository is <a href="https://github.com/nic-fio/ROOTSPEAK">on GitHub</a>, and <code>./install.sh</code> builds it. It is published under the PolyForm Noncommercial License 1.0.0: source available, not open source.</p></div><div><h3>Does it need a server or a network?</h3><p>No. RootSpeak works on one machine: no network, no daemon. It uses what the system already has: logind, sudo, the shell and desktop autostart.</p></div><div><h3>Do users need to install anything?</h3><p>No. Users have no command and install nothing: they receive the message and confirm it.</p></div><div><h3>What if a user is not logged in?</h3><p>They get the message at their next login, in the terminal or on the desktop.</p></div><div><h3>Can it lock the screen until they confirm?</h3><p>No, by design. RootSpeak never blocks anyone: users can always choose «Later», and it reminds them every 30 minutes by default until they confirm.</p></div><div><h3>Does «confirmed» prove they read it?</h3><p>It records that the user states they have read the message, like read receipts in a messaging app, with date, time and channel.</p></div></div>
 </div></section>
 </main>
 

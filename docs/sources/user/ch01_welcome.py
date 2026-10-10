@@ -101,18 +101,21 @@ S4 = table(["Convention", "Meaning"], [
     warn(c("rspeak") + " always works as administrator (root) and asks for the sudo password, even just to show "
          "the help: this is a deliberate choice, not a bug.", "Always with sudo.")
 
-S5 = p("RootSpeak is <b>free of charge and source-available</b>: it costs nothing, at home or at work, on any number "
-       "of machines, also when you administer the machines of a company, a school or a customer, and its source code "
-       "is downloaded from the website with the packages, so that you can check what it does on your machines. The "
-       "terms are in the RootSpeak Source-Available Licence, the file " + c("LICENSE") + " published with the "
-       "programs.") + \
-    table(["You may, free of charge", "You may not, without a written licence"], [
-        ["use RootSpeak for anything, also as a tool in paid work", "<b>sell</b> it, or charge a fee for it"],
-        ["install it on any number of machines, also with your own deployment tools, and change its settings",
-         "include it in a product or service that is sold"],
-        ["copy it and give it to anyone, unchanged, with the licence", "give <b>changed versions</b> to others"],
-        ["read and check the source code, build it yourself, change it for your own use",
-         "remove the copyright and licence notices"],
+S5 = p("RootSpeak is <b>free for any noncommercial use</b>: personal use, study, hobby projects, and use by schools, "
+       "charities and public bodies, on any number of machines. For commercial use, including use at work inside a "
+       "company, a written licence is needed. Its source code is public, downloaded from the website with the packages "
+       "and on GitHub, so that you can check what it does on your machines. The terms are in the PolyForm "
+       "Noncommercial License 1.0.0, the file " + c("LICENSE.md") + " published with the programs; " + c("NOTICE.md")
+       + " carries the required notice. Version 0.2.1 was released under the RootSpeak Source-Available Licence and "
+       "0.2.0 under the RootSpeak Freeware Licence: whoever has a copy may use it under that licence or under the "
+       "PolyForm Noncommercial License, at their choice.") + \
+    table(["You may, free of charge", "You need a written licence for"], [
+        ["use RootSpeak for any noncommercial purpose, on any number of machines",
+         "<b>commercial use</b>, including use at work inside a company"],
+        ["read and check the source code, build it yourself, change it",
+         "selling it, or including it in a product or service that is sold"],
+        ["give copies to others for noncommercial purposes, with the licence and the required notice",
+         "removing the copyright and licence notices"],
     ], "«TAB» — The licence in short") + \
     note("to include RootSpeak in a product, or for anything else the licence does not allow, write to "
          "<b>rootspeak@nicfio.it</b>.", "A written licence.")

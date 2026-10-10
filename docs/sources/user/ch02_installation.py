@@ -58,7 +58,7 @@ PACKAGES = table(["Distribution", "File", "Install with"], [
     ["any other with systemd", c(ARCHIVE + ".tar.gz"), c("./install.sh") + " from the extracted folder"],
 ], "«TAB» — The download for each family of distributions")
 
-S2 = p("RootSpeak is free (" + ref(1) + ", “Licence”) and is downloaded from its website, "
+S2 = p("RootSpeak is free for noncommercial use (" + ref(1) + ", “Licence”) and is downloaded from its website, "
        "<b>rootspeak.nicfio.it</b>, as a package for the package manager of your distribution: a " + c(".deb")
        + " for Debian and Ubuntu, an " + c(".rpm") + " for the Fedora, RHEL and SUSE families, a package for Arch "
        "Linux. The programs are already built, nothing needs to be compiled; the package manager knows every file "

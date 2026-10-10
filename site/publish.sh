@@ -39,6 +39,11 @@ mkdir -p "$OUT/download"
 cp "$ROOT/site/landing/index.html" "$OUT/index.html"
 cp "$ROOT/docs/User Manual.html" "$ROOT/docs/Technical Manual.html" "$OUT/"
 python3 "$ROOT/site/licence-page.py" "$ROOT/LICENSE.md" > "$OUT/licence.html"
+# the earlier licences, linked from licence.html: their versions may still be
+# used under them, at the user's choice
+mkdir -p "$OUT/licences"
+cp "$ROOT/LICENSE-0.2.1" "$OUT/licences/LICENSE-0.2.1.txt"
+cp "$ROOT/LICENSE-0.2.0" "$OUT/licences/LICENSE-0.2.0.txt"
 
 # canonical URL, link preview and a search-friendly title for each page
 SEO=$ROOT/site/seo-head.py

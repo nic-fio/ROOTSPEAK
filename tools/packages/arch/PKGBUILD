@@ -21,5 +21,6 @@ package() {
 	# (the stage is readable by makepkg's user: the command goes back to 750)
 	chmod 750 "$pkgdir/usr/bin/rspeak"
 	install -d "$pkgdir/usr/share/licenses/rootspeak"
-	ln -s ../../doc/rootspeak/LICENSE "$pkgdir/usr/share/licenses/rootspeak/LICENSE"
+	ln -s ../../doc/rootspeak/LICENSE.md "$pkgdir/usr/share/licenses/rootspeak/LICENSE.md"
+	ln -s ../../doc/rootspeak/NOTICE.md "$pkgdir/usr/share/licenses/rootspeak/NOTICE.md"
 }
